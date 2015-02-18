@@ -1,7 +1,6 @@
 import logging
 from stubo.ext.xmlutils import XPathValue
 from stubo.ext.xmlexit import XMLManglerExit
-from stubo.ext.ba import mangle
 
 log = logging.getLogger(__name__)
 

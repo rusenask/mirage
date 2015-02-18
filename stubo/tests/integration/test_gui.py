@@ -332,14 +332,6 @@ class TestManage(Base):
 </div>"""  in response.body)
              
 
-class TestDocs(Base):   
-
-    def test_page_exists(self):
-        self.http_client.fetch(self.get_url('/docs'), self.stop)
-        response = self.wait()
-        self.assertEqual(response.code, 200)
-        self.assertTrue('text/html' in response.headers["Content-Type"])
-                        
 class TestAnalytics(Base):   
 
     def test_page_exists(self):
