@@ -1,0 +1,34 @@
+# handle multiple states for multiple stubs
+
+delete/stubs?scenario=conv&force=true
+
+begin/session?scenario=conv&session=conv&mode=record
+put/stub?session=conv, converse_a.textMatcher, converse_a1.response
+put/stub?session=conv, converse_a.textMatcher, converse_a2.response
+put/stub?session=conv, converse_a.textMatcher, converse_a3.response
+
+put/stub?session=conv, converse_b.textMatcher, converse_b1.response
+put/stub?session=conv, converse_b.textMatcher, converse_b2.response
+put/stub?session=conv, converse_b.textMatcher, converse_b3.response
+
+put/stub?session=conv, converse_c.textMatcher, converse_c1.response
+put/stub?session=conv, converse_c.textMatcher, converse_c2.response
+put/stub?session=conv, converse_c.textMatcher, converse_c3.response
+end/session?session=conv
+
+begin/session?scenario=conv&session=joe&mode=playback
+begin/session?scenario=conv&session=mary&mode=playback
+get/response?session=joe, converse_a.request
+get/response?session=joe, converse_b.request
+get/response?session=joe, converse_c.request
+get/response?session=joe, converse_a.request
+get/response?session=joe, converse_a.request
+get/response?session=joe, converse_b.request
+
+get/response?session=mary, converse_a.request
+get/response?session=mary, converse_b.request
+get/response?session=mary, converse_c.request
+get/response?session=mary, converse_a.request
+
+#end/session?session=joe
+#end/session?session=mary

@@ -1,0 +1,8 @@
+delete/stubs?scenario=x&force=true
+begin/session?scenario=x&session=y&mode=record
+put/stub?session=y,utf8.xml,text=hello
+end/session?session=y
+
+begin/session?scenario=x&session=y&mode=playback
+get/response?session=y,utf8.xml
+end/session?session=y

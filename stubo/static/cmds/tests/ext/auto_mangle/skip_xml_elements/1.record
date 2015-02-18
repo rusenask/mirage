@@ -1,0 +1,7 @@
+put/module?name=/static/cmds/tests/ext/auto_mangle/skip_xml_elements/ignore.py
+delete/stubs?scenario=ignore_xml&force=true
+
+begin/session?scenario=ignore_xml&session=ignore_xml1&mode=record
+put/stub?session=ignore_xml1&ext_module=ignore&tracking_level=full, matcher.xml, response.xml
+end/session?session=ignore_xml1
+

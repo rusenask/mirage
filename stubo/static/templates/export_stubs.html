@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h3>Exported files for Scenario: <em>{{scenario}}</em></h3>
+<p>Right-click and save locally to download files.</p>
+
+{% for link in links %}
+        {% if link[0][-3:] == "zip" %}
+        <ul class="list-group">
+        <p>zip archive containing all files</p>
+        <li class="list-group-item"><a href="{{link[1]}}"><span class="glyphicon glyphicon-cloud-download"></span>&nbsp;{{link[0]}}</a></li> 
+        </ul><br/>
+        {% elif link[0][-3:] == ".gz" %}
+        <ul class="list-group">
+        <p>tarball archive containing all files</p>
+        <li class="list-group-item"><a href="{{link[1]}}"><span class="glyphicon glyphicon-cloud-download"></span>&nbsp;{{link[0]}}</a></li>  
+        </ul><br/>
+        {% elif link[0][-3:] == "jar" %}
+        <ul class="list-group">
+        <p>jar archive containing all files</p>
+        <li class="list-group-item"><a href="{{link[1]}}"><span class="glyphicon glyphicon-cloud-download"></span>&nbsp;{{link[0]}}</a></li>  
+        </ul><br/>
+        {% end %}
+{% end %}
+
+{% for link in links %}
+    <ul class="list-group">
+        {% if link[0][-3:] not in ('zip', '.gz', 'jar') %}        
+           <li class="list-group-item"><a href="{{link[1]}}"><span class="glyphicon glyphicon-cloud-download"></span>&nbsp;{{link[0]}}</a></li>  
+        {% end %}
+    </ul> 
+    <br/>
+{% end %}
+
+
+
+
+{% end %}

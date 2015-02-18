@@ -1,0 +1,5 @@
+delete/stubs?scenario=embedded&force=true
+put/module?name=/static/cmds/tests/ext/auto_mangle/embedded/embedded.py
+begin/session?scenario=embedded&session=embedded_rec&mode=record
+put/stub?session=embedded_rec&ext_module=embedded,embedded.request.xml,embedded.response.xml
+end/session?session=embedded_rec

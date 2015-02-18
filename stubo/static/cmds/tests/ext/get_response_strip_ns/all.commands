@@ -1,0 +1,10 @@
+put/module?name=/static/cmds/tests/ext/get_response_strip_ns/strip_ns.py
+delete/stubs?scenario=strip_namespace&force=true
+
+begin/session?scenario=strip_namespace&session=strip_namespace1&mode=record
+put/stub?session=strip_namespace1&ext_module=strip_ns&tracking_level=full, matcher.xml, response.xml
+end/session?session=strip_namespace1
+
+begin/session?scenario=strip_namespace&session=strip_namespace1&mode=playback
+get/response?session=strip_namespace1&tracking_level=full&request=1, request.xml
+end/session?session=strip_namespace1

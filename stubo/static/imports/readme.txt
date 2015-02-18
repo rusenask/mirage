@@ -1,0 +1,1 @@
+This directory is used to uncompress command tarballs/zips.

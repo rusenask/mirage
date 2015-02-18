@@ -1,0 +1,7 @@
+Stubo Changelog
+=====================
+
+0.6
+----
+
+Initial cut of open source version

@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% raw client_data %}
+<script type="text/javascript">
+   var auto_data = window._client_data || {}; 
+</script>
+
+
+{% import json %}
+<table class="table table-borderless">
+<tbody> 
+
+{% set function = tracking_data.get('function') %}
+
+{% for key in ('host', 'server', 'scenario') %}
+    {% if key in tracking_data %}
+    <tr class="attribute">
+        <th><span class="text-muted">{{key}}</span></th> 
+        {% if key == 'scenario' and function == 'get/response' and stub_count %}
+            <td>{{tracking_data['scenario']}}
+            <a href="../stubs?scenario={{tracking_data.get('scenario')}}" class="btn btn-primary btn-xs" role="button">View</a></td>
+        {% else %}
+            <td>{{tracking_data[key]}}</td> 
+        {% end %} 
+    </tr> 
+    {% end %}
+{% end %} 
+
+{% for key in ('duration_ms', 'function', 'port', 'remote_ip') %}
+    {% if key in tracking_data %}
+    <tr class="attribute">
+        <th><span class="text-muted">{{key}}</span></th> 
+        <td>{{tracking_data[key]}}</td> 
+    </tr> 
+    {% end %}
+{% end %}  
+
+<tr class="attribute">
+    <th><span class="text-muted">request_headers</span></th> 
+    <td><pre>{{ json.dumps(tracking_data['request_headers'], sort_keys=True, indent=4) }}</pre></td> 
+</tr> 
+
+<tr class="attribute">
+    <th><span class="text-muted">request_params<br> <small>including from put/stub call</small></span></th> 
+    <td><pre>{{ json.dumps(tracking_data['request_params'], sort_keys=True, indent=4) }}</pre></td> 
+</tr> 
+ 
+
+{% for key in ('request_method', 'request_size') %}
+    {% if key in tracking_data %}
+    <tr class="attribute">
+        <th><span class="text-muted">{{key}}</span></th> 
+        {% if key == 'request_size' %}
+            <td>{{human_size(tracking_data[key])}}</td>
+        {% else %}
+             <td><pre>{{tracking_data[key]}}</pre></td>
+        {% end %} 
+    </tr> 
+    {% end %}
+{% end %} 
+
+{% for key in ('request_text',) %}
+    {% if key in tracking_data %}
+    <tr class="attribute">
+        <th>
+          <span class="text-muted">{{key}}</span>
+          <span class="pull-right"><button id="request-pretty-print" 
+                type="button" class="btn btn-primary btn-xs">pretty</button></span>
+        </th>
+        <td><pre id="request-text">{{tracking_data[key]}}</pre></td>
+    </tr> 
+    {% end %}
+{% end %} 
+
+<tr class="attribute">
+    <th><span class="text-muted">response headers</span></th> 
+    <td><pre>{{ json.dumps(tracking_data['response_headers'], sort_keys=True, indent=4) }}</pre></td> 
+</tr> 
+
+<tr class="attribute">
+<th>
+<span class="text-muted">response</span>
+<span class="pull-right"><button id="response-pretty-print" 
+    type="button" class="btn btn-primary btn-xs">pretty</button></span>
+</th> 
+{% if function == 'get/response' and tracking_data.get('return_code') == 200 %}
+    <td><pre id="response-text">{{tracking_data['stubo_response']}}</pre></td> 
+{% else %}     
+    <td><pre>{{ json.dumps(tracking_data['stubo_response'], sort_keys=True, indent=4) }}</pre></td> 
+{% end %}  
+ </tr>
+ 
+{% for key in ('response_size', 'return_code') %}
+    {% if key in tracking_data %}
+    <tr class="attribute">
+        <th><span class="text-muted">{{key}}</span></th> 
+        {% if key == 'response_size' %}
+            <td>{{human_size(tracking_data[key])}}</td>
+        {% else %}
+             <td>{{tracking_data[key]}}</td>
+        {% end %} 
+    </tr> 
+    {% end %}
+{% end %} 
+
+<tr class="attribute">
+    <th><span class="text-muted">start time</span></th> 
+    <td><pre>{{ tracking_data['start_time'].strftime('%Y-%m-%d %H:%M:%S.%f UTC') }}</pre></td> 
+</tr>
+
+
+
+{% if tracking_data['tracking_level'] == 'full' and function in ('put/stub', 'get/response') %}
+<tr class="attribute">
+ <th>
+  <span class="text-muted">trace</span>
+  <span class="pull-right"><button id="misses-toggle" data-toggle="collapse" data-target="#trace-container" 
+        type="button" class="btn btn-success btn-xs">open/close</button></span>
+ </th> 
+<td id="trace-container" class="collapse in"> 
+ <table class="table table-condensed ">
+   <tbody id="trace">        
+   </tbody>                    
+ </table>                       
+</td>                                       
+</tr>    
+{% end %}   
+
+    
+</tbody>
+</table>       
+
+{% if tracking_data['tracking_level'] == 'full' and function in ('put/stub', 'get/response') %}
+<script>
+    $.each(Object.keys(auto_data), function(index, value) {      
+      $.each(auto_data[value], function(index, value) {
+             //console.log("value:" + value);
+             var ts = value[0].slice(11, value[0].length);
+             var info = value[1];
+             //console.log(ts, info); 
+             var status = info[0];
+             if (info[0] == "ok") {
+                 status = "info";
+             } else if (info[0] == "warn") {
+                 status = "warning";
+             } else if (info[0] == "error") {
+                 status = "danger";
+             }       
+             var row = '<tr class="' + status + '">' + 
+                         "<td>" + info[1] + "</td>" + 
+                         "<td>" + ts + "</td></tr>";
+             $("tbody#trace").append(row);            
+             if (info.length == 3 && info[2] != null) {
+                  row = "<tr><td>" + info[2] +"</td></tr>";
+                  $("tbody#trace").append(row);  
+             }                    
+             if (info.length == 4) {
+                 var left = jQuery.parseJSON(info[2]);
+                 var right = jQuery.parseJSON(info[3]);
+                 var delta = jsondiffpatch.diff(left, right);
+                 row = '<tr><td colspan="3">';
+                 // beautiful html diff
+                 row = '<tr><td colspan="3">' +
+                       '<div id="visual">' + jsondiffpatch.formatters.html.format(delta, left) + '</div>' +
+                       "</td></tr>"; 
+                 $("tbody#trace").append(row);              
+             } 
+      })
+    })     
+    
+    beautify($('#request-text').text(),
+             '#request-pretty-print',
+             '#request-text');
+    beautify($('#response-text').text(),
+             '#response-pretty-print',
+             '#response-text');                                 
+</script>
+{% end %} 
+
+{% end %}

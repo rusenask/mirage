@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block content %}
+
+<script type="text/javascript">
+  $(document).ready(function () {
+     $('.closeall').click(function(){
+        $(this).parents('.panel-heading')
+        .next('.panel-collapse')
+        .collapse('show')
+        .find('.panel-collapse')
+        .collapse('toggle');
+    });
+    
+    $('.closeall').parents('.panel-heading')
+        .next('.panel-collapse')
+        .collapse('show'); 
+    });   
+     
+</script>
+
+{% import json %}
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+            <h2 class="panel-title">
+            Scenario: {{ scenario }}
+            <span class="pull-right"><button id="stubs-toggle" type="button" class="closeall btn btn-success btn-xs">open/close all stubs</button></span>   
+            </h2>
+    </div>
+
+<div id="collapse-stubs" class="panel-collapse collapse">
+<div class="panel-body">
+{% for i in range(len(stubs)) %}
+    {% set stub_item = stubs[i] %}
+        
+        <div class="panel panel-success">
+                <div class="panel-heading">
+                        <h2 class="panel-title">
+                            <a href="#collapse-{{i}}" data-parent="#collapsible-stubs" class="accordion-toggle" data-toggle="collapse"><h3>stub <span class="badge">{{i}}</span>&nbsp;&raquo;</h3></a>
+                        </h2>
+                </div>
+                <div id="collapse-{{i}}" class="panel-collapse collapse">
+                    <div class="panel-body">
+                    {% if stub_item.module() %}
+                      <h3>module</h3>
+                      <pre>{{ json.dumps(stub_item.module(), sort_keys=True, indent=4)  }}</pre>
+                    {% end %}
+                       
+                    {% for matcher_index in range(len(stub_item.contains_matchers())) %}
+                        {% set matcher = stub_item.contains_matchers()[matcher_index] %}
+                        {% set matcher_id = "stub-{0}-matcher-{1}".format(i, matcher_index) %}
+                         <ul class="list-group">
+                          <li class="list-group-item">
+                              <span class="pull-right"><button id="{{matcher_id}}-pretty-print" 
+                                type="button" class="btn btn-primary btn-xs">pretty</button>
+                              </span>
+                              <h3>matcher <span class="badge">{{matcher_index}}</span></h3>
+                              <pre id="{{matcher_id}}-text">{% raw pretty_format(matcher) %}</pre>
+                          </li>   
+                        </ul>
+                        <script>
+                            beautify($('#{{matcher_id}}-text').text(),
+                            '#{{matcher_id}}-pretty-print',
+                            '#{{matcher_id}}-text'); 
+                        </script>
+                    {% end %}       
+                    
+                    {% set response = stub_item.response_body() %}  
+                    {% if response %}     
+                    {% for response_index in range(len(response)) %}
+                        {% set response_id = "stub-{0}-response-{1}".format(i, response_index) %}
+                        <ul class="list-group">
+                          <li class="list-group-item">
+                          <span class="pull-right"><button id="{{response_id}}-pretty-print" 
+                                type="button" class="btn btn-primary btn-xs">pretty</button>
+                          </span>
+                            <h3>response <span class="badge">{{response_index}}</span></h3>
+                            <pre id="{{response_id}}-text">{% raw pretty_format(response[response_index]) %}</pre>
+                          </li>
+                        </ul>  
+                        <script>
+                            beautify($('#{{response_id}}-text').text(),
+                            '#{{response_id}}-pretty-print',
+                            '#{{response_id}}-text'); 
+                        </script>   
+                    {% end %}
+                    {% end %}
+                    </div>
+                </div>
+        </div>
+  
+{% end %}
+</div>
+</div>
+</div>           
+             
+{% end %}
+
+
+
+

@@ -1,0 +1,3 @@
+begin/session?scenario=all&session=all_play&mode=playback
+get/response?session=all_play&tracking_level=full, request.xml
+end/session?session=all_play

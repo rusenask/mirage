@@ -1,0 +1,8 @@
+  <?xml version="1.0" encoding="UTF-8" ?> 
+  <user2:Request xmlns:user2="http://www.my.com/userschema" xmlns:info="http://www.my.com/infoschema">
+  <user2:Body>
+  <user2:InformationSystemUserIdentity>
+  <info:UserId xmlns:info="http://www.my.com/infoschema">joe</info:UserId> 
+  </user2:InformationSystemUserIdentity>
+  </user2:Body>
+  </user2:Request>

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<rollme>                        
+   <OriginDateTime>{{roll_date("2014-09-10", as_date(rec_date), as_date(play_date))}}T00:00:00Z</OriginDateTime>
+</rollme>

@@ -1,0 +1,15 @@
+#  Demonstrate the command files can pull files from other locations than the
+#  current, local folder.
+
+{% set foreign_url = 'http://www.bbc.co.uk' %}
+{% set other_url = 'http://www.sun.com' %}
+
+delete/stubs?scenario=smart
+begin/session?scenario=smart&session=smart_1&mode=record
+put/stub?session=smart_1,url={{other_url}},url={{foreign_url}}
+put/stub?session=smart_1,text=random_rubble,text=response_text
+end/session?session=smart_1
+
+begin/session?scenario=smart&session=smart_1&mode=playback
+get/response?session=smart_1,text=random_rubble
+end/session?session=smart_1

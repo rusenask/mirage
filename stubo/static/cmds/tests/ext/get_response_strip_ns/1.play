@@ -1,0 +1,3 @@
+begin/session?scenario=strip_namespace&session=strip_namespace1&mode=playback
+get/response?session=strip_namespace1&tracking_level=full&request=1, request.xml
+end/session?session=strip_namespace1

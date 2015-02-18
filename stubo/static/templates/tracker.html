@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+{% block content %}
+<script type="text/javascript">
+$(document).ready(function() {  
+    var uri = "/stubo/api/get/setting?setting=tracking_level";
+    $.getJSON(uri)
+      .done(function(json) {
+          enable_tracing_set =  (json["data"]["tracking_level"] === "full");
+          $('input#enable_tracing').prop("checked", enable_tracing_set);
+          //show_alert("tracing is set to -> " + json["data"]["tracking_level"], "alert-info");
+      })
+      .fail(function(jqxhr, textStatus, error) {
+        var err = textStatus + ", " + error;
+        show_alert("JSON error calling (" + uri + ") : " + err, "alert-danger");
+       });
+    
+    // 'enable tracing' checkbox
+    $('#enable_tracing').click(function () {
+        var thisCheck = $(this);
+        var enableTracing = thisCheck.is (':checked');
+        var settingValue = "normal";
+        if (enableTracing) {
+            settingValue = "full";
+        }   
+        var uri = "/stubo/api/put/setting?setting=tracking_level&value=" + settingValue;
+        $.getJSON(uri)
+          .done(function(json) {
+            show_alert("tracing set to " + settingValue, "alert-info");
+          })
+          .fail(function(jqxhr, textStatus, error) {
+            var err = textStatus + ", " + error;
+            show_alert("JSON error calling (" + uri + ") : " + err, "alert-danger");
+           });
+                 
+    });
+});
+</script>
+<div class="row left-padding">
+   <h4>Filter by:</h4>
+   <form role="form" id="tracker-filter" role="form" action="/tracker" method="get">       
+      <div class="input-group col-lg-4 filter-heading">
+          <span class="input-group-addon tracker-filter-field"
+                data-toggle="tooltip" data-placement="top" 
+                title="'abc' to find any session containing string 'abc', '^abc' for begins with, 'abc$' for ends with.">
+                Session</span>
+      <input id="sesson_filter" type="text"  class="form-control" name="session_filter"  
+                 value="{{session_filter}}" placeholder="(regular expressions accepted)">
+      </div>
+   
+      <div class="input-group col-lg-4 filter-heading">
+          <span class="input-group-addon tracker-filter-field" 
+                data-toggle="tooltip" data-placement="top"
+                title="Jump to a specific date/time, use format: 2013-12-25 07:48:59">
+          Datetime</span>      
+          <input id="start_time" type="text" class="form-control" name="start_time" value="{{start_time}}" placeholder="(e.g. 2013-12-25 07:48:59)">
+      </div>
+      
+      <div class="input-group col-lg-4 filter-heading">
+          <span class="input-group-addon tracker-filter-field" 
+                data-toggle="tooltip" data-placement="top"
+                title="Response latency time greater than value in ms">
+          Latency <span class="glyphicon glyphicon-time"></span></span>
+      <input id="latency" type="text" class="form-control" name="latency" value="{{latency}}" placeholder="(greater than e.g. 200)">
+      </div>
+     
+      <div class="input-group col-lg-4 filter-heading">
+          <span class="input-group-addon tracker-filter-field">Function</span>
+          <select id="filter-function" name="function" class="form-control"> {% raw function_options %} </select>
+      </div>
+
+      <div class="input-group col-lg-1">
+          <div class="panel panel-default table-thin">
+              <table class="table-bordered">
+                  <tbody><tr><td class="active"> <button type="button" id="error-button" class="btn btn-danger btn-md">
+          <span class="tracker-filter-field"
+                data-toggle="tooltip" data-placement="top"
+                title="Only display errors">Errors&nbsp;<span class="glyphicon glyphicon-thumbs-down"></span>&nbsp;
+    </button></td>
+    <td><input type="checkbox" name="show_only_errors" value="true" id="errorB" {{errors_value}}></span></td></tr></tbody></table>
+</div>
+</div>
+      <br>
+      
+  <div id="tracker=filter">
+  <button type="submit" class="btn btn-primary">Filter Results</button>
+  </div>
+
+
+<br>
+<div class="pull-right full-right">
+     <input  id="enable_tracing" type="checkbox" value="true" >
+     <a class="label label-default" data-toggle="tooltip" data-placement="top" 
+           title="Enable full tracking in tracker." href="javascript:fulltracking()" >full tracking</a>
+</div>
+
+
+
+  <input id="tracker-filter-all-hosts" type="hidden" name="all_hosts" value="false">   
+  </form>
+</div>
+
+
+
+
+<span class="pull-right">
+
+
+{% raw  pagination %} ({% raw  total %}&nbsp;rows)
+</span>
+<div class="table-responsive">
+    <table class="table table-striped table-hover table-condensed">
+    <tr class="success">
+      <th></th>
+      <th>Latency (ms)</th>
+      <th>Delay (ms)</th>
+      <th>Function</th>
+      <th>HTTP status</th>
+      <th>Scenario<br/>Session</th>
+      <th id="tracker-pagination">Response</th>
+  </tr>
+  
+{% for row in raw_data %}
+
+  {% set func = row['function'] %}
+
+  <tr>
+   <td>{{ row['start_time'].strftime('%Y-%m-%d %H:%M:%S') }}</td>
+   {% if row.has_key('delay') %}
+     <td align="right">{{ int(round(row['duration_ms'] - row['delay'])) }}</td>
+     <td align="right">{{ int(round(row['delay'])) }}</td>
+   {% else %}
+     <td align="right">{{ int(round(row['duration_ms'])) }}</td>
+     <td>&nbsp;</td>
+   {% end %}
+   <td><a href="/tracker/{{row['_id']}}">{{func}}</a></td>
+      
+     {% if row['return_code'] < 400 %}
+         <td align="right"><span class="glyphicon glyphicon-ok-circle icon-green"</span> {{ row['return_code'] }}</td>
+     {% elif row['return_code'] < 500 %}
+         <td align="right"><span class="glyphicon glyphicon-exclamation-sign icon-amber"</span> {{ row['return_code'] }}</td>
+     {% else %}
+         <td align="right"><span class="glyphicon glyphicon-exclamation-sign icon-red"</span> {{ row['return_code'] }}</td>
+     {% end %}
+
+   {% if row.has_key('scenario') %}
+      {% set scen = row['scenario'] %}
+   {% else %}
+      {% set scen = '' %}
+   {% end %}
+   <td>{{ scen }}<br/>{{row.get('request_params',{}).get(
+       'session', row.get('request_headers', {}).get('Stubo-Request-Session', '')) }}</td>
+
+  {% if row.has_key('stubo_response') %}
+     {% if func == 'get/response' and row['return_code'] == 200   %}
+         {% set response = escape(row['stubo_response']) %} 
+     {% else %}
+         {% set response =  format_response(row['stubo_response']) %}
+     {% end %} 
+    
+    <td>
+    {% if len(response) > max_response %}
+      {% set response = response[:max_response] %}
+    {% end %}   
+    <span data-toggle="tooltip" data-placement="top" 
+       title="{{row['stubo_response']}}">{% raw response %}</span> 
+    </td>
+   
+  {% else %}
+  <td>&nbsp;</td>
+  {% end %}
+
+
+  </tr>
+  {% end %}
+
+</table>
+</div>
+<span class="pull-right">
+{% raw  pagination %} ({% raw  total %}&nbsp;rows)
+</span>
+
+<script type="text/javascript">
+    $('#error-button').click(function (){
+    var thing = document.getElementById("errorB");
+        if (thing.checked == true) {
+            thing.checked = false;
+        }
+        else {
+            thing.checked = true;
+        }
+
+        })
+</script>
+
+<script type="text/javascript">
+    function fulltracking(){
+    var thing = document.getElementById("enable_tracing");
+        if (thing.checked == true) {
+            thing.checked = false;
+        }
+        else {
+            thing.checked = true;
+        }
+
+        }
+    </script>
+
+{% end %}
+
+

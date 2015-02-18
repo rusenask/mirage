@@ -1,0 +1,14 @@
+# Test with big requests and a big response
+
+end/session?session=big
+
+delete/stubs?scenario=big
+begin/session?scenario=big&session=big&mode=record
+#put/stub?session=big,15kb.textMatcher,15kb.response
+put/stub?session=big,15kb.textMatcher,10mb.response
+end/session?session=big
+
+begin/session?scenario=big&session=big&mode=playback
+get/response?session=big,15kb.request
+end/session?session=big
+delete/stubs?scenario=big

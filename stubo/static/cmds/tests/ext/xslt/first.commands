@@ -1,0 +1,11 @@
+put/module?name=/static/cmds/tests/ext/xslt/mangler.py
+delete/stubs?scenario=mangler_xslt&force=true
+
+begin/session?scenario=mangler_xslt&session=mangler_xslt1&mode=record
+put/stub?session=mangler_xslt1&ext_module=mangler, first.request, first.response
+end/session?session=mangler_xslt1
+
+begin/session?scenario=mangler_xslt&session=mangler_xslt1&mode=playback
+get/response?session=mangler_xslt1&tracking_level=full&x=1, first.request
+get/response?session=mangler_xslt1&tracking_level=full&x=2, second.request
+end/session?session=mangler_xslt1

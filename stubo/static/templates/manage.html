@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="panel panel-default">
+   <div class="panel-heading">
+      <h3 class="panel-title">
+         Run Commands
+      </h3>
+   </div>
+   <div class="panel-body">
+   <div class="row box-padding">
+    <form action="/manage/exec_cmds">
+        <div class="input-group col-xs-8">
+              <span class="input-group-addon" 
+                    data-toggle="tooltip" data-placement="top"
+                    title="uri or local file reference to a commands script file.">
+              File</span>      
+              <input id="manage-exe-command" type="text" class="form-control" name="cmdfile" value="{{cmdFile}}"
+              placeholder="/static/cmds/demo/first.commands">
+              <span class="input-group-btn">
+                  <button class="btn btn-primary" type="submit">
+                     run
+                  </button>
+              </span>        
+        </div>
+         <input type="hidden" name="html" value="true"> 
+       
+    </p>
+    </form>
+
+    <form action="/manage/exec_cmds">
+        <input type="hidden" name="html" value="true">
+        <h3 class="panel-title box-padding">
+             Commands  <button class="btn btn-primary" type="submit">run</button> 
+         </h3>
+          <div class="input-group col-xs-8" data-toggle="tooltip" data-placement="top"
+                    title="Enter line separated commands.">
+              <textarea id="manage-exe-commands" class="form-control"  name="cmds"  placeholder="delete/stubs?scenario=foo"></textarea>    
+          </div>
+       </div> 
+    </form>
+    
+   </div>
+</div>
+
+
+
+{% if host_scenarios and host_scenarios.values() != [{}] %}
+<h2>Stubs</h2>
+
+{% for hostname, scenario in host_scenarios.iteritems() %}
+{% if scenario %}
+<div class="panel panel-default">
+   <div class="panel-heading">
+      <h2 class="panel-title">
+        {{hostname}}
+      </h2>
+   </div>
+   <div class="panel-body">
+    <div class="table-responsive">
+    <table class="table table-striped table-hover table-condensed"> 
+    <thead>
+    <tr>
+      <th>Scenario</th>
+      <th>Session</th>
+      <th>Status</th>
+      <th>Stubs</th>
+      <th>Loaded</th>
+      <th>Last Used</th>
+      <th>Space used</th>
+      <th></th>
+    </tr>
+    <thead>
+{% for scenario_name, session_info in scenario.items() %}
+{% set active_sessions = [x for x in session_info[0] if x['status'] in ('record', 'playback')] %}
+{% for  i in range(len(session_info[0])) %} 
+       <tr>
+       <td>
+       {% if i == 0 %}
+       <a href="../stubs?scenario={{scenario_name}}&host={{session_info[0][i].get('scenario').partition(':')[0]}}">{{scenario_name}}</a>
+       {% end %}
+       </td>
+       {% set session_name = session_info[0][i].get('session') %}
+       {% if len(session_name) > 20 %}
+       <td id="manage-session-name">
+       <span data-toggle="tooltip" data-container="body" data-placement="top" title="{{session_name[20:]}}">
+          {{'{0}...'.format(session_name[:20])}}</span>  
+       </td>
+       {% else %}
+            <td>{{session_name}}</td>
+       {% end %}
+       <td>{{session_info[0][i].get('status').strip()}}</td>
+       <td>{{session_info[1]}}</td>
+       <td>{{session_info[2]}}</td>
+       {% set last_used =  session_info[0][i].get('last_used') %}
+       {% if last_used != '-' %}
+           {% set last_used = last_used[:-3] %}
+       {% end %}
+       <td>{{last_used}}</td>
+       <td>{{session_info[3]}}</td>
+       {% if i == 0 %}
+       <td>
+           <!-- scenario actions btn -->
+            <div class="btn-group">
+              <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                Action <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu manage-scenario-actions" role="menu">
+                <li><a href="/stubo/api/get/export?scenario={{scenario_name}}&html=true"><span class="glyphicon glyphicon-cloud-download"></span>&nbsp; Export scenario</a></li>
+                <li><a href="../stubs?scenario={{scenario_name}}&host={{session_info[0][i].get('scenario').partition(':')[0]}}"><span class="glyphicon glyphicon-search"></span>&nbsp;List stubs</a></li>
+                <li><a href="/manage?action=delete&type=stubs&name={{scenario_name}}"><span class="glyphicon glyphicon-trash"></span>&nbsp;Delete stubs</a></li>
+                {% if active_sessions %}
+                <li><a href="/manage?action=end_sessions&name={{scenario_name}}"><span class="glyphicon glyphicon-off"></span>&nbsp;End all active sessions</a></li>
+                <li class="menu-item dropdown dropdown-submenu">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-off"></span>&nbsp;End a session</a>
+                    <ul class="dropdown-menu" role="menu">
+                    {% for active_session in active_sessions %}
+                        {% set session_name = active_session.get('session') %}   
+                        <li class="menu-item ">
+                            <a href="/manage?action=end_session&name={{session_name}}">{{session_name}}</a>
+                        </li>
+                    {% end %}        
+                    </ul>
+                </li>               
+                {% end %} 
+              </ul>
+            </div>
+                         
+       </td> 
+       {% end %}
+       </tr>
+{% end %}       
+
+{% end %}   
+</table>
+</div>
+ </div>
+{% end %}
+</div>
+{% end %}
+{% end %}
+
+
+{% if delays %}
+<h2>Delays</h2>
+<div class="panel panel-default">
+   <div class="panel-heading">
+      <h3 class="panel-title">
+        Delay Policies
+      </h3>
+   </div>
+   <div class="panel-body">
+       <div class="table-responsive">
+    <table class="table table-striped table-hover table-condensed"> 
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Values</th>
+    </tr>
+    <thead>
+    {% for delay in delays %}
+    {% if delays[delay]['delay_type'] == 'fixed' %}
+    {% set values = delays[delay]['milliseconds'] +  ' msecs' %}
+    {% elif delays[delay]['delay_type'] == 'normalvariate' %}
+    {% set values = 'mean: ' + delays[delay]['mean'] %}
+    {% set values = values + ', stddev: ' + delays[delay]['stddev'] %}
+    {% else %}
+    {% set values = 'invalid record' %}
+    {% end %}
+    <tr>
+       <td>{{delay}}</td>
+       <td>{{delays[delay]['delay_type']}}</td>
+       <td>{{values}}</td>
+       <td>
+           <!-- Single button -->
+            <div class="btn-group">
+              <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                Action <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" role="menu">
+                <li><a href="/manage?action=delete&type=delay_policy&name={{delay}}"><span class="glyphicon glyphicon-trash"></span>&nbsp;Delete</a></li>
+              </ul>
+            </div>
+       </td> 
+    </tr>
+    {% end %}
+</table>
+</div>
+    <hr/>
+   </div>
+</div>
+{% end %}
+
+
+{% if modules %}
+<h2>Modules</h2>
+<div class="table-responsive">
+<table class="table table-striped table-hover table-condensed"> 
+    <tr>
+      <th>Name</th>
+      <th>Latest code version</th>
+      <th>Loaded module versions</th> 
+      <th></th>   
+    </tr>
+    {% for module_name, info in modules.iteritems() %}
+        <tr>
+           <td><a data-toggle="collapse" data-target="#{{module_name}}-code">{{module_name}} &raquo;</a></td>
+           <td>{{info.get("latest_code_version")}}</td>
+           <td>{{info.get("loaded_sys_versions")}}</td>
+           <td>
+           <!-- Single button -->
+            <div class="btn-group">
+              <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                Action <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" role="menu">
+                <li><a href="/manage?action=delete&type=module&name={{module_name}}"><span class="glyphicon glyphicon-trash"></span>&nbsp;Delete module</a></li>
+              </ul>
+            </div>
+           </td> 
+        </tr>  
+        <tr>  
+          <td colspan="4">
+             <div class="collapse-group"> 
+                <div class="collapse" id="{{module_name}}-code">
+                    {% raw info['code'] %}
+                </div>   
+             </div> 
+           
+          </td>
+        </tr>
+    {% end %}
+</table>
+</div>
+<hr/>
+{% end %}
+
+<div id="manage-help">
+    <h3>Example Commands</h3>
+    <div class="table-responsive">
+<table class="table table-bordered table-striped">
+  <thead>
+  <tr>
+    <th>Example Command</th>
+    <th>Function</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td style="color:blue;">begin/session?scenario=<em>abc</em>&session=<em>123</em>&mode=record</td>
+    <td>begin a session in record mode.</td>
+  </tr>
+  <tr>
+    <td style="color:blue;">put/stub?session=<em>123</em></td>
+    <td>load stubs. Stub matcher and response is to be in the HTTP body. (POST)</td>
+  </tr>
+  <tr>
+    <td style="color:blue;">end/session?session=<em>123</em></td>
+    <td>end a record session.</td>
+  </tr>
+  <tr>
+    <td style="color:blue;">get/export?scenario=<em>abc</em></td>
+    <td>export stubs.</td>
+  </tr>
+  <tr>
+    <td style="color:blue;">/stubo/api/exec/cmds?cmdfile=<em>command file URI</em></td>
+    <td>import stubs by executing a command script.</td>
+  </tr>
+  <tr>
+    <td style="color:blue;">begin/session?scenario=<em>abc</em>&session=<em>123</em>&mode=playback</td>
+    <td>begin a session in playback mode.</td>
+  </tr>
+  <tr>
+      <td style="color:blue;">get/response?session=<em>123</em></td>
+      <td>get Stubo responses - usually done by test tool utilising the stubo client library. (POST)
+  </tr>
+   <tr>
+    <td style="color:blue;">end/session?session=<em>123</em></td>
+    <td>end a playback session.</td>
+  </tr>
+  <tr>
+    <td style="color:blue;">delete/stubs?scenario=<em>abc</em></td>
+    <td>delete stubs.</td>
+  </tr>
+  <tr>
+      <td style="color:blue;">put/delay_policy?name=<em>delay_1</em>&delay_type=<em>fixed</em>&milliseconds=<em>200</em></td>
+    <td>set a delay policy.</td>
+  </tr>
+  </tbody>
+</table>
+</div>
+
+<p>All commands above are written as if run in a command file. They can also be run as http commands such as:</p> 
+<pre>http://<em>'stubo host'</em>/stubo/api/begin/session?scenario=foo&session=foo_1&mode=record</pre>
+<p></p>
+<h3>Sessions and Scenarios</h3>
+<p>In Stubo, a session corresponds to a transactional unit of work such as the recording
+or playback of stubs.
+A scenario identifies a set of recorded stubs which can be reused by multiple sessions.
+The session name used to record stubs may be the same or different from the
+session name used in playback. In either case sessions should be ended when no 
+longer in active use as they consume resources.
+</p>
+<p>Scenarios can be deleted and will delete all the stubs in the scenario and any sessions using those stubs. 
+Delete will only succeed if all sessions based on the scenario have ended.
+</p>
+
+<p>Manage stubs using the Stubo REST API. The commands below should generally be 
+scripted in a Stubo commands file or triggered from a test tool (using HTTP). 
+This encourages and enables re-use.</p>
+
+<h3>Test data setup and teardown </h3>
+<p>A software test often begins with a data setup step and is concluded with test data teardown.
+Ideally this is automated by the tool running the test. Stubo enables this from most 
+tests tools through the use of an HTTP call to Stubo to execute a stub command file.
+Such a call should load stubs and begin a Stubo session in playback mode ready for the
+test itself.
+</p>
+<p>At the conclusion of the test a teardown step should end the playback session and 
+delete stubs.</p>
+<h4>Stubo command files</h4>
+<p>Execute all the commands in a command file as follows:
+<pre>
+    http://<em>'stubo host'</em>/stubo/default/exec/cmds?cmdfile=<em>'url of file'</em>
+</pre>
+The 'url of file' will typically be a full http:// url to the file in SVN or 
+other code repository, or a location in the stubo host server itself.
+
+<p>An example which performs the Stubo equivalent of 'Hello World' is:</p>
+<pre>
+    <a href="/stubo/api/exec/cmds?cmdfile=/static/cmds/demo/first_setup.commands">http://<em>'stubo host'</em>/stubo/api/exec/cmds?cmdfile=/static/cmds/demo/first_setup.commands</a>
+</pre>
+<p></p>
+<p>first_setup.commands contains the data setup:</p>
+<pre>
+    begin/session?scenario=first&session=first_1&mode=record<br/>
+    put/stub?session=first_1,first.textMatcher,first.response<br/>
+    end/session?session=first_1<br/>
+    begin/session?scenario=first&session=first_1&mode=playback<br/>
+</pre>
+<br/>
+<p>When the test is completed the following teardown should be run</p>
+<pre>
+    <a href="/stubo/api/exec/cmds?cmdfile=/static/cmds/demo/first_teardown.commands">http://<em>'stubo host'</em>/stubo/api/exec/cmds?cmdfile=/static/cmds/demo/first_teardown.commands</a>
+</pre>
+<p></p>
+<p>first_teardown.commands contains the following cmds:</p>
+<pre>
+    get/response?session=first_1,first.request<br/>
+    end/session?session=first_1<br/>
+</pre>
+</p>
+</div>
+
+
+</div>
+</div>
+{% end %}

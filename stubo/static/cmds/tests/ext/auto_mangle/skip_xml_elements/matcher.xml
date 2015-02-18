@@ -1,0 +1,17 @@
+<user:Request xmlns:user="http://www.my.com/userschema">
+<user:dispatchTime>
+        <user:header>
+         <user:transid>1</user:transid>
+         <user:name>fred</user:name>
+        </user:header>
+        <user:empty_el>not empty in matcher</user:empty_el>
+        <user:dateTime>
+            <user:year>2014</user:year>
+            <user:month>10</user:month>
+            <user:day>01</user:day>
+            <user:hour>12</user:hour>
+            <user:minutes>24</user:minutes>
+            <user:seconds>46</user:seconds>
+        </user:dateTime>
+</user:dispatchTime>
+</user:Request>

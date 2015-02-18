@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <ProductCommodityDetails>
+    <SourceSystemLoadTypeDetails>
+      <SourceSystemIdentifier>A*£$</SourceSystemIdentifier>
+      <LoadTypeDetails>
+        <LoadType>
+          <LoadTypeCode>B</LoadTypeCode>
+          <LoadTypeDescription/>
+          <LoadSubType>
+            <LoadSubTypeCode/>
+          </LoadSubType>
+        </LoadType>
+        <DGSLCodeList/>
+      </LoadTypeDetails>
+    </SourceSystemLoadTypeDetails>
+    <TargetSystemIdentifier>ALTEAFM</TargetSystemIdentifier>
+  </ProductCommodityDetails>

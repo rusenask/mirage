@@ -1,0 +1,9 @@
+put/module?name=/static/cmds/tests/ext/split/splitter.py
+delete/stubs?scenario=split&force=true
+begin/session?scenario=split&session=split_1&mode=record
+put/stub?session=split_1&ext_module=splitter&tracking_level=full,1.request,1.response
+end/session?session=split_1
+
+begin/session?scenario=split&session=split_1&mode=playback
+get/response?session=split_1&tracking_level=full,1.request
+end/session?session=split_1

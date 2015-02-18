@@ -1,0 +1,11 @@
+# date rolling demo, rolls all 'arrDate and depDate values in a stubbed response.
+# Uses user extension roll.py
+put/module?name=/static/cmds/demo/roll_date/roll.py
+delete/stubs?scenario=APIS01
+begin/session?scenario=APIS01&session=APIS01_1&mode=record
+put/stub?session=APIS01_1&stub_created_date=2014-02-10&stubbedSystemDate=2014-02-10&ext_module=roll&ext_response=mangle_response&tracking_level=full,request.xml,response.xml
+end/session?session=APIS01_1
+
+begin/session?scenario=APIS01&session=APIS01_1&mode=playback
+get/response?session=APIS01_1&tracking_level=full,request.xml
+end/session?session=APIS01_1

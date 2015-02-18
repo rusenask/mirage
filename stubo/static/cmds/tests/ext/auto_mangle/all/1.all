@@ -1,0 +1,9 @@
+put/module?name=/static/cmds/tests/ext/auto_mangle/all/all.py
+delete/stubs?scenario=all&force=true
+begin/session?scenario=all&session=all_rec&mode=record
+put/stub?session=all_rec&ext_module=all&tracking_level=full, matcher.xml, response.xml
+end/session?session=all_rec
+
+begin/session?scenario=all&session=all_play&mode=playback
+get/response?session=all_play&tracking_level=full, request.xml
+end/session?session=all_play

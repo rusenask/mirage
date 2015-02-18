@@ -1,0 +1,59 @@
+# setup test data, configure the number of scenarios with nbr url arg or it
+# defaults to 100
+# stubo/api/exec/cmds?cmdfile=/static/cmds/perf/perf_setup.commands&nbr=10
+
+{% from itertools import cycle %}
+{% import random %}
+{% import string %}
+
+
+{% set nbr = int(globals().get('nbr', [100])[0]) %}
+
+# insert the delay policy
+put/delay_policy?name=delay_1&delay_type=fixed&milliseconds=0
+
+# delete any previously existing scenarios
+{% for scenario_counter in range(1, nbr+1) %}
+delete/stubs?scenario=scenario_{{scenario_counter}}&force=true
+{% end %}
+
+# each scenario has one session for this perf. test
+{% for scenario_counter in range(1, nbr+1) %}
+begin/session?scenario=scenario_{{scenario_counter}}&session=playback_{{scenario_counter}}&mode=record
+{% end %}
+
+# each session has scenario_counter * 2 stubs
+# each stub has 1 matcher and 1 response  of varying sizes by session number
+#   responses to cycle through sizes from 5 to 45kb
+
+{% set matcher_sizes = ['5','5','15','5','5','5','15','5','5','5'] %}
+{% set response_sizes = ['5','15','25','35','45','5','15','25','35','45'] %}
+{% set matcher_cycle = cycle(matcher_sizes) %}
+{% set response_cycle = cycle(response_sizes) %}
+{% for sc in range(1, nbr+1) %}
+{% set ms = matcher_cycle.next() %}
+{% set rs = response_cycle.next() %}
+put/stub?session=playback_{{str(sc)}}&delay_policy=delay_1,5kb.textMatcher,{{rs}}kb.response
+{% for stb in range(1,(sc * 2)) %}
+{% set ms = matcher_cycle.next() %}
+{% set rs = response_cycle.next() %}
+{% set rnd_string =  "".join( [random.choice(string.letters) for i in xrange(2500)] ) %}
+put/stub?session=playback_{{str(sc)}},text={{rnd_string}},{{rs}}kb.response
+{% end %}
+{% end %}
+
+# end record sessions
+{% for scenario_counter in range(1, nbr+1) %}
+end/session?&session=playback_{{scenario_counter}}
+{% end %}
+
+# begin playback sessions
+{% for scenario_counter in range(1, nbr+1) %}
+begin/session?scenario=scenario_{{scenario_counter}}&session=playback_{{scenario_counter}}&mode=playback
+# test a response
+get/response?session=playback_{{scenario_counter}},5kb.request
+# & cached
+get/response?session=playback_{{scenario_counter}},5kb.request
+{% end %}
+
+

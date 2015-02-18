@@ -1,0 +1,6 @@
+delete/stubs?scenario=response&force=true
+put/module?name=/static/cmds/tests/ext/auto_mangle/response/response.py
+begin/session?scenario=response&session=response_rec&mode=record
+put/stub?session=response_rec&ext_module=response,response.request.xml,response.response.xml
+put/stub?session=response_rec&ext_module=response&recorded_on=2014-12-10,response.request2.xml,response.response_ns.xml
+end/session?session=response_rec

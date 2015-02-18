@@ -1,0 +1,7 @@
+<user:Request xmlns:user="http://www.my.com/userschema">
+<user:dispatchTime>
+        <user:businessSemantic>DTD</user:businessSemantic>
+        <user:timeMode>U</user:timeMode>
+        <user:date year="2014" month="12" day="25"></user:date> 
+</user:dispatchTime>
+</user:Request>

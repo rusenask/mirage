@@ -1,0 +1,6 @@
+delete/stubs?scenario=first
+begin/session?scenario=first&session=first_1&mode=record
+put/stub?session=first_1&delay_policy=delay_1,first.textMatcher,first.response
+end/session?session=first_1
+
+begin/session?scenario=first&session=first_1&mode=playback

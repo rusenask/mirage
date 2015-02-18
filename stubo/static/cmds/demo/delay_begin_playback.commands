@@ -1,0 +1,23 @@
+
+put/delay_policy?name=delay_1&delay_type=fixed&milliseconds=10
+
+delete/stubs?scenario=first&force=true
+begin/session?scenario=first&session=first_1&mode=record
+put/stub?session=first_1&delay_policy=delay_1,first.textMatcher,first.response
+end/session?session=first_1
+
+begin/session?scenario=first&session=first_1&mode=playback
+
+
+
+#get/response?session=first_2,first.request
+#put/delay_policy?name=delay_1&delay_type=fixed&milliseconds=2009
+
+# could add more and dynamic delays now
+#get/response?session=first_2,first.request
+#put/delay_policy?name=delay_1&delay_type=fixed&milliseconds=30
+#get/response?session=first_2,first.request
+#put/delay_policy?name=delay_1&delay_type=fixed&milliseconds=40
+#get/response?session=first_2,first.request
+
+#end/session?session=first_2

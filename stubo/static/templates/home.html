@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="content">
+    
+    <div class="lead-sell">
+      <p class="intro">"Enable automated testing by mastering system dependencies.</p>
+      <p class="intro text-info">Use when reality is simply not good enough."</p>
+    </div>
+    <p>
+      <br/>
+    </p>
+    <section>
+      <div>
+        <h2>Background</h2>
+        <p>Stub-O-Matic is a service which provides data stubs for software testing. Stubs enable the software under test to be isolated from 3rd party systems enabling repeated, automated testing.</p>
+        <p>Stubo is capable of supporting functional, load and performance testing. Stubbing enables development to progress when the actual dependencies are not available. Stub-O-Matic includes just enough intelligence to emulate back-end systems without the complexity often associated with data set-up activities.</p>
+        <p>The resilience of automated testing is improved because it is possible to manage stubs more easily than 3rd party systems and databases. Dependant systems are often not capable of creating the full range of test conditions necessary to fully test code. </p>
+      </div>
+      <div>
+        <h2>Applicability</h2>
+        <p class="p1">Use Stub-O-Matic when you don't have as much control over your test data to achieve the tests you require. Stub-O-Matic utilizes the ubiquitous HTTP protocol to receive requests and return stub responses to the system under test.  </p>
+        <p>To use stubs, the system under test must be capable of diverting requests that would normally go to back-end systems. How this is best done depends on the architecture of the system under test. </p>
+        <p class="p1">See <a href="http://en.wikipedia.org/wiki/Service_virtualization">Service Virtualization</a> for further information.</p>
+      </div>
+    </section>
+    
+    <div >
+      <h2>Features</h2>
+      <p>
+        <li>Test tool and methodology agnostic</li>
+        <li>Enterprise grade</li>
+        <li>Fast, thousands of concurrent stub requests per second are supported</li>
+        <li>Stubs can be hand crafted or recorded from real backends, or a combination of both</li>
+        <li>Everything in Stubo is scriptable and repeatable</li>
+        <li>Stubs can be mastered in a source control system along with tests and code</li>
+        <li>Stubbing can be managed programmatically through a RESTful API</li>
+        <li>Configurable delays can be added to simulate backend response times</li>
+        <li>Each test effectively owns its own test data<br/></li>
+        <li>Stubbed responses can be templated selecting values from the request or system</li>
+        <li>Stateful scenarios can be simulated</li>
+        <li>Test stubs can be recorded from the backend service and reused</li>
+        <li>Dynamic request and response matching, e.g. to roll dates, ignoring IDs etc.<br/><br/></li>
+      </p>
+      <p>
+        <br/>
+      </p>
+    </div>
+    
+  </div>
+{% end %}

@@ -1,0 +1,11 @@
+# Make 50 different requests returning the same response
+
+delete/stubs?scenario=request_cache_limit&force=true
+begin/session?scenario=request_cache_limit&session=request_cache_limit_1&mode=record
+put/stub?session=request_cache_limit_1,1.textMatcher,1.response
+end/session?session=request_cache_limit_1
+
+begin/session?scenario=request_cache_limit&session=request_cache_limit_1&mode=playback
+{% for i in range(50) %}
+    get/response?session=request_cache_limit_1&tracking_level=full,text={{"{0} get my stub".format(i)}}
+{% end %}

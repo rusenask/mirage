@@ -1,0 +1,12 @@
+delete/stubs?scenario=converse
+
+begin/session?scenario=converse&session=conv_1&mode=record
+put/stub?session=conv_1, converse_a.textMatcher, converse_a.response
+put/stub?session=conv_1, converse_a.textMatcher, converse_a.response
+put/stub?session=conv_1, converse_a.textMatcher, converse_a.response
+end/session?session=conv_1
+
+begin/session?scenario=converse&session=conv_1&mode=playback
+get/response?session=conv_1, converse_a.request
+get/response?session=conv_1, converse_a.request
+end/session?session=conv_1

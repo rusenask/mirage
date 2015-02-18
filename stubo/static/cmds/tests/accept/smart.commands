@@ -1,0 +1,15 @@
+#  Demonstrate the command files can be Tornado templates and contain
+# code snippets
+
+{% set session_name = 'smart_1' %}
+
+delete/stubs?scenario=smart
+begin/session?scenario=smart&session={{ session_name }}&mode=record
+put/stub?session=smart_1,first.textMatcher,first.response
+end/session?session=smart_1
+
+begin/session?scenario=smart&session=smart_1&mode=playback
+{% for i in range(0,3) %}
+get/response?session=smart_1,first.request
+{% end %}
+end/session?session=smart_1

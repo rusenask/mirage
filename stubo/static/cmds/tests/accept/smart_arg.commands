@@ -1,0 +1,14 @@
+#  Demonstrate the command files can be Tornado templates and contain
+# code snippets AND that values can be passed in on execCmds such as:
+# /stubo/default/execCmds?cmdFile=/static/cmds/tests/accept/smart_arg.commands&scen=bob&session=smart_1
+
+delete/stubs?scenario={{scen[0]}}
+begin/session?scenario={{scen[0]}}&session={{ session[0] }}&mode=record
+put/stub?session={{session[0]}},first.textMatcher,first.response
+end/session?session={{session[0]}}
+
+begin/session?scenario={{scen[0]}}&session={{session[0]}}&mode=playback
+{% for i in range(0,3) %}
+get/response?session={{session[0]}},first.request
+{% end %}
+end/session?session={{session[0]}}

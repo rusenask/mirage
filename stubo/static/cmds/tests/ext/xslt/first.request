@@ -1,0 +1,7 @@
+<request>
+<a>a</a>
+<trans_id>1234</trans_id>
+<b>b</b>
+<user uuid="xxx">joe</user>
+<dt>2013-11-25</dt>
+</request>

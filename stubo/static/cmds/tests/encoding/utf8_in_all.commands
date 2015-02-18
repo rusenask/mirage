@@ -1,0 +1,10 @@
+# test for working with special characters in the request, matcher & response 
+
+delete/stubs?scenario=utf8all&force=true
+begin/session?scenario=utf8all&session=utf8all&mode=record
+put/stub?session=utf8all,utf8.xml,utf8.response
+end/session?session=utf8all
+
+begin/session?scenario=utf8all&session=utf8all&mode=playback
+get/response?session=utf8all&tracking_level=full,utf8.xml
+end/session?session=utf8all

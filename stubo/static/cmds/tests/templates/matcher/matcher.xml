@@ -1,0 +1,5 @@
+<request>
+<transid>{{xmltree.xpath('/request/transid')[0].text}}</transid>
+<dt>2009-10-24T00:00:00+00:00</dt>
+<flightnumber>0455</flightnumber>
+</request>

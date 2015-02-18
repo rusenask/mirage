@@ -1,0 +1,8 @@
+delete/stubs?scenario=template_matcher&force=true
+begin/session?scenario=template_matcher&session=template_matcher_1&mode=record
+put/stub?session=template_matcher_1,matcher.xml,response.xml
+end/session?session=template_matcher_1
+
+begin/session?scenario=template_matcher&session=template_matcher_1&mode=playback
+get/response?session=template_matcher_1,request.xml
+end/session?session=template_matcher_1

@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+<p>Use bookmarks to set a stub session to a named state. This is useful when 
+using Stub-O-Matic as a back-end for training environments.
+</p>
+{% if active %}
+<h3>Create Bookmarks</h3>
+<h5>Select a playback session below to create a new bookmark for a scenario</h5>
+
+{% for scenario, sessions in active.iteritems() %} 
+  <ul class="list-unstyled"> 
+    <h4>{{scenario}}</h4>
+         {% for session in sessions %} 
+         <form class="form-horizontal" role="form" action="/bookmarks" 
+              method="POST">
+         <fieldset>
+         <li class="list-unstyled">
+              <input class="span2" type="checkbox" name="session" value="{{session}}"></input>
+              <div class="span2" rel="tooltip" title="Session name">{{session}}</div>
+              <div class="form-group">
+                 <input type="text" name="name" id="name" placeholder="Name">
+                 <button type="submit" class="btn btn-primary">Create</button>
+              </div>  
+         </li>
+         </fieldset>
+         </form>             
+         {% end %} 
+  </ul> 
+  <hr>        
+{% end %}
+
+
+
+
+{% end %} 
+
+<hr>
+
+<h3>Use Bookmarks</h3>
+{% if not bookmarks %}
+<p>You have no saved bookmarks!</p>
+{% end %}
+<ul>
+<!-- {"converse": {"first": {"8981c0dda19403f5cc054aea758689e65db223819f4099e3eafc1f9f": "2"}}} -->
+{% for scenario, v in bookmarks.iteritems() %}  
+   <h4>{{scenario}}</h4>
+   {% for name, index_info in v.iteritems() %}
+   <li>  
+     <!-- Single button -->
+    <div class="btn-group">
+      <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+        Action <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu">
+        <li><a onclick="showSessions('{{name}}', '{{scenario}}');" data-toggle="modal">Jump to bookmark</a></li>
+        <li><a onclick="showSessions('{{name}}', '{{scenario}}', 0);" data-toggle="modal">Jump to start of session(s)</a></li>
+        <li><a href="/bookmarks?name={{name}}&scenario={{scenario}}&action=delete">Delete bookmark</a></li>
+      </ul>
+    </div>
+    {{name}}  
+    
+    {% for session_key, index_value in index_info.iteritems() %}
+    <ul class="list-group">
+      <li class="list-group-item">
+        <span class="badge">{{index_value}}</span>
+        {{session_key}}
+      </li>
+    </ul>
+    {% end %}
+    </li>
+    {% end %} 
+   
+{% end %}
+</ul>
+
+<script type= "text/javascript">
+    function showSessions(bookmark, scenario, index){
+        if (index === 0) {
+            $('#sessionsModal form').attr('action', '/bookmarks?action=jump&index=0&name='+bookmark);
+            $('#sessionsModalLabel').text('Jump to start for sessions');
+        } else {
+            $('#sessionsModal form').attr('action', '/bookmarks?action=jump&name='+bookmark);
+            $('#sessionsModalLabel').text('Jump to bookmark "' + bookmark + '" for sessions');
+        }   
+        // remove other scenario sessions from the modal form
+        $('#sessionsModal form ul').not('#jump_'+scenario).remove();
+        $('#sessionsModal').modal('show')
+        return false;
+    }
+</script>
+    
+<!-- Modal -->
+<div class="modal fade" id="sessionsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="sessionsModalLabel">Jump to bookmark for sessions</h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal" role="form" action="#" method="POST">
+        <fieldset>
+        
+        {% for scenario, sessions in active.iteritems() %} 
+          <ul id="jump_{{scenario}}" class="list-unstyled"> 
+            {{scenario}}
+                 {% for session in sessions %} 
+                 <li class="list-unstyled">
+                      <input class="span2" type="checkbox" name="session" value="{{session}}"></input>
+                      <div class="span2" rel="tooltip" title="Session name">{{session}}</div>
+                 </li>            
+                 {% end %} 
+          </ul>          
+        {% end %}  
+                      
+        </fieldset>
+        <div class="form-group">
+            <input type="hidden" name="bookmark" value="1">
+            <button type="submit" class="btn btn-primary pull-right">Save changes</button>
+        </div>
+        </form>  
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <!--<a href="/hello" class="btn btn-primary">Save changes</a>-->
+        
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+</div>
+{% end %}

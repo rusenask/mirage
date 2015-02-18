@@ -1,0 +1,11 @@
+# first request should match, second should fail
+delete/stubs?scenario=matcher1&force=true
+
+begin/session?scenario=matcher1&session=m1_3&mode=record
+put/stub?session=m1_3,matcher1.textMatcher,matcher1.response
+end/session?session=m1_3
+
+begin/session?scenario=matcher1&session=m1_2&mode=playback
+get/response?session=m1_2,matcher1_a.request
+get/response?session=m1_2,matcher1_b.request
+end/session?session=m1_2
