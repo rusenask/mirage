@@ -30,6 +30,7 @@ Redis Server Installation::
     $ sudo service redis-server start
 
 Mongo server Installation::
+
     $ sudo apt-get install -y mongodb-org
     $ sudo service mongod start | stop
     
