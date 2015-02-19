@@ -6,5 +6,11 @@ python:
 install:
     - python setup.py install
 
+services:
+  - redis-server
+  - mongodb
+
 # command to run tests
-script: nosetests stubo
+script: 
+  - export ASYNC_TEST_TIMEOUT=15
+  - nosetests stubo
