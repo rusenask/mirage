@@ -1,0 +1,10 @@
+# http://travis-ci.org/#!/Stub-O-Matic/stubo-app
+language: python
+python:
+    - 2.7
+  
+install:
+    - python setup.py install
+
+# command to run tests
+script: nosetests stubo

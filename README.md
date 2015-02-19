@@ -1,6 +1,8 @@
 Stub-O-Matic
 ============
 
+[![Build Status](https://travis-ci.org/Stub-O-Matic/stubo-app.png?branch=master)](https://travis-ci.org/Stub-O-Matic/stubo-app)
+
 
 Install
 =======
