@@ -12,5 +12,8 @@ services:
 
 # command to run tests
 script: 
-  - export STUBO_CONFIG_FILE_PATH=.
+  - export STUBO_CONFIG_FILE_PATH=./dev.ini
   - nosetests stubo
+  
+after_success:
+    coveralls  
