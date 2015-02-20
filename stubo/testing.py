@@ -3,6 +3,7 @@
     :license: GPLv3, see LICENSE for more details.
 """
 import os.path
+import os
 from collections import defaultdict
 from tempfile import mkdtemp
 from tornado.util import ObjectDict
@@ -23,7 +24,6 @@ class Base(AsyncHTTPTestCase):
         super(Base, self).__init__(*args, **kwargs)  
 
     def setUp(self):
-        import os
         super(Base, self).setUp()
         # the default settting of 5 secs is not enough for my old mac
         os.environ['ASYNC_TEST_TIMEOUT'] = '50'
@@ -65,7 +65,7 @@ class Base(AsyncHTTPTestCase):
         # install() asserts that its not been initialised so setting it directly
         #self.io_loop.install() 
         IOLoop._instance = self.io_loop
-        tm = TornadoManager(None)
+        tm = TornadoManager(os.environ.get('STUBO_CONFIG_FILE_PATH'))
         self.redis_server, _ = start_redis(self.cfg)
         tm.cfg['ext_cache'] = init_ext_cache(self.cfg)
         tm.cfg['mongo.db'] = self.testdb

@@ -12,5 +12,5 @@ services:
 
 # command to run tests
 script: 
-  - export ASYNC_TEST_TIMEOUT=15
+  - export STUBO_CONFIG_FILE_PATH=.
   - nosetests stubo
