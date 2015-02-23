@@ -47,22 +47,20 @@
         <span class="icon-bar"></span>
       </button>
       
-       
-    <a class="navbar-brand" href="/">Stub-O-Matic&nbsp;</a><a href="/static/docs/html/changes.html">
+    <a class="navbar-brand" href="/">Stub-O-Matic&nbsp;</a><a href="http://stubo-app.readthedocs.org/en/latest/changes.html">
       <div class="version">
       <span class="badge">{{version}}</span></a>
   </div>
 </div>   
    
-
 <!-- nav links -->
 <div class="collapse navbar-collapse" id="navbar-button">
   <ul class="nav navbar-nav">
         <li id="tracker" class="{{'active' if 'tracker' in request.path else 'not-active'}}"><a href="/tracker">Tracker</a></li>
         <li id="manage" class="{{'active' if 'manage' in request.path else 'not-active'}}"><a href="/manage">Manage</a></li>
-        <li class="{{'active' if 'bookmarks' in request.path else 'not-active'}}"><a href="/bookmarks">Bookmarks</a></li>
-        <li class="{{'active' if 'docs' in request.path else 'not-active'}}"><a href="/docs" target="_blank">Documentation</a></li>
+        <li class="{{'active' if 'docs' in request.path else 'not-active'}}"><a href="http://stubo-app.readthedocs.org/en/latest/" target="_blank">Documentation</a></li>
         <li class="{{'active' if 'analytics' in request.path else 'not-active'}}"><a href="/analytics" target="_blank">Analytics</a></li>   
+        <li class="{{'active' if 'bookmarks' in request.path else 'not-active'}}"><a href="/bookmarks">Bookmarks <small class="text-danger">(Experimental)</small></a></li>
       </ul>
             <form id="nav-search" class="navbar-form navbar-left" role="search" action="/tracker" method="get">
         <div class="form-group">
