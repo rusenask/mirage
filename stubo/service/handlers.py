@@ -239,7 +239,8 @@ class HomeHandler(RequestHandler):
 
 class DocsHandler(RequestHandler):
     def get(self):
-        self.redirect('/static/docs/html/index.html', permanent=True)
+        self.redirect('http://stubo-app.readthedocs.org/en/latest/',
+                      permanent=True)
 
 class GetVersionHandler(TrackRequest):
         
