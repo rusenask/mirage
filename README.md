@@ -2,9 +2,28 @@ Stub-O-Matic
 ============
 
 [![Build Status](https://travis-ci.org/Stub-O-Matic/stubo-app.png?branch=master)](https://travis-ci.org/Stub-O-Matic/stubo-app)
+[![Documentation Status](https://readthedocs.org/projects/stubo-app/badge/?version=latest)](https://readthedocs.org/projects/stubo-app/?badge=latest)
 
 Enable automated testing by mastering system dependencies.
 Use when reality is simply not good enough.
+
+Documentation
+=============
+
+See the `The documenation website <http://http://stubo-app.readthedocs.org/en/latest/>`_ to view
+user documentation.
+
+License
+=======
+
+Stub-O-Matic is offered under GPLv3, see LICENSE for more details.
+
+Authors
+=======
+
+Stub-O-Matic is made available by `OpenCredo <http://opencredo.com>`_
+and a team of contributors.
+
 
 Install
 =======
@@ -132,14 +151,10 @@ dependency on redis or mongo you must initialise them first
 
 Now you can make calls that use redis
 
-    from stubo.cache import get_request_index_data
-    get_request_index_data('localhost:conv')
-    {'joe:9b1b58a5c66d8280019c93d48149cd6b94b4a5427efc20d208b05037': '3', 
-    'mary:2cf00b76334fb16c640bb11a99adad49beafd2edf67c34a52218d9c0': '1', 
-    'joe:f2022a5438c084278ec23c400b2a0551203b8d0320e071ff981f9ec4': '1', 
-    'joe:2cf00b76334fb16c640bb11a99adad49beafd2edf67c34a52218d9c0': '2', 
-    'mary:9b1b58a5c66d8280019c93d48149cd6b94b4a5427efc20d208b05037': '2', 
-    'mary:f2022a5438c084278ec23c400b2a0551203b8d0320e071ff981f9ec4': '1'}
+    >>> from stubo.cache import Cache
+    >>> cache = Cache(host='localhost')
+    >>> cache.get_session('first', 'first_1')
+        {u'status': u'dormant', u'system_date': u'2015-02-24', u'scenario': u'localhost:first', u'last_used': u'2015-02-24 11:19:21', u'scenario_id': u'54ec5e3981875908f911a71b', u'session': u'first_1'}
 
 & mongodb
 
