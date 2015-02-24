@@ -104,7 +104,6 @@ class StubData(object):
         
     def __str__(self):
         return self.__unicode__().encode('utf8')
-       
          
 
 def create(request_body, response_body, method="POST", status=200):
@@ -112,7 +111,7 @@ def create(request_body, response_body, method="POST", status=200):
     return dict(request=dict(method=method,
                              bodyPatterns=[dict(contains=requests)]),
                 response=dict(status=status,
-                              body=response_body))  
+                              body=response_body))
         
 class Stub(StubData):
     """ The stub.
@@ -142,8 +141,8 @@ class Stub(StubData):
         StubData.__init__(self, payload, scenario)  
         
     def delay_policy_name(self):
-        return self.delay_policy()    
-        
+        return self.delay_policy()
+                               
 
 class StubCache(StubData):
     

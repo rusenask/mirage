@@ -1,0 +1,14 @@
+<CreateCustomerRequest>
+    <PersonalDetails>
+        <FullName>
+            <Title>Mr</Title>
+            <FirstName>Können</FirstName>
+            <LastName>Umlaut</LastName>
+        </FullName>
+        <Gender>
+            <Code>M</Code>
+            <Description>Male</Description>
+        </Gender>
+        <DateOfBirth>1987-01-01Z</DateOfBirth>
+    </PersonalDetails>
+</CreateCustomerRequest>

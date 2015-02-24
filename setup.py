@@ -19,6 +19,7 @@ requires = [
     'python-dateutil>=2.2',
     'Pygments',
     'dogpile.cache',
+    'matchers',
     # testing 
     'ming',
     'pylint',        

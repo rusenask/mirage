@@ -35,61 +35,64 @@ class Test_match(unittest.TestCase):
         trace = trace or TrackTrace(DummyModel(tracking_level='normal'), 
                                     'matcher')
         from stubo.model.request import StuboRequest
-        request = StuboRequest(DummyModel(body=request_text, headers=dict()))
+        request = StuboRequest(DummyModel(body=request_text, headers={'Stubo-Request-Method' : 'POST'}))
         url_args = url_args or {}
         from stubo.ext.transformer import StuboDefaultHooks
-        results = match(request, session, trace, system_date, 
-                        url_args,
-                        StuboDefaultHooks(),
-                        module_system_date=module_system_date)
-        return results[0]       
+        return match(request, session, trace, system_date, 
+                     url_args,
+                     StuboDefaultHooks(),
+                     module_system_date=module_system_date)   
 
     def test_match_simple_request(self):
         request = "get my stub"
         results = self._get_best_match(request, self.first_2_session)
-        stub = results[1]                                        
+        self.assertTrue(results[0])
+        stub = results[2]                                        
         self.assertEquals(stub.response_ids(), [1])
         
     def test_match_simple_request_with_spaces(self):
         request = "get my         stub"
         results = self._get_best_match(request, self.first_2_session)
-        stub = results[1]                             
+        self.assertTrue(results[0])
+        stub = results[2]                           
         self.assertEquals(stub.response_ids(), [1])     
 
     def test_not_all_matchers_match(self):
         request = "first matcher - will match"
-        results = self._get_best_match(request, self.first_2_session)
-        hits = results[0]                                        
-        self.assertFalse(hits[0])
+        results = self._get_best_match(request, self.first_2_session)                                       
+        self.assertFalse(results[0])
 
     def test_find_text_anywhere_in_matcher(self):
         request = "this is a lot of xml or text... or even json"
         results = self._get_best_match(request, self.first_2_session)
-        stub = results[1]                                            
+        self.assertTrue(results[0])
+        stub = results[2]                                            
         self.assertEquals(stub.response_ids(), [3])
 
     def test_match_fail(self):
         request = "it's not me"
-        results = self._get_best_match(request, self.first_2_session)
-        hits = results[0]                                        
-        self.assertFalse(hits[0])
+        results = self._get_best_match(request, self.first_2_session)                                       
+        self.assertFalse(results[0])
 
     def test_first_of_a_tie_wins(self):
         request = "one two three"
         results = self._get_best_match(request, self.first_2_session)
-        stub = results[1]                                        
+        self.assertTrue(results[0])
+        stub = results[2]                                       
         self.assertEquals(stub.response_ids(), [5])
 
     def test_ignore_rubble_in_request(self):
         request = "Rubble in front, one two three. Rubble at the end."
         results = self._get_best_match(request, self.first_2_session)
-        stub = results[1]                                         
+        self.assertTrue(results[0])
+        stub = results[2]                                          
         self.assertEquals(stub.response_ids(), [5])
 
     def test_matcher_with_line_feeds(self):
         request =  'text with \r\n line feeds'
         results = self._get_best_match(request, self.first_2_session)
-        stub = results[1]                                            
+        self.assertTrue(results[0])
+        stub = results[2]                                             
         self.assertEquals(stub.response_ids(), [7])
         
     def test_matcher_with_no_stubs_and_not_playback_session_fails(self):
@@ -157,9 +160,12 @@ class TestMatcherWithModule(unittest.TestCase):
         request = StuboRequest(DummyModel(body='xxx', headers={}))
         from stubo.ext.transformer import StuboDefaultHooks
         url_args = {}
-        with self.assertRaises(HTTPClientError): 
-            match(request, session, trace, session.get('system_date'), url_args, StuboDefaultHooks(), None)  
-  
+        try:
+            match(request, session, trace, session.get('system_date'), url_args, StuboDefaultHooks(), None)      
+        except HTTPClientError, e:
+            self.assertTrue(hasattr(e, 'traceback'))
+        else:
+            assert False    
 
                       
 exit_code = """

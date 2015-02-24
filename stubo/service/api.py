@@ -37,7 +37,7 @@ from stubo.cache import (
 
 from stubo.utils import (
     asbool, make_temp_dir, get_export_links, get_hostname,
-    human_size, pretty_format_python, as_date, compact_traceback
+    human_size, pretty_format_python, as_date
 )
 from stubo.utils.track import TrackTrace
 from stubo.match import match
@@ -339,13 +339,10 @@ def put_module(handler, names):
             code, mod = module.add_sys_module(module_version_name, response)
             log.debug('{0}, {1}'.format(mod, code))
         except Exception, e:
-            _, t, v, tbinfo = compact_traceback()
-            msg = u'error={0}'.format(e)
-            stack_trace = u'traceback is: ({0}: {1} {2})'.format(t, v, tbinfo)
-            log.error(msg) 
+            msg = 'error={0}'.format(e)
             raise exception_response(400,
                 title='Unable to compile {0}:{1}, {2}'.format(module.host(), 
-                module_version_name, msg), traceback=stack_trace)
+                module_version_name, msg))
         module.add(module_name, response)
         added.append(module_version_name)
     result['data'] = dict(message='added modules: {0}'.format(added))
@@ -479,19 +476,15 @@ def get_response(handler, session_name):
                 session_name, scenario_key))          
                 
         session['ext_cache'] = user_cache   
-        results = match(stubo_request, session, trace_matcher, 
-                        as_date(system_date), 
-                        url_args=url_args,
-                        hooks=handler.settings['hooks'],
-                        module_system_date=module_system_date)
-        # 0 is best match
-        hits_info, stub = results[0]
-        log.debug(u'match result: (hits_info={0}, stub={1})'.format(hits_info, 
-                  stub.payload)) 
-        hits, stub_number = hits_info
-        if not hits:
+        result = match(stubo_request, session, trace_matcher,
+                       as_date(system_date),
+                       url_args=url_args,
+                       hooks=handler.settings['hooks'],
+                       module_system_date=module_system_date)
+        if not result[0]:
             raise exception_response(400, 
                                      title='E017:No matching response found')
+        _, stub_number, stub = result    
         response_ids = stub.response_ids()
         delay_policy_name = stub.delay_policy_name() 
         recorded = stub.recorded()
@@ -1110,8 +1103,8 @@ def get_session_status(handler, all_hosts=True):
             last_used = session_last_used(s['name'], session_name)
             if last_used:
                 last_used = last_used['start_time'].strftime('%Y-%m-%d %H:%M:%S')
-            else: 
-                # session has never been used for playback   
+            else:
+                # session has never been used for playback 
                 last_used = session.get('last_used', '-')
             session['last_used'] =  last_used  
             sessions.append(session)   

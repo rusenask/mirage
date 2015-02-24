@@ -292,10 +292,10 @@ class StuboCommandHandler(TrackRequest):
                 stubo_response['error'] = dict(code=500, message=str(e)) 
                 self.set_status(500)
             else:
-                stubo_response['error'] = dict(code=status, message=str(e)) 
+                stubo_response['error'] = dict(code=status, message=str(e))
             if hasattr(e, 'traceback'):
-                stubo_response['error']['traceback'] = e.traceback          
-            
+                stubo_response['error']['traceback'] = e.traceback
+                            
         self.write(stubo_response) 
         self.set_header('x-stubo-version', version)    
         self.finish()   
@@ -333,9 +333,9 @@ class StuboCommandHandler(TrackRequest):
                 stubo_response['error'] = dict(code=500, message=str(e)) 
                 self.set_status(500)
             else:
-                stubo_response['error'] = dict(code=status, message=str(e)) 
+                stubo_response['error'] = dict(code=status, message=str(e))
             if hasattr(e, 'traceback'):
-                stubo_response['error']['traceback'] = e.traceback          
+                stubo_response['error']['traceback'] = e.traceback
             
         self.write(stubo_response) 
         self.set_header('x-stubo-version', version)    

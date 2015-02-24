@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 from stubo.testing import Base
 import json
 
@@ -402,4 +403,22 @@ class Test_xmlexit(Base):
 </request2>""")       
         response = self.wait()
         self.assertEqual(response.code, 200)  
-        self.assertEqual(response.body, """<user:Response xmlns:user="http://www.my.com/userschema" xmlns:info="http://www.my.com/infoschema"><user:Body><user:dt>2014-12-15T15:30</user:dt><user:InformationSystemUserIdentity><info:UserId>fred</info:UserId></user:InformationSystemUserIdentity></user:Body></user:Response>""")                     
+        self.assertEqual(response.body, """<user:Response xmlns:user="http://www.my.com/userschema" xmlns:info="http://www.my.com/infoschema"><user:Body><user:dt>2014-12-15T15:30</user:dt><user:InformationSystemUserIdentity><info:UserId>fred</info:UserId></user:InformationSystemUserIdentity></user:Body></user:Response>""")  
+        
+class TestUnicode(Base):  
+
+    def test_non_ascii_matcher_and_response(self):
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdFile=/static/cmds/tests/ext/unicode/1.all'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        self.assertEqual(response.headers["Content-Type"], 
+                         'application/json; charset=UTF-8')
+        payload = json.loads(response.body)
+        tracks = list(self.db.tracker.find())
+        for track in tracks:
+            self.assertEqual(200, track.get('return_code'))
+            if track.get('function') == 'get/response':
+                self.assertEqual(u'''<response>
+<FirstName>Können</FirstName>
+<LastName>Umlaut</LastName>
+</response>''', track.get('stubo_response'))                   

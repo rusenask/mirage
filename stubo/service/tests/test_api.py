@@ -1036,8 +1036,9 @@ class TestStubExport(unittest.TestCase):
             'end/session?session=0stub0matcher_1',
         ]  
         
-        with open(os.path.join(scenario_dir, '0stub0matcher.commands')) as f: 
-            self.assertEqual([x.strip() for x in f.readlines()], cmds) 
+        with open(os.path.join(scenario_dir, '0stub0matcher.commands')) as f:
+            lines = f.readlines() 
+            self.assertEqual([x.strip() for x in lines], cmds) 
             
         self._delete_tmp_export_dir(scenario_dir)
  

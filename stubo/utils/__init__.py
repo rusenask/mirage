@@ -7,7 +7,6 @@
     :copyright: (c) 2015 by OpenCredo.
     :license: GPLv3, see LICENSE for more details.
 """
-
 import os
 import ConfigParser
 import logging
@@ -281,8 +280,8 @@ def get_unicode_from_request(r):
         return unicode(r.body, 'utf-8')
     except:
         tried_encodings.append('utf-8')
-        return unicode(r.body, 'latin-1', errors='replace')    
-    
+        return unicode(r.body, 'latin-1', errors='replace')
+
 def compact_traceback_info(tb):
     tbinfo = []
     while tb:
@@ -297,5 +296,5 @@ def compact_traceback_info(tb):
     del tb
      
     # file, function, line = tbinfo[-1]
-    return ' '.join(['[%s|%s|%s]' % x for x in tbinfo])               
-    
+    return ' '.join(['[%s|%s|%s]' % x for x in tbinfo])
+        

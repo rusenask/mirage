@@ -41,7 +41,14 @@ class StuboRequest(object):
         return False   
     
     def __ne__(self, other):
-        return not self.__eq__(other)     
+        return not self.__eq__(other) 
+    
+    def __str__(self):
+        return 'StuboRequest uri={uri}, host={host}, method={method}, path='\
+          '{path}, query={query}'.format(**self.__dict__)
+        
+    def describe_to(self, desc):
+        desc.append(str(self))        
                 
         
        

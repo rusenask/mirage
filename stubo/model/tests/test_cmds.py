@@ -226,7 +226,7 @@ class DummyRequests(object):
             response.status_code = 404
         return response
     
-    def post(self, url, data=None, json=None):
+    def post(self, url, data=None, json=None, **kwargs):
         if url == 'get/response/cantfindthis':
             return DummyModel(status_code = 400, content = 'E017')
             
