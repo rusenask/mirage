@@ -15,7 +15,7 @@ class StuboRequest(object):
         """
         self.uri = request.headers.get('Stubo-Request-URI', None)
         self.host = request.headers.get('Stubo-Request-Host', None)  
-        self.method = request.headers.get('Stubo-Request-Method', None)
+        self.method = request.headers.get('Stubo-Request-Method', "POST")
         self.path = request.headers.get('Stubo-Request-Path', None)
         self.query = request.headers.get('Stubo-Request-Query', None)
         self.body = request.body
