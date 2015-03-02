@@ -10,7 +10,7 @@ Use when reality is simply not good enough.
 Documentation
 =============
 
-See the `The documenation website <http://http://stubo-app.readthedocs.org/en/latest/>`_ to view
+See the The documenation [website](<http://http://stubo-app.readthedocs.org/en/latest/>) to view
 user documentation.
 
 License
@@ -21,7 +21,7 @@ Stub-O-Matic is offered under GPLv3, see LICENSE for more details.
 Authors
 =======
 
-Stub-O-Matic is made available by `OpenCredo <http://opencredo.com>`_
+Stub-O-Matic is made available by [OpenCredo](http://opencredo.com)
 and a team of contributors.
 
 
