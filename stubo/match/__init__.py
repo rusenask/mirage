@@ -89,7 +89,7 @@ def match(request, session, trace, system_date, url_args, hooks,
             trace.info('request was transformed into', request_copy.request_body())
                                                                             
         matcher = StubMatcher(trace)
-        if matcher.match(request, stub):
+        if matcher.match(request_copy, stub):
             return (True, stub_number, stub)
      
     return (False,)     

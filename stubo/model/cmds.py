@@ -134,6 +134,12 @@ class UrlFetch(object):
                     return response.content.decode('utf-8'), response.headers
                 except Exception:    
                     return response.content, response.headers
+            elif response.encoding == 'ISO-8859-1' and 'xml' in  response.headers["Content-Type"]:
+                # work around for https://github.com/kennethreitz/requests/issues/2086
+                try:
+                    return response.content.decode('utf-8'), response.headers
+                except Exception:    
+                    return response.content, response.headers  
             else:          
                 return response.text, response.headers
         

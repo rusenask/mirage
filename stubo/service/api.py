@@ -448,7 +448,7 @@ def get_response(handler, session_name):
     module_system_date = handler.get_argument('system_date', None)
     url_args = handler.track.request_params
     if not module_system_date:
-        # BA LEGACY
+        # LEGACY
         module_system_date = handler.get_argument('stubbedSystemDate', None)
     trace_matcher = TrackTrace(handler.track, 'matcher')
     user_cache = handler.settings['ext_cache']
