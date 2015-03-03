@@ -10,7 +10,7 @@ Use when reality is simply not good enough.
 Documentation
 =============
 
-See the The documenation [website](<http://http://stubo-app.readthedocs.org/en/latest/>) to view
+See the The documentation [website](<http://stubo-app.readthedocs.org/en/latest/>) to view
 user documentation.
 
 License
