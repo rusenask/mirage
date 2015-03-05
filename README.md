@@ -66,9 +66,9 @@ Stubo::
     $ virtualenv --no-site-packages env
     $ source ./env/bin/activate
        
-    (env) $ git clone git@github.com:Stub-O-Matic/stubo-app.git
+    (env) $ git clone http://www.github.com/Stub-O-Matic/stubo-app.git
     
-    (env) $ cd stubo_app
+    (env) $ cd stubo-app
     
     (env) $ python setup.py develop
 
