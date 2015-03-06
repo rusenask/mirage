@@ -44,7 +44,7 @@ class StuboRequest(object):
         return not self.__eq__(other) 
     
     def __str__(self):
-        return 'StuboRequest uri={uri}, host={host}, method={method}, path='\
+        return 'StuboRequest: uri={uri}, host={host}, method={method}, path='\
           '{path}, query={query}'.format(**self.__dict__)
         
     def describe_to(self, desc):

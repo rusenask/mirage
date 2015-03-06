@@ -15,13 +15,12 @@ class TestJSONStubParser(unittest.TestCase):
         self.assertTrue(parser)
         
     def test_normal_stub(self):
-        import json
         stub = {'request': 
             { 'bodyPatterns': [{'contains': ['get my stub', 'and another']}],
               'method': 'POST'},
               'response': {'body': 'a response', 'status': 200},
             }
-        self.assertEqual(self._parse(json.dumps(stub), foo='bar'), {'request': 
+        self.assertEqual(self._parse(stub, foo='bar'), {'request': 
             { 'bodyPatterns': [{'contains': ['get my stub', 'and another']}],
               'method': 'POST'},
               'response': {'body': 'a response', 'status': 200},
@@ -29,13 +28,12 @@ class TestJSONStubParser(unittest.TestCase):
             })   
         
     def test_no_args(self):
-        import json
         stub = {'request': 
             { 'bodyPatterns': [{'contains': ['get my stub', 'and another']}],
               'method': 'POST'},
               'response': {'body': 'a response', 'status': 200},
             }
-        self.assertEqual(self._parse(json.dumps(stub)), {'request': 
+        self.assertEqual(self._parse(stub), {'request': 
             { 'bodyPatterns': [{'contains': ['get my stub', 'and another']}],
               'method': 'POST'},
               'response': {'body': 'a response', 'status': 200},
@@ -43,13 +41,11 @@ class TestJSONStubParser(unittest.TestCase):
             }) 
         
     def test_default_response(self):
-        import json
         stub = {'request': 
             { 'bodyPatterns': [{'contains': ['get my stub', 'and another']}],
               'method': 'POST'},
             }
-        # Do we really support an empty response body?
-        self.assertEqual(self._parse(json.dumps(stub)), {'request': 
+        self.assertEqual(self._parse(stub), {'request': 
             { 'bodyPatterns': [{'contains': ['get my stub', 'and another']}],
               'method': 'POST'},
               'response': {'status': 200},
@@ -57,11 +53,10 @@ class TestJSONStubParser(unittest.TestCase):
             }) 
 
     def test_stub_missing_matcher(self):
-        import json
         with self.assertRaises(ValueError):
-            self._parse(json.dumps({
+            self._parse({
               'response': {'body': 'a response', 'status': 200},
-            }))              
+            })              
     
     
 

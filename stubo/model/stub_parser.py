@@ -21,8 +21,7 @@ class StubParser(object):
                   
 class JSONStubParser(StubParser):
     
-     def parse(self, body, url_args):
-         payload = json.loads(body)
+     def parse(self, payload, url_args):
          if 'request' not in payload:
              raise ValueError("No 'request' definition found in body") 
          if 'response' not in payload or not payload['response']:
@@ -34,7 +33,7 @@ class LegacyStubParser(StubParser):
     """
     LEGACY format
     ||textMatcher||<status>OK</status>||response||<response>YES</response>
-    =>
+    => JSON
     {
         "request": {
             "method": "POST",
@@ -60,12 +59,12 @@ class LegacyStubParser(StubParser):
                        response=dict(status=200))
         parts = body.partition(LegacyStubParser.RESPONSE_SEP)
         if parts[1] != LegacyStubParser.RESPONSE_SEP or not parts[2]:
-            raise ValueError('NoResponseInBody')
+            raise ValueError('LegacyStubParser: NoResponseInBody')
         payload['response']['body'] = parts[-1]
       
         tokens = parts[0].split(LegacyStubParser.SEPARATOR)
         if tokens[0] != '':
-            raise ValueError("body does not start with separator '{0}'".format(
+            raise ValueError("LegacyStubParser: body does not start with separator '{0}'".format(
                                                 LegacyStubParser.SEPARATOR))
         tokens = tokens[1:]
        
@@ -73,12 +72,12 @@ class LegacyStubParser(StubParser):
         contains = payload['request']['bodyPatterns'][0]['contains']
         for matcher_key, matcher in key_value_pairs:
             if matcher_key != LegacyStubParser.TEXT_MATCHER_KEY:
-                raise ValueError("Expected '{0}' not '{1}'".format(
+                raise ValueError("LegacyStubParser: Expected '{0}' not '{1}'".format(
                         LegacyStubParser.TEXT_MATCHER_KEY, matcher_key))
             payload['request']['bodyPatterns']    
             contains.append(matcher)
         if len(contains) == 0:
-            raise ValueError('No matchers found')
+            raise ValueError('LegacyStubParser: No matchers found')
         return self.update_args(payload, url_args)           
             
         

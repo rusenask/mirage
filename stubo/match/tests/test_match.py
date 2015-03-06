@@ -2,9 +2,9 @@ import unittest
 import mock
 from stubo.testing import make_stub, make_cache_stub, DummyModel, DummyQueue
 
-class Test_match(unittest.TestCase):
+class Test_body_contains_matching(unittest.TestCase):
     
-    '''A stub consists of a list of matchers and a response that goes with them.
+    '''A stub can consists of a list of matchers and a response that goes with them.
        A request will be evaluated against each matcher in each stub. the first
        matching stub wins and has its response returned to the calling program.'''  
     
@@ -183,3 +183,199 @@ def exits(request, context):
     if context['function'] == 'get/response':
         return Dummy(request, context)
 """
+
+class TestStubMatcher(unittest.TestCase):
+    
+    def _make(self):
+        from stubo.match import StubMatcher
+        from stubo.utils.track import TrackTrace
+        return StubMatcher(TrackTrace(DummyModel(tracking_level='full'), 
+                                      'matcher'))
+    
+    def _make_stubo_request(self, body=None, **kwargs):
+        from stubo.model.request import StuboRequest
+        from stubo.testing import DummyModel
+        request = DummyModel(body=body or u'', headers=dict(**kwargs))
+        return StuboRequest(request)
+    
+    def _make_stub(self, payload, scenario=None):
+        from stubo.model.stub import Stub
+        return Stub(payload, scenario or 'test')
+    
+    def test_combo(self):
+        matcher = self._make()
+        headers = {'Stubo-Request-Method' : 'GET',
+                   'Stubo-Request-Path' : '/get/me',
+                   'Stubo-Request-Query' : 'foo=bar'}
+        request = self._make_stubo_request(**headers)
+        payload = dict(request=dict(method='GET', 
+                                    urlPath='/get/me', 
+                                    queryArgs=dict(foo=['bar'])))
+        stub = self._make_stub(payload)
+        self.assertTrue(matcher.match(request, stub))
+        
+    def test_post_combo(self):
+        matcher = self._make()
+        headers = {'Stubo-Request-Method' : 'POST',
+                   'Stubo-Request-Path' : '/get/me',
+                   'Stubo-Request-Query' : 'foo=bar'}
+        request = self._make_stubo_request(body = u'hello', **headers)
+        payload = dict(request=dict(method='POST',
+                                    bodyPatterns=[dict(contains=[u'hello'])], 
+                                    urlPath='/get/me', 
+                                    queryArgs=dict(foo=['bar'])))
+        stub = self._make_stub(payload)
+        self.assertTrue(matcher.match(request, stub))    
+        
+    def test_combo_method_fails(self):
+        matcher = self._make()
+        headers = {'Stubo-Request-Method' : 'POST',
+                   'Stubo-Request-Path' : '/get/me',
+                   'Stubo-Request-Query' : 'foo=bar'}
+        request = self._make_stubo_request(**headers)
+        payload = dict(request=dict(method='GET', 
+                                    urlPath='/get/me', 
+                                    queryArgs=dict(foo=['bar'])))
+        stub = self._make_stub(payload)
+        self.assertFalse(matcher.match(request, stub))  
+        self.assertEqual(len(matcher.trace.trace), 1)
+        self.assertEqual(matcher.trace.trace[0][1], 
+                         ('warn', 'a request with method: GET was StuboRequest: uri=None, host=None, method=POST, path=/get/me, query=foo=bar', None)) 
+        
+    def test_combo_path_fails(self):
+        matcher = self._make()
+        headers = {'Stubo-Request-Method' : 'GET',
+                   'Stubo-Request-Path' : '/get/me/out',
+                   'Stubo-Request-Query' : 'foo=bar'}
+        request = self._make_stubo_request(**headers)
+        payload = dict(request=dict(method='GET', 
+                                    urlPath='/get/me', 
+                                    queryArgs=dict(foo=['bar'])))
+        stub = self._make_stub(payload)
+        result = matcher.match(request, stub)
+        self.assertFalse(result)  
+        self.assertEqual(matcher.trace.trace[0][1], 
+                         ('warn', 'a request with path: /get/me was StuboRequest: uri=None, host=None, method=GET, path=/get/me/out, query=foo=bar', None))   
+        
+    def test_combo_query_fails(self):
+        matcher = self._make()
+        headers = {'Stubo-Request-Method' : 'GET',
+                   'Stubo-Request-Path' : '/get/me/out',
+                   'Stubo-Request-Query' : 'foo=x'}
+        request = self._make_stubo_request(**headers)
+        payload = dict(request=dict(method='GET', 
+                                    urlPath='/get/me', 
+                                    queryArgs=dict(foo=['bar'])))
+        stub = self._make_stub(payload)
+        result = matcher.match(request, stub)
+        self.assertFalse(result) 
+        self.assertEqual(matcher.trace.trace[0][1],
+          ('warn', 'a request with path: /get/me was StuboRequest: uri=None, host=None, method=GET, path=/get/me/out, query=foo=x', None))     
+        
+    def test_post_combo_path_fails(self):
+        matcher = self._make()
+        headers = {'Stubo-Request-Method' : 'POST',
+                   'Stubo-Request-Path' : '/get/me/out',
+                   'Stubo-Request-Query' : 'foo=bar'}
+        request = self._make_stubo_request(body = u'hello', **headers)
+        payload = dict(request=dict(method='POST',
+                                    bodyPatterns=[dict(contains=[u'hello'])], 
+                                    urlPath='/get/me', 
+                                    queryArgs=dict(foo=['bar'])))
+        stub = self._make_stub(payload)
+        self.assertFalse(matcher.match(request, stub))    
+        
+    def test_combo_negate_path(self):
+        matcher = self._make()
+        headers = {'Stubo-Request-Method' : 'GET',
+                   'Stubo-Request-Path' : '/get/me',
+                   'Stubo-Request-Query' : 'foo=bar'}
+        request = self._make_stubo_request(**headers)
+        payload = {
+            'request' : {
+               'method' : 'GET', 
+               '!urlPath' : '/get/me', 
+               'queryArgs' : dict(foo=['bar'])
+               }
+        }     
+        stub = self._make_stub(payload)
+        self.assertFalse(matcher.match(request, stub)) 
+        self.assertEqual(matcher.trace.trace[0][1],
+         ('warn', 'not a request with path: /get/me was StuboRequest: uri=None, host=None, method=GET, path=/get/me, query=foo=bar', None))  
+        
+    def test_combo_negate_method(self):
+        matcher = self._make()
+        headers = {'Stubo-Request-Method' : 'GET',
+                   'Stubo-Request-Path' : '/get/me',
+                   'Stubo-Request-Query' : 'foo=bar'}
+        request = self._make_stubo_request(**headers)
+        payload = {
+            'request' : {
+               '!method' : 'GET', 
+               'urlPath' : '/get/me', 
+               'queryArgs' : dict(foo=['bar'])
+               }
+        }     
+        stub = self._make_stub(payload)
+        self.assertFalse(matcher.match(request, stub)) 
+        self.assertEqual(matcher.trace.trace[0][1],
+          ('warn', 'not a request with method: GET was StuboRequest: uri=None, host=None, method=GET, path=/get/me, query=foo=bar', None))
+        
+    def test_combo_negate_query(self):
+        matcher = self._make()
+        headers = {'Stubo-Request-Method' : 'GET',
+                   'Stubo-Request-Path' : '/get/me',
+                   'Stubo-Request-Query' : 'foo=bar'}
+        request = self._make_stubo_request(**headers)
+        payload = {
+            'request' : {
+               'method' : 'GET', 
+               'urlPath' : '/get/me', 
+               '!queryArgs' : dict(foo=['bar'])
+               }
+        }     
+        stub = self._make_stub(payload)
+        self.assertFalse(matcher.match(request, stub)) 
+        self.assertEqual(matcher.trace.trace[0][1],
+          ('warn', "not a request with query: {'foo': ['bar']} was StuboRequest: uri=None, host=None, method=GET, path=/get/me, query=foo=bar", None))                
+        
+    def test_combo_negate_body_contains(self):
+        matcher = self._make()
+        headers = {'Stubo-Request-Method' : 'POST',
+                   'Stubo-Request-Path' : '/get/me',
+                   'Stubo-Request-Query' : 'foo=bar'}
+        request = self._make_stubo_request(body=u'hello', **headers)
+        payload = {
+            'request' : {
+               'method' : 'POST', 
+               'urlPath' : '/get/me', 
+               'queryArgs' : dict(foo=['bar']),
+               'bodyPatterns' : [{
+                    '!contains' : [u'hello']
+               }]     
+               }
+        }     
+        stub = self._make_stub(payload)
+        self.assertFalse(matcher.match(request, stub)) 
+        self.assertEqual(matcher.trace.trace[0][1],
+                    ('warn', 'not a request with body_unicode: hello was StuboRequest: uri=None, host=None, method=POST, path=/get/me, query=foo=bar', None)) 
+        
+    def test_combo_body_contains(self):
+        matcher = self._make()
+        headers = {'Stubo-Request-Method' : 'POST',
+                   'Stubo-Request-Path' : '/get/me',
+                   'Stubo-Request-Query' : 'foo=bar'}
+        request = self._make_stubo_request(body=u'hello', **headers)
+        payload = {
+            'request' : {
+               'method' : 'POST', 
+               'urlPath' : '/get/me', 
+               'queryArgs' : dict(foo=['bar']),
+               'bodyPatterns' : [{
+                    '!contains' : [u'foo'],
+                    'contains' : [u'hello']
+               }]     
+               }
+        }     
+        stub = self._make_stub(payload)
+        self.assertTrue(matcher.match(request, stub))                                       

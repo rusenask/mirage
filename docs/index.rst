@@ -22,7 +22,7 @@ Stub-O-Matic Documentation |version|
    pages/api.rst
    pages/examples.rst
    pages/clients.rst
-   pages/undocumented.rst
+   pages/reference.rst
    pages/about.rst
    
 Change History

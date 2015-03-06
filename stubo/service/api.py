@@ -9,6 +9,7 @@ import shutil
 import logging
 import random
 import time
+from json import loads
 import sys
 import copy
 import json
@@ -358,13 +359,21 @@ def put_stub(handler, session_name, delay_policy, stateful,
     scenario_key = cache.find_scenario_key(session_name)
     trace = TrackTrace(handler.track, 'put_stub')
     url_args = handler.track.request_params
+    payload = stubo_request.body_unicode
+    err_msg = 'put/stub body format error - {0}, for session: {1}'
     try:
-        is_json = 'application/json' in request.headers.get('Content-Type', {})
-        stub = parse_stub(stubo_request.body_unicode, scenario_key, url_args,
-                          is_json)
+        payload = loads(payload)
+        is_json = True       
+    except Exception, e:
+        if 'application/json' in request.headers.get('Content-Type', {}):
+            raise exception_response(400, title=err_msg.format(e.message, 
+                                                               session_name)) 
+        is_json = False   # LEGACY         
+    try:
+        stub = parse_stub(payload, scenario_key, url_args, is_json)         
     except Exception, e:    
-        raise exception_response(400, title='put/stub body format error - {0}, '
-            'on session: {1}'.format(e.message, session_name))
+        raise exception_response(400, title=err_msg.format(e.message, 
+                                                           session_name))
                                                    
     log.debug('stub: {0}'.format(stub))
     if delay_policy:

@@ -13,8 +13,10 @@ import copy
 import json
 
 from hamcrest.core.string_description import StringDescription
-from hamcrest import all_of
-from .request_matcher import body_contains, has_method
+from hamcrest import all_of, is_not
+from .request_matcher import (
+    body_contains, has_method, has_path, has_query_args
+)
 from stubo.model.stub import Stub, StubCache
 from stubo.exceptions import exception_response
 from stubo.utils import as_date
@@ -31,8 +33,21 @@ def build_matchers(stub):
                 if 'contains' in body_pattern:
                     for s in body_pattern['contains']:
                         matchers.append(body_contains(s))
+                if '!contains' in body_pattern:
+                    for s in body_pattern['!contains']:
+                        matchers.append(is_not(body_contains(s)))        
         elif k == 'method':
-            matchers.append(has_method(v))                
+            matchers.append(has_method(v))
+        elif k == 'urlPath':
+            matchers.append(has_path(v))
+        elif k == 'queryArgs':
+            matchers.append(has_query_args(v)) 
+        elif k == '!method':
+            matchers.append(is_not(has_method(v)))
+        elif k == '!urlPath':
+            matchers.append(is_not(has_path(v)))
+        elif k == '!queryArgs':
+            matchers.append(is_not(has_query_args(v)))                               
     return matchers 
 
 def match(request, session, trace, system_date, url_args, hooks,

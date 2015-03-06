@@ -4,7 +4,6 @@ Introduction
 ************
 The target of the Stub-O-matic software is to enable automated testing by mastering system dependencies.
 
-A pdf version of this documentation is available at /static/docs/Stub-O-Matic.pdf.
 
 Background
 ==========
