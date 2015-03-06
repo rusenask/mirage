@@ -109,13 +109,12 @@ class Test_parse(unittest.TestCase):
         from stubo.model.stub import parse_stub
         return parse_stub(request, scenario, url_args, json=json)
     
-    def test_json(self):
-        import json
-        request = json.dumps({'request': 
+    def test_json(self):   
+        request = {'request': 
             { 'bodyPatterns': [{'contains': ['get my stub', 'and another']}],
               'method': 'POST'},
               'response': {'body': 'a response', 'status': 200},
-            }) 
+            }
         stub = self._func(request, 'foo')
         self.assertEqual(stub.args(), {})
         self.assertEqual(stub.contains_matchers(), [u'get my stub', u'and another'])
@@ -124,12 +123,11 @@ class Test_parse(unittest.TestCase):
         self.assertEqual(stub.response_status(), 200)
         
     def test_json_args(self):
-        import json
-        request = json.dumps({'request': 
+        request = {'request': 
             { 'bodyPatterns': [{'contains': ['get my stub', 'and another']}],
               'method': 'POST'},
               'response': {'body': 'a response', 'status': 200},
-            }) 
+            }
         stub = self._func(request, 'foo', json=True, boring=False)
         self.assertEqual(stub.args(), {'boring': False})
         self.assertEqual(stub.contains_matchers(), [u'get my stub', u'and another'])
