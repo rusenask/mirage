@@ -445,7 +445,6 @@ class Cache(object):
             response_ids = []
             response_bodys = stub.response_body()
             # cache each response id -> response (text, status) etc
-            print  'stub=', stub.payload
             for response_text in response_bodys:
                 stub.set_response_body(response_text)
                 response_id = response_hash(response_text, stub)

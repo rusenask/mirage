@@ -720,7 +720,6 @@ class TestState(Base):
         self.http_client.fetch(self.get_url('/stubo/api/put/stub?session=first_1'), callback=self.stop,
         method="POST", body="||textMatcher||abcdef||response||a response")
         response = self.wait()
-        print response.code, response.body
         self.assertEqual(response.code, 200)
 
         # insert a duplicate stub, which should not be loaded
@@ -1784,14 +1783,12 @@ class TestRest(Base):
         self.http_client.fetch(
           self.get_url('/stubo/api/begin/session?scenario=rest&session=rest_1&mode=playback'), self.stop)                       
         response = self.wait()
-        print response.code, response.body
         self.assertEqual(response.code, 200)
         
         self.http_client.fetch(self.get_url('/stubo/api/get/response?session=rest_1'), 
             self.stop, method='POST', body="", headers={'Stubo-Request-Path' : '/some/content',
                                                'Stubo-Request-Method': 'DELETE'})                 
         response = self.wait()
-        print response.code, response.body
         self.assertEqual(response.code, 204)    
         
     def test_empty_response2(self):
@@ -1813,7 +1810,6 @@ class TestRest(Base):
         self.http_client.fetch(self.get_url('/stubo/api/put/stub?session=rest_1'), callback=self.stop,
         method="POST", body=json.dumps(stub),  headers={'Content-Type' : 'application/json'})
         response = self.wait()
-        print response.code, response.body
         self.assertEqual(response.code, 200)
         
         stubs = list(self.db.scenario_stub.find())
@@ -1827,14 +1823,12 @@ class TestRest(Base):
         self.http_client.fetch(
           self.get_url('/stubo/api/begin/session?scenario=rest&session=rest_1&mode=playback'), self.stop)                       
         response = self.wait()
-        print response.code, response.body
         self.assertEqual(response.code, 200)
         
         self.http_client.fetch(self.get_url('/stubo/api/get/response?session=rest_1'), 
             self.stop, method='POST', body="", headers={'Stubo-Request-Path' : '/some/content',
                                                'Stubo-Request-Method': 'DELETE'})                 
         response = self.wait()
-        print response.code, response.body
         self.assertEqual(response.code, 204)   
         
     def test_response_headers(self):
@@ -1861,7 +1855,6 @@ class TestRest(Base):
         self.http_client.fetch(self.get_url('/stubo/api/put/stub?session=rest_1'), callback=self.stop,
         method="POST", body=json.dumps(stub),  headers={'Content-Type' : 'application/json'})
         response = self.wait()
-        print response.code, response.body
         self.assertEqual(response.code, 200)
         
         stubs = list(self.db.scenario_stub.find())
@@ -1875,14 +1868,12 @@ class TestRest(Base):
         self.http_client.fetch(
           self.get_url('/stubo/api/begin/session?scenario=rest&session=rest_1&mode=playback'), self.stop)                       
         response = self.wait()
-        print response.code, response.body
         self.assertEqual(response.code, 200)
         
         self.http_client.fetch(self.get_url('/stubo/api/get/response?session=rest_1'), 
             self.stop, method='POST', body="", headers={'Stubo-Request-Path' : '/some/content',
                                                'Stubo-Request-Method': 'GET'})                 
         response = self.wait()
-        print response.code, response.body
         self.assertEqual(response.code, 200)  
         self.assertEqual(response.headers.get("Content-Type"), "application/json")
         self.assertEqual(response.headers.get("My-App"), "XYZ")                       

@@ -541,7 +541,6 @@ class DummyMaster(object):
         return self._keys
     
     def exists(self, key):
-        print 'keys=', self._keys
         return key in self._keys
     
 class DummyObjectId(object):

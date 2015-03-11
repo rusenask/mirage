@@ -164,7 +164,6 @@ def as_date(date_str):
 
 def convert_to_script(data, var_name='_client_data'):
     if data:
-        ##print data
         result = json.dumps(data)
         script = dedent("""\
             <script type="text/javascript">
