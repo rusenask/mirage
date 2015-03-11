@@ -16,12 +16,12 @@ class TestJSONStubParser(unittest.TestCase):
         
     def test_normal_stub(self):
         stub = {'request': 
-            { 'bodyPatterns': [{'contains': ['get my stub', 'and another']}],
+            { 'bodyPatterns': {'contains': ['get my stub', 'and another']},
               'method': 'POST'},
               'response': {'body': 'a response', 'status': 200},
             }
         self.assertEqual(self._parse(stub, foo='bar'), {'request': 
-            { 'bodyPatterns': [{'contains': ['get my stub', 'and another']}],
+            { 'bodyPatterns': {'contains': ['get my stub', 'and another']},
               'method': 'POST'},
               'response': {'body': 'a response', 'status': 200},
               'args' : {'foo' : 'bar'}
@@ -29,12 +29,12 @@ class TestJSONStubParser(unittest.TestCase):
         
     def test_no_args(self):
         stub = {'request': 
-            { 'bodyPatterns': [{'contains': ['get my stub', 'and another']}],
+            { 'bodyPatterns': {'contains': ['get my stub', 'and another']},
               'method': 'POST'},
               'response': {'body': 'a response', 'status': 200},
             }
         self.assertEqual(self._parse(stub), {'request': 
-            { 'bodyPatterns': [{'contains': ['get my stub', 'and another']}],
+            { 'bodyPatterns': {'contains': ['get my stub', 'and another']},
               'method': 'POST'},
               'response': {'body': 'a response', 'status': 200},
               'args' : {}
@@ -42,13 +42,13 @@ class TestJSONStubParser(unittest.TestCase):
         
     def test_default_response(self):
         stub = {'request': 
-            { 'bodyPatterns': [{'contains': ['get my stub', 'and another']}],
+            { 'bodyPatterns': {'contains': ['get my stub', 'and another']},
               'method': 'POST'},
             }
         self.assertEqual(self._parse(stub), {'request': 
-            { 'bodyPatterns': [{'contains': ['get my stub', 'and another']}],
+            { 'bodyPatterns': {'contains': ['get my stub', 'and another']},
               'method': 'POST'},
-              'response': {'status': 200},
+              'response': {'body' : '', 'status': 200},
               'args' : {}
             }) 
 
@@ -76,7 +76,7 @@ class TestLegacyStubParser(unittest.TestCase):
     def test_normal_stub(self):
         stub = '||textMatcher||get my stub||textMatcher||and another||response||a response'
         self.assertEqual(self._parse(stub, foo='bar'), {'request': 
-            { 'bodyPatterns': [{'contains': ['get my stub', 'and another']}],
+            { 'bodyPatterns': {'contains': ['get my stub', 'and another']},
               'method': 'POST'},
               'response': {'body': 'a response', 'status': 200},
               'args' : {'foo' : 'bar'}
@@ -85,7 +85,7 @@ class TestLegacyStubParser(unittest.TestCase):
     def test_no_args(self):
         stub = '||textMatcher||get my stub||textMatcher||and another||response||a response'
         self.assertEqual(self._parse(stub), {'request': 
-            { 'bodyPatterns': [{'contains': ['get my stub', 'and another']}],
+            { 'bodyPatterns': {'contains': ['get my stub', 'and another']},
               'method': 'POST'},
               'response': {'body': 'a response', 'status': 200},
               'args' : {}
@@ -111,7 +111,7 @@ class Test_parse(unittest.TestCase):
     
     def test_json(self):   
         request = {'request': 
-            { 'bodyPatterns': [{'contains': ['get my stub', 'and another']}],
+            { 'bodyPatterns': {'contains': ['get my stub', 'and another']},
               'method': 'POST'},
               'response': {'body': 'a response', 'status': 200},
             }
@@ -124,7 +124,7 @@ class Test_parse(unittest.TestCase):
         
     def test_json_args(self):
         request = {'request': 
-            { 'bodyPatterns': [{'contains': ['get my stub', 'and another']}],
+            { 'bodyPatterns': {'contains': ['get my stub', 'and another']},
               'method': 'POST'},
               'response': {'body': 'a response', 'status': 200},
             }

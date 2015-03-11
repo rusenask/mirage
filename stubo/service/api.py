@@ -442,10 +442,6 @@ def calculate_delay(policy):
 def get_response(handler, session_name):
     request = handler.request
     stubo_request = StuboRequest(request)
-    request_body = stubo_request.request_body()
-    if not request_body:
-        # TODO: not an error if they match on other attrs
-        raise exception_response(400, title='No text in body')
     cache = Cache(get_hostname(request))
     if cache.blacklisted():
         raise exception_response(400, title="Sorry the host URL '{0}' has been "
@@ -453,7 +449,7 @@ def get_response(handler, session_name):
     scenario_key = cache.find_scenario_key(session_name)  
     scenario_name = scenario_key.partition(':')[-1] 
     handler.track.scenario = scenario_name   
-    request_id = compute_hash(request_body)
+    request_id = stubo_request.id()
     module_system_date = handler.get_argument('system_date', None)
     url_args = handler.track.request_params
     if not module_system_date:
@@ -501,9 +497,11 @@ def get_response(handler, session_name):
         request_index_key = add_request(session, request_id, stub, system_date,
                                         stub_number,
                                         handler.settings['request_cache_limit'])
+      
         if not stub.response_body():
-            stub.set_response_body(stub.get_response_body_from_cache(
-                                   request_index_key))
+            _response = stub.get_response_from_cache(request_index_key)
+            stub.set_response_body(_response['body'])
+       
         if delay_policy_name:    
             stub.load_delay_from_cache(delay_policy_name)     
         
@@ -549,7 +547,11 @@ def get_response(handler, session_name):
         trace_response.diff('response:transformed',
                             dict(response=response_text[0]),
                             dict(response=transfomed_response_text)) 
-                                     
+    if stub.response_status() != 200:
+        handler.set_status(stub.response_status())
+    if stub.response_headers():     
+        for k, v in stub.response_headers().iteritems():
+            handler.set_header(k, v)                                     
     return transfomed_response_text
 
 def delete_stubs(handler, scenario_name=None, host=None, force=False):

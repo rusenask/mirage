@@ -24,9 +24,17 @@ class JSONStubParser(StubParser):
      def parse(self, payload, url_args):
          if 'request' not in payload:
              raise ValueError("No 'request' definition found in body") 
+         body_patterns = payload['request'].get('bodyPatterns')
+         if body_patterns and isinstance(body_patterns, list):
+             # convert legacy JSON format
+             payload['request']['bodyPatterns'] = body_patterns[0]
          if 'response' not in payload or not payload['response']:
              # default
-             payload['response'] = dict(status=200)    
+             payload['response'] = dict(status=200) 
+         response_body = payload['response'].get('body')  
+         # we are kind of dependent on having a response body
+         if not response_body:
+             payload['response']['body'] = "" 
          return self.update_args(payload, url_args)   
          
 class LegacyStubParser(StubParser):
@@ -55,7 +63,7 @@ class LegacyStubParser(StubParser):
     
     def parse(self, body, url_args):
         payload = dict(request=dict(method='POST', 
-                                    bodyPatterns=[dict(contains=[])]),
+                                    bodyPatterns=dict(contains=[])),
                        response=dict(status=200))
         parts = body.partition(LegacyStubParser.RESPONSE_SEP)
         if parts[1] != LegacyStubParser.RESPONSE_SEP or not parts[2]:
@@ -69,12 +77,11 @@ class LegacyStubParser(StubParser):
         tokens = tokens[1:]
        
         key_value_pairs = zip(tokens[0::2], tokens[1::2])
-        contains = payload['request']['bodyPatterns'][0]['contains']
+        contains = payload['request']['bodyPatterns']['contains']
         for matcher_key, matcher in key_value_pairs:
             if matcher_key != LegacyStubParser.TEXT_MATCHER_KEY:
                 raise ValueError("LegacyStubParser: Expected '{0}' not '{1}'".format(
                         LegacyStubParser.TEXT_MATCHER_KEY, matcher_key))
-            payload['request']['bodyPatterns']    
             contains.append(matcher)
         if len(contains) == 0:
             raise ValueError('LegacyStubParser: No matchers found')

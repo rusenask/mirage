@@ -6,9 +6,12 @@ import logging
 from stubo.model.stub_parser import (
     JSONStubParser, LegacyStubParser
 )
-from stubo.utils import get_unicode_from_request
+from stubo.utils import get_unicode_from_request, compute_hash
 
 log = logging.getLogger(__name__)
+
+def response_hash(response_body, stub):
+    return compute_hash(u"".join([response_body, str(stub.response_status())]))
 
 def parse_stub(body, scenario, url_args, json=True):
     log.debug(u'parse_stub body={0}'.format(body)) 
@@ -40,21 +43,22 @@ class StubData(object):
     def host(self):
         return self.hostname
     
-    def scenario_name(self):
-        return self.scenario_name
-    
     def response(self):
         return self.payload['response']
     
     def response_status(self):
         return self.payload['response']['status']
     
+    def response_headers(self):
+        return self.payload['response'].get('headers')
+    
     def set_response_body(self, body):
         self.response()['body'] = body 
          
     def response_body(self):
+        # Note can be more than one response for stateful requests
         response = self.response().get('body')
-        if response and isinstance(response, basestring):
+        if isinstance(response, basestring):
             response = [response]
         return response    
     
@@ -71,15 +75,21 @@ class StubData(object):
     
     def request_method(self):
         return self.payload['request']['method']
+    
+    def request_path(self):
+        return self.payload['request'].get('urlPath')
+    
+    def request_query_args(self):
+        return self.payload['request'].get('queryArgs')
         
     def contains_matchers(self):
-        return self.payload['request']['bodyPatterns'][0]['contains']
+        return self.payload['request'].get('bodyPatterns', {}).get('contains')
     
     def set_contains_matchers(self, matchers):
-        self.request()['bodyPatterns'][0]['contains'] = matchers
+        self.request()['bodyPatterns']['contains'] = matchers
         
     def number_of_matchers(self):
-        return len(self.contains_matchers())
+        return len(self.contains_matchers() or [])
     
     def args(self):
         return self.payload.get('args', {})    
@@ -109,7 +119,7 @@ class StubData(object):
 def create(request_body, response_body, method="POST", status=200):
     requests = request_body if isinstance(request_body, list) else [request_body]     
     return dict(request=dict(method=method,
-                             bodyPatterns=[dict(contains=requests)]),
+                             bodyPatterns=dict(contains=requests)),
                 response=dict(status=status,
                               body=response_body))
         
@@ -126,14 +136,23 @@ class Stub(StubData):
          {
             "request": {
                 "method": "POST",
-                "bodyPatterns": [
-                    { "contains": ["<status>OK</status>"] }
-                ]
+                "bodyPatterns": {
+                    "contains": ["<status>OK</status>"] 
+                }
+                "urlPath": "/get/me",
+                "queryArgs": {
+                   "find" : "me",
+                   "when" : "now"
                 },
+                "headers": {
+                  "User-Agent": "python-requests/2.5.1 CPython/2.7.7 Darwin/13.4.0"
+                }
+            },
             "response": {
                 "status": 200,
-                "body": "<response>YES</response>"
-            }
+                "body": "<response>YES</response>",
+                "headers": {}
+            }    
         }
     """
     
@@ -155,23 +174,32 @@ class StubCache(StubData):
     def id(self):
         return '{0} => {1}'.format(self.scenario_key(), self.session_name)  
     
+    def request_index_id(self):
+        matchers = u"".join([u''.join(
+            x.split()).strip() for x in self.contains_matchers() or []]) 
+        return compute_hash(u"".join([self.scenario_name, 
+                                      matchers, 
+                                      self.request_path() or "",
+                                      self.request_method(),
+                                      self.request_query_args() or ""]))
+    
     def load_from_cache(self, response_ids, delay_policy_name, recorded, 
-                        system_date, module_info, request_index_key):                        
-        self.payload = dict(response=dict(status=200, ids=response_ids))
-        self.set_response_body(self.get_response_body_from_cache(
-                                                        request_index_key))
+                        system_date, module_info, request_index_key):  
+        self.payload = dict(response=dict(ids=response_ids))
+        response = self.get_response_from_cache(request_index_key)
+        self.payload['response'] = response
         self.set_recorded(recorded)
         if module_info:
-            self.set_module(module_info)                    
+            self.set_module(module_info)                     
         if delay_policy_name:
             self.load_delay_from_cache(delay_policy_name)     
          
-    def get_response_body_from_cache(self, request_index_key):
+    def get_response_from_cache(self, request_index_key):
         # look up response
-        return self.cache.get_response_text(self.scenario_name, 
-                                            self.session_name,
-                                            self.response_ids(), 
-                                            request_index_key)
+        return self.cache.get_response(self.scenario_name, 
+                                       self.session_name,
+                                       self.response_ids(), 
+                                       request_index_key)
         
     def load_delay_from_cache(self, name):
         self.set_delay_policy(self.cache.get_delay_policy(name))

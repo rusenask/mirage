@@ -156,9 +156,8 @@ class TestSession(unittest.TestCase):
         doc = dict(scenario='localhost:foo', stub=Stub({
             "request": {
                 "method": "POST",
-                "bodyPatterns": [
+                "bodyPatterns": 
                     { "contains": ["<status>OK</status>"] }
-                ]
                 },
             "response": {
                 "status": 200,
@@ -373,9 +372,8 @@ class TestPutStub(unittest.TestCase):
         body = {
             "request": {
                 "method": "POST",
-                "bodyPatterns": [
+                "bodyPatterns": 
                     { "contains": ["get my stub"] }
-                ]
                 },
                 "response": {
                     "status": 200,
@@ -408,9 +406,8 @@ class TestPutStub(unittest.TestCase):
         body = { 
             "request": {
                 "method": "POST",
-                "bodyPatterns": [
+                "bodyPatterns": 
                     { "contains": ["get my stub"] }
-                ]
                 },
                 "response": {
                     "status": 200,
@@ -450,9 +447,8 @@ class TestPutStub(unittest.TestCase):
         body = {
             "request": {
                 "method": "POST",
-                "bodyPatterns": [
+                "bodyPatterns": 
                     { "contains": ["get my stub"] }
-                ]
                 },
                 "response": {
                     "status": 200,
@@ -483,9 +479,8 @@ class TestPutStub(unittest.TestCase):
         body = {
             "request": {
                 "method": "POST",
-                "bodyPatterns": [
+                "bodyPatterns": 
                     { "contains": ["get my stub"] }
-                ]
                 },
                 "response": {
                     "status": 200,
@@ -517,9 +512,8 @@ class TestPutStub(unittest.TestCase):
         body = {
             "request": {
                 "method": "POST",
-                "bodyPatterns": [
+                "bodyPatterns": 
                     { "contains": ["get my stub"] }
-                ]
                 },
                 "response": {
                     "status": 200,
@@ -544,9 +538,8 @@ class TestPutStub(unittest.TestCase):
         body = {
             "request": {
                 "method": "POST",
-                "bodyPatterns": [
+                "bodyPatterns": 
                     { "contains": ["get my stub"] }
-                ]
                 },
                 "response": {
                     "status": 200,
@@ -832,7 +825,7 @@ class TestGetStubs(unittest.TestCase):
         response = response[0]
         response.pop('_id')
         self.assertEqual(response, dict(stub=
-          {u'request': {u'bodyPatterns': [{u'contains': [u'<test>match this</test>']}],
+          {u'request': {u'bodyPatterns': {u'contains': [u'<test>match this</test>']},
                          u'method': u'POST'},
            u'response': {u'body': u'<test>OK</test>', u'status': 200}}, scenario='localhost:1stub1matcher')) 
       
@@ -850,9 +843,10 @@ class TestGetStubs(unittest.TestCase):
         response = response[0]
         response.pop('_id')
         self.assertEqual(response, dict(stub=
-          {u'request': {u'bodyPatterns': [{u'contains': [u'<test>match this</test>']}],
+          {u'request': {u'bodyPatterns': {u'contains': [u'<test>match this</test>']},
                          u'method': u'POST'},
-           u'response': {u'body': u'<test>OK</test>', u'status': 200}}, scenario='localhost:1stub1matcher')) 
+           u'response': {u'body': u'<test>OK</test>', u'status': 200}}, 
+                                        scenario='localhost:1stub1matcher')) 
             
            
 class TestStubExport(unittest.TestCase):

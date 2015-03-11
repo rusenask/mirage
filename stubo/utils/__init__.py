@@ -20,6 +20,7 @@ from tempfile import mkdtemp
 from asyncore import compact_traceback
 from StringIO import StringIO
 from importlib import import_module
+import hashlib
 
 from pytz import timezone
 import redis
@@ -297,4 +298,11 @@ def compact_traceback_info(tb):
      
     # file, function, line = tbinfo[-1]
     return ' '.join(['[%s|%s|%s]' % x for x in tbinfo])
+
+def compute_hash(data):
+    if isinstance(data, unicode):
+        _hash = hashlib.sha224(data.encode('utf-8')).hexdigest()
+    else:
+        _hash = hashlib.sha224(data).hexdigest()
+    return _hash
         

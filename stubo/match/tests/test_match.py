@@ -221,7 +221,7 @@ class TestStubMatcher(unittest.TestCase):
                    'Stubo-Request-Query' : 'foo=bar'}
         request = self._make_stubo_request(body = u'hello', **headers)
         payload = dict(request=dict(method='POST',
-                                    bodyPatterns=[dict(contains=[u'hello'])], 
+                                    bodyPatterns=dict(contains=[u'hello']), 
                                     urlPath='/get/me', 
                                     queryArgs=dict(foo=['bar'])))
         stub = self._make_stub(payload)
@@ -240,7 +240,7 @@ class TestStubMatcher(unittest.TestCase):
         self.assertFalse(matcher.match(request, stub))  
         self.assertEqual(len(matcher.trace.trace), 1)
         self.assertEqual(matcher.trace.trace[0][1], 
-                         ('warn', 'a request with method: GET was StuboRequest: uri=None, host=None, method=POST, path=/get/me, query=foo=bar', None)) 
+          ('warn', 'a request with method: GET was StuboRequest: uri=None, host=None, method=POST, path=/get/me, query=foo=bar, id={0}'.format(request.id()), None)) 
         
     def test_combo_path_fails(self):
         matcher = self._make()
@@ -255,7 +255,7 @@ class TestStubMatcher(unittest.TestCase):
         result = matcher.match(request, stub)
         self.assertFalse(result)  
         self.assertEqual(matcher.trace.trace[0][1], 
-                         ('warn', 'a request with path: /get/me was StuboRequest: uri=None, host=None, method=GET, path=/get/me/out, query=foo=bar', None))   
+          ('warn', 'a request with path: /get/me was StuboRequest: uri=None, host=None, method=GET, path=/get/me/out, query=foo=bar, id={0}'.format(request.id()), None))   
         
     def test_combo_query_fails(self):
         matcher = self._make()
@@ -270,7 +270,7 @@ class TestStubMatcher(unittest.TestCase):
         result = matcher.match(request, stub)
         self.assertFalse(result) 
         self.assertEqual(matcher.trace.trace[0][1],
-          ('warn', 'a request with path: /get/me was StuboRequest: uri=None, host=None, method=GET, path=/get/me/out, query=foo=x', None))     
+          ('warn', 'a request with path: /get/me was StuboRequest: uri=None, host=None, method=GET, path=/get/me/out, query=foo=x, id={0}'.format(request.id()), None))     
         
     def test_post_combo_path_fails(self):
         matcher = self._make()
@@ -279,7 +279,7 @@ class TestStubMatcher(unittest.TestCase):
                    'Stubo-Request-Query' : 'foo=bar'}
         request = self._make_stubo_request(body = u'hello', **headers)
         payload = dict(request=dict(method='POST',
-                                    bodyPatterns=[dict(contains=[u'hello'])], 
+                                    bodyPatterns=dict(contains=[u'hello']), 
                                     urlPath='/get/me', 
                                     queryArgs=dict(foo=['bar'])))
         stub = self._make_stub(payload)
@@ -301,7 +301,7 @@ class TestStubMatcher(unittest.TestCase):
         stub = self._make_stub(payload)
         self.assertFalse(matcher.match(request, stub)) 
         self.assertEqual(matcher.trace.trace[0][1],
-         ('warn', 'not a request with path: /get/me was StuboRequest: uri=None, host=None, method=GET, path=/get/me, query=foo=bar', None))  
+         ('warn', 'not a request with path: /get/me was StuboRequest: uri=None, host=None, method=GET, path=/get/me, query=foo=bar, id={0}'.format(request.id()), None))  
         
     def test_combo_negate_method(self):
         matcher = self._make()
@@ -319,7 +319,7 @@ class TestStubMatcher(unittest.TestCase):
         stub = self._make_stub(payload)
         self.assertFalse(matcher.match(request, stub)) 
         self.assertEqual(matcher.trace.trace[0][1],
-          ('warn', 'not a request with method: GET was StuboRequest: uri=None, host=None, method=GET, path=/get/me, query=foo=bar', None))
+          ('warn', 'not a request with method: GET was StuboRequest: uri=None, host=None, method=GET, path=/get/me, query=foo=bar, id={0}'.format(request.id()), None))
         
     def test_combo_negate_query(self):
         matcher = self._make()
@@ -337,7 +337,7 @@ class TestStubMatcher(unittest.TestCase):
         stub = self._make_stub(payload)
         self.assertFalse(matcher.match(request, stub)) 
         self.assertEqual(matcher.trace.trace[0][1],
-          ('warn', "not a request with query: {'foo': ['bar']} was StuboRequest: uri=None, host=None, method=GET, path=/get/me, query=foo=bar", None))                
+          ('warn', "not a request with query: {'foo': ['bar']} was StuboRequest: uri=None, host=None, method=GET, path=/get/me, query=foo=bar, id="+request.id(), None))                
         
     def test_combo_negate_body_contains(self):
         matcher = self._make()
@@ -350,15 +350,15 @@ class TestStubMatcher(unittest.TestCase):
                'method' : 'POST', 
                'urlPath' : '/get/me', 
                'queryArgs' : dict(foo=['bar']),
-               'bodyPatterns' : [{
+               'bodyPatterns' : {
                     '!contains' : [u'hello']
-               }]     
+               }     
                }
         }     
         stub = self._make_stub(payload)
         self.assertFalse(matcher.match(request, stub)) 
         self.assertEqual(matcher.trace.trace[0][1],
-                    ('warn', 'not a request with body_unicode: hello was StuboRequest: uri=None, host=None, method=POST, path=/get/me, query=foo=bar', None)) 
+                    ('warn', 'not a request with body_unicode: hello was StuboRequest: uri=None, host=None, method=POST, path=/get/me, query=foo=bar, id={0}'.format(request.id()), None)) 
         
     def test_combo_body_contains(self):
         matcher = self._make()
@@ -371,10 +371,10 @@ class TestStubMatcher(unittest.TestCase):
                'method' : 'POST', 
                'urlPath' : '/get/me', 
                'queryArgs' : dict(foo=['bar']),
-               'bodyPatterns' : [{
+               'bodyPatterns' : {
                     '!contains' : [u'foo'],
                     'contains' : [u'hello']
-               }]     
+               }     
                }
         }     
         stub = self._make_stub(payload)

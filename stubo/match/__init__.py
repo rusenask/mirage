@@ -29,12 +29,12 @@ def build_matchers(stub):
     for k, v in stub.request().iteritems():
         if k == 'bodyPatterns':
             body_patterns = stub.request()['bodyPatterns']
-            for body_pattern in body_patterns:
-                if 'contains' in body_pattern:
-                    for s in body_pattern['contains']:
+            for body_pattern, body_pattern_value in body_patterns.iteritems():
+                if body_pattern == 'contains':
+                    for s in body_pattern_value:
                         matchers.append(body_contains(s))
-                if '!contains' in body_pattern:
-                    for s in body_pattern['!contains']:
+                if body_pattern == '!contains':
+                    for s in body_pattern_value:
                         matchers.append(is_not(body_contains(s)))        
         elif k == 'method':
             matchers.append(has_method(v))
@@ -120,6 +120,7 @@ class StubMatcher(object):
         all = all_of(*build_matchers(stub))
         result = all.matches(request, msg)
         if not result:
+            log.debug(u'No match found: {0}'.format(msg.out))
             self.trace.warn(msg.out)
         return result                        
                                   

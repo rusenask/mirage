@@ -151,7 +151,7 @@ $(document).ready(function() {
        'session', row.get('request_headers', {}).get('Stubo-Request-Session', '')) }}</td>
 
   {% if row.has_key('stubo_response') %}
-     {% if func == 'get/response' and row['return_code'] == 200   %}
+     {% if func in ('get/response', '/manage/exec_cmds') and row['return_code'] == 200   %}
          {% set response = escape(row['stubo_response']) %} 
      {% else %}
          {% set response =  format_response(row['stubo_response']) %}

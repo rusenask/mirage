@@ -134,7 +134,7 @@ class TestPutStubMangleResponse(unittest.TestCase):
         putter.doMatcher()
         response = putter.doResponse()
         self.assertEqual(response.stub.payload,
-         {'request': {'bodyPatterns': [{'contains': [u'<path><to><a>***</a></to></path>']}], 'method': 'POST'}, 
+         {'request': {'bodyPatterns': {'contains': [u'<path><to><a>***</a></to></path>']}, 'method': 'POST'}, 
           'response': {'body': u'<response>ABC</response>', 'status': 200}})
         
     
@@ -158,7 +158,7 @@ class TestPutStubMangleResponse(unittest.TestCase):
         putter.doMatcher()
         response = putter.doResponse()
         self.assertEqual(response.stub.payload,
-         {'request': {'bodyPatterns': [{'contains': [u'<path><to><a>***</a></to></path>']}], 'method': 'POST'}, 
+         {'request': {'bodyPatterns': {'contains': [u'<path><to><a>***</a></to></path>']}, 'method': 'POST'}, 
           'response': {'body': u'<x xmlns:user="http://www.my.com/userschema"><user:response>ABC</user:response></x>', 'status': 200}})
                
         

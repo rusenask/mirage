@@ -7,7 +7,6 @@
     :copyright: (c) 2015 by OpenCredo.
     :license: GPLv3, see LICENSE for more details.
 """
-import hashlib
 import logging
 import datetime
 import time
@@ -16,7 +15,8 @@ from .queue import String, Hash, Queue, get_redis_master, get_redis_slave
 from stubo.exceptions import exception_response
 from stubo.utils import as_date, asbool
 from stubo.model.db import Scenario
-from stubo.model.stub import Stub, StubCache
+from stubo.model.stub import Stub, StubCache, response_hash
+from stubo.utils import compute_hash
 
 log = logging.getLogger(__name__)
 
@@ -112,13 +112,6 @@ host:scenario_name:request_index   session_name:request_index_key->index
 name                                     key->value (json)
 host:scenario_name:saved_request_index   name-> {request_index_key : index}
 """
-
-def compute_hash(data):
-    if isinstance(data, unicode):
-        _hash = hashlib.sha224(data.encode('utf-8')).hexdigest()
-    else:
-        _hash = hashlib.sha224(data).hexdigest()
-    return _hash
 
 class Cache(object):
     """Most keys in the cache are scoped by host. This class encapsulates the
@@ -344,7 +337,7 @@ class Cache(object):
                 'with another scenario: {2} on host: {3}.'.format(session_name, 
                 scenario_name, scenario_found, self.host))  
             
-    def set_response_text(self, scenario, session_name, response_id, val):
+    def set_response(self, scenario, session_name, response_id, val):
         response_key = '{0}:{1}'.format(session_name, response_id)
         self.set(self.get_response_key(scenario), response_key, val)
         
@@ -362,10 +355,10 @@ class Cache(object):
         request_key = '{0}:{1}'.format(session_name, request_id)
         return self.get(self.get_request_key(scenario_name), request_key, local)
     
-    def get_response_text(self, scenario_name, session_name, response_ids, 
-                          request_index_key):
+    def get_response(self, scenario_name, session_name, response_ids, 
+                     request_index_key):
         '''
-        returns response text or None
+        returns response or None
         '''
         num_responses = len(response_ids)
         index = 0
@@ -448,18 +441,21 @@ class Cache(object):
                         title="module '{0}' not found in cache".format(
                         module.key(module_name)))
                 stub.module()['version'] = version
-    
             
-            response_pairs = [(compute_hash(x), x) for x in stub.response_body()]
-            # cache each response id -> text
-            for response in response_pairs:
-                response_id, response_text = response
-                self.set_response_text(scenario_name, session_name, response_id,
-                                        response_text)
+            response_ids = []
+            response_bodys = stub.response_body()
+            # cache each response id -> response (text, status) etc
+            print  'stub=', stub.payload
+            for response_text in response_bodys:
+                stub.set_response_body(response_text)
+                response_id = response_hash(response_text, stub)
+                self.set_response(scenario_name, session_name, response_id,
+                                  stub.response())
+                response_ids.append(response_id) 
+            
             # replace response text with response hash ids for session cache 
-            # stub.pop('response', None)
             stub.response().pop('body', None)
-            stub.response()['ids'] = [x[0] for x in response_pairs]
+            stub.response()['ids'] = response_ids
             delay_policy_name = stub.delay_policy()
             if delay_policy_name:
                 # Note: the delay policy is not really cached with the session.
@@ -479,6 +475,7 @@ class Cache(object):
         self.set(scenario_key, session_name, session)
         log.debug('created session cache: {0}:{1}'.format(session['scenario'],
                                                           session['session']))
+        return session
         
     def set_stubo_setting(self, setting, value, all_hosts=False):
         key = 'stubo_setting'
@@ -511,10 +508,7 @@ def get_request_index_hash_key(session, stub_number):
     scenario_name = scenario_key.partition(':')[-1]
     matching_stub = StubCache(session['stubs'][stub_number], scenario_key,
                               session_name)
-    matchers = u"".join([u''.join(
-        x.split()).strip() for x in matching_stub.contains_matchers()])
-    return compute_hash(u"".join([scenario_name, matchers]))
-                                                   
+    return matching_stub.request_index_id()        
 
 def add_request(session, request_id, stub, system_date, stub_number, 
                 request_cache_limit=10):     
