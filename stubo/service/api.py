@@ -395,22 +395,18 @@ def put_stub(handler, session_name, delay_policy, stateful,
                 '%Y-%m-%d')
         })  
         trace.info('module used', stub.module()) 
-        try:
-            source_stub = copy.deepcopy(stub)
-            stub, _ = transform(stub, stubo_request, function='put/stub', 
-                                cache=handler.settings['ext_cache'],
-                                hooks=handler.settings['hooks'],
-                                stage='put/stub',
-                                trace=trace,
-                                url_args=url_args)
-            if source_stub != stub:
-                trace.diff('stub was transformed', source_stub.payload, 
-                           stub.payload)
-                trace.info('stub was transformed into', stub.payload)
-        except UserExitModuleNotFound, e:
-            # ignore legacy stubbedSystem param
-            stub.payload.pop('module')   
-                                                                     
+        source_stub = copy.deepcopy(stub)
+        stub, _ = transform(stub, stubo_request, function='put/stub', 
+                            cache=handler.settings['ext_cache'],
+                            hooks=handler.settings['hooks'],
+                            stage='put/stub',
+                            trace=trace,
+                            url_args=url_args)
+        if source_stub != stub:
+            trace.diff('stub was transformed', source_stub.payload, 
+                       stub.payload)
+            trace.info('stub was transformed into', stub.payload)
+                                                                             
     scenario_name = session['scenario'] 
     handler.track.scenario = scenario_name.partition(':')[2]
     session_status = session['status']
