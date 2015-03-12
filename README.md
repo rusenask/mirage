@@ -80,18 +80,20 @@ Perform the following::
     $ sudo service mongod start
     $ sudo service redis-server start
 
-Active your virtual python env:
-
-    $ source ./env/bin/activate
-    
 You can start Stubo from your env root dir: 
 
-    $ cd env
+    $ cd ../env    
+
+Active your virtual python env:
+
+    $ source ./bin/activate
     
-Note you need to create a log dir under the dir you call stubo from:
+    
+Note you need to create log & etc dirs under the dir you call stubo from:
     
     (first run only)
-    $ mkdir log
+    $ mkdir log etc
+    $ cp ../stubo-app/*.ini etc 
     $ create_tracker_collection
     
     $ stubo
