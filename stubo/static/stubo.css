@@ -14,6 +14,9 @@ body {
    line-height: 25px;
    padding-top: 160px; /* make room for nav bar */
 }
+.tooltip-inner {
+max-width: none;
+}
 .header-spacing {
   padding-bottom: 20px;
 }
@@ -79,6 +82,8 @@ padding-bottom: 5px;
 
 .table > tbody > tr > td.active {
  background-color: #eeeeee !important;
+ table-layout: fixed;
+ word-wrap: break-word;
 }
 
 .table-bordered th,

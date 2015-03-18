@@ -147,7 +147,14 @@ $(document).ready(function() {
    {% else %}
       {% set scen = '' %}
    {% end %}
-   <td>{{ scen }}<br/>{{row.get('request_params',{}).get(
+   <td>
+            {% if len(scen) > 20 %}
+                <span data-toggle="tooltip" data-container="body" data-placement="top" title="{{scen}}">  
+                {{'{0}...'.format(scen[:20])}}
+            {% else %}
+                {{scen}}
+            {% end %}
+   <br/>{{row.get('request_params',{}).get(
        'session', row.get('request_headers', {}).get('Stubo-Request-Session', '')) }}</td>
 
   {% if row.has_key('stubo_response') %}
