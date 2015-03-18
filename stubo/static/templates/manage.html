@@ -77,13 +77,20 @@
        <tr>
        <td>
        {% if i == 0 %}
-       <a href="../stubs?scenario={{scenario_name}}&host={{session_info[0][i].get('scenario').partition(':')[0]}}">{{scenario_name}}</a>
+       
+            {% if len(scenario_name) > 20 %}
+                <span data-toggle="tooltip" data-container="body" data-placement="top" title="{{scenario_name}}">  
+                <a href="../stubs?scenario={{scenario_name}}&host={{session_info[0][i].get('scenario').partition(':')[0]}}">{{'{0}...'.format(scenario_name[:20])}}</a></span>  
+            {% else %}
+                <a href="../stubs?scenario={{scenario_name}}&host={{session_info[0][i].get('scenario').partition(':')[0]}}">{{scenario_name}}</a>
+            {% end %}
+
        {% end %}
        </td>
        {% set session_name = session_info[0][i].get('session') %}
        {% if len(session_name) > 20 %}
        <td id="manage-session-name">
-       <span data-toggle="tooltip" data-container="body" data-placement="top" title="{{session_name[20:]}}">
+       <span data-toggle="tooltip" data-container="body" data-placement="top" title="{{session_name}}">
           {{'{0}...'.format(session_name[:20])}}</span>  
        </td>
        {% else %}
