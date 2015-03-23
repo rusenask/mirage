@@ -226,8 +226,8 @@ def human_size(size_bytes):
     """
     num = float(size_bytes)
     formatted_size = num/1024
-	if num < 1024 :
-		formatted_size = round(formatted_size, 3)
+    if num < 1024 :
+        formatted_size = round(formatted_size, 3)
     else:
         formatted_size = int(round(formatted_size, 0))
 	formatted_size = "{:,}".format(formatted_size)
