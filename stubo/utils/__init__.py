@@ -220,30 +220,18 @@ def resolve_class(path_name):
     
 def human_size(size_bytes):
     """
-    format a size in bytes into a 'human' file size, e.g. bytes, KB, MB, GB, ...
-    Note that bytes/KB will be reported in whole numbers but MB and above will 
-    have greater precision
-    e.g. 1 byte, 43 bytes, 443 KB, 4.3 MB, 4.43 GB, etc
+    format a size in bytes into a 'human' file size (now only KB)
+    the unit is NOT output anymore
+    e.g. 0.0009 KB, 1 KB, 1024 KB, 1048576 KB
     """
-    if size_bytes == 1:
-        # because I really hate unnecessary plurals
-        return "1 byte"
-
-    suffixes_table = [('bytes', 0), ('KB', 0), ('MB', 1), ('GB', 2), ('TB', 2),
-                      ('PB', 2)]
-
     num = float(size_bytes)
-    for suffix, precision in suffixes_table:
-        if num < 1024.0:
-            break
-        num /= 1024.0
-
-    if precision == 0:
-        formatted_size = "%d" % num
+    formatted_size = num/1024
+	if num < 1024 :
+		formatted_size = round(formatted_size, 3)
     else:
-        formatted_size = str(round(num, ndigits=precision))
-
-    return "%s %s" % (formatted_size, suffix)  
+        formatted_size = int(round(formatted_size, 0))
+	formatted_size = "{:,}".format(formatted_size)
+    return "%s" % (formatted_size)  
 
 def pretty_format(text):
     return highlight(text, XmlLexer(), HtmlFormatter()) 
@@ -298,4 +286,3 @@ def compact_traceback_info(tb):
      
     # file, function, line = tbinfo[-1]
     return ' '.join(['[%s|%s|%s]' % x for x in tbinfo])               
-    
