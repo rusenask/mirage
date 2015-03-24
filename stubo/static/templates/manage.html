@@ -67,7 +67,7 @@
       <th>Stubs</th>
       <th>Loaded</th>
       <th>Last Used</th>
-      <th style="text-align:center">Space used (KB)</th>
+      <th class="spaceHead">Space used (KB)</th>
       <th></th>
   </tr>
   </thead>
@@ -105,7 +105,7 @@
            {% set last_used = last_used[:-3] %}
        {% end %}
        <td>{{last_used}}</td>
-       <td style="text-align:right; padding-right: 75px;">{{session_info[3]}}</td>
+       <td class="spaceCell">{{session_info[3]}}</td>
        {% if i == 0 %}
        <td>
            <!-- scenario actions btn -->
