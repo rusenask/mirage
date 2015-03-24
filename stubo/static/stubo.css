@@ -91,7 +91,13 @@ padding-bottom: 5px;
         border: 0px solid #ccc !important;
         padding-right: 3px;
       }
-
+.spaceHead {
+text-align: center;
+}
+.spaceCell {
+text-align: right;
+padding-right: 75px !important;
+}
 .panel-default {
     border-color: #ccc;
   }
