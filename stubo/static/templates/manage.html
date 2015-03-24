@@ -67,10 +67,11 @@
       <th>Stubs</th>
       <th>Loaded</th>
       <th>Last Used</th>
-      <th>Space used (KB)</th>
+      <th style="text-align:center">Space used (KB)</th>
       <th></th>
-    </tr>
-    <thead>
+  </tr>
+  </thead>
+    <tbody>
 {% for scenario_name, session_info in scenario.items() %}
 {% set active_sessions = [x for x in session_info[0] if x['status'] in ('record', 'playback')] %}
 {% for  i in range(len(session_info[0])) %} 
@@ -104,7 +105,7 @@
            {% set last_used = last_used[:-3] %}
        {% end %}
        <td>{{last_used}}</td>
-       <td>{{session_info[3]}}</td>
+       <td style="text-align:right; padding-right: 75px;">{{session_info[3]}}</td>
        {% if i == 0 %}
        <td>
            <!-- scenario actions btn -->
@@ -138,7 +139,8 @@
        </tr>
 {% end %}       
 
-{% end %}   
+{% end %} 
+</tbody>
 </table>
 </div>
  </div>
