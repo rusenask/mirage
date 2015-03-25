@@ -1,0 +1,14 @@
+delete/stubs?scenario=multi_play
+begin/session?scenario=multi_play&session=multi_play_record&mode=record
+put/stub?session=multi_play_record,first.textMatcher,first.response
+end/session?session=multi_play_record
+
+{% for i in range(int(nsessions[0])) %}
+    {% set session = 'multi_play_'+str(i) %}
+    begin/session?scenario=multi_play&session={{session}}&mode=playback
+    {% for play in range(int(nplays[0])) %}
+        get/response?session={{session}}&tracking_level=full,first.request
+    {% end %}
+    end/session?session={{session}}
+{% end %}
+

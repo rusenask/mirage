@@ -451,14 +451,19 @@ Stubs should be mastered in a code repository such as SVN. Delete/stubs will rem
 get/export
 ==========
 
-Recorded stubs should be exported and saved to a code repository (SVN). This exports stubs (matchers and responses) as well as a .command file to re-load them. 
-This commnand does not delete the stubs from the Stubo database (see delete/stubs) for that.
+Export a recorded scenario. To support repeatable testing a recording should be exported with get/export and the resulting archive file saved to your source code repository (GIT etc).
+The exported archive contains all scenario stubs and a command script to reload them. The get/export call also supports exporting 'runnable' scenarios. A 'runnable' scenario will add
+a playback of a previous session to the command script. This can be useful to compare different test runs with each other.
 
 .. code-block:: javascript
 
     get/export (GET, POST)  
        query args:
            scenario: scenario name
+           session_id: session id to use within the export (optional, defaults to epoch time)
+           export_dir: export dir name (optional, defaults to scenario key)
+           runnable: create a runnable scenario of a previous playback (optional)
+           session: playback session to use (required with runnable)
     returns links to exported archive files (*.zip, *.tar.gz, *.jar)
            
     stubo/api/get/export?scenario=first       
@@ -467,7 +472,7 @@ This commnand does not delete the stubs from the Stubo database (see delete/stub
        "version": "1.2.3", 
        "data": {
            "scenario": "first", 
-           "scenario_dir": "/Users/rowan/dev/eclipse/workspace/stubo/static/exports/localhost_first", 
+           "export_dir_name": "/Users/rowan/dev/eclipse/workspace/stubo/static/exports/localhost_first", 
            "links": [
                [
                    "first_1412947560_0.response.0", 
@@ -496,6 +501,58 @@ This commnand does not delete the stubs from the Stubo database (see delete/stub
            ]
        }
     }
+    
+    & runnable export
+    
+    stubo/api/get/export?scenario=first&runnable=true&session=first_1
+    
+    {
+        "version": "1.2.3", 
+        "data": {
+            "runnable": {
+                "last_used": {
+                    "start_time": "2015-03-24 16:57:03.248000+00:00", 
+                    "remote_ip": "::1"
+                }, 
+                "session": "first_1", 
+                "number_of_requests": 1
+            }, 
+            "scenario": "first", 
+            "links": [
+                [
+                    "first_1427285580_0.response.0", 
+                    "http://vuze-on-pc2.home:8001/static/exports/localhost_first/first_1427285580_0.response.0?v=1d63737c9cdb7b1433d76b52661c9db9"
+                ], 
+                [
+                    "first_1427285580_0_0.textMatcher", 
+                    "http://vuze-on-pc2.home:8001/static/exports/localhost_first/first_1427285580_0_0.textMatcher?v=088c16fa5004e2467126cfeaf8da3cd3"
+                ], 
+                [
+                    "first_1427285580_0.request", 
+                    "http://vuze-on-pc2.home:8001/static/exports/localhost_first/first_1427285580_0.request?v=925721a672115ec9bfc24f55a6979a63"
+                ], 
+                [
+                    "first.commands", 
+                    "http://vuze-on-pc2.home:8001/static/exports/localhost_first/first.commands?v=98ad4927b82478744dfa004f48f88aff"
+                ], 
+                [
+                    "first.zip", 
+                    "http://vuze-on-pc2.home:8001/static/exports/localhost_first/first.zip?v=66a370b25ca2065abc4deb347ee77ce6"
+                ], 
+                [
+                    "first.tar.gz", 
+                    "http://vuze-on-pc2.home:8001/static/exports/localhost_first/first.tar.gz?v=da76a1ce23a9cfe2dc1895955021f3c4"
+                ], 
+                [
+                    "first.jar", 
+                    "http://vuze-on-pc2.home:8001/static/exports/localhost_first/first.jar?v=66a370b25ca2065abc4deb347ee77ce6"
+                ]
+            ], 
+            "export_dir_path": "/Users/rowan/dev/eclipse/workspace/opencredo/stubo/latest/stubo-app/stubo/static/exports/localhost_first"
+        }
+    }
+    
+    
            
 
 get/stubcount

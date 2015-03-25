@@ -264,8 +264,8 @@ class TestMatching(Base):
         self.assertEqual('E017:No matching response found',
                          sr[1]['error']['message'])
 
-class TestGeneralFunctionality(Base):
-
+class TestExport(Base):
+    
     def test_export(self):
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdFile='
                                '/static/cmds/demo/first.commands'), self.stop)
@@ -278,6 +278,7 @@ class TestGeneralFunctionality(Base):
         self.assertEqual(response.code, 200)
         payload = json.loads(response.body)
         self.assertTrue('links' in payload['data'])
+        self.assertEqual(6, len(payload['data']['links']))
         self.assertEqual(1, len([x for x in payload['data']['links'] \
                                 if x[0] == 'first.commands']))
         
@@ -293,6 +294,152 @@ class TestGeneralFunctionality(Base):
             '/static/exports/localhost_first/first.commands'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
+        
+    def test_runnable_export(self):
+        self.http_client.fetch(self.get_url(
+            '/stubo/api/put/setting?setting=tracking_level&value=full'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)   
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdFile='
+                               '/static/cmds/demo/first.commands'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        self.http_client.fetch(self.get_url(
+                               '/stubo/api/get/export?scenario=first&runnable=true&session=first_1'),
+                               self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        payload = json.loads(response.body)
+        self.assertTrue('links' in payload['data'])
+     
+        self.assertEqual(7, len(payload['data']['links']))
+        self.assertTrue('runnable' in payload['data'])
+        runnable = payload['data']['runnable']
+        self.assertEqual(runnable.get('session'),  'first_1')
+        self.assertEqual(runnable.get('number_of_requests'), 1)
+        
+        self.assertEqual(1, len([x for x in payload['data']['links'] \
+                                if x[0] == 'first.commands']))
+        self.http_client.fetch(self.get_url(
+                               '/stubo/api/delete/stubs?scenario=first'),
+                               self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+
+        # load from the export
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdFile='
+            '/static/exports/localhost_first/first.commands'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+             
+        
+    def test_runnable_export2(self):
+        self.http_client.fetch(self.get_url(
+            '/stubo/api/put/setting?setting=tracking_level&value=full'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)   
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
+                               '/static/cmds/demo/first.commands'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
+                               '/static/cmds/demo/first.commands'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        
+        self.http_client.fetch(self.get_url(
+                               '/stubo/api/get/export?scenario=first&runnable=true&session=first_1'),
+                               self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        payload = json.loads(response.body)
+        self.assertTrue('links' in payload['data'])
+     
+        self.assertEqual(7, len(payload['data']['links']))
+        self.assertTrue('runnable' in payload['data'])
+        runnable = payload['data']['runnable']
+        self.assertEqual(runnable.get('session'),  'first_1')
+        self.assertEqual(runnable.get('number_of_requests'), 1)
+        
+        self.assertEqual(1, len([x for x in payload['data']['links'] \
+                                if x[0] == 'first.commands']))
+        self.http_client.fetch(self.get_url(
+                               '/stubo/api/delete/stubs?scenario=first'),
+                               self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+
+        # load from the export
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdFile='
+            '/static/exports/localhost_first/first.commands'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)               
+        
+    def test_runnable_export_found(self):
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
+                               '/static/cmds/tests/accept/multi_play.commands&nplays=1&nsessions=5'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        self.http_client.fetch(self.get_url(
+                               '/stubo/api/get/export?scenario=multi_play&runnable=true&session=multi_play_2'),
+                               self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        payload = json.loads(response.body)
+        self.assertTrue('links' in payload['data'])
+     
+        self.assertEqual(7, len(payload['data']['links']))
+        self.assertTrue('runnable' in payload['data'])
+        runnable = payload['data']['runnable']
+        self.assertEqual(runnable.get('session'),  'multi_play_2')
+        self.assertEqual(runnable.get('number_of_requests'), 1)
+        
+        self.assertEqual(1, len([x for x in payload['data']['links'] \
+                                if x[0] == 'multi_play.commands']))
+        self.http_client.fetch(self.get_url(
+                               '/stubo/api/delete/stubs?scenario=multi_play'),
+                               self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+
+        # load from the export
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdFile='
+            '/static/exports/localhost_multi_play/multi_play.commands'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200) 
+        
+    def test_runnable_export_found2(self):
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
+                               '/static/cmds/tests/accept/multi_play.commands&nplays=5&nsessions=5'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        self.http_client.fetch(self.get_url(
+                               '/stubo/api/get/export?scenario=multi_play&runnable=true&session=multi_play_2'),
+                               self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        payload = json.loads(response.body)
+        self.assertTrue('links' in payload['data'])
+     
+        self.assertEqual(11, len(payload['data']['links']))
+        self.assertTrue('runnable' in payload['data'])
+        runnable = payload['data']['runnable']
+        self.assertEqual(runnable.get('session'),  'multi_play_2')
+        self.assertEqual(runnable.get('number_of_requests'), 5)
+        
+        self.assertEqual(1, len([x for x in payload['data']['links'] \
+                                if x[0] == 'multi_play.commands']))
+        self.http_client.fetch(self.get_url(
+                               '/stubo/api/delete/stubs?scenario=multi_play'),
+                               self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+
+        # load from the export
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdFile='
+            '/static/exports/localhost_multi_play/multi_play.commands'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)            
         
     def test_export_module(self):
         # load some stubs
@@ -318,7 +465,9 @@ class TestGeneralFunctionality(Base):
             '/static/exports/localhost_mangler_xslt/mangler_xslt.commands'),
                                self.stop)
         response = self.wait()
-        self.assertEqual(response.code, 200)    
+        self.assertEqual(response.code, 200)  
+    
+class TestGeneralFunctionality(Base):     
 
     def test_stub_count(self):
         # load some stubs
@@ -1215,7 +1364,6 @@ class TestTracker(Base):
         self.assertTrue(int(response.headers['Content-Length']) > len(tracker['stubo_response']))         
         
     def test_minimal_tracking_level(self):
-        '''Show minimal tracking data for a get/response'''
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdFile='
             '/static/cmds/tests/accept/minimal_logging.commands'), self.stop)
         response = self.wait()
@@ -1242,7 +1390,6 @@ class TestTracker(Base):
         self.assertFalse(tracker.has_key('encoded_response'))
 
     def test_full_tracking_level(self):
-        '''Show full debug level tracking for a get/response call(tracking_level=full)'''
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdFile='
             '/static/cmds/tests/accept/full_logging.commands'), self.stop)
         response = self.wait()
