@@ -63,14 +63,12 @@ def stubo_async(f):
                     self.set_status(err.code)
                 else:    
                     status = self.get_status()
+                    stubo_response['error'] = dict(code=500, 
+                        message=u'{0}: {1}'.format(err.__class__.__name__, 
+                                                   str(err)))
                     if not status or status == 200: 
                         # if error has not been set use internal server error
-                        stubo_response['error'] = dict(code=500, 
-                                                       message=str(err))
                         self.set_status(500)
-                    else:
-                        stubo_response['error'] = dict(code=status, 
-                                                       message=str(err)) 
                     if hasattr(future, '_traceback'):
                         stubo_response['error']['traceback'] = compact_traceback_info(future._traceback)       
                 
@@ -156,8 +154,12 @@ def export_stubs_request(handler):
     response = export_stubs(handler, scenario_name)
     html = asbool(handler.get_argument('html', False))
     if html:
+        payload = response['data']
+        title = 'Exported files for Scenario'
+        if 'runnable' in payload:
+            title = 'Exported files for Runnable Scenario'
         response = handler.render_string("export_stubs.html", 
-                        page_title='Exported Stubs', **response['data'])
+                        page_title=title, **payload)
     return response
                                                            
 @stubo_async

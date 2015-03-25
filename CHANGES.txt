@@ -1,7 +1,12 @@
-Stubo Changelog
-=====================
+Changelog
+=========
 
-0.6
-----
+0.6.1 (unreleased)
+------------------
 
-Initial cut of open source version
+- Export runnable scenarios
+
+0.6 (2015-03-25)
+----------------
+
+- Initial cut of open source version

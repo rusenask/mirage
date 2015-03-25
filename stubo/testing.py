@@ -325,6 +325,9 @@ class DummyTracker(object):
         # db should be similar to a multidict
         self.db = db or defaultdict(list)
         
+    def __call__(self, **kwargs):
+        return self      
+        
     def insert(self, track):
         _id = track.get('_id')
         if not _id:
@@ -341,12 +344,16 @@ class DummyTracker(object):
     def find_tracker_data_full(self, _id):
         return self.db.get(_id)
     
-    def session_last_used(self, session):
+    def session_last_used(self, scenario, session):
         ''' Return the date this session was last used using the 
             last get/response time.
         '''
         import datetime
-        return datetime.datetime.now()  
+        return dict(start_time=datetime.datetime.now(),
+                    remote_ip='::1')  
+        
+    def get_last_playback(self, scenario, session, remote_ip, start_time):
+        return self.db.values()
     
 def make_stub(matchers, response, delay_policy=None, module=None,
               recorded=None):

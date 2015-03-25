@@ -866,11 +866,15 @@ class TestStubExport(unittest.TestCase):
         self.db_patch.start()
         self.db_patch2 = mock.patch('stubo.cache.Scenario', self.scenario)
         self.db_patch2.start()
+        self.tracker = DummyTracker()
+        self.tracker_patch = mock.patch('stubo.service.api.Tracker', self.tracker)
+        self.tracker_patch.start()
     
     def tearDown(self):
         self.patch.stop()
         self.db_patch.stop()
         self.db_patch2.stop()
+        self.tracker_patch.stop()
     
     def _make_scenario(self, name, **kwargs):
         doc = dict(name=name, **kwargs)
@@ -879,7 +883,58 @@ class TestStubExport(unittest.TestCase):
     def _delete_tmp_export_dir(self, scenario_dir):
         import shutil    
         shutil.rmtree(scenario_dir)
-     
+        
+    def test_runnable_requires_session(self):
+        from stubo.service.api import export_stubs
+        import os.path
+        from stubo.exceptions import HTTPClientError
+        request_handler = DummyRequestHandler(session_id=['1'], runnable=['true'])
+        self._make_scenario('localhost:1stub1matcher')
+        from stubo.model.stub import create, Stub
+        stub = Stub(create('<test>match this</test>', '<test>OK</test>'),
+                    'localhost:1stub1matcher')
+        doc = dict(scenario='localhost:1stub1matcher', stub=stub)
+        self.scenario.insert_stub(doc, stateful=True) 
+        with self.assertRaises(HTTPClientError): 
+            export_stubs(request_handler, '1stub1matcher') 
+            
+    def test_runnable_requires_playback(self):
+        from stubo.service.api import export_stubs
+        import os.path
+        from stubo.exceptions import HTTPClientError
+        request_handler = DummyRequestHandler(session_id=['1'], 
+                                              runnable=['true'],
+                                              session=['myrunnable'])
+        self._make_scenario('localhost:1stub1matcher')
+        from stubo.model.stub import create, Stub
+        stub = Stub(create('<test>match this</test>', '<test>OK</test>'),
+                    'localhost:1stub1matcher')
+        doc = dict(scenario='localhost:1stub1matcher', stub=stub)
+        self.scenario.insert_stub(doc, stateful=True) 
+        with self.assertRaises(HTTPClientError): 
+            export_stubs(request_handler, '1stub1matcher') 
+            
+    def test_runnable(self):
+        from stubo.service.api import export_stubs
+        import os.path
+        from stubo.exceptions import HTTPClientError
+        request_handler = DummyRequestHandler(session_id=['1'], 
+                                              runnable=['true'],
+                                              session=['myrunnable'])
+        self._make_scenario('localhost:1stub1matcher')
+        from stubo.model.stub import create, Stub
+        stub = Stub(create('<test>match this</test>', '<test>OK</test>'),
+                    'localhost:1stub1matcher')
+        doc = dict(scenario='localhost:1stub1matcher', stub=stub)
+        self.scenario.insert_stub(doc, stateful=True) 
+        self.tracker.insert(dict(scenario='localhost:1stub1matcher',
+                                 request_text='<test>match this</test>'))
+        response =  export_stubs(request_handler, '1stub1matcher') 
+        self.assertTrue('runnable' in response['data'])
+        runnable = response['data']['runnable']
+        self.assertEqual(runnable.get('session'),  'myrunnable')
+        self.assertEqual(runnable.get('number_of_requests'), 1)
+                             
     def test_1stub_1matcher(self):
         from stubo.service.api import export_stubs
         import os.path
@@ -905,7 +960,7 @@ class TestStubExport(unittest.TestCase):
           ('1stub1matcher.jar', local_server + '/static/exports/localhost_1stub1matcher/1stub1matcher.jar')
           ])
         
-        scenario_dir = response['scenario_dir'] 
+        scenario_dir = response['export_dir_path'] 
         files = [os.path.join(scenario_dir, x[0]) for x in response['links']]
         for f in files:
             self.assertTrue(os.path.exists(f))
@@ -954,7 +1009,7 @@ class TestStubExport(unittest.TestCase):
           ('x.tar.gz', local_server + '/static/exports/localhost_x/x.tar.gz'),
           ('x.jar', local_server + '/static/exports/localhost_x/x.jar')])
         
-        scenario_dir = response['scenario_dir'] 
+        scenario_dir = response['export_dir_path'] 
         files = [os.path.join(scenario_dir, x[0]) for x in response['links']]
         for f in files:
             self.assertTrue(os.path.exists(f))
@@ -999,7 +1054,7 @@ class TestStubExport(unittest.TestCase):
          ('x.jar', local_server + '/static/exports/localhost_x/x.jar')
         ])  
         
-        scenario_dir = response['scenario_dir'] 
+        scenario_dir = response['export_dir_path'] 
         files = [os.path.join(scenario_dir, x[0]) for x in response['links']]
         for f in files:
             self.assertTrue(os.path.exists(f)) 
@@ -1024,7 +1079,7 @@ class TestStubExport(unittest.TestCase):
           ('0stub0matcher.jar', local_server + '/static/exports/localhost_0stub0matcher/0stub0matcher.jar')
           ])
         
-        scenario_dir = response['scenario_dir'] 
+        scenario_dir = response['export_dir_path'] 
         files = [os.path.join(scenario_dir, x[0]) for x in response['links']]
         for f in files:
             self.assertTrue(os.path.exists(f))

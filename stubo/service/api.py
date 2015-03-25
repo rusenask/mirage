@@ -20,7 +20,7 @@ import codecs
 from tornado.web import MissingArgumentError
 
 from stubo.model.db import (
-    Scenario, get_mongo_client, session_last_used
+    Scenario, get_mongo_client, session_last_used, Tracker
 )    
 import stubo.model.db
 from stubo.model.cmds import (
@@ -114,6 +114,44 @@ def export_stubs(handler, scenario_name):
         cmds.append('put/stub?session={0},text=a_dummy_matcher,text=a_dummy_response'.format(session))
        
     cmds.append('end/session?session={0}'.format(session))
+    
+    runnable = asbool(handler.get_argument('runnable', False))
+    runnable_info = dict()
+    if runnable:
+        _session = handler.get_argument('session', None)
+        if not _session:
+            raise exception_response(400, 
+                        title="'session' argument required with 'runnable")
+        runnable_info['session'] = _session    
+        tracker = Tracker()    
+        last_used = tracker.session_last_used(scenario_name_key, _session)
+        if not last_used:
+            raise exception_response(400, 
+                        title="Unable to find playback session")  
+        runnable_info['last_used'] = dict(remote_ip=last_used['remote_ip'],
+                                          start_time=str(last_used['start_time']))      
+        playback = tracker.get_last_playback(scenario_name, _session,
+                                             last_used['remote_ip'], 
+                                             last_used['start_time']) 
+        playback = list(playback)
+        if not playback:
+            raise exception_response(400, 
+              title="Unable to find a playback for scenario='{0}', session='{1}'".format(scenario_name, _session))
+       
+        cmds.append('begin/session?scenario={0}&session={1}&mode=playback'.format(
+                  scenario_name, session))    
+        number_of_requests = len(playback)
+        runnable_info['number_of_requests'] = number_of_requests
+        for nrequest in range(number_of_requests):
+            track = playback[nrequest]
+            request_text = track['request_text']
+            request_file_name = '{0}_{1}.request'.format(session, nrequest)
+            files.append((request_file_name, request_text))
+            cmds.append(u'get/response?session={0},{1}'.format(session,
+                                                           request_file_name))     
+        cmds.append('end/session?session={0}'.format(session))    
+                  
+    
     bookmarks = cache.get_all_saved_request_index_data() 
     if bookmarks:
         cmds.append('import/bookmarks?location=bookmarks')
@@ -123,19 +161,19 @@ def export_stubs(handler, scenario_name):
                   b"\r\n".join(cmds)))
 
     static_dir = handler.settings['static_path']
-    scenario_dir = os.path.join(static_dir, 'exports', 
-                                scenario_name_key.replace(':', '_'))
+    export_dir = handler.get_argument('export_dir', scenario_name_key).replace(':', '_')
+    export_dir_path = os.path.join(static_dir, 'exports', export_dir)
 
-    if os.path.exists(scenario_dir):
-        shutil.rmtree(scenario_dir)
-    os.makedirs(scenario_dir)
+    if os.path.exists(export_dir_path):
+        shutil.rmtree(export_dir_path)
+    os.makedirs(export_dir_path)
 
-    archive_name = os.path.join(scenario_dir, scenario_name)
+    archive_name = os.path.join(export_dir_path, scenario_name)
     zout = zipfile.ZipFile(archive_name+'.zip', "w")
     tar = tarfile.open(archive_name+".tar.gz", "w:gz")
     for finfo in files:
         fname, contents = finfo
-        file_path = os.path.join(scenario_dir, fname)
+        file_path = os.path.join(export_dir_path, fname)
         with codecs.open(file_path, mode='wb', encoding='utf-8') as f:
             f.write(contents)
         tar.add(file_path, fname)
@@ -147,8 +185,10 @@ def export_stubs(handler, scenario_name):
     files.extend([(scenario_name+'.zip',), (scenario_name+'.tar.gz',),
                   (scenario_name+'.jar',)])
     links = get_export_links(handler, scenario_name_key, files)
-    payload = dict(scenario=scenario_name, scenario_dir=scenario_dir,
+    payload = dict(scenario=scenario_name, export_dir_path=export_dir_path,
                    links=links)
+    if runnable_info:
+        payload['runnable'] = runnable_info
     return dict(version=version, data=payload)
 
 def list_stubs(handler, scenario_name, host=None):
@@ -707,7 +747,7 @@ def end_session(handler, session_name):
     handler.track.scenario = scenario_name
     session_status = session['status']
     if session_status not in ('record', 'playback'):
-        log.warn('expecting session={0} to be in record of playback for '
+        log.warn('expecting session={0} to be in record or playback for '
                  'end/session'.format(session_name))
         
     session['status'] = 'dormant'

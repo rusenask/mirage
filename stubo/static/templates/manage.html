@@ -46,7 +46,7 @@
 
 
 {% if host_scenarios and host_scenarios.values() != [{}] %}
-<h2>Stubs</h2>
+<h2>Scenarios</h2>
 
 {% for hostname, scenario in host_scenarios.iteritems() %}
 {% if scenario %}
@@ -81,6 +81,7 @@
        {% end %}
        </td>
        {% set session_name = session_info[0][i].get('session') %}
+       {% set status = session_info[0][i].get('status').strip() %}
        {% if len(session_name) > 20 %}
        <td id="manage-session-name">
        <span data-toggle="tooltip" data-container="body" data-placement="top" title="{{session_name[20:]}}">
@@ -89,7 +90,7 @@
        {% else %}
             <td>{{session_name}}</td>
        {% end %}
-       <td>{{session_info[0][i].get('status').strip()}}</td>
+       <td>{{status}}</td>
        <td>{{session_info[1]}}</td>
        <td>{{session_info[2]}}</td>
        {% set last_used =  session_info[0][i].get('last_used') %}
@@ -107,6 +108,9 @@
               </button>
               <ul class="dropdown-menu manage-scenario-actions" role="menu">
                 <li><a href="/stubo/api/get/export?scenario={{scenario_name}}&html=true"><span class="glyphicon glyphicon-cloud-download"></span>&nbsp; Export scenario</a></li>
+                {% if status != 'record' %}
+                    <li><a href="/stubo/api/get/export?scenario={{scenario_name}}&runnable=true&session={{session_name}}&html=true"><span class="glyphicon glyphicon-cloud-download"></span>&nbsp; Export runnable scenario</a></li>
+                {% end %}  
                 <li><a href="../stubs?scenario={{scenario_name}}&host={{session_info[0][i].get('scenario').partition(':')[0]}}"><span class="glyphicon glyphicon-search"></span>&nbsp;List stubs</a></li>
                 <li><a href="/manage?action=delete&type=stubs&name={{scenario_name}}"><span class="glyphicon glyphicon-trash"></span>&nbsp;Delete stubs</a></li>
                 {% if active_sessions %}
