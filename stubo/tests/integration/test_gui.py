@@ -50,13 +50,13 @@ class TestTracker(Base):
         self.http_client.fetch(self.get_url('/tracker?session_filter=first_1&start_time=&latency=5000&function=all'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
-        self.assertFalse('<br/>first_1</td>' in response.body)
+        self.assertFalse('<br/>first_1</td>' in u''.join(response.body.split()).strip())
 
         # filter over 0ms
         self.http_client.fetch(self.get_url('/tracker?session_filter=&start_time=&latency=0&function=all'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
-        self.assertTrue('<br/>first_1</td>' in response.body)
+        self.assertTrue('<br/>first_1</td>' in u''.join(response.body.split()).strip())
 
     def test_ignore200_filter(self):
         self.http_client.fetch(self.get_url('/stubo/default/execCmds?cmdFile=/static/cmds/demo/no_match.commands'), self.stop)

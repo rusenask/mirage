@@ -13,8 +13,8 @@ from stubo import version
 
 log = logging.getLogger(__name__)
 
-def get_tracks(handler, session_filter, show_only_errors, skip, limit, 
-               start_time, latency, all_hosts, function):
+def get_tracks(handler, scenario_filter, session_filter, show_only_errors, skip,
+               limit, start_time, latency, all_hosts, function):
     tracker = Tracker()
     tracker_filter = {}
     if start_time:
@@ -24,7 +24,8 @@ def get_tracks(handler, session_filter, show_only_errors, skip, limit,
         except ValueError, e:
             raise exception_response(400,
                 title='start_time format error: {0}'.format(e)) 
-
+    if scenario_filter:
+        tracker_filter['scenario'] = {'$regex': scenario_filter}
     if session_filter:
         tracker_filter['request_params.session'] = {'$regex': session_filter}
     if show_only_errors:

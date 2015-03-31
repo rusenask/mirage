@@ -37,7 +37,15 @@ $(document).ready(function() {
 </script>
 <div class="row left-padding">
    <h4>Filter by:</h4>
-   <form role="form" id="tracker-filter" role="form" action="/tracker" method="get">       
+   <form role="form" id="tracker-filter" role="form" action="/tracker" method="get">  
+      <div class="input-group col-lg-4 filter-heading">
+          <span class="input-group-addon tracker-filter-field"
+                data-toggle="tooltip" data-placement="top" 
+                title="'abc' to find any scenario containing string 'abc', '^abc' for begins with, 'abc$' for ends with.">
+                Scenario</span>
+      <input id="sesson_filter" type="text"  class="form-control" name="scenario_filter"  
+                 value="{{scenario_filter}}" placeholder="(regular expressions accepted)">
+      </div>     
       <div class="input-group col-lg-4 filter-heading">
           <span class="input-group-addon tracker-filter-field"
                 data-toggle="tooltip" data-placement="top" 
@@ -150,16 +158,18 @@ $(document).ready(function() {
    <td>
             {% if len(scen) > 20 %}
                 <span data-toggle="tooltip" data-container="body" data-placement="top" title="{{scen}}">  
-                {{'{0}...'.format(scen[:20])}}
+                {{'{0} ...'.format(scen[:20])}}
             {% else %}
                 {{scen}}
             {% end %}
    <br/>{{row.get('request_params',{}).get(
-       'session', row.get('request_headers', {}).get('Stubo-Request-Session', '')) }}</td>
+       'session', row.get('request_headers', {}).get('Stubo-Request-Session', '')) }}
+   </td>
+   
 
   {% if row.has_key('stubo_response') %}
      {% if func in ('get/response', '/manage/exec_cmds', 'get/export')  and row['return_code'] == 200   %}
-         {% set response = escape(row['stubo_response']) %}  
+         {% set response = escape(unicode(row['stubo_response'])) %}  
      {% else %}
          {% set response =  format_response(row['stubo_response']) %}
      {% end %} 

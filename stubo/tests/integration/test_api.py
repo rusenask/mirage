@@ -135,7 +135,6 @@ class TestRequestCacheLimit(Base):
 class TestBigResponse(Base):  
 
     def test_exec_first_commands(self):
-        '''Demonstrate handling of a 10mb response'''
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
                                '/static/cmds/tests/big/big.commands'),
                                self.stop)
