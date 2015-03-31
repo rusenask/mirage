@@ -151,6 +151,7 @@ def command_handler_form_request(handler):
 @stubo_async
 def export_stubs_request(handler):
     scenario_name = get_scenario_arg(handler)  
+    handler.track.scenario = scenario_name
     response = export_stubs(handler, scenario_name)
     html = asbool(handler.get_argument('html', False))
     if html:
@@ -165,6 +166,7 @@ def export_stubs_request(handler):
 @stubo_async
 def list_stubs_request(handler, html=False):
     scenario_name = get_scenario_arg(handler)
+    handler.track.scenario = scenario_name
     response = list_stubs(handler, scenario_name, 
                           handler.get_argument('host', None)).get('data')
     if html:
@@ -353,6 +355,7 @@ def manage_request(handler):
 def tracker_request(handler):
     http_req = handler.request
     host = http_req.host.split(":")[0]
+    scenario_filter = handler.get_argument('scenario_filter', '') 
     session_filter = handler.get_argument('session_filter', '') 
     start_time = handler.get_argument('start_time', '') 
     latency = int(handler.get_argument('latency', 0)) 
@@ -363,7 +366,7 @@ def tracker_request(handler):
     skip = int(handler.get_argument('skip', 0))
     limit = int(handler.get_argument('limit', 100))
     
-    results = get_tracks(handler, session_filter, show_only_errors, skip, 
+    results = get_tracks(handler, scenario_filter, session_filter, show_only_errors, skip, 
                          limit, start_time, latency, all_hosts, function)
     total_tracks = results.count()
     log.debug('track count: {0}'.format(total_tracks))
@@ -420,6 +423,7 @@ def tracker_request(handler):
             if option == function else "", option)
          
     response = dict(raw_data=results,
+                    scenario_filter=scenario_filter,
                     session_filter=session_filter,
                     errors_value='checked' if show_only_errors else '',
                     pagination=pagination(total_tracks, skip, limit, query),

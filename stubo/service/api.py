@@ -618,6 +618,7 @@ def delete_stubs(handler, scenario_name=None, host=None, force=False):
     scenarios = []
     if scenario_name:
         # if scenario_name exists it takes priority 
+        handler.track.scenario = scenario_name
         hostname = host or get_hostname(handler.request) 
         scenarios.append(':'.join([hostname, scenario_name]))
     elif host:
