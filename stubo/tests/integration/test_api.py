@@ -311,7 +311,7 @@ class TestExport(Base):
         payload = json.loads(response.body)
         self.assertTrue('links' in payload['data'])
      
-        self.assertEqual(7, len(payload['data']['links']))
+        self.assertEqual(8, len(payload['data']['links']))
         self.assertTrue('runnable' in payload['data'])
         runnable = payload['data']['runnable']
         self.assertEqual(runnable.get('session'),  'first_1')
@@ -354,7 +354,7 @@ class TestExport(Base):
         payload = json.loads(response.body)
         self.assertTrue('links' in payload['data'])
      
-        self.assertEqual(7, len(payload['data']['links']))
+        self.assertEqual(8, len(payload['data']['links']))
         self.assertTrue('runnable' in payload['data'])
         runnable = payload['data']['runnable']
         self.assertEqual(runnable.get('session'),  'first_1')
@@ -387,7 +387,7 @@ class TestExport(Base):
         payload = json.loads(response.body)
         self.assertTrue('links' in payload['data'])
      
-        self.assertEqual(7, len(payload['data']['links']))
+        self.assertEqual(8, len(payload['data']['links']))
         self.assertTrue('runnable' in payload['data'])
         runnable = payload['data']['runnable']
         self.assertEqual(runnable.get('session'),  'multi_play_2')
@@ -419,8 +419,7 @@ class TestExport(Base):
         self.assertEqual(response.code, 200)
         payload = json.loads(response.body)
         self.assertTrue('links' in payload['data'])
-     
-        self.assertEqual(11, len(payload['data']['links']))
+        self.assertEqual(16, len(payload['data']['links']))
         self.assertTrue('runnable' in payload['data'])
         runnable = payload['data']['runnable']
         self.assertEqual(runnable.get('session'),  'multi_play_2')
