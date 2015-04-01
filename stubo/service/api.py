@@ -147,6 +147,9 @@ def export_stubs(handler, scenario_name):
             request_text = track['request_text']
             request_file_name = '{0}_{1}.request'.format(session, nrequest)
             files.append((request_file_name, request_text))
+            stubo_response_text = track['stubo_response']
+            stubo_response_file_name = '{0}_{1}.stubo_response'.format(session, nrequest)
+            files.append((stubo_response_file_name, stubo_response_text))
             cmds.append(u'get/response?session={0},{1}'.format(session,
                                                            request_file_name))     
         cmds.append('end/session?session={0}'.format(session))    

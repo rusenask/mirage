@@ -928,7 +928,8 @@ class TestStubExport(unittest.TestCase):
         doc = dict(scenario='localhost:1stub1matcher', stub=stub)
         self.scenario.insert_stub(doc, stateful=True) 
         self.tracker.insert(dict(scenario='localhost:1stub1matcher',
-                                 request_text='<test>match this</test>'))
+                                 request_text='<test>match this</test>',
+                                 stubo_response='<test>OK</test>'))
         response =  export_stubs(request_handler, '1stub1matcher') 
         self.assertTrue('runnable' in response['data'])
         runnable = response['data']['runnable']
