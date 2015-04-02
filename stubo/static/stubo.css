@@ -67,6 +67,10 @@ padding-bottom: 5px;
  overflow-x: hidden;
 }
 
+.navbar-nav {
+ width: 768.96875px;
+}
+
 .tracker-search-width {
  max-width: 180px;
 }
@@ -194,7 +198,6 @@ ul {
    margin: 10px 20px 10px 0px;
    padding: 10px 20px;
    text-align: justify;
-   width: 768.96875px;
 }
 
 section.thirds:before {
@@ -333,7 +336,7 @@ tbody#trace td {
 }
 
 .manage-scenario-actions {
-   width: 15em;
+   width: 16em;
 }   
 
 
