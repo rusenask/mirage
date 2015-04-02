@@ -65,16 +65,6 @@ def export_stubs(handler, scenario_name):
     scenario_name_key = cache.scenario_key_name(scenario_name)
     scenario = Scenario()
     stubs = list(scenario.get_stubs(scenario_name_key))
-    """
-    [{   u'_id': ObjectId('537c8f1cac5f7303ad704d85'),
-    u'scenario': u'localhost:first',
-    u'stub': {   u'recorded': u'2014-05-21',
-                 u'request': {   u'bodyPatterns': [   {   u'contains': [   u'get my stub\n']}],
-                                 u'method': u'POST'},
-                 u'response': {   u'body': u'Hello {{1+1}} World\n',
-                                  u'delayPolicy': u'slow',
-                                  u'status': 200}}}]
-    """
     # use user arg or epoch time
     session_id = handler.get_argument('session_id', int(time.time()))  
     session = u'{0}_{1}'.format(scenario_name, session_id) 
@@ -148,6 +138,8 @@ def export_stubs(handler, scenario_name):
             request_file_name = '{0}_{1}.request'.format(session, nrequest)
             files.append((request_file_name, request_text))
             stubo_response_text = track['stubo_response']
+            if not isinstance(stubo_response_text, basestring):
+                stubo_response_text = unicode(stubo_response_text)
             stubo_response_file_name = '{0}_{1}.stubo_response'.format(session, nrequest)
             files.append((stubo_response_file_name, stubo_response_text))
             cmds.append(u'get/response?session={0},{1}'.format(session,

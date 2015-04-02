@@ -166,7 +166,8 @@ def export_stubs_request(handler):
 @stubo_async
 def list_stubs_request(handler, html=False):
     scenario_name = get_scenario_arg(handler)
-    handler.track.scenario = scenario_name
+    if not html:
+        handler.track.scenario = scenario_name
     response = list_stubs(handler, scenario_name, 
                           handler.get_argument('host', None)).get('data')
     if html:
