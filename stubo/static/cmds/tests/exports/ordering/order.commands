@@ -1,0 +1,6 @@
+delete/stubs?scenario=order
+begin/session?scenario=order&session=order_x&mode=record
+put/stub?session=order_x, order_x_0_0.textMatcher, order_x_0.response.0
+put/stub?session=order_x, order_x_1_0.textMatcher, order_x_1.response.0
+put/stub?session=order_x, order_x_2_0.textMatcher, order_x_2.response.0
+end/session?session=order_x

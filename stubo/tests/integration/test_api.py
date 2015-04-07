@@ -294,6 +294,38 @@ class TestExport(Base):
         response = self.wait()
         self.assertEqual(response.code, 200)
         
+    def test_export_order(self):
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
+                               '/static/cmds/tests/exports/ordering/order.commands'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+       
+        
+        self.http_client.fetch(self.get_url(
+                               '/stubo/api/get/export?scenario=order&session_id=x'),
+                               self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        payload = json.loads(response.body)
+        import os
+        export_lines = []
+        export_dir = payload['data']['export_dir_path']
+        with open(os.path.join(export_dir, 'order.commands')) as f:
+            export_lines = [x.strip() for x in f.readlines()]
+        self.assertEqual(export_lines, [
+            'delete/stubs?scenario=order', 
+            'begin/session?scenario=order&session=order_x&mode=record', 
+            'put/stub?session=order_x,order_x_0_0.textMatcher,order_x_0.response.0', 
+            'put/stub?session=order_x,order_x_1_0.textMatcher,order_x_1.response.0', 
+            'put/stub?session=order_x,order_x_2_0.textMatcher,order_x_2.response.0', 
+            'end/session?session=order_x'])
+        
+        for matcher in [0,1,2]:
+            matcher_file_path = os.path.join(export_dir, 'order_x_{0}_0.textMatcher'.format(matcher))
+            with open(matcher_file_path) as f:
+                exported_matcher = f.read()
+                self.assertEqual(exported_matcher, str(matcher))    
+        
     def test_runnable_export(self):
         self.http_client.fetch(self.get_url(
             '/stubo/api/put/setting?setting=tracking_level&value=full'), self.stop)

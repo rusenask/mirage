@@ -45,10 +45,10 @@ class Scenario(object):
         assert self.db
         
     def get_stubs(self, name=None):
+        fiter = {}
         if name:
-            return self.db.scenario_stub.find({'scenario' : name})
-        else:
-            return self.db.scenario_stub.find({})
+            filter = {'scenario' : name}
+        return self.db.scenario_stub.find(filter).sort("_id", ASCENDING)
     
     def stub_count(self, name):
         return self.get_stubs(name).count()
