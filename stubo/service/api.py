@@ -134,7 +134,10 @@ def export_stubs(handler, scenario_name):
         runnable_info['number_of_requests'] = number_of_requests
         for nrequest in range(number_of_requests):
             track = playback[nrequest]
-            request_text = track['request_text']
+            request_text = track.get('request_text')
+            if not request_text:
+                raise exception_response(400, title='Unable to obtain playback details, was full tracking enabled?')
+                
             request_file_name = '{0}_{1}.request'.format(session, nrequest)
             files.append((request_file_name, request_text))
             stubo_response_text = track['stubo_response']
@@ -386,7 +389,7 @@ def put_module(handler, names):
     result['data'] = dict(message='added modules: {0}'.format(added))
     return result
 
-def put_stub(handler, session_name, delay_policy, stateful,
+def put_stub(handler, session_name, delay_policy, stateful, priority,
              recorded=None, module_name=None, recorded_module_system_date=None): 
     log.debug('put_stub request: {0}'.format(handler.request))
     request = handler.request
@@ -407,6 +410,7 @@ def put_stub(handler, session_name, delay_policy, stateful,
     log.debug('stub: {0}'.format(stub))
     if delay_policy:
         stub.set_delay_policy(delay_policy)
+    stub.set_priority(priority)    
        
     session = cache.get_session(scenario_key.partition(':')[-1], 
                                 session_name, 

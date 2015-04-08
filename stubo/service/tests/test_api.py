@@ -391,7 +391,8 @@ class TestPutStub(unittest.TestCase):
         response = begin_session(self.make_request(), 'conversation', 'joe', 'record', 
                                  system_date=None, warm_cache=False) 
         
-        response = put_stub(handler, 'joe', delay_policy=None, stateful=True) 
+        response = put_stub(handler, 'joe', delay_policy=None, stateful=True,
+                            priority=1) 
         self.assertTrue('error' not in response)
         stubs = self.scenario.get_stubs('localhost:conversation')
         stubs = list(stubs)
@@ -401,6 +402,7 @@ class TestPutStub(unittest.TestCase):
         self.assertEqual(stub.contains_matchers(), ['get my stub'])
         self.assertEqual(stub.response_body(), ['a response'])
         self.assertEqual(stub.recorded(), str(date.today()))  
+        self.assertEqual(stub.priority(), 1)
      
     def test_put_with_module(self):
         from stubo.service.api import put_stub, begin_session
@@ -432,7 +434,8 @@ class TestPutStub(unittest.TestCase):
         response = begin_session(self.make_request(), 'conversation', 'joe', 'record', 
                                  system_date=None, warm_cache=False) 
         
-        response = put_stub(handler, 'joe', delay_policy=None, stateful=True) 
+        response = put_stub(handler, 'joe', delay_policy=None, stateful=True,
+                            priority=2) 
         self.assertTrue('error' not in response)
         stubs = list(self.scenario.get_stubs('localhost:conversation'))
         self.assertTrue(len(stubs) == 1)
@@ -441,7 +444,8 @@ class TestPutStub(unittest.TestCase):
         self.assertEqual(stub.module(), module)
         self.assertEqual(stub.contains_matchers(), ['get my stub'])
         self.assertEqual(stub.response_body(), ['a response'])
-        self.assertEqual(stub.recorded(), str(date.today()))   
+        self.assertEqual(stub.recorded(), str(date.today()))
+        self.assertEqual(stub.priority(), 2)   
        
              
     def test_put_with_delay(self):
@@ -466,7 +470,8 @@ class TestPutStub(unittest.TestCase):
         handler.request.body = json.dumps(body)
         begin_session(self.make_request(), 'conversation', 'joe', 'record', 
                       system_date=None, warm_cache=False)    
-        response = put_stub(handler, 'joe', delay_policy=None, stateful=True) 
+        response = put_stub(handler, 'joe', delay_policy=None, stateful=True,
+                            priority=1) 
         self.assertTrue('error' not in response)
         stubs = list(self.scenario.get_stubs('localhost:conversation'))
         self.assertTrue(len(stubs) == 1)
@@ -475,7 +480,8 @@ class TestPutStub(unittest.TestCase):
         self.assertEqual(stub.contains_matchers(), ['get my stub'])
         self.assertEqual(stub.response_body(), ['a response'])
         self.assertEqual(stub.recorded(), str(date.today())) 
-        self.assertEqual(stub.delay_policy(), 'slow')  
+        self.assertEqual(stub.delay_policy(), 'slow') 
+        self.assertEqual(stub.priority(), 1)   
         
     def test_put_with_delay_arg_override(self):
         from stubo.service.api import put_stub, begin_session
@@ -500,7 +506,7 @@ class TestPutStub(unittest.TestCase):
         begin_session(self.make_request(), 'conversation', 'joe', 'record', 
                       system_date=None, warm_cache=False)     
         response = put_stub(handler, 'joe',  delay_policy='fast', 
-                            stateful=True) 
+                            stateful=True, priority=1) 
         self.assertTrue('error' not in response)
         stubs = list(self.scenario.get_stubs('localhost:conversation'))
         self.assertTrue(len(stubs) == 1)
@@ -510,6 +516,7 @@ class TestPutStub(unittest.TestCase):
         self.assertEqual(stub.response_body(), ['a response'])
         self.assertEqual(stub.recorded(), str(date.today())) 
         self.assertEqual(stub.delay_policy(), 'fast') 
+        self.assertEqual(stub.priority(), 1) 
         
     def test_put_in_dormant(self):
         from stubo.service.api import put_stub, begin_session, end_session
@@ -536,7 +543,8 @@ class TestPutStub(unittest.TestCase):
         end_session(self.make_request(), 'joe')
         
         with self.assertRaises(HTTPClientError): 
-            put_stub(handler, 'joe', delay_policy=None, stateful=True)   
+            put_stub(handler, 'joe', delay_policy=None, stateful=True,
+                     priority=1)   
             
     def test_put_in_playback(self):
         from stubo.service.api import put_stub, begin_session
@@ -568,7 +576,8 @@ class TestPutStub(unittest.TestCase):
         begin_session(self.make_request(), 'conversation', 'joe', 'playback', 
                       system_date=None, warm_cache=False)
         with self.assertRaises(HTTPClientError): 
-            put_stub(handler, 'joe', delay_policy=None, stateful=True)  
+            put_stub(handler, 'joe', delay_policy=None, stateful=True,
+                     priority=1)  
             
     def test_put_no_session(self):
         from stubo.service.api import put_stub
@@ -580,7 +589,8 @@ class TestPutStub(unittest.TestCase):
         handler.request.body = json.dumps(create(request_body='x', 
                                                  response_body='y'))
         with self.assertRaises(HTTPClientError): 
-            put_stub(handler, 'bogus', delay_policy=None, stateful=True)
+            put_stub(handler, 'bogus', delay_policy=None, stateful=True,
+                     priority=1)
          
             
     def test_put_empty_payload(self):
@@ -595,7 +605,8 @@ class TestPutStub(unittest.TestCase):
         begin_session(self.make_request(), 'conversation', 'joe', 'record', 
                       system_date=None, warm_cache=False)
         with self.assertRaises(HTTPClientError): 
-            put_stub(handler, 'joe', delay_policy=None, stateful=True) 
+            put_stub(handler, 'joe', delay_policy=None, stateful=True,
+                     priority=1) 
                                   
                                  
 class TestPutStubLegacy(unittest.TestCase):
@@ -630,7 +641,8 @@ class TestPutStubLegacy(unittest.TestCase):
         handler.request.body = body
         begin_session(self.make_request(), 'conversation', 'joe', 'record', 
                       system_date=None, warm_cache=False)
-        response = put_stub(handler, 'joe', delay_policy=None, stateful=True) 
+        response = put_stub(handler, 'joe', delay_policy=None, stateful=True,
+                            priority=1) 
         self.assertTrue('error' not in response)
         stubs = list(self.scenario.get_stubs('localhost:conversation'))
         self.assertTrue(len(stubs) == 1)
@@ -639,6 +651,7 @@ class TestPutStubLegacy(unittest.TestCase):
         self.assertEqual(stub.contains_matchers(), ['get my stub'])
         self.assertEqual(stub.response_body(), ['a response'])
         self.assertEqual(stub.recorded(), str(date.today()))
+        self.assertEqual(stub.priority(), 1)
         
     def test_put_with_delay(self):
         from stubo.service.api import put_stub, begin_session
@@ -647,7 +660,8 @@ class TestPutStubLegacy(unittest.TestCase):
         handler.request.body = '||textMatcher||get my stub||response||a response'
         begin_session(self.make_request(), 'conversation', 'joe', 'record', 
                       system_date=None, warm_cache=False) 
-        response = put_stub(handler, 'joe', delay_policy='slow', stateful=True) 
+        response = put_stub(handler, 'joe', delay_policy='slow', stateful=True,
+                            priority=1) 
         stubs = list(self.scenario.get_stubs('localhost:conversation'))
         self.assertTrue(len(stubs) == 1)
         from stubo.model.stub import Stub
@@ -656,6 +670,7 @@ class TestPutStubLegacy(unittest.TestCase):
         self.assertEqual(stub.response_body(), ['a response'])
         self.assertEqual(stub.recorded(), str(date.today()))
         self.assertEqual(stub.delay_policy(), 'slow') 
+        self.assertEqual(stub.priority(), 1)
     
     def test_put_no_session(self):
         from stubo.service.api import put_stub
@@ -663,7 +678,8 @@ class TestPutStubLegacy(unittest.TestCase):
         handler = DummyRequestHandler()
         handler.request.body = '||textMatcher||get my stub||response||a response'
         with self.assertRaises(HTTPClientError): 
-            put_stub(handler, 'bogus', delay_policy=None, stateful=True)
+            put_stub(handler, 'bogus', delay_policy=None, stateful=True,
+                     priority=1)
          
             
     def test_put_no_text_in_body(self):
@@ -675,7 +691,8 @@ class TestPutStubLegacy(unittest.TestCase):
         begin_session(self.make_request(), 'conversation', 'joe', 'record', 
                       system_date=None, warm_cache=False) 
         with self.assertRaises(HTTPClientError): 
-            put_stub(handler, 'joe', delay_policy=None, stateful=True) 
+            put_stub(handler, 'joe', delay_policy=None, stateful=True,
+                     priority=1) 
             
     def test_put_bad_text_in_body(self):
         from stubo.service.api import put_stub, begin_session
@@ -686,7 +703,8 @@ class TestPutStubLegacy(unittest.TestCase):
         begin_session(self.make_request(), 'conversation', 'joe', 'record', 
                       system_date=None, warm_cache=False)  
         with self.assertRaises(HTTPClientError): 
-            put_stub(handler, 'joe', delay_policy=None, stateful=True) 
+            put_stub(handler, 'joe', delay_policy=None, stateful=True,
+                     priority=1) 
             
     def test_put_bad_text_in_body2(self):
         from stubo.service.api import put_stub, begin_session
@@ -697,7 +715,8 @@ class TestPutStubLegacy(unittest.TestCase):
         begin_session(self.make_request(), 'conversation', 'joe', 'record', 
                       system_date=None, warm_cache=False) 
         with self.assertRaises(HTTPClientError): 
-            put_stub(handler, 'joe', delay_policy=None, stateful=True) 
+            put_stub(handler, 'joe', delay_policy=None, stateful=True,
+                     priority=1) 
               
         
 class TestStubCount(unittest.TestCase):
@@ -1260,7 +1279,7 @@ from stubo.model.cmds import StuboCommandFile
         
 class DummyStuboCommandFile(StuboCommandFile):
     
-    def run_command(self, url):
+    def run_command(self, url, priority):
         pass
     
     

@@ -11,7 +11,7 @@ requires = [
     'tornado>=4.0',   
     'futures>=2.2.0', 
     'redis',         
-    'pymongo>=2.6.1', 
+    'pymongo==2.8', 
     'statsd',        
     'pytz',          
     'requests>=2.4.3',

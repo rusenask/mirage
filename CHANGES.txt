@@ -6,6 +6,7 @@ Changelog
 
 - Export runnable scenarios
 - Added tracker scenario filter (closes #23)
+- Added stub priority
 
 0.6 (2015-03-25)
 ----------------

@@ -257,20 +257,21 @@ def end_sessions_request(handler):
     return end_sessions(handler, scenario_name)   
        
 @stubo_async    
-def put_stub_request(request):
-    session = get_session_arg(request)
-    delay_policy = request.get_argument('delay_policy', None)
-    stateful = asbool(request.get_argument('stateful', True))
-    recorded = request.get_argument('stub_created_date', None)
-    module_name = request.get_argument('ext_module', None)
+def put_stub_request(handler):
+    session = get_session_arg(handler)
+    delay_policy = handler.get_argument('delay_policy', None)
+    stateful = asbool(handler.get_argument('stateful', True))
+    recorded = handler.get_argument('stub_created_date', None)
+    module_name = handler.get_argument('ext_module', None)
     if not module_name:
         # legacy
-        module_name = request.get_argument('stubbedSystem', None)
+        module_name = handler.get_argument('stubbedSystem', None)
          
-    recorded_module_system_date = request.get_argument('stubbedSystemDate',
+    recorded_module_system_date = handler.get_argument('stubbedSystemDate',
                                                        None)
-    return put_stub(request, session, delay_policy=delay_policy,
-                    stateful=stateful, recorded=recorded,
+    priority = int(handler.get_argument('priority', -1))
+    return put_stub(handler, session, delay_policy=delay_policy,
+                    stateful=stateful, priority=priority, recorded=recorded,
                     module_name=module_name,
                     recorded_module_system_date=recorded_module_system_date)                    
        
