@@ -64,7 +64,13 @@ class StubData(object):
         return self.response().get('delayPolicy')
              
     def set_delay_policy(self, policy):
-         self.response()['delayPolicy'] =  policy      
+         self.response()['delayPolicy'] =  policy   
+    
+    def priority(self):
+        return self.payload.get('priority')
+         
+    def set_priority(self, priority):
+        self.payload['priority'] = priority        
         
     def request(self):
         return self.payload['request']

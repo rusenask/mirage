@@ -173,10 +173,13 @@ class StuboCommandFile(object):
     def run_cmds(self, cmds):
         log.debug('cmds={0}'.format(cmds))
         urls = [urlparse(cmd) for cmd in cmds]
-        for url in urls:  
-            self.run_command(url)
+        priority = 0
+        for url in urls:
+            if 'put/stub' in url.path:
+                priority += 1  
+            self.run_command(url, priority)
     
-    def run_command(self, url):
+    def run_command(self, url, priority):
         data = ''
         log.debug('url.path={0}'.format(url.path))
         cmd_path = url.geturl()
@@ -204,6 +207,8 @@ class StuboCommandFile(object):
             if 'session' not in query_params:
                 raise exception_response(400, title="Missing 'session' param in"
                   " query: {0}".format(url.query))
+            if 'priority' not in query_params:
+                query_params['priority'] = priority    
             matchers_response = u''.join(matchers_response.split()).strip() 
             matchers_response = matchers_response.split(',')  
             response_fname = matchers_response[-1].strip()

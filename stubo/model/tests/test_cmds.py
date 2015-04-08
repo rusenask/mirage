@@ -54,7 +54,7 @@ class TestExecCmds(unittest.TestCase):
         from urlparse import urlparse   
         cmds = self.make_one(DummyRequestHandler())  
         with self.assertRaises(HTTPClientError):
-            cmds.run_command(urlparse('put/stub')) 
+            cmds.run_command(urlparse('put/stub'), 1) 
             
     def test_put_stub_with_url_param(self):
         cmds = self.make_one(DummyRequestHandler(), 'cmd_file1')

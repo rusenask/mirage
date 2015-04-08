@@ -48,7 +48,8 @@ class Scenario(object):
         fiter = {}
         if name:
             filter = {'scenario' : name}
-        return self.db.scenario_stub.find(filter).sort("_id", ASCENDING)
+        return self.db.scenario_stub.find(filter).sort("stub.priority", 
+                                                       ASCENDING)
     
     def stub_count(self, name):
         return self.get_stubs(name).count()
