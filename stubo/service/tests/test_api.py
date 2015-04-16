@@ -923,7 +923,8 @@ class TestStubExport(unittest.TestCase):
         from stubo.exceptions import HTTPClientError
         request_handler = DummyRequestHandler(session_id=['1'], 
                                               runnable=['true'],
-                                              session=['myrunnable'])
+                                              record_session=['myrunnable'],
+                                              playback_session=['myrunnable'])
         self._make_scenario('localhost:1stub1matcher')
         from stubo.model.stub import create, Stub
         stub = Stub(create('<test>match this</test>', '<test>OK</test>'),
@@ -932,28 +933,34 @@ class TestStubExport(unittest.TestCase):
         self.scenario.insert_stub(doc, stateful=True) 
         with self.assertRaises(HTTPClientError): 
             export_stubs(request_handler, '1stub1matcher') 
-            
+    
     def test_runnable(self):
         from stubo.service.api import export_stubs
         import os.path
         from stubo.exceptions import HTTPClientError
         request_handler = DummyRequestHandler(session_id=['1'], 
                                               runnable=['true'],
-                                              session=['myrunnable'])
+                                              record_session=['myrunnable'],
+                                              playback_session=['myrunnable'])
         self._make_scenario('localhost:1stub1matcher')
         from stubo.model.stub import create, Stub
         stub = Stub(create('<test>match this</test>', '<test>OK</test>'),
                     'localhost:1stub1matcher')
         doc = dict(scenario='localhost:1stub1matcher', stub=stub)
         self.scenario.insert_stub(doc, stateful=True) 
+        import json
+        payload = json.dumps(stub.payload)
         self.tracker.insert(dict(scenario='localhost:1stub1matcher',
-                                 request_text='<test>match this</test>',
+                                 request_text=payload,
+                                 request_params=dict(scenario='1stub1matcher'),
+                                 function='put/stub',
                                  stubo_response='<test>OK</test>'))
         response =  export_stubs(request_handler, '1stub1matcher') 
         self.assertTrue('runnable' in response['data'])
         runnable = response['data']['runnable']
-        self.assertEqual(runnable.get('session'),  'myrunnable')
-        self.assertEqual(runnable.get('number_of_requests'), 1)
+        self.assertEqual(runnable.get('playback_session'),  'myrunnable')
+        self.assertEqual(runnable.get('record_session'),  'myrunnable')
+        self.assertEqual(runnable.get('number_of_record_requests'), 1)
                              
     def test_1stub_1matcher(self):
         from stubo.service.api import export_stubs
