@@ -133,22 +133,32 @@ class Tracker(object):
     def find_tracker_data_full(self, _id):
         return self.db.tracker.find_one({'_id': ObjectId(_id)})
     
-    def session_last_used(self, scenario, session):
+    def session_last_used(self, scenario, session, mode):
         ''' Return the date this session was last used using the 
             last get/response time.
         '''
+        if  mode == 'record':
+            function = 'put/stub'
+        else:
+            function = 'get/response'    
         host, scenario_name = scenario.split(':')
         return self.db.tracker.find_one({
             'host' : host, 
             'scenario' : scenario_name, 
             'request_params.session' : session, 
-            'function' : 'get/response' }, sort=[("start_time", DESCENDING)])
-        
-    def get_last_playback(self, scenario, session, remote_ip, start_time):
+            'function' : function }, sort=[("start_time", DESCENDING)])
+    
+    def get_last_session(self, scenario, session, remote_ip, start_time,
+                         mode):
+        if mode == 'record':
+            function = 'put/stub'
+        else:
+            function = 'get/response'
+                
         start = self.db.tracker.find_one({
             'scenario' : scenario, 
             'request_params.session' : session,
-            'request_params.mode' : 'playback',
+            'request_params.mode' : mode,
             'remote_ip': remote_ip, 
             'function' : 'begin/session',
             'start_time' :  {"$lt": start_time} 
@@ -169,18 +179,26 @@ class Tracker(object):
         query = {
             'scenario' : scenario, 
             'request_params.session' : session, 
-            'function' : 'get/response',
+            'function' : function,
             'remote_ip': remote_ip,
             'start_time' :  {"$gt": start['start_time'], 
                              "$lt" : end['start_time']} 
             }
         return self.db.tracker.find(query, project).sort("start_time", 
                                                          ASCENDING)
+        
+    def get_last_playback(self, scenario, session, remote_ip, start_time):
+        return self.get_last_session(scenario, session, remote_ip, start_time,
+                                     'playback')
+      
+    def get_last_recording(self, scenario, session, remote_ip, start_time):
+        return self.get_last_session(scenario, session, remote_ip, start_time,
+                                    'record')  
           
         
-def session_last_used(scenario, session_name):
+def session_last_used(scenario, session_name, mode):
     tracker = Tracker()
-    return tracker.session_last_used(scenario, session_name)        
+    return tracker.session_last_used(scenario, session_name, mode)        
            
            
             

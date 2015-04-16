@@ -1,10 +1,10 @@
 .. api
 
-*********************
-Stub-O-Matic REST API
-*********************
+************************
+Stub-O-Matic RESTful API
+************************
 
-The Stubo REST API returns JSON. The response always returns the version, and payload. The payload 
+The Stubo RESTful API returns JSON. The response always returns the version, and payload. The payload 
 is either contained under 'data' if the response is successful or 'error' for
 errors. Errors contain a descriptive message under 'message' and the http error code under 'code'.
 Successful responses depend on the call made and are described below.
@@ -463,7 +463,8 @@ a playback of a previous session to the command script. This can be useful to co
            session_id: session id to use within the export (optional, defaults to epoch time)
            export_dir: export dir name (optional, defaults to scenario key)
            runnable: create a runnable scenario of a previous playback (optional)
-           session: playback session to use (required with runnable)
+           record_session: recording session to use (required with runnable)
+           playback_session: playback session to use (required with runnable)
     returns links to exported archive files (*.zip, *.tar.gz, *.jar)
            
     stubo/api/get/export?scenario=first       
@@ -504,7 +505,7 @@ a playback of a previous session to the command script. This can be useful to co
     
     & runnable export
     
-    stubo/api/get/export?scenario=first&runnable=true&session=first_1
+    stubo/api/get/export?scenario=first&runnable=true&record_session=first_1&playback_session=first_1
     
     {
         "version": "1.2.3", 
@@ -514,8 +515,10 @@ a playback of a previous session to the command script. This can be useful to co
                     "start_time": "2015-03-24 16:57:03.248000+00:00", 
                     "remote_ip": "::1"
                 }, 
-                "session": "first_1", 
-                "number_of_requests": 1
+                "record_session": "first_1",
+                "playback_session": "first_1", 
+                "number_of_record_requests": 1,
+                "number_of_playback_requests": 1
             }, 
             "scenario": "first", 
             "links": [

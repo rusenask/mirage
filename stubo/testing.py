@@ -344,7 +344,7 @@ class DummyTracker(object):
     def find_tracker_data_full(self, _id):
         return self.db.get(_id)
     
-    def session_last_used(self, scenario, session):
+    def session_last_used(self, scenario, session, mode):
         ''' Return the date this session was last used using the 
             last get/response time.
         '''
@@ -354,6 +354,8 @@ class DummyTracker(object):
         
     def get_last_playback(self, scenario, session, remote_ip, start_time):
         return self.db.values()
+    
+    get_last_recording = get_last_playback
     
 def make_stub(matchers, response, delay_policy=None, module=None,
               recorded=None):
