@@ -3,6 +3,7 @@
     :license: GPLv3, see LICENSE for more details.
 """
 import logging
+import json
 from stubo.model.stub_parser import (
     JSONStubParser, LegacyStubParser
 )
@@ -10,14 +11,16 @@ from stubo.utils import get_unicode_from_request
 
 log = logging.getLogger(__name__)
 
-def parse_stub(body, scenario, url_args, json=True):
+def parse_stub(body, scenario, url_args):
     log.debug(u'parse_stub body={0}'.format(body)) 
-    if json:
+    try:
+        body = json.loads(body)
         log.debug('using JSONStubParser')
         parser = JSONStubParser()
-    else:
+    except ValueError:
+        # old format
         log.debug('using LegacyStubParser')
-        parser = LegacyStubParser()     
+        parser = LegacyStubParser()
     return Stub(parser.parse(body, url_args), scenario)
  
 class StubData(object):

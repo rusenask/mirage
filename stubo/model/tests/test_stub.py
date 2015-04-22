@@ -15,13 +15,12 @@ class TestJSONStubParser(unittest.TestCase):
         self.assertTrue(parser)
         
     def test_normal_stub(self):
-        import json
         stub = {'request': 
             { 'bodyPatterns': [{'contains': ['get my stub', 'and another']}],
               'method': 'POST'},
               'response': {'body': 'a response', 'status': 200},
             }
-        self.assertEqual(self._parse(json.dumps(stub), foo='bar'), {'request': 
+        self.assertEqual(self._parse(stub, foo='bar'), {'request': 
             { 'bodyPatterns': [{'contains': ['get my stub', 'and another']}],
               'method': 'POST'},
               'response': {'body': 'a response', 'status': 200},
@@ -29,13 +28,12 @@ class TestJSONStubParser(unittest.TestCase):
             })   
         
     def test_no_args(self):
-        import json
         stub = {'request': 
             { 'bodyPatterns': [{'contains': ['get my stub', 'and another']}],
               'method': 'POST'},
               'response': {'body': 'a response', 'status': 200},
             }
-        self.assertEqual(self._parse(json.dumps(stub)), {'request': 
+        self.assertEqual(self._parse(stub), {'request': 
             { 'bodyPatterns': [{'contains': ['get my stub', 'and another']}],
               'method': 'POST'},
               'response': {'body': 'a response', 'status': 200},
@@ -43,13 +41,12 @@ class TestJSONStubParser(unittest.TestCase):
             }) 
         
     def test_default_response(self):
-        import json
         stub = {'request': 
             { 'bodyPatterns': [{'contains': ['get my stub', 'and another']}],
               'method': 'POST'},
             }
         # Do we really support an empty response body?
-        self.assertEqual(self._parse(json.dumps(stub)), {'request': 
+        self.assertEqual(self._parse(stub), {'request': 
             { 'bodyPatterns': [{'contains': ['get my stub', 'and another']}],
               'method': 'POST'},
               'response': {'status': 200},
@@ -57,11 +54,10 @@ class TestJSONStubParser(unittest.TestCase):
             }) 
 
     def test_stub_missing_matcher(self):
-        import json
         with self.assertRaises(ValueError):
-            self._parse(json.dumps({
+            self._parse({
               'response': {'body': 'a response', 'status': 200},
-            }))              
+            })              
     
     
 
@@ -112,7 +108,7 @@ class Test_parse(unittest.TestCase):
     
     def _func(self, request, scenario, json=True, **url_args):
         from stubo.model.stub import parse_stub
-        return parse_stub(request, scenario, url_args, json=json)
+        return parse_stub(request, scenario, url_args)
     
     def test_json(self):
         import json
@@ -135,7 +131,7 @@ class Test_parse(unittest.TestCase):
               'method': 'POST'},
               'response': {'body': 'a response', 'status': 200},
             }) 
-        stub = self._func(request, 'foo', json=True, boring=False)
+        stub = self._func(request, 'foo', boring=False)
         self.assertEqual(stub.args(), {'boring': False})
         self.assertEqual(stub.contains_matchers(), [u'get my stub', u'and another'])
         self.assertEquals(stub.request_method(), 'POST')
@@ -144,7 +140,7 @@ class Test_parse(unittest.TestCase):
         
     def test_legacy(self):
         request = '||textMatcher||get my stub||textMatcher||and another||response||a response'
-        stub = self._func(request, 'foo', json=False)
+        stub = self._func(request, 'foo')
         self.assertEqual(stub.args(), {})
         self.assertEqual(stub.contains_matchers(), [u'get my stub', u'and another'])
         self.assertEquals(stub.request_method(), 'POST')
@@ -153,7 +149,7 @@ class Test_parse(unittest.TestCase):
         
     def test_legacy_args(self):
         request = '||textMatcher||get my stub||textMatcher||and another||response||a response'
-        stub = self._func(request, 'foo', json=False, boring=False)
+        stub = self._func(request, 'foo', boring=False)
         self.assertEqual(stub.args(), {'boring': False})
         self.assertEqual(stub.contains_matchers(), [u'get my stub', u'and another'])
         self.assertEquals(stub.request_method(), 'POST')

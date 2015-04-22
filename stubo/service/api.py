@@ -114,10 +114,7 @@ def export_stubs(handler, scenario_name):
             if not request_text:
                 raise exception_response(400, title='Unable to obtain recording details, was full tracking enabled?')
             
-            payload = json.loads(request_text)
-            # TODO: REST change this to store the whole json payload for the stub
-            stub = Stub(payload, scenario_name_key)
-            
+            stub = parse_stub(request_text, scenario_name_key, {})
             matchers = [('{0}_{1}_{2}.textMatcher'.format(session, nrequest, x), 
                     stub.contains_matchers()[x]) for x in range(stub.number_of_matchers())]
             matchers_str = ",".join(x[0] for x in matchers)
@@ -466,9 +463,7 @@ def put_stub(handler, session_name, delay_policy, stateful, priority,
     trace = TrackTrace(handler.track, 'put_stub')
     url_args = handler.track.request_params
     try:
-        is_json = 'application/json' in request.headers.get('Content-Type', {})
-        stub = parse_stub(stubo_request.body_unicode, scenario_key, url_args,
-                          is_json)
+        stub = parse_stub(stubo_request.body_unicode, scenario_key, url_args)
     except Exception, e:    
         raise exception_response(400, title='put/stub body format error - {0}, '
             'on session: {1}'.format(e.message, session_name))
