@@ -2,7 +2,6 @@
     :copyright: (c) 2015 by OpenCredo.
     :license: GPLv3, see LICENSE for more details.
 """
-import json
 import logging
 
 log = logging.getLogger(__name__)
@@ -21,8 +20,7 @@ class StubParser(object):
                   
 class JSONStubParser(StubParser):
     
-     def parse(self, body, url_args):
-         payload = json.loads(body)
+     def parse(self, payload, url_args):
          if 'request' not in payload:
              raise ValueError("No 'request' definition found in body") 
          if 'response' not in payload or not payload['response']:
