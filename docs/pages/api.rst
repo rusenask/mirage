@@ -43,38 +43,51 @@ exec/cmds
        query args: 
            cmdfile - URL or a file under /static on the stubo server 
             + any user args will be made avaliable to the cmd file template
-       response: shows the list of commands executed, see the Tracker page for responses      
+       response: shows the list of commands (url, return_code) executed, see the Tracker page for responses      
 
    Typically command files are used to load stubs into the Stubo db, but you can run any supported commands from a file. 
    
    stubo/api/exec/cmds?cmdfile=/static/cmds/demo/first_setup.commands
    
    {
-    "version": "1.2.3", 
-    "data": {
-        "executed_commands": [
-            [
-                "delete/stubs?scenario=first", 
-                ""
-            ], 
-            [
-                "begin/session?scenario=first&session=first_1&mode=record", 
-                ""
-            ], 
-            [
-                "put/stub?session=first_1&delay_policy=delay_1,first.textMatcher,first.response", 
-                ""
-            ], 
-            [
-                "end/session?session=first_1", 
-                ""
-            ], 
-            [
-                "begin/session?scenario=first&session=first_1&mode=playback", 
-                ""
-            ]
-        ]
-    }
+   "version": "1.2.3", 
+   "data": {
+      "executed_commands": [
+         [
+            "delete/stubs?scenario=first", 
+            200
+         ], 
+         [
+            "begin/session?scenario=first&session=first_1&mode=record", 
+            200
+         ], 
+         [
+            "put/stub?session=first_1,first.textMatcher,first.response", 
+            200
+         ], 
+         [
+            "end/session?session=first_1", 
+            200
+         ], 
+         [
+            "begin/session?scenario=first&session=first_1&mode=playback", 
+            200
+         ], 
+         [
+            "get/response?session=first_1,first.request", 
+            200
+         ], 
+         [
+            "end/session?session=first_1", 
+            200
+         ]
+      ], 
+      "number_of_requests": 7, 
+      "number_of_errors": 0
+      }
+   }
+   
+   
 
    
    stubo/api/exec/cmds?cmdfile=https://your-source-repo/my.commands

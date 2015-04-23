@@ -33,10 +33,12 @@ class TestCmds(unittest.TestCase):
    
     def test_empty_cmds(self):
         from stubo.service.api import run_commands
-        from stubo.exceptions import HTTPClientError
         cmds_text = ''
-        with self.assertRaises(HTTPClientError):
-            run_commands(DummyRequestHandler(), '') 
+        response =  run_commands(DummyRequestHandler(), '')
+        self.assertEqual(response['data'], {
+            'executed_commands': [], 
+            'number_of_requests': 0, 
+            'number_of_errors': 0})
             
     def test_unsupported_cmds(self):
         from stubo.service.api import run_commands
@@ -50,44 +52,46 @@ class TestCmds(unittest.TestCase):
         cmds_text = 'delete/stubs?scenario=foo'    
         response = run_commands(DummyRequestHandler(), cmds_text)
         self.assertEqual(response['data'], {
-            'executed_commands' : [('delete/stubs?scenario=foo', [])]
-            })
+            'executed_commands': [('delete/stubs?scenario=foo', 200)], 
+            'number_of_requests': 1, 
+            'number_of_errors': 0})
         
     def test_1cmd_spaces(self):
         from stubo.service.api import run_commands
         cmds_text = ' delete/stubs?scenario=foo '    
         response = run_commands(DummyRequestHandler(), cmds_text)
         self.assertEqual(response['data'], {
-            'executed_commands' : [('delete/stubs?scenario=foo', [])]
-            })    
+            'executed_commands': [('delete/stubs?scenario=foo', 200)], 
+            'number_of_requests': 1, 
+            'number_of_errors': 0})    
         
     def test_2cmds(self):
         from stubo.service.api import run_commands
-        cmds_text = 'delete/stubs?scenario=foo,delete/stubs?scenario=bar'    
+        cmds_text = 'delete/stubs?scenario=foo\ndelete/stubs?scenario=bar'    
         response = run_commands(DummyRequestHandler(), cmds_text)
-        self.assertEqual(response['data'], { 'executed_commands' : \
-            [('delete/stubs?scenario=foo,delete/stubs?scenario=bar', [])]
-            })
+        self.assertEqual(response['data'], {
+            'executed_commands': [('delete/stubs?scenario=foo', 200), 
+                                  ('delete/stubs?scenario=bar', 200)], 
+            'number_of_requests': 2, 'number_of_errors': 0})
         
     def test_2cmds_spaces(self):
         from stubo.service.api import run_commands
-        cmds_text = ' delete/stubs?scenario=foo, delete/stubs?scenario=bar '    
+        cmds_text = ' delete/stubs?scenario=foo\n delete/stubs?scenario=bar '    
         response = run_commands(DummyRequestHandler(), cmds_text)
-        self.assertEqual(response['data'], { 'executed_commands' : \
-            [('delete/stubs?scenario=foo, delete/stubs?scenario=bar', [])]
-            })    
+        self.assertEqual(response['data'], {
+            'executed_commands': [('delete/stubs?scenario=foo', 200), 
+                                  ('delete/stubs?scenario=bar', 200)], 
+            'number_of_requests': 2, 'number_of_errors': 0})
         
     def test_export_cmd(self):
         from stubo.service.api import run_commands
         cmds_text = 'get/export?scenario=foo'    
         response = run_commands(DummyRequestHandler(), cmds_text)
-        self.assertEqual(response['data'], { 'executed_commands': \
-            [('get/export?scenario=foo', 
-            [('foo.zip', 'http://localhost:8001/static/exports/localhost_foo/foo.zip'), 
-             ('foo.tar.gz', 'http://localhost:8001/static/exports/localhost_foo/foo.tar.gz'),
-             ('foo.jar', 'http://localhost:8001/static/exports/localhost_foo/foo.jar')])]
-            }) 
-                                   
+        self.assertEqual(response['data'], {
+            'export_links': [('get/export?scenario=foo', [('foo.zip', 'http://localhost:8001/static/exports/localhost_foo/foo.zip'), ('foo.tar.gz', 'http://localhost:8001/static/exports/localhost_foo/foo.tar.gz'), ('foo.jar', 'http://localhost:8001/static/exports/localhost_foo/foo.jar')])], 
+            'executed_commands': [('get/export?scenario=foo', 200)], 
+            'number_of_requests': 1, 
+            'number_of_errors': 0})
                                    
 class TestSession(unittest.TestCase):    
     
@@ -1287,7 +1291,7 @@ from stubo.model.cmds import StuboCommandFile
 class DummyStuboCommandFile(StuboCommandFile):
     
     def run_command(self, url, priority):
-        pass
+        return 200
     
     
             

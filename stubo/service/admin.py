@@ -65,9 +65,9 @@ def get_stats(handler):
             handler.settings.get('graphite.passwd'))
     from_str = handler.get_argument('from', '-1hours')
     to_str = handler.get_argument('to', 'now')      
-    json_response, hdrs = get_graphite_stats(server, auth, target=target, 
-                                             from_str=from_str, to_str=to_str)
-    if hdrs['content-type'] != 'application/json':
+    json_response, hdrs, status_code = get_graphite_stats(server, auth, 
+                            target=target, from_str=from_str, to_str=to_str)
+    if status_code != 200 or (hdrs['content-type'] != 'application/json'):
         raise exception_response(500,
                 title='unexpected response from graphite => {0}: {1}'.format(
                                                     hdrs, json_response)) 
