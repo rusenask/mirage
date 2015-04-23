@@ -306,9 +306,12 @@ def run_command_file(cmd_file_url, request, static_path):
             'version' : version
         }
         cmd_processor = StuboCommandFile(request, cmd_file_path)
-        cmds = cmd_processor.run()
-        cmd_links = [(x, '') for x in cmds]
-        response['data'] = {'executed_commands' : cmd_links}
+        responses = cmd_processor.run()
+        response['data'] = {
+            'executed_commands' : responses,
+            'number_of_requests' : len(responses),
+            'number_of_errors' : len([v for k, v in responses if v > 399])
+         }
         return response
     file_type = os.path.basename(urlparse(cmd_file_url).path).rpartition(
                                 '.')[-1]  
@@ -318,8 +321,8 @@ def run_command_file(cmd_file_url, request, static_path):
         import_dir = os.path.join(static_path, 'imports')
         with make_temp_dir(dirname=import_dir) as temp_dir: 
             temp_dir_name = os.path.basename(temp_dir)
-            response, headers = UrlFetch().get(UriLocation(request)(
-                                               cmd_file_url)[0])
+            response, headers, status_code = UrlFetch().get(
+                                        UriLocation(request)(cmd_file_url)[0])
             content_type = headers["Content-Type"]
             log.debug('received {0} file.'.format(content_type))
             if content_type == 'application/x-tar' or file_type == 'tar':
@@ -360,27 +363,34 @@ def run_commands(handler, cmds_text):
         'version' : version
     }
     host = get_hostname(handler.request)
+    
+    cmd_processor = StuboCommandFile(handler.request)
+    cmds = cmd_processor.parse_commands(cmds_text)
+    if any(x for x in cmds if urlparse(x).path not in form_input_cmds):
+        raise exception_response(400, title='command/s not supported, must be '
+            'one of these: {0}'.format(form_input_cmds))
+       
+    responses = cmd_processor.run_cmds(cmds)             
+    response['data'] = {
+        'executed_commands' : responses,
+        'number_of_requests' : len(responses),
+        'number_of_errors' : len([v for k, v in responses if v > 399])
+    }
+    
     def get_links(cmd):
         cmd_uri = urlparse(cmd)
         links = []
-        if cmd_uri.path == 'get/export':
-            scenario_name = cmd_uri.query.partition('=')[-1]
-            scenario_name_key = '{0}:{1}'.format(host, scenario_name)
-            files = [(scenario_name+'.zip',), (scenario_name+'.tar.gz',),
-                     (scenario_name+'.jar',)]
-            links = get_export_links(handler, scenario_name_key, files)
+        scenario_name = cmd_uri.query.partition('=')[-1]
+        scenario_name_key = '{0}:{1}'.format(host, scenario_name)
+        files = [(scenario_name+'.zip',), (scenario_name+'.tar.gz',),
+                 (scenario_name+'.jar',)]
+        links = get_export_links(handler, scenario_name_key, files)
         return links
-    cmd_processor = StuboCommandFile(handler.request)
-    cmds = cmd_processor.parse_commands(cmds_text)
-    cmd_pairs = [(x, get_links(x)) for x in cmds if urlparse(
-        x).path in form_input_cmds]
-    if not cmd_pairs:
-        raise exception_response(400, title='command/s not supported, must be '
-            'one of these: {0}'.format(form_input_cmds))
-        
-    cmds, _ = zip(*cmd_pairs)
-    cmd_processor.run_cmds(cmds)              
-    response['data'] = {'executed_commands' : cmd_pairs}
+    
+    export_links = [(x, get_links(x)) for x in cmds if 'get/export' in x]
+    if export_links:
+       response['data']['export_links'] = export_links 
+                    
     return response
 
 def delete_module(request, names):
@@ -426,7 +436,7 @@ def put_module(handler, names):
     for name in names:
         uri, module_name = UriLocation(handler.request)(name)
         log.info('uri={0}, module_name={1}'.format(uri, module_name))
-        response, _ = UrlFetch().get(uri)
+        response, _, code = UrlFetch().get(uri)
         module_name = module_name[:-3]
         last_version = module.latest_version(module_name)
         module_version_name = module.sys_module_name(module_name, 
@@ -1056,7 +1066,7 @@ def import_bookmarks(handler, location):
     response = dict(version=version, data={})
     uri, bookmarks_name = UriLocation(request)(location)
     log.info('uri={0}, bookmarks_name={1}'.format(uri, bookmarks_name))
-    payload, _ = UrlFetch().get(uri)
+    payload, _, status_code = UrlFetch().get(uri)
     payload = json.loads(payload)
     # e.g payload
     #{"converse":  {"first": {"8981c0dda19403f5cc054aea758689e65db2": "2"}}} 

@@ -4,9 +4,10 @@ Changelog
 0.6.1 (unreleased)
 ------------------
 
-- Export runnable scenarios
+- Return the http status code of exec/cmds requests (closes #28)
 - Added tracker scenario filter (closes #23)
 - Added stub priority
+- Export runnable scenarios
 
 0.6 (2015-03-25)
 ----------------

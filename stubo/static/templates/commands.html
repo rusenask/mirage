@@ -3,14 +3,17 @@
 <h2>Executed</h2>
 <ul>
 {% for cmd in executed or [] %} 
-    <li>{{cmd[0]}} 
-    {% if cmd[1] %} 
-    =>
-    {% for link in cmd[1] %}
-      <a href="{{link[1]}}">{{link[0]}}</a>
+    <li>
+    {{cmd[0]}}
+     => 
+    {{cmd[1]}}
+    {% if cmd[0] in export_links %}
+     => 
+    {% set link = export_links[cmd[0]][1] %}
+    <a href="{{link[1]}}">{{link[0]}}</a>
     {% end %}
-    {% end %}    
     </li>
 {% end %}
 </ul>
+
 {% end %}

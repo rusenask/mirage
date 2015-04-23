@@ -145,8 +145,10 @@ def command_handler_form_request(handler):
                                     handler.settings['static_path'])
     elif cmds:
         response = run_commands(handler, cmds)
+    links = dict((k,v) for k,v in response['data'].get('export_links', []))    
     return handler.render_string("commands.html", page_title='Commands',
-                    executed=response['data'].get('executed_commands'))    
+                    executed=response['data'].get('executed_commands'),
+                    export_links=links)    
    
 @stubo_async
 def export_stubs_request(handler):
