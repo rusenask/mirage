@@ -476,7 +476,6 @@ a playback of a previous session to the command script. This can be useful to co
            session_id: session id to use within the export (optional, defaults to epoch time)
            export_dir: export dir name (optional, defaults to scenario key)
            runnable: create a runnable scenario of a previous playback (optional)
-           record_session: recording session to use (required with runnable)
            playback_session: playback session to use (required with runnable)
     returns links to exported archive files (*.zip, *.tar.gz, *.jar)
            
@@ -518,7 +517,7 @@ a playback of a previous session to the command script. This can be useful to co
     
     & runnable export
     
-    stubo/api/get/export?scenario=first&runnable=true&record_session=first_1&playback_session=first_1
+    stubo/api/get/export?scenario=first&runnable=true&playback_session=first_1
     
     {
         "version": "1.2.3", 
@@ -528,9 +527,7 @@ a playback of a previous session to the command script. This can be useful to co
                     "start_time": "2015-03-24 16:57:03.248000+00:00", 
                     "remote_ip": "::1"
                 }, 
-                "record_session": "first_1",
                 "playback_session": "first_1", 
-                "number_of_record_requests": 1,
                 "number_of_playback_requests": 1
             }, 
             "scenario": "first", 

@@ -358,11 +358,15 @@ class TestPutStub(unittest.TestCase):
         self.db_patch.start()
         self.db_patch2 = mock.patch('stubo.cache.Scenario', self.scenario)
         self.db_patch2.start()
+        self.tracker = DummyTracker()
+        self.tracker_patch = mock.patch('stubo.service.api.Tracker', self.tracker)
+        self.tracker_patch.start()
 
     def tearDown(self):
         self.patch.stop()
         self.db_patch.stop()
         self.db_patch2.stop()
+        self.tracker_patch.stop()
         
     def _make_scenario(self, name, **kwargs):
         doc = dict(name=name, **kwargs)
@@ -544,6 +548,11 @@ class TestPutStub(unittest.TestCase):
         handler.request.body = json.dumps(body)
         begin_session(self.make_request(), 'conversation', 'joe', 'record', 
                       system_date=None, warm_cache=False)
+        self.tracker.insert(dict(scenario='localhost:conversation',
+                                 request_text=handler.request.body,
+                                 request_params=dict(scenario='conversation'),
+                                 function='put/stub',
+                                 stubo_response='<test>OK</test>'))
         end_session(self.make_request(), 'joe')
         
         with self.assertRaises(HTTPClientError): 
@@ -907,7 +916,7 @@ class TestStubExport(unittest.TestCase):
         import shutil    
         shutil.rmtree(scenario_dir)
         
-    def test_runnable_requires_session(self):
+    def test_runnable_requires_playback_session(self):
         from stubo.service.api import export_stubs
         import os.path
         from stubo.exceptions import HTTPClientError
@@ -918,8 +927,9 @@ class TestStubExport(unittest.TestCase):
                     'localhost:1stub1matcher')
         doc = dict(scenario='localhost:1stub1matcher', stub=stub)
         self.scenario.insert_stub(doc, stateful=True) 
+        self.scenario.insert_pre_stub('localhost:1stub1matcher', stub) 
         with self.assertRaises(HTTPClientError): 
-            export_stubs(request_handler, '1stub1matcher') 
+            export_stubs(request_handler, '1stub1matcher')   
             
     def test_runnable_requires_playback(self):
         from stubo.service.api import export_stubs
@@ -927,7 +937,6 @@ class TestStubExport(unittest.TestCase):
         from stubo.exceptions import HTTPClientError
         request_handler = DummyRequestHandler(session_id=['1'], 
                                               runnable=['true'],
-                                              record_session=['myrunnable'],
                                               playback_session=['myrunnable'])
         self._make_scenario('localhost:1stub1matcher')
         from stubo.model.stub import create, Stub
@@ -935,8 +944,9 @@ class TestStubExport(unittest.TestCase):
                     'localhost:1stub1matcher')
         doc = dict(scenario='localhost:1stub1matcher', stub=stub)
         self.scenario.insert_stub(doc, stateful=True) 
-        with self.assertRaises(HTTPClientError): 
-            export_stubs(request_handler, '1stub1matcher') 
+        self.scenario.insert_pre_stub('localhost:1stub1matcher', stub)
+        with self.assertRaises(HTTPClientError):
+            export_stubs(request_handler, '1stub1matcher')
     
     def test_runnable(self):
         from stubo.service.api import export_stubs
@@ -944,7 +954,6 @@ class TestStubExport(unittest.TestCase):
         from stubo.exceptions import HTTPClientError
         request_handler = DummyRequestHandler(session_id=['1'], 
                                               runnable=['true'],
-                                              record_session=['myrunnable'],
                                               playback_session=['myrunnable'])
         self._make_scenario('localhost:1stub1matcher')
         from stubo.model.stub import create, Stub
@@ -963,9 +972,8 @@ class TestStubExport(unittest.TestCase):
         self.assertTrue('runnable' in response['data'])
         runnable = response['data']['runnable']
         self.assertEqual(runnable.get('playback_session'),  'myrunnable')
-        self.assertEqual(runnable.get('record_session'),  'myrunnable')
-        self.assertEqual(runnable.get('number_of_record_requests'), 1)
-                             
+        self.assertEqual(runnable.get('number_of_playback_requests'), 1)
+                         
     def test_1stub_1matcher(self):
         from stubo.service.api import export_stubs
         import os.path
@@ -974,16 +982,16 @@ class TestStubExport(unittest.TestCase):
         from stubo.model.stub import create, Stub
         stub = Stub(create('<test>match this</test>', '<test>OK</test>'),
                     'localhost:1stub1matcher')
-        doc = dict(scenario='localhost:1stub1matcher', stub=stub)
-        self.scenario.insert_stub(doc, stateful=True)  
+        self.scenario.insert_pre_stub('localhost:1stub1matcher', stub) 
         
         response = export_stubs(request_handler, '1stub1matcher').get('data')
         self.assertEqual(response['scenario'], '1stub1matcher')
         self.assertTrue(len(response['links']), 5)
         local_server = 'http://{0}:{1}'.format(request_handler.track.server, 
                                            request_handler.track.port) 
+        
         self.assertEqual(response['links'], [
-          ('1stub1matcher_1_0.response.0', local_server + '/static/exports/localhost_1stub1matcher/1stub1matcher_1_0.response.0'),   
+          ('1stub1matcher_1_0.response', local_server + '/static/exports/localhost_1stub1matcher/1stub1matcher_1_0.response'),   
           ('1stub1matcher_1_0_0.textMatcher', local_server + '/static/exports/localhost_1stub1matcher/1stub1matcher_1_0_0.textMatcher'),
           ('1stub1matcher.commands', local_server + '/static/exports/localhost_1stub1matcher/1stub1matcher.commands'),
           ('1stub1matcher.zip', local_server + '/static/exports/localhost_1stub1matcher/1stub1matcher.zip'),
@@ -999,7 +1007,7 @@ class TestStubExport(unittest.TestCase):
         cmds = [
             'delete/stubs?scenario=1stub1matcher',
             'begin/session?scenario=1stub1matcher&session=1stub1matcher_1&mode=record',
-            'put/stub?session=1stub1matcher_1,1stub1matcher_1_0_0.textMatcher,1stub1matcher_1_0.response.0',
+            'put/stub?session=1stub1matcher_1,1stub1matcher_1_0_0.textMatcher,1stub1matcher_1_0.response',
             'end/session?session=1stub1matcher_1',
         ]  
         
@@ -1009,7 +1017,7 @@ class TestStubExport(unittest.TestCase):
         with open(os.path.join(scenario_dir, '1stub1matcher_1_0_0.textMatcher')) as f: 
             self.assertEqual(f.read(), '<test>match this</test>')  
             
-        with open(os.path.join(scenario_dir, '1stub1matcher_1_0.response.0')) as f: 
+        with open(os.path.join(scenario_dir, '1stub1matcher_1_0.response')) as f: 
             self.assertEqual(f.read(), '<test>OK</test>')
             
         self._delete_tmp_export_dir(scenario_dir)
@@ -1024,15 +1032,14 @@ class TestStubExport(unittest.TestCase):
         stub = Stub(make_stub(['<test>match this</test>',
                                '<test>and this</test>'], '<test>OK</test>',
                               delay_policy='slow'), scenario=scenario_name)
-        doc = dict(scenario='localhost:x', stub=stub)
-        self.scenario.insert_stub(doc, stateful=True)  
+        self.scenario.insert_pre_stub('localhost:x', stub)  
         response = export_stubs(handler, scenario_name).get('data')
         self.assertEqual(response['scenario'], scenario_name)
         self.assertTrue(len(response['links']), 6)
         local_server = 'http://{0}:{1}'.format(handler.track.server, 
                                            handler.track.port) 
         self.assertEqual(response['links'], [
-          ('x_1_0.response.0', local_server + '/static/exports/localhost_x/x_1_0.response.0'),
+          ('x_1_0.response', local_server + '/static/exports/localhost_x/x_1_0.response'),
           ('x_1_0_0.textMatcher', local_server + '/static/exports/localhost_x/x_1_0_0.textMatcher'),
           ('x_1_0_1.textMatcher', local_server + '/static/exports/localhost_x/x_1_0_1.textMatcher'),
           ('x.commands', local_server + '/static/exports/localhost_x/x.commands'),
@@ -1056,15 +1063,12 @@ class TestStubExport(unittest.TestCase):
         stub = Stub(make_stub(['<test>match this</test>',
                                '<test>and this</test>'], '<test>OK</test>',
                               delay_policy='slow'), scenario=scenario_name)
-        doc = dict(scenario='localhost:x', stub=stub)
-        self.scenario.insert_stub(doc, stateful=True) 
+        self.scenario.insert_pre_stub('localhost:x', stub) 
         
         stub2 = Stub(make_stub(['<test>match this 2</test>',
                                '<test>and this</test>'], '<test>OK</test>',
                               delay_policy='slow'), scenario=scenario_name)
-        doc2 = dict(scenario='localhost:x', stub=stub2)
-        self.scenario.insert_stub(doc2, stateful=True)   
-        
+        self.scenario.insert_pre_stub('localhost:x', stub2) 
         
         handler = DummyRequestHandler(session_id=['1'])
         response = export_stubs(handler, scenario_name).get('data')     
@@ -1073,10 +1077,10 @@ class TestStubExport(unittest.TestCase):
         local_server = 'http://{0}:{1}'.format(handler.track.server, 
                                            handler.track.port) 
         self.assertEqual(response['links'], [
-         ('x_1_0.response.0', local_server + '/static/exports/localhost_x/x_1_0.response.0'),                                     
+         ('x_1_0.response', local_server + '/static/exports/localhost_x/x_1_0.response'),                                     
          ('x_1_0_0.textMatcher', local_server + '/static/exports/localhost_x/x_1_0_0.textMatcher'), 
          ('x_1_0_1.textMatcher', local_server + '/static/exports/localhost_x/x_1_0_1.textMatcher'), 
-         ('x_1_1.response.0', local_server + '/static/exports/localhost_x/x_1_1.response.0'), 
+         ('x_1_1.response', local_server + '/static/exports/localhost_x/x_1_1.response'), 
          ('x_1_1_0.textMatcher', local_server + '/static/exports/localhost_x/x_1_1_0.textMatcher'), 
          ('x_1_1_1.textMatcher', local_server + '/static/exports/localhost_x/x_1_1_1.textMatcher'),    
          ('x.commands', local_server + '/static/exports/localhost_x/x.commands'), 
