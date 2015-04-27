@@ -80,7 +80,7 @@ class TestExecCmds(unittest.TestCase):
         from stubo.exceptions import HTTPClientError
         cmds = self.make_one(DummyRequestHandler(), 'cmd_file_empty_response')
         with self.assertRaises(HTTPClientError):
-            cmds.run()     
+            cmds.run()    
         
     def test_get_response(self):
         cmds = self.make_one(DummyRequestHandler(), 'cmd_file5')
@@ -337,7 +337,10 @@ put/stub?session=xy, matcher_text, EMPTY_RESPONSE
 end/session?session=xy
 """ 
 
-EMPTY_RESPONSE = ""
+class Empty(object):
+    def __len__(self): return 0
+    
+EMPTY_RESPONSE = Empty()
 
 matcher_text = """
 <?xml version="1.0" encoding="UTF-8"?>

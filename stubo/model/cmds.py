@@ -240,8 +240,12 @@ class StuboCommandFile(object):
                 response_text = response_fname[5:]
             else:
                 response_data_url = urljoin(parent_path, response_fname)
-                response_text, _ = UrlFetch().get(response_data_url)
-            
+                response_text, hdrs = UrlFetch().get(response_data_url)
+                if 'application/json' in hdrs["Content-Type"]:
+                    try:
+                        response_text = json.dumps(response_text)
+                    except Exception:
+                        pass    
             if not response_text:
                 raise exception_response(400, 
                     title="put/stub response text can not be empty.") 
@@ -275,7 +279,11 @@ class StuboCommandFile(object):
             cmd_path = url.path + '?{0}'.format(query)
             url = self.location(urljoin(api_base, cmd_path))[0]
             log.debug(u'run_command: {0}'.format(url))
-            encoded_data = data.encode('utf-8')
+            if isinstance(data, dict):
+                # payload is json
+                encoded_data = json.dumps(data)
+            else:    
+                encoded_data = data.encode('utf-8')
             headers = {'Stubo-Request-Method' : 'POST'}
             if header_args:
                 headers.update(dict(x.split('=') for x in header_args.split(',')))      

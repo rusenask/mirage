@@ -16,6 +16,7 @@ requires = [
     'pytz',          
     'requests>=2.4.3',
     'lxml',
+    'jsonpath-rw',
     'python-dateutil>=2.2',
     'Pygments',
     'dogpile.cache',

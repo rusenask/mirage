@@ -15,7 +15,8 @@ import json
 from hamcrest.core.string_description import StringDescription
 from hamcrest import all_of, is_not
 from .request_matcher import (
-    body_contains, has_method, has_path, has_query_args
+    body_contains, has_method, has_path, has_query_args, has_url_pattern,
+    body_xpath, body_jsonpath
 )
 from stubo.model.stub import Stub, StubCache
 from stubo.exceptions import exception_response
@@ -30,16 +31,33 @@ def build_matchers(stub):
         if k == 'bodyPatterns':
             body_patterns = stub.request()['bodyPatterns']
             for body_pattern, body_pattern_value in body_patterns.iteritems():
-                if body_pattern == 'contains':
-                    for s in body_pattern_value:
+                # bodyPatterns is a list
+                for s in body_pattern_value:
+                    if body_pattern == 'contains':
                         matchers.append(body_contains(s))
-                if body_pattern == '!contains':
-                    for s in body_pattern_value:
-                        matchers.append(is_not(body_contains(s)))        
+                    elif body_pattern == '!contains':
+                        matchers.append(is_not(body_contains(s)))
+                    elif body_pattern == 'xpath':
+                        namespaces = None
+                        if isinstance(s, tuple):
+                            s, namespaces = s
+                        matchers.append(body_xpath(s, namespaces)) 
+                    elif body_pattern == '!xpath':
+                        namespaces = None
+                        if isinstance(s, tuple):
+                            s, namespaces = s
+                        matchers.append(is_not(body_xpath(s, namespaces)))     
+                    elif body_pattern == 'jsonpath':
+                        matchers.append(body_jsonpath(s))
+                    elif body_pattern == '!jsonpath':
+                        matchers.append(is_not(body_jsonpath(s)))    
+                                                        
         elif k == 'method':
             matchers.append(has_method(v))
         elif k == 'urlPath':
             matchers.append(has_path(v))
+        elif k == 'urlPattern':
+            matchers.append(has_url_pattern(v))    
         elif k == 'queryArgs':
             matchers.append(has_query_args(v)) 
         elif k == '!method':
@@ -47,7 +65,9 @@ def build_matchers(stub):
         elif k == '!urlPath':
             matchers.append(is_not(has_path(v)))
         elif k == '!queryArgs':
-            matchers.append(is_not(has_query_args(v)))                               
+            matchers.append(is_not(has_query_args(v))) 
+        elif k == '!urlPattern':
+            matchers.append(is_not(has_url_pattern(v)))                                   
     return matchers 
 
 def match(request, session, trace, system_date, url_args, hooks,

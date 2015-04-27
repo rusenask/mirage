@@ -170,7 +170,9 @@ def list_stubs_request(handler, html=False):
         response['stubs'] = [Stub(x, scenario_name) for x in stubs]
         response = handler.render_string("list_stubs.html", 
                                          pretty_format=pretty_format, 
-                                         page_title='Stubs', **response)
+                                         page_title='Stubs', 
+                                         indent=int(handler.get_argument('indent', 4)),
+                                         **response)
     return response       
   
 @stubo_async

@@ -29,7 +29,7 @@ from tornado.template import Template
 from requests.utils import get_encoding_from_headers
 from requests.structures import CaseInsensitiveDict
 from pygments import highlight
-from pygments.lexers import XmlLexer, PythonLexer
+from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
 
 from dogpile.cache import make_region
@@ -244,11 +244,13 @@ def human_size(size_bytes):
 
     return "%s %s" % (formatted_size, suffix)  
 
-def pretty_format(text):
-    return highlight(text, XmlLexer(), HtmlFormatter()) 
+def pretty_format(text, name=None):
+    name = name or 'XML'
+    return highlight(text, get_lexer_by_name(name), 
+                     HtmlFormatter(linenos='table')) 
 
 def pretty_format_python(text):
-    return highlight(text, PythonLexer(), HtmlFormatter()) 
+    return pretty_format(text, 'PYTHON')
 
 def get_unicode_from_request(r):
     """Returns the requested content back in unicode.

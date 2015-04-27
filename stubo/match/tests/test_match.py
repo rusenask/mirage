@@ -252,11 +252,34 @@ class TestStubMatcher(unittest.TestCase):
                                     urlPath='/get/me', 
                                     queryArgs=dict(foo=['bar'])))
         stub = self._make_stub(payload)
-        result = matcher.match(request, stub)
-        self.assertFalse(result)  
+        self.assertFalse(matcher.match(request, stub))  
         self.assertEqual(matcher.trace.trace[0][1], 
           ('warn', 'a request with path: /get/me was StuboRequest: uri=None, host=None, method=GET, path=/get/me/out, query=foo=bar, id={0}'.format(request.id()), None))   
+    
+    def test_urlpattern(self):
+        matcher = self._make()
+        headers = {'Stubo-Request-Method' : 'GET',
+                   'Stubo-Request-Path' : '/get/me/1'}
+
+        request = self._make_stubo_request(**headers)
+        payload = dict(request=dict(method='GET', 
+                                    urlPattern="/get/me/[0-9]+")) 
+        stub = self._make_stub(payload)
+        self.assertTrue(matcher.match(request, stub))
         
+    def test_not_urlpattern(self):
+        matcher = self._make()
+        headers = {'Stubo-Request-Method' : 'GET',
+                   'Stubo-Request-Path' : '/get/me/1'}
+
+        request = self._make_stubo_request(**headers)
+        payload = dict(request={'method' : 'GET', 
+                                '!urlPattern' : "/get/me/[0-9]+"}) 
+        stub = self._make_stub(payload)
+        self.assertFalse(matcher.match(request, stub))
+        self.assertEqual(matcher.trace.trace[0][1],
+          ('warn', "not  urlPattern that matches regex: '/get/me/[0-9]+' was StuboRequest: uri=None, host=None, method=GET, path=/get/me/1, query=None, id={0}".format(request.id()), None))     
+                      
     def test_combo_query_fails(self):
         matcher = self._make()
         headers = {'Stubo-Request-Method' : 'GET',
@@ -267,8 +290,7 @@ class TestStubMatcher(unittest.TestCase):
                                     urlPath='/get/me', 
                                     queryArgs=dict(foo=['bar'])))
         stub = self._make_stub(payload)
-        result = matcher.match(request, stub)
-        self.assertFalse(result) 
+        self.assertFalse(matcher.match(request, stub)) 
         self.assertEqual(matcher.trace.trace[0][1],
           ('warn', 'a request with path: /get/me was StuboRequest: uri=None, host=None, method=GET, path=/get/me/out, query=foo=x, id={0}'.format(request.id()), None))     
         
@@ -378,4 +400,119 @@ class TestStubMatcher(unittest.TestCase):
                }
         }     
         stub = self._make_stub(payload)
-        self.assertTrue(matcher.match(request, stub))                                       
+        self.assertTrue(matcher.match(request, stub)) 
+        
+    def test_body_contains_xpath(self):
+        matcher = self._make()
+        headers = {'Stubo-Request-Method' : 'POST'}
+        request = self._make_stubo_request(body=u'<x><y>hello</y></x>', **headers)
+        payload = {
+            'request' : {
+               'method' : 'POST', 
+               'bodyPatterns' : {
+                    'xpath' : ['/x/y']
+               }     
+               }
+        }     
+        stub = self._make_stub(payload)
+        self.assertTrue(matcher.match(request, stub)) 
+        
+    def test_body_contains_not_xpath(self):
+        matcher = self._make()
+        headers = {'Stubo-Request-Method' : 'POST'}
+        request = self._make_stubo_request(body=u'<x><y>hello</y></x>', **headers)
+        payload = {
+            'request' : {
+               'method' : 'POST', 
+               'bodyPatterns' : {
+                    '!xpath' : ['/y']
+               }     
+               }
+        }     
+        stub = self._make_stub(payload)
+        self.assertTrue(matcher.match(request, stub))
+        
+    def test_body_contains_not_xpath2(self):
+        matcher = self._make()
+        headers = {'Stubo-Request-Method' : 'POST'}
+        request = self._make_stubo_request(body=u'<x><y>hello</y></x>', **headers)
+        payload = {
+            'request' : {
+               'method' : 'POST', 
+               'bodyPatterns' : {
+                    'xpath' : ['/y']
+               }     
+               }
+        }     
+        stub = self._make_stub(payload)
+        self.assertFalse(matcher.match(request, stub)) 
+        self.assertEqual(matcher.trace.trace[0][1],
+                         ('warn', u" body that matches xpath: '/y'  body does not match xpath: '/y'", None))   
+        
+    def test_body_contains_jsonpath(self):
+        matcher = self._make()
+        headers = {'Stubo-Request-Method' : 'POST'}
+        payload = '{"version": "1", "data": {"status": "a", "message": "ok"}}'
+        request = self._make_stubo_request(body=payload, **headers)
+        payload = {
+            'request' : {
+               'method' : 'POST', 
+               'bodyPatterns' : {
+                    'jsonpath' : ['data.message']
+               }     
+               }
+        }     
+        stub = self._make_stub(payload)
+        self.assertTrue(matcher.match(request, stub))    
+        
+    def test_body_contains_not_jsonpath(self):
+        matcher = self._make()
+        headers = {'Stubo-Request-Method' : 'POST'}
+        payload = '{"version": "1", "data": {"status": "a", "message": "ok"}}'
+        request = self._make_stubo_request(body=payload, **headers)
+        payload = {
+            'request' : {
+               'method' : 'POST', 
+               'bodyPatterns' : {
+                    '!jsonpath' : ['data.x']
+               }     
+               }
+        }     
+        stub = self._make_stub(payload)
+        self.assertTrue(matcher.match(request, stub))
+        
+    def test_body_combo_contains_jsonpath(self):
+        matcher = self._make()
+        headers = {'Stubo-Request-Method' : 'POST'}
+        payload = '{"version": "1", "data": {"status": "a", "message": "ok"}}'
+        request = self._make_stubo_request(body=payload, **headers)
+        payload = {
+            'request' : {
+               'method' : 'POST', 
+               'bodyPatterns' : {
+                    'jsonpath' : ['data.message'],             
+                    '!jsonpath' : ['data.x']
+               }     
+               }
+        }     
+        stub = self._make_stub(payload)
+        self.assertTrue(matcher.match(request, stub)) 
+        
+    def test_body_combo_contains_jsonpath2(self):
+        matcher = self._make()
+        headers = {'Stubo-Request-Method' : 'POST'}
+        payload = '{"version": "1", "data": {"status": "a", "message": "ok"}}'
+        request = self._make_stubo_request(body=payload, **headers)
+        payload = {
+            'request' : {
+               'method' : 'POST', 
+               'bodyPatterns' : {
+                    'jsonpath' : ['data.x'],             
+                    '!jsonpath' : ['data.x']
+               }     
+               }
+        }     
+        stub = self._make_stub(payload)
+        self.assertFalse(matcher.match(request, stub)) 
+        self.assertEqual(matcher.trace.trace[0][1],
+          ('warn', u" body that matches json path: 'data.x'  body does not match json path: 'data.x'", None))                                                                  
