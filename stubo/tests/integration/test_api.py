@@ -1747,7 +1747,6 @@ class TestRest(Base):
         self.http_client.fetch(self.get_url('/stubo/api/get/response?session=rest_1'), 
             self.stop, method='POST', body="<status>OK</status>")                 
         response = self.wait()
-        print response.code, response.body
         self.assertEqual(response.code, 400)  
         
     def test_empty_response(self):
