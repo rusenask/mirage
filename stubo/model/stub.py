@@ -73,7 +73,10 @@ class StubData(object):
         return self.payload.get('priority')
          
     def set_priority(self, priority):
-        self.payload['priority'] = priority        
+        self.payload['priority'] = priority 
+        
+    def set_args(self, args):
+        self.payload['args'] = args           
         
     def request(self):
         return self.payload['request']

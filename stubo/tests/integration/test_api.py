@@ -315,9 +315,9 @@ class TestExport(Base):
         self.assertEqual(export_lines, [
             'delete/stubs?scenario=order', 
             'begin/session?scenario=order&session=order_x&mode=record', 
-            'put/stub?priority=1&session=order_x,order_x_0_0.textMatcher,order_x_0.response.0', 
-            'put/stub?priority=2&session=order_x,order_x_1_0.textMatcher,order_x_1.response.0', 
-            'put/stub?priority=3&session=order_x,order_x_2_0.textMatcher,order_x_2.response.0', 
+            'put/stub?priority=1&session=order_x,order_x_0_0.textMatcher,order_x_0.response', 
+            'put/stub?priority=2&session=order_x,order_x_1_0.textMatcher,order_x_1.response', 
+            'put/stub?priority=3&session=order_x,order_x_2_0.textMatcher,order_x_2.response', 
             'end/session?session=order_x'])
         
         for matcher in [0,1,2]:
@@ -336,7 +336,7 @@ class TestExport(Base):
         response = self.wait()
         self.assertEqual(response.code, 200)
         self.http_client.fetch(self.get_url(
-                               '/stubo/api/get/export?scenario=first&runnable=true&record_session=first_1&playback_session=first_1'),
+                               '/stubo/api/get/export?scenario=first&runnable=true&playback_session=first_1'),
                                self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
@@ -346,10 +346,8 @@ class TestExport(Base):
         self.assertEqual(8, len(payload['data']['links']))
         self.assertTrue('runnable' in payload['data'])
         runnable = payload['data']['runnable']
-        self.assertEqual(runnable.get('record_session'),  'first_1')
         self.assertEqual(runnable.get('playback_session'),  'first_1')
         self.assertEqual(runnable.get('number_of_playback_requests'), 1)
-        self.assertEqual(runnable.get('number_of_record_requests'), 1)
         
         self.assertEqual(1, len([x for x in payload['data']['links'] \
                                 if x[0] == 'first.commands']))
@@ -381,7 +379,7 @@ class TestExport(Base):
         self.assertEqual(response.code, 200)
         
         self.http_client.fetch(self.get_url(
-                               '/stubo/api/get/export?scenario=first&runnable=true&record_session=first_1&playback_session=first_1'),
+                               '/stubo/api/get/export?scenario=first&runnable=true&playback_session=first_1'),
                                self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
@@ -391,11 +389,8 @@ class TestExport(Base):
         self.assertEqual(8, len(payload['data']['links']))
         self.assertTrue('runnable' in payload['data'])
         runnable = payload['data']['runnable']
-        self.assertEqual(runnable.get('record_session'),  'first_1')
         self.assertEqual(runnable.get('playback_session'),  'first_1')
         self.assertEqual(runnable.get('number_of_playback_requests'), 1)
-        self.assertEqual(runnable.get('number_of_record_requests'), 1)
-        
         self.assertEqual(1, len([x for x in payload['data']['links'] \
                                 if x[0] == 'first.commands']))
         self.http_client.fetch(self.get_url(
@@ -416,7 +411,7 @@ class TestExport(Base):
         response = self.wait()
         self.assertEqual(response.code, 200)
         self.http_client.fetch(self.get_url(
-                               '/stubo/api/get/export?scenario=multi_play&runnable=true&record_session=multi_play_record&playback_session=multi_play_2'),
+                               '/stubo/api/get/export?scenario=multi_play&runnable=true&playback_session=multi_play_2'),
                                self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
@@ -426,11 +421,8 @@ class TestExport(Base):
         self.assertEqual(8, len(payload['data']['links']))
         self.assertTrue('runnable' in payload['data'])
         runnable = payload['data']['runnable']
-        self.assertEqual(runnable.get('record_session'),  'multi_play_record')
         self.assertEqual(runnable.get('playback_session'),  'multi_play_2')
         self.assertEqual(runnable.get('number_of_playback_requests'), 1)
-        self.assertEqual(runnable.get('number_of_record_requests'), 1)
-        
         self.assertEqual(1, len([x for x in payload['data']['links'] \
                                 if x[0] == 'multi_play.commands']))
         self.http_client.fetch(self.get_url(
@@ -451,7 +443,7 @@ class TestExport(Base):
         response = self.wait()
         self.assertEqual(response.code, 200)
         self.http_client.fetch(self.get_url(
-                               '/stubo/api/get/export?scenario=multi_play&runnable=true&record_session=multi_play_record&playback_session=multi_play_2'),
+                               '/stubo/api/get/export?scenario=multi_play&runnable=true&playback_session=multi_play_2'),
                                self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)

@@ -45,11 +45,20 @@ class Scenario(object):
         assert self.db
         
     def get_stubs(self, name=None):
-        fiter = {}
         if name:
             filter = {'scenario' : name}
-        return self.db.scenario_stub.find(filter).sort("stub.priority", 
-                                                       ASCENDING)
+            return self.db.scenario_stub.find(filter).sort("stub.priority", 
+                                                            ASCENDING)
+        else:
+            return self.db.scenario_stub.find() 
+        
+    def get_pre_stubs(self, name=None):
+        if name:
+            filter = {'scenario' : name}
+            return self.db.pre_scenario_stub.find(filter).sort("stub.priority", 
+                                                               ASCENDING)
+        else:
+            return self.db.scenario_pre_stub.find()       
     
     def stub_count(self, name):
         return self.get_stubs(name).count()
@@ -93,15 +102,26 @@ class Scenario(object):
                     return 'updated with stateful response'
         doc['stub'] = doc['stub'].payload       
         status = self.db.scenario_stub.insert(doc)
-        return 'put {0} stub'.format(status)
+        return 'inserted scenario_stub: {0}'.format(status)
+    
+    def insert_pre_stub(self, scenario, stub):
+        status = self.db.pre_scenario_stub.insert(dict(scenario=scenario,
+                                                       stub=stub.payload))
+        return 'inserted pre_scenario_stub: {0}'.format(status)
+        
     
     def remove_all(self, name):
         self.db.scenario.remove({'name' : name})
         self.db.scenario_stub.remove({'scenario' : name})
+        self.db.pre_scenario_stub.remove({'scenario' : name})
         
     def remove_all_older_than(self, name, recorded):
         # recorded = yyyy-mm-dd
         self.db.scenario_stub.remove({
+            'scenario' : name,
+            'recorded' :  {"$lt": recorded}
+            })
+        self.db.pre_scenario_stub.remove({
             'scenario' : name,
             'recorded' :  {"$lt": recorded}
             })
@@ -135,7 +155,7 @@ class Tracker(object):
     
     def session_last_used(self, scenario, session, mode):
         ''' Return the date this session was last used using the 
-            last get/response time.
+            last put/stub time (for record) or last get/response time otherwise.
         '''
         if  mode == 'record':
             function = 'put/stub'
@@ -148,17 +168,11 @@ class Tracker(object):
             'request_params.session' : session, 
             'function' : function }, sort=[("start_time", DESCENDING)])
     
-    def get_last_session(self, scenario, session, remote_ip, start_time,
-                         mode):
-        if mode == 'record':
-            function = 'put/stub'
-        else:
-            function = 'get/response'
-                
+    def get_last_playback(self, scenario, session, remote_ip, start_time):
         start = self.db.tracker.find_one({
             'scenario' : scenario, 
             'request_params.session' : session,
-            'request_params.mode' : mode,
+            'request_params.mode' : 'playback',
             'remote_ip': remote_ip, 
             'function' : 'begin/session',
             'start_time' :  {"$lt": start_time} 
@@ -179,21 +193,41 @@ class Tracker(object):
         query = {
             'scenario' : scenario, 
             'request_params.session' : session, 
-            'function' : function,
+            'function' : 'get/response',
             'remote_ip': remote_ip,
             'start_time' :  {"$gt": start['start_time'], 
                              "$lt" : end['start_time']} 
             }
         return self.db.tracker.find(query, project).sort("start_time", 
                                                          ASCENDING)
-        
-    def get_last_playback(self, scenario, session, remote_ip, start_time):
-        return self.get_last_session(scenario, session, remote_ip, start_time,
-                                     'playback')
       
-    def get_last_recording(self, scenario, session, remote_ip, start_time):
-        return self.get_last_session(scenario, session, remote_ip, start_time,
-                                    'record')  
+    def get_last_recording(self, scenario, session, remote_ip, end):
+        # find the last begin/session?mode=record from the last put/stub time 
+        start = self.db.tracker.find_one({
+            'scenario' : scenario, 
+            'request_params.session' : session,
+            'request_params.mode' : 'record',
+            'remote_ip': remote_ip, 
+            'function' : 'begin/session',
+            'start_time' :  {"$lt": end} 
+            }, {'start_time':1}, sort=[("start_time", DESCENDING)])
+        if not start:
+            return []
+           
+        project = {'start_time':1, 'return_code':1, 'stubo_response':1, 
+                    'response_headers':1, 'request_headers':1, 'duration_ms':1, 
+                    'request_params': 1, 'request_text':1, 'delay' : 1}
+        # get all the put/stubs > last begin/session?mode=record and <= last put/stub   
+        query = {
+            'scenario' : scenario, 
+            'request_params.session' : session, 
+            'function' : 'put/stub',
+            'remote_ip': remote_ip,
+            'start_time' :  {"$gt": start['start_time'], 
+                             "$lte" : end} 
+            }
+        return self.db.tracker.find(query, project).sort("start_time", 
+                                                         ASCENDING)
           
         
 def session_last_used(scenario, session_name, mode):

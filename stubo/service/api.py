@@ -73,67 +73,50 @@ def export_stubs(handler, scenario_name):
         'begin/session?scenario={0}&session={1}&mode=record'.format(
          scenario_name, session)
     ]
+    files = []  
+    scenario = Scenario()
+    stubs = list(scenario.get_pre_stubs(scenario_name_key))
+    if len(stubs) > 0:
+        for i in range(len(stubs)):
+            entry = stubs[i]
+            stub = Stub(entry['stub'], scenario_name_key)
+            matchers = [('{0}_{1}_{2}.textMatcher'.format(session, i, x), 
+                stub.contains_matchers()[x]) for x in range(len(
+                stub.contains_matchers()))]
+            matchers_str = ",".join(x[0] for x in matchers)
+            url_args = stub.args()
+            url_args['session'] = session
+            module_info = stub.module()
+            if module_info:
+                # Note: not including put/module in the export, modules are shared
+                # by multiple scenarios.
+                url_args['ext_module'] = module_info['name']
+                url_args['stub_created_date'] = stub.recorded()
+                url_args['stubbedSystemDate'] = module_info.get('recorded_system_date')
+                url_args['system_date'] = module_info.get('system_date')
+            url_args =  urlencode(url_args)    
+            responses = stub.response_body()
+            assert(len(responses) == 1)  
+            response = responses[0]
+            response = ('{0}_{1}.response'.format(session, i), response) 
+            cmds.append('put/stub?{0},{1},{2}'.format(url_args, matchers_str,
+                                                          response[0]))
+            files.append(response)    
+            files.extend(matchers)
+    else:
+        cmds.append('put/stub?session={0},text=a_dummy_matcher,text=a_dummy_response'.format(session))
+    cmds.append('end/session?session={0}'.format(session))
+    
     runnable = asbool(handler.get_argument('runnable', False))
     runnable_info = dict()
-    files = []
     
     if runnable:
-        record_session = handler.get_argument('record_session', None)
-        if not record_session:
-            raise exception_response(400, 
-                        title="'record_session' argument required with 'runnable")  
         playback_session = handler.get_argument('playback_session', None)
         if not playback_session:
             raise exception_response(400, 
                         title="'playback_session' argument required with 'runnable") 
-        runnable_info['playback_session'] = playback_session  
-        runnable_info['record_session'] = record_session           
-        
-        # use original put/stub payload logged in tracker
-        tracker = Tracker()    
-        last_used = tracker.session_last_used(scenario_name_key, 
-                                              record_session, 'record')
-        if not last_used:
-            raise exception_response(400, 
-                        title="Unable to find recording session")  
-        runnable_info['last_used'] = dict(remote_ip=last_used['remote_ip'],
-                                          start_time=str(last_used['start_time']))      
-        recording = tracker.get_last_recording(scenario_name, record_session,
-                                               last_used['remote_ip'], 
-                                               last_used['start_time']) 
-        recording = list(recording)
-        if not recording:
-            raise exception_response(400, 
-              title="Unable to find a recording for scenario='{0}', record_session='{1}'".format(scenario_name, record_session))
+        runnable_info['playback_session'] = playback_session          
             
-        number_of_requests = len(recording)
-        runnable_info['number_of_record_requests'] = number_of_requests
-        for nrequest in range(number_of_requests):
-            track = recording[nrequest]
-            request_text = track.get('request_text')
-            if not request_text:
-                raise exception_response(400, title='Unable to obtain recording details, was full tracking enabled?')
-            
-            stub = parse_stub(request_text, scenario_name_key, {})
-            matchers = [('{0}_{1}_{2}.textMatcher'.format(session, nrequest, x), 
-                    stub.contains_matchers()[x]) for x in range(stub.number_of_matchers())]
-            matchers_str = ",".join(x[0] for x in matchers)
-            files.extend(matchers)
-            url_args = track['request_params']
-            url_args['session'] = session
-            url_args =  urlencode(url_args)
-            responses = stub.response_body()  
-            # split out responses into different put/stub calls       
-            for i in range(len(responses)):
-                response = responses[i]
-                response = ('{0}_{1}.response.{2}'.format(session, nrequest, i), 
-                            response) 
-                cmds.append('put/stub?{0},{1},{2}'.format(url_args, matchers_str,
-                                                          response[0]))
-                files.append(response)   
-        cmds.append('end/session?session={0}'.format(session))
-        
-         
         tracker = Tracker()    
         last_used = tracker.session_last_used(scenario_name_key, 
                                               playback_session, 'playback')
@@ -174,43 +157,7 @@ def export_stubs(handler, scenario_name):
                                                        request_file_name))     
         cmds.append('end/session?session={0}'.format(session))    
         
-    else:
-        scenario = Scenario()
-        stubs = list(scenario.get_stubs(scenario_name_key))
-        if len(stubs) > 0:
-            for i in range(len(stubs)):
-                entry = stubs[i]
-                stub = Stub(entry['stub'], scenario_name_key)
-                matchers = [('{0}_{1}_{2}.textMatcher'.format(session, i, x), 
-                    stub.contains_matchers()[x]) for x in range(len(
-                    stub.contains_matchers()))]
-                matchers_str = ",".join(x[0] for x in matchers)
-                url_args = stub.args()
-                # Note: these url_arg values will be the evaluated templates expressions if a template expr was used 
-                url_args['session'] = session
-                module_info = stub.module()
-                if module_info:
-                    # Note: not including put/module in the export, modules are shared
-                    # by multiple scenarios.
-                    url_args['ext_module'] = module_info['name']
-                    url_args['stub_created_date'] = stub.recorded()
-                    url_args['stubbedSystemDate'] = module_info.get('recorded_system_date')
-                    url_args['system_date'] = module_info.get('system_date')
-                url_args =  urlencode(url_args)    
-                responses = stub.response_body()  
-                # split out responses into different put/stub calls       
-                for ii in range(len(responses)):
-                    response = responses[ii]
-                    response = ('{0}_{1}.response.{2}'.format(session, i, ii), 
-                                response) 
-                    cmds.append('put/stub?{0},{1},{2}'.format(url_args, matchers_str,
-                                                              response[0]))
-                    files.append(response)    
-                files.extend(matchers)
-        else:
-            cmds.append('put/stub?session={0},text=a_dummy_matcher,text=a_dummy_response'.format(session))
-       
-        cmds.append('end/session?session={0}'.format(session))
+    
                             
     
     bookmarks = cache.get_all_saved_request_index_data() 
@@ -791,7 +738,37 @@ def begin_session(handler, scenario_name, session_name, mode, system_date=None,
         raise exception_response(400,
                                  title='Mode of playback or record required') 
     return response
+
+def store_source_recording(scenario_name_key, record_session):
+    host, scenario_name = scenario_name_key.split(':')
+    # use original put/stub payload logged in tracker
+    tracker = Tracker()    
+    last_used = tracker.session_last_used(scenario_name_key, 
+                                          record_session, 'record')
+    if not last_used:
+        # empty recordings are currently supported!
+        return 
     
+    recording = tracker.get_last_recording(scenario_name, record_session,
+                                           last_used['remote_ip'], 
+                                           last_used['start_time']) 
+    recording = list(recording)
+    if not recording:
+        raise exception_response(400, 
+          title="Unable to find a recording for scenario='{0}', record_session='{1}'".format(scenario_name, record_session))
+    
+    number_of_requests = len(recording)
+    scenario_db = Scenario()
+    for nrequest in range(number_of_requests):
+        track = recording[nrequest]
+        request_text = track.get('request_text')
+        if not request_text:
+            raise exception_response(400, title='Unable to obtain recording details, was full tracking enabled?')
+        
+        stub = parse_stub(request_text, scenario_name_key, 
+                          track['request_params'])
+        scenario_db.insert_pre_stub(scenario_name_key, stub)   
+        
 def end_session(handler, session_name):
     response = {
         'version' : version
@@ -806,7 +783,7 @@ def end_session(handler, session_name):
         return response
     
     host, scenario_name = scenario_key.split(':')
-    # if session exists it can only be dormant
+  
     session = cache.get_session(scenario_name, session_name, local=False)
     if not session:
         # end/session?session=x called before begin/session
@@ -825,7 +802,11 @@ def end_session(handler, session_name):
     # clear stubs cache & scenario session data
     session.pop('stubs', None)    
     cache.set(scenario_key, session_name, session)
-    cache.delete_session_data(scenario_name, session_name)      
+    cache.delete_session_data(scenario_name, session_name) 
+    if session_status == 'record':
+        log.debug('store source recording to pre_scenario_stub')
+        store_source_recording(scenario_key, session_name)
+                 
     response['data'] = {
         'message' : 'Session ended'
     }

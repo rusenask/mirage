@@ -93,7 +93,8 @@ class TrackRequest(RequestHandler):
         self.track.tracking_level = args.get('tracking_level', track_setting)
                     
         request_size = len(self.request.body)
-        if self.track.tracking_level == 'full':
+        # always track put/stub recordings
+        if self.track.tracking_level == 'full' or function == 'put/stub':
             self.track.request_text = self.request.body
             if function == 'get/response' and request_size <= 0:
                 self.track.error = 'NoTextInBody' 
