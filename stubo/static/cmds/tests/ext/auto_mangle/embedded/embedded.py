@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 """
 <X>
     <Command>FQC1GBP/EUR/20Oct14</Command>
-</X>​
+</X>
 """        
 
 elements = dict(screen_query=XPathValue('//X/Command', extractor=lambda x: x[:-7]))

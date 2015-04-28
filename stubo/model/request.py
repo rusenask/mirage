@@ -13,17 +13,18 @@ class StuboRequest(object):
          :Params:
           - `request`: an HTTP request. See :class:`~tornado.httpclient.HTTPRequest`
         """
+        self.headers = request.headers.get('Stubo-Request-Headers', '{}')
         self.uri = request.headers.get('Stubo-Request-URI', None)
         self.host = request.headers.get('Stubo-Request-Host', None)  
         self.method = request.headers.get('Stubo-Request-Method', "POST")
         self.path = request.headers.get('Stubo-Request-Path', None)
-        self.query = request.headers.get('Stubo-Request-Query', None)
+        self.query = request.headers.get('Stubo-Request-Query', '')
         self.body = request.body
         self.body_unicode = get_unicode_from_request(request)
         
     def id(self):
          return compute_hash(u"".join([self.request_body(), self.path or "", 
-                                       self.method, str(self.query or "")]))    
+                                       self.method, self.query]))    
         
     def request_body_unicode(self):
         """ Request body text converted into unicode

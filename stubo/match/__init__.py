@@ -16,7 +16,7 @@ from hamcrest.core.string_description import StringDescription
 from hamcrest import all_of, is_not
 from .request_matcher import (
     body_contains, has_method, has_path, has_query_args, has_url_pattern,
-    body_xpath, body_jsonpath
+    body_xpath, body_jsonpath, has_headers
 )
 from stubo.model.stub import Stub, StubCache
 from stubo.exceptions import exception_response
@@ -67,7 +67,11 @@ def build_matchers(stub):
         elif k == '!queryArgs':
             matchers.append(is_not(has_query_args(v))) 
         elif k == '!urlPattern':
-            matchers.append(is_not(has_url_pattern(v)))                                   
+            matchers.append(is_not(has_url_pattern(v))) 
+        elif k == 'headers':
+            matchers.append(has_headers(v))
+        elif k == '!headers':
+            matchers.append(is_not(has_headers(v)))                                     
     return matchers 
 
 def match(request, session, trace, system_date, url_args, hooks,

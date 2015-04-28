@@ -225,8 +225,34 @@ class TestStubMatcher(unittest.TestCase):
                                     urlPath='/get/me', 
                                     queryArgs=dict(foo=['bar'])))
         stub = self._make_stub(payload)
-        self.assertTrue(matcher.match(request, stub))    
+        self.assertTrue(matcher.match(request, stub))
         
+    def test_headers(self):
+        matcher = self._make()
+        headers = {'Stubo-Request-Headers' : '''{
+                      "Content-Type" : "text/xml",
+                      "X-Custom-Header" : "1234"
+                    }'''}
+        request = self._make_stubo_request(body = u'hello', **headers)
+        payload = dict(request=dict(method='POST',
+                                    headers=str({"Content-Type" : "text/xml"})))
+        stub = self._make_stub(payload)
+        self.assertTrue(matcher.match(request, stub)) 
+        
+    def test_not_headers(self):
+        matcher = self._make()
+        headers = {'Stubo-Request-Headers' : '''{
+                      "Content-Type" : "text/xml",
+                      "X-Custom-Header" : "1234"
+                    }'''}
+
+        request = self._make_stubo_request(**headers)
+        payload = dict(request={ '!headers' : str({"Content-Type" : "text/xml"})}) 
+        stub = self._make_stub(payload)
+        self.assertFalse(matcher.match(request, stub))
+        self.assertEqual(matcher.trace.trace[0][1],
+         ('warn', "not a request with headers: {'Content-Type': 'text/xml'} was StuboRequest: uri=None, host=None, method=POST, path=None, query=, id="+"{0}".format(request.id()), None))
+                     
     def test_combo_method_fails(self):
         matcher = self._make()
         headers = {'Stubo-Request-Method' : 'POST',

@@ -3,7 +3,7 @@ import unittest
 from hamcrest import *
 from stubo.match.request_matcher import (
     has_method, body_contains, has_path, has_query_args, has_url_pattern,
-    body_xpath, body_jsonpath
+    body_xpath, body_jsonpath, has_headers
 )
 
 class Base(unittest.TestCase):
@@ -30,6 +30,11 @@ class TestHasMethod(Base):
         headers = {'Stubo-Request-Method' : 'POST'}
         assert_that(self.get_stubo_request(**headers), 
                     is_not(has_method('GET')))
+        
+    def test_undefined_default(self):
+        headers = {}
+        assert_that(self.get_stubo_request(**headers), 
+                    has_method('POST'))    
         
 class TestBodyContains(Base):
     
@@ -58,6 +63,11 @@ class TestPath(Base):
                    'Stubo-Request-Path' : '/get/me'}
         assert_that(self.get_stubo_request(**headers), 
                     is_not(has_path('/get/me2'))) 
+        
+    def test_undefined_path(self):
+        headers = {'Stubo-Request-Method' : 'GET'}
+        assert_that(self.get_stubo_request(**headers), 
+                    is_not(has_path('/get/me2')))    
         
 class TestXPath(Base):
     
@@ -112,9 +122,7 @@ class TestJSONPath(Base):
     def test_non_json(self):
         assert_that(self.get_stubo_request(body="some string"),
                     is_not(body_jsonpath('data.x')))
-                 
-     
-        
+                      
 class TestUrlPattern(Base):
     
     def test_match(self):
@@ -127,7 +135,12 @@ class TestUrlPattern(Base):
         headers = {'Stubo-Request-Method' : 'GET',
                    'Stubo-Request-Path' : '/get/me/a'}
         assert_that(self.get_stubo_request(**headers), 
-                    is_not(has_path('/get/me/[0-9]+')))                
+                    is_not(has_path('/get/me/[0-9]+')))   
+        
+    def test_undefined(self):
+        headers = {}
+        assert_that(self.get_stubo_request(**headers), 
+                    is_not(has_path('/get/me/[0-9]+')))                      
 
 class TestQueryArgs(Base):
     
@@ -153,4 +166,54 @@ class TestQueryArgs(Base):
             'Stubo-Request-Query' : 'foo=bar'
         }
         assert_that(self.get_stubo_request(**headers), 
-                    is_not(has_query_args(dict(foo=['tar']))))              
+                    is_not(has_query_args(dict(foo=['tar'])))) 
+        
+    def test_undefined(self):
+        headers = {}
+        assert_that(self.get_stubo_request(**headers), 
+                    is_not(has_query_args(dict(foo=['tar']))))         
+        
+class TestHeaders(Base):
+    
+    def test_has_header(self):
+        headers = {
+            'Stubo-Request-Headers' : '''{
+               "Content-Type" : "text/xml",
+               "X-Custom-Header" : "1234"
+            }'''
+        }
+        assert_that(self.get_stubo_request(**headers), 
+                    has_headers('{"Content-Type" : "text/xml"}'))
+        
+    def test_not_has_header(self):
+        headers = {
+            'Stubo-Request-Headers' : '''{
+               "Content-Type" : "application/json",
+               "X-Custom-Header" : "1234"
+            }'''
+        }
+        assert_that(self.get_stubo_request(**headers), 
+                    is_not(has_headers('{"Content-Type" : "text/xml"}')))     
+    
+    def test_has_all_headers(self):
+        headers = {
+            'Stubo-Request-Headers' : '''{
+               "Content-Type" : "text/xml",
+               "X-Custom-Header" : "1234"
+            }'''
+        }
+        assert_that(self.get_stubo_request(**headers), 
+                    has_headers('{"Content-Type" : "text/xml", "X-Custom-Header" : "1234"}'))  
+        
+    def test_has_empty_headers(self):
+        headers = {
+            'Stubo-Request-Headers' : '{}'
+        }
+        assert_that(self.get_stubo_request(**headers), 
+                    is_not(has_headers('{"Content-Type" : "text/xml"}'))) 
+        
+    def test_undefined(self):
+        headers = {}
+        assert_that(self.get_stubo_request(**headers), 
+                    is_not(has_headers('{"Content-Type" : "text/xml"}')))           
+                            

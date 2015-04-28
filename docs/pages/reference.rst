@@ -34,6 +34,10 @@ matchers would not be combined, e.g. xpath and jsonpath
             "queryArgs": {
                 "find" : "me",
                 "when" : "now"
+            },
+            "headers" : {
+               "Content-Type" : "text/xml",
+               "X-Custom-Header" : "1234"
             }
         },
         "response": {

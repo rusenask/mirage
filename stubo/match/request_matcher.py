@@ -34,25 +34,41 @@ def has_method(method):
 def has_path(path):
     return RequestMatcher(path, "path")
 
-
-class HasQueryArgsMatcher(RequestMatcher):
+class UrlArgs(RequestMatcher):
 
     def __init__(self, expected, exact_match=False):
-        super(HasQueryArgsMatcher, self).__init__(expected, "query")
+        super(UrlArgs, self).__init__(expected, 'query')
         self.exact_match = exact_match
 
     def _matches(self, request):
-        qs_args = urlparse.parse_qs(self._get_value(request))
+        args = urlparse.parse_qs(self._get_value(request))
         if self.exact_match:
-            return qs_args == self.expected
-        return all(item in qs_args.items() for item in self.expected.items())
-
-
-def has_query_args(query_args):
-    return HasQueryArgsMatcher(query_args)
+            return args == self.expected
+        return all(item in args.items() for item in self.expected.items())
+    
+def has_query_args(query_args, exact_match=False):
+    return UrlArgs(query_args, exact_match=exact_match)
 
 def has_exactly_query_args(query_args):
-    return HasQueryArgsMatcher(query_args, exact_match=True)
+    return has_query_args(query_args, True)
+
+class DictMatcher(RequestMatcher):
+
+    def __init__(self, expected, attr, exact_match=False):
+        super(DictMatcher, self).__init__(eval(expected), attr)
+        self.exact_match = exact_match
+
+    def _matches(self, request):
+        headers = dict(eval(self._get_value(request)))
+        if self.exact_match:
+            return headers == self.expected
+        return all(headers.get(k) == v for k, v in self.expected.items())
+
+def has_headers(query_args, exact_match=False):
+    return DictMatcher(query_args, 'headers', exact_match=exact_match)
+
+def has_exactly_headers(query_args):
+    return has_headers(query_args, True)
 
 class BodyContains(RequestMatcher):
 
