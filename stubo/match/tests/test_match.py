@@ -304,8 +304,8 @@ class TestStubMatcher(unittest.TestCase):
         stub = self._make_stub(payload)
         self.assertFalse(matcher.match(request, stub))
         self.assertEqual(matcher.trace.trace[0][1],
-          ('warn', "not  urlPattern that matches regex: '/get/me/[0-9]+' was StuboRequest: uri=None, host=None, method=GET, path=/get/me/1, query=None, id={0}".format(request.id()), None))     
-                      
+          ('warn', "not  urlPattern that matches regex: '/get/me/[0-9]+' was StuboRequest: uri=None, host=None, method=GET, path=/get/me/1, query=, id={0}".format(request.id()), None))     
+         
     def test_combo_query_fails(self):
         matcher = self._make()
         headers = {'Stubo-Request-Method' : 'GET',
