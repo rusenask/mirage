@@ -765,8 +765,10 @@ def store_source_recording(scenario_name_key, record_session):
         if not request_text:
             raise exception_response(400, title='Unable to obtain recording details, was full tracking enabled?')
         
+        priority = int(track['request_params'].get('priority', 0))
         stub = parse_stub(request_text, scenario_name_key, 
                           track['request_params'])
+        stub.set_priority(priority)
         scenario_db.insert_pre_stub(scenario_name_key, stub)   
         
 def end_session(handler, session_name):
