@@ -42,7 +42,11 @@ matchers would not be combined, e.g. xpath and jsonpath
         },
         "response": {
             "status": 200,
-            "body": "<response>YES</response>"
+            "body": "<response>YES</response>",
+             "headers" : {
+               "Content-Type" : "text/xml",
+               "X-Custom-Header" : "1234"
+            }
         }
  }
 
