@@ -134,6 +134,12 @@ class UrlFetch(object):
                     return response.content.decode('utf-8'), response.headers, response.status_code
                 except Exception:    
                     return response.content, response.headers, response.status_code
+            elif response.encoding == 'ISO-8859-1' and 'xml' in  response.headers["Content-Type"]:
+                # work around for https://github.com/kennethreitz/requests/issues/2086
+                try:
+                    return response.content.decode('utf-8'), response.headers, response.status_code
+                except Exception:    
+                    return response.content, response.headers, response.status_code  
             else:          
                 return response.text, response.headers, response.status_code
         
@@ -147,7 +153,13 @@ class UrlFetch(object):
         else: 
             self.raise_on_error(response, url)  
         return response    
-            
+
+def with_request(request, **kwargs):
+    s = '{0},'.format(request)
+    headers = {'Stubo-Request-Method' : kwargs.get('method', 'POST'),
+               'Stubo-Request-Path' : kwargs.get('path')}
+    s += ','.join('{0}={1}'.format(x[0], x[1]) for x in headers.iteritems()) 
+    return s         
 
 class StuboCommandFile(object):
     
@@ -165,6 +177,7 @@ class StuboCommandFile(object):
                                     as_date=as_date,
                                     roll_date=roll_date,
                                     parse_xml=parse_xml,
+                                    with_request=with_request,
                                     **self.location.request.arguments)
         return self.run_cmds(self.parse_commands(cmds_templated))
     
@@ -238,8 +251,13 @@ class StuboCommandFile(object):
                 response_text = response_fname[5:]
             else:
                 response_data_url = urljoin(parent_path, response_fname)
-                response_text, _, _ = UrlFetch().get(response_data_url)
-            
+                response_text, hdrs, _ = UrlFetch().get(response_data_url)
+                if 'application/json' in hdrs["Content-Type"]:
+                    try:
+                        response_text = json.dumps(response_text)
+                    except Exception:
+                        pass    
+
             if not response_text:
                 raise exception_response(400, 
                     title="put/stub response text can not be empty.") 
@@ -257,7 +275,8 @@ class StuboCommandFile(object):
             query_params = parse_qs(query)
             if 'session' not in query_params:
                 raise exception_response(400, title="Missing 'session' param in"
-                  " query: {0}".format(url.query))         
+                  " query: {0}".format(url.query))
+            request_fname, _, header_args = request_fname.partition(',')             
             request_fname = request_fname.strip()
             
             if request_fname[:4] == 'url=':
@@ -270,6 +289,18 @@ class StuboCommandFile(object):
                 request_text, _, _ = UrlFetch().get(request_data_url)
             data = request_text
             cmd_path = url.path + '?{0}'.format(query)
+            url = self.location(urljoin(api_base, cmd_path))[0]
+            log.debug(u'run_command: {0}'.format(url))
+            if isinstance(data, dict):
+                # payload is json
+                encoded_data = json.dumps(data)
+            else:    
+                encoded_data = data.encode('utf-8')
+            headers = {'Stubo-Request-Method' : 'POST'}
+            if header_args:
+                headers.update(dict(x.split('=') for x in header_args.split(',')))      
+            UrlFetch().post(url, data=encoded_data, headers=headers)
+            return 
 
         elif url.path == 'put/delay_policy':
             url = self.location(urljoin(api_base, cmd_path))[0]

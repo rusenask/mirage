@@ -79,6 +79,7 @@ class TestExecCmds(unittest.TestCase):
     def test_put_stub_empty_response(self):
         from stubo.exceptions import HTTPClientError
         cmds = self.make_one(DummyRequestHandler(), 'cmd_file_empty_response')
+
         responses = cmds.run()
         self.assertEqual(len(responses), 3)
         self.assertEqual(responses[1], 
@@ -228,7 +229,7 @@ class DummyRequests(object):
             response.status_code = 404
         return response
     
-    def post(self, url, data=None, json=None):
+    def post(self, url, data=None, json=None, **kwargs):
         if url == 'get/response/cantfindthis':
             return DummyModel(status_code = 400, content = 'E017')
             
@@ -339,7 +340,10 @@ put/stub?session=xy, matcher_text, EMPTY_RESPONSE
 end/session?session=xy
 """ 
 
-EMPTY_RESPONSE = ""
+class Empty(object):
+    def __len__(self): return 0
+    
+EMPTY_RESPONSE = Empty()
 
 matcher_text = """
 <?xml version="1.0" encoding="UTF-8"?>

@@ -21,7 +21,14 @@ def strip_encoding(xml):
                        '').replace('encoding="utf-8"','').lstrip() 
                                         
 def parse_xml(xml):
-    return etree.fromstring(strip_encoding(xml))
+    try:
+        xml = xml.lstrip()
+        doc = etree.fromstring(xml)
+    except ValueError, err:
+        # unicode strings with encoding declaration are not supported.
+        utf8_bytes = xml.encode('utf-8')
+        doc = etree.fromstring(utf8_bytes)
+    return doc
 
 def today_str(fmt="%d%m%y"):
     return date.today().strftime(fmt)

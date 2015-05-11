@@ -4,7 +4,7 @@ from stubo.testing import (
     make_stub, make_cache_stub, DummyModel, DummyQueue, DummyHash
 )
 
-class Test_create_session_cache(unittest.TestCase):
+class Base(unittest.TestCase):
     def setUp(self):
         self.hash = DummyHash({})
         self.hash_patch = mock.patch('stubo.cache.Hash', self.hash)
@@ -29,18 +29,19 @@ class Test_create_session_cache(unittest.TestCase):
         
     def _make_scenario(self, name,  **kwargs):
         doc = dict(name=name, **kwargs)
-        self.scenario.insert(**doc)             
-   
+        self.scenario.insert(**doc)  
+    
+class Test_create_session_cache(Base):
+            
     def test_no_stubs(self):
         from stubo.exceptions import HTTPServerError
         with self.assertRaises(HTTPServerError):
             self._get_cache().create_session_cache('foo', 'bar')  
                                                                          
     def test_new_session(self):
-        from stubo.cache import compute_hash
         scenario_name = 'foo'
         self._make_scenario('localhost:foo')
-        from stubo.model.stub import create, Stub
+        from stubo.model.stub import create, Stub, response_hash
         stub = Stub(create('<test>match this</test>', '<test>OK</test>'),
                     'localhost:foo')
         doc = dict(scenario='localhost:foo', stub=stub)
@@ -54,17 +55,16 @@ class Test_create_session_cache(unittest.TestCase):
         self.assertTrue('stubs' in session)
         stubs = session['stubs']
         self.assertEqual(len(stubs), 1)
-        from stubo.model.stub import StubCache
+        from stubo.model.stub import StubCache, response_hash
         stub = StubCache(stubs[0], 'localhost:foo', 'bar') 
         self.assertEqual(stub.contains_matchers(), ["<test>match this</test>"])
-        self.assertEqual(stub.response_ids(), [compute_hash('<test>OK</test>')])        
+        self.assertEqual(stub.response_ids(), [response_hash('<test>OK</test>', stub)])        
         self.assertEqual(self.hash.get_raw('localhost:sessions', 'bar'), 'foo')
         
     def test_new_session_with_state(self):
-        from stubo.cache import compute_hash
         scenario_name = 'foo'
         self._make_scenario('localhost:foo')
-        from stubo.model.stub import create, Stub
+        from stubo.model.stub import create, Stub, response_hash
         stub = Stub(create('<test>match this</test>', '<test>OK</test>'),
                     'localhost:foo')
         doc = dict(scenario='localhost:foo', stub=stub)
@@ -90,19 +90,17 @@ class Test_create_session_cache(unittest.TestCase):
         responses = stub.response_ids()
         self.assertEqual(len(responses), 2)
         self.assertEqual(stub.contains_matchers(), ["<test>match this</test>"])
-        self.assertEqual(responses, [compute_hash('<test>OK</test>'), 
-                                     compute_hash('<test>BAD</test>')])          
+        self.assertEqual(responses, [response_hash('<test>OK</test>', stub), 
+                                     response_hash('<test>BAD</test>', stub2)])          
         self.assertEqual(self.hash.get_raw('localhost:sessions', 'bar'), 'foo')    
         
     def test_update_dormant_session_with_stubs(self):
         self.hash.set('somehost:foo', 'bar', {'status' : 'dormant',
                                               'session' : 'bar',
                                               'scenario' : 'localhost:foo'})
-        
-        from stubo.cache import compute_hash
         scenario_name = 'foo'
         self._make_scenario('localhost:foo')
-        from stubo.model.stub import create, Stub
+        from stubo.model.stub import create, Stub, response_hash
         stub = Stub(create('<test>match this</test>', '<test>OK</test>'),
                     'localhost:foo')
         doc = dict(scenario='localhost:foo', stub=stub)
@@ -121,7 +119,8 @@ class Test_create_session_cache(unittest.TestCase):
         from stubo.model.stub import StubCache
         stub = StubCache(stubs[0], session["scenario"], session['session']) 
         self.assertEqual(stub.contains_matchers(), ["<test>match this</test>"])
-        self.assertEqual(stub.response_ids(), [compute_hash('<test>OK</test>')])        
+        self.assertEqual(stub.response_ids(), [response_hash('<test>OK</test>',
+                                                             stub)])        
     
     def test_update_dormat_session_with_stubs_and_delay(self):
         self.hash.set('localhost:foo', 'bar', {'status' : 'dormant',
@@ -168,7 +167,8 @@ class Test_create_session_cache(unittest.TestCase):
         self.assertEqual(len(stubs), 1)
         from stubo.model.stub import StubCache
         stub = StubCache(stubs[0], session["scenario"], session['session'])
-        self.assertEqual(stub.module(), module)
+        self.assertEqual(stub.module(), module)    
+            
             
 class TestCache(unittest.TestCase):
     
@@ -360,8 +360,8 @@ class Test_get_response_text(unittest.TestCase):
         return Cache('localhost')      
         
     def _func(self, scenario_name, session_name, response_id, request_id):    
-        return self._get_cache().get_response_text(scenario_name, session_name, 
-                                                   response_id, request_id) 
+        return self._get_cache().get_response(scenario_name, session_name, 
+                                              response_id, request_id) 
     
     def test_no_state(self):
         self.hash.set('localhost:foo:response', 'bar:1', "Hello {{1+1}} World")
@@ -381,77 +381,93 @@ class Test_get_response_text(unittest.TestCase):
     def test_not_found(self):
         self.assertEqual(self._func('foo', 'bar', ['1'], '2'), None)
                             
-class Test_add_request(unittest.TestCase):  
-        
-    def setUp(self):
-        self.session = {
-            u'status': u'playback', u'system_date': u'2013-11-14', 
-            u'scenario': u'localhost:converse', 
-            u'stubs': [make_stub([u'updatePNR\n'],
-            [u'bb6d03d2e0d01a2ae60aa5564a0048b6dc9237763d2f1dcdae84a12b']),
-            make_stub([u'getPNR\n'], 
-            [u'64f2b6d69e151aa9df847dfe025038d095dc6455beebef93e30e9ed0',
-             u'188ac03461437e7e65e059cb023bfcce5604084503e7da118db5b495'])],                       
-            u'scenario_id': u'52849a0831588e01441d47b3', u'session': u'conv_1'
-        }
-        self.hash = DummyHash()
-        self.patch = mock.patch('stubo.cache.Hash', self.hash)
-        self.patch.start()
-        self.patch2 =  mock.patch('stubo.cache.get_redis_server', lambda x: x)
-        self.patch2.start()    
 
-    def tearDown(self):
-        self.patch.stop() 
-        self.patch2.stop() 
-    
-    def _get_cache(self):
-        from stubo.cache import Cache
-        return Cache('localhost')          
+class Test_add_request(Base):  
         
-    def _func(self, session, request_id, response_ids,
-              delay_policy_name, recorded='2013-09-05', 
-              system_date='2013-09-05', module=None, stub_number=0):      
+    def _func(self, session, stub, request_id='1', response_id='1'):      
         from stubo.model.stub import StubCache
         from stubo.cache import add_request
-        stub = StubCache({}, session.get('scenario'), session.get('session'))
-        stub.load_from_cache(response_ids, delay_policy_name, recorded, 
-                             system_date, module, request_id)
-        stub.set_delay_policy(dict(name=delay_policy_name))
-        module = module or {}
-        return add_request(session, request_id, stub, system_date, stub_number)      
-        
-    def test_it(self):   
-        self._func(self.session, '1', '1', 'slow')
-        self.assertEqual(self.hash.get('localhost:converse:request',
-            'conv_1:1'),
-            ["1", "slow", "2013-09-05", "2013-09-05", {}, 
-            "4ba2c60758312bd8f67dfd227f301a860a2a4f5542359338e7ce7514"])
-                           
-    def test_it_with_no_delay(self):   
-        self._func(self.session, '1', '1', '')
-        self.assertEqual(self.hash.get('localhost:converse:request',
-            'conv_1:1'),
-            ["1", "", "2013-09-05", "2013-09-05", {}, 
-            "4ba2c60758312bd8f67dfd227f301a860a2a4f5542359338e7ce7514"])
+        stub_cache = StubCache(stub.payload, session.get('scenario'), session.get('session'))
+        stub_cache.payload['response']['ids'] = [response_id]
+        return add_request(session, request_id, stub_cache, '2013-09-05', 0)
+    
+    def test_with_delay(self):
+        scenario_name = 'foo'
+        self._make_scenario('localhost:foo')
+        from stubo.model.stub import Stub, create
+        stub = Stub(create('<test>match this</test>', '<test>OK</test>'),
+                    'localhost:foo')
+        stub.set_delay_policy(dict(name='slow'))
+        doc = dict(scenario='localhost:foo', stub=stub)
+        self.scenario.insert_stub(doc, stateful=True)  
+        cache = self._get_cache()
+        session = cache.create_session_cache('foo', 'bar')
+        self._func(session, stub) 
+        self.assertEqual(self.hash.get('localhost:foo:request',
+            'bar:1'),
+           [[u'1'], u'slow', None, u'2013-09-05', {}, u'12b0a0eced1ec13b53d186be7bd4909fa94d1916cca4daa25bd24d48'])
+                   
+    def test_it(self):  
+        scenario_name = 'foo'
+        self._make_scenario('localhost:foo')
+        from stubo.model.stub import create, Stub, response_hash
+        stub = Stub(create('<test>match this</test>', '<test>OK</test>'),
+                    'localhost:foo')
+        doc = dict(scenario='localhost:foo', stub=stub)
+        self.scenario.insert_stub(doc, stateful=True)  
+        cache = self._get_cache()
+        session = cache.create_session_cache('foo', 'bar') 
+        self._func(session, stub)  
+        self.assertEqual(self.hash.get('localhost:foo:request',
+            'bar:1'),
+           [[u'1'], u'', None, u'2013-09-05', {}, u'12b0a0eced1ec13b53d186be7bd4909fa94d1916cca4daa25bd24d48'])
         
     def test_it_with_module(self):   
-        module = {"system_date": "2013-08-07", "version": 1, "name": "amadeus"}
-        self._func(self.session, '1', '1', '', module=module)
-        self.assertEqual(self.hash.get('localhost:converse:request',
-            'conv_1:1'), ["1", "", "2013-09-05", "2013-09-05", module, 
-            "4ba2c60758312bd8f67dfd227f301a860a2a4f5542359338e7ce7514"])
+        module = {"system_date": "2013-08-07", "version": 1, "name": "mymodule"}
+        scenario_name = 'foo'
+        self._make_scenario('localhost:foo')
+        from stubo.model.stub import create, Stub, response_hash
+        stub = Stub(create('<test>match this</test>', '<test>OK</test>'),
+                    'localhost:foo')
+        stub.set_module(module)
+        doc = dict(scenario='localhost:foo', stub=stub)
+        self.scenario.insert_stub(doc, stateful=True)  
+        cache = self._get_cache()
+        session = cache.create_session_cache('foo', 'bar') 
+        self._func(session, stub)  
+        self.assertEqual(self.hash.get('localhost:foo:request',
+            'bar:1'),
+           [[u'1'], u'', None, u'2013-09-05', module, u'12b0a0eced1ec13b53d186be7bd4909fa94d1916cca4daa25bd24d48'])
         
     def test_request_cache_limit(self): 
-        for i in range(15):  
-            self._func(self.session, '{0}'.format(i), '1', 'slow')  
-        self.assertEqual(len(self.hash.get_all('localhost:converse:request')), 10)
+        scenario_name = 'foo'
+        self._make_scenario('localhost:foo')
+        from stubo.model.stub import create, Stub, response_hash
+        stub = Stub(create('<test>match this</test>', '<test>OK</test>'),
+                    'localhost:foo')
+        doc = dict(scenario='localhost:foo', stub=stub)
+        self.scenario.insert_stub(doc, stateful=True)  
+        cache = self._get_cache()
+        session = cache.create_session_cache('foo', 'bar') 
         
-    def test_request_cache_limit2(self): 
-        self._func(self.session, 'x', '2', 'slow')
         for i in range(15):  
-            self._func(self.session, '{0}'.format(i), '1', 'slow')  
-        self.assertEqual(len(self.hash.get_all('localhost:converse:request')),
-                         11)       
+            self._func(session, stub, request_id='{0}'.format(i))  
+        self.assertEqual(len(self.hash.get_all('localhost:foo:request')), 10)
+          
+    def test_request_cache_limit2(self): 
+        scenario_name = 'foo'
+        self._make_scenario('localhost:foo')
+        from stubo.model.stub import create, Stub, response_hash
+        stub = Stub(create('<test>match this</test>', '<test>OK</test>'),
+                    'localhost:foo')
+        doc = dict(scenario='localhost:foo', stub=stub)
+        self.scenario.insert_stub(doc, stateful=True)  
+        cache = self._get_cache()
+        session = cache.create_session_cache('foo', 'bar') 
+        self._func(session, stub, request_id='x', response_id=2)  
+        for i in range(15):  
+            self._func(session, stub, request_id='{0}'.format(i))  
+        self.assertEqual(len(self.hash.get_all('localhost:foo:request')), 11)
                 
 class TestRequestIndex(unittest.TestCase):
     
@@ -525,7 +541,6 @@ class DummyMaster(object):
         return self._keys
     
     def exists(self, key):
-        print 'keys=', self._keys
         return key in self._keys
     
 class DummyObjectId(object):

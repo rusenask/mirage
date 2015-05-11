@@ -102,8 +102,8 @@ class TransformerBase(object):
             # if the request is XML parse and make it available for templates 
             xmltree = etree.fromstring(request.request_body())
             context['xmltree'] = xmltree
-        except Exception, e:
-            pass 
+        except Exception:
+            pass  
         context.update(kwargs) 
         user_exit = self.get_user_exit(request, context)
         if user_exit:

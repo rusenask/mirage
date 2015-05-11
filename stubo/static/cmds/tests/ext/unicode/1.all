@@ -1,0 +1,8 @@
+delete/stubs?scenario=auth_cust&force=true
+begin/session?scenario=auth_cust&session=auth_cust_rec&mode=record
+put/stub?session=auth_cust_rec&tracking_level=full, matcher.xml, response.xml
+end/session?session=auth_cust_rec
+
+begin/session?scenario=auth_cust&session=auth_cust_play&mode=playback
+get/response?session=auth_cust_play&tracking_level=full, request.xml
+end/session?session=auth_cust_play

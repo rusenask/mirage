@@ -79,6 +79,10 @@ Perform the following::
 
     $ sudo service mongod start
     $ sudo service redis-server start
+    
+You can start Stubo from your env root dir: 
+
+    $ cd ../env    
 
 You can start Stubo from your env root dir: 
 

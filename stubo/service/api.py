@@ -9,6 +9,7 @@ import shutil
 import logging
 import random
 import time
+from json import loads
 import sys
 import copy
 import json
@@ -38,7 +39,7 @@ from stubo.cache import (
 
 from stubo.utils import (
     asbool, make_temp_dir, get_export_links, get_hostname,
-    human_size, pretty_format_python, as_date, compact_traceback
+    human_size, pretty_format_python, as_date
 )
 from stubo.utils.track import TrackTrace
 from stubo.match import match
@@ -397,13 +398,10 @@ def put_module(handler, names):
             code, mod = module.add_sys_module(module_version_name, response)
             log.debug('{0}, {1}'.format(mod, code))
         except Exception, e:
-            _, t, v, tbinfo = compact_traceback()
-            msg = u'error={0}'.format(e)
-            stack_trace = u'traceback is: ({0}: {1} {2})'.format(t, v, tbinfo)
-            log.error(msg) 
+            msg = 'error={0}'.format(e)
             raise exception_response(400,
                 title='Unable to compile {0}:{1}, {2}'.format(module.host(), 
-                module_version_name, msg), traceback=stack_trace)
+                module_version_name, msg))
         module.add(module_name, response)
         added.append(module_version_name)
     result['data'] = dict(message='added modules: {0}'.format(added))
@@ -419,11 +417,13 @@ def put_stub(handler, session_name, delay_policy, stateful, priority,
     scenario_key = cache.find_scenario_key(session_name)
     trace = TrackTrace(handler.track, 'put_stub')
     url_args = handler.track.request_params
+    payload = stubo_request.body_unicode
+    err_msg = 'put/stub body format error - {0}, for session: {1}'
     try:
         stub = parse_stub(stubo_request.body_unicode, scenario_key, url_args)
     except Exception, e:    
-        raise exception_response(400, title='put/stub body format error - {0}, '
-            'on session: {1}'.format(e.message, session_name))
+        raise exception_response(400, title=err_msg.format(e.message, 
+                                                           session_name))
                                                    
     log.debug('stub: {0}'.format(stub))
     if delay_policy:
@@ -446,22 +446,18 @@ def put_stub(handler, session_name, delay_policy, stateful, priority,
                 '%Y-%m-%d')
         })  
         trace.info('module used', stub.module()) 
-        try:
-            source_stub = copy.deepcopy(stub)
-            stub, _ = transform(stub, stubo_request, function='put/stub', 
-                                cache=handler.settings['ext_cache'],
-                                hooks=handler.settings['hooks'],
-                                stage='put/stub',
-                                trace=trace,
-                                url_args=url_args)
-            if source_stub != stub:
-                trace.diff('stub was transformed', source_stub.payload, 
-                           stub.payload)
-                trace.info('stub was transformed into', stub.payload)
-        except UserExitModuleNotFound, e:
-            # ignore legacy stubbedSystem param
-            stub.payload.pop('module')   
-                                                                     
+        source_stub = copy.deepcopy(stub)
+        stub, _ = transform(stub, stubo_request, function='put/stub', 
+                            cache=handler.settings['ext_cache'],
+                            hooks=handler.settings['hooks'],
+                            stage='put/stub',
+                            trace=trace,
+                            url_args=url_args)
+        if source_stub != stub:
+            trace.diff('stub was transformed', source_stub.payload, 
+                       stub.payload)
+            trace.info('stub was transformed into', stub.payload)
+                                                                             
     scenario_name = session['scenario'] 
     handler.track.scenario = scenario_name.partition(':')[2]
     session_status = session['status']
@@ -493,10 +489,6 @@ def calculate_delay(policy):
 def get_response(handler, session_name):
     request = handler.request
     stubo_request = StuboRequest(request)
-    request_body = stubo_request.request_body()
-    if not request_body:
-        # TODO: not an error if they match on other attrs
-        raise exception_response(400, title='No text in body')
     cache = Cache(get_hostname(request))
     if cache.blacklisted():
         raise exception_response(400, title="Sorry the host URL '{0}' has been "
@@ -504,11 +496,11 @@ def get_response(handler, session_name):
     scenario_key = cache.find_scenario_key(session_name)  
     scenario_name = scenario_key.partition(':')[-1] 
     handler.track.scenario = scenario_name   
-    request_id = compute_hash(request_body)
+    request_id = stubo_request.id()
     module_system_date = handler.get_argument('system_date', None)
     url_args = handler.track.request_params
     if not module_system_date:
-        # BA LEGACY
+        # LEGACY
         module_system_date = handler.get_argument('stubbedSystemDate', None)
     trace_matcher = TrackTrace(handler.track, 'matcher')
     user_cache = handler.settings['ext_cache']
@@ -536,19 +528,15 @@ def get_response(handler, session_name):
                 session_name, scenario_key))          
                 
         session['ext_cache'] = user_cache   
-        results = match(stubo_request, session, trace_matcher, 
-                        as_date(system_date), 
-                        url_args=url_args,
-                        hooks=handler.settings['hooks'],
-                        module_system_date=module_system_date)
-        # 0 is best match
-        hits_info, stub = results[0]
-        log.debug(u'match result: (hits_info={0}, stub={1})'.format(hits_info, 
-                  stub.payload)) 
-        hits, stub_number = hits_info
-        if not hits:
+        result = match(stubo_request, session, trace_matcher,
+                       as_date(system_date),
+                       url_args=url_args,
+                       hooks=handler.settings['hooks'],
+                       module_system_date=module_system_date)
+        if not result[0]:
             raise exception_response(400, 
                                      title='E017:No matching response found')
+        _, stub_number, stub = result    
         response_ids = stub.response_ids()
         delay_policy_name = stub.delay_policy_name() 
         recorded = stub.recorded()
@@ -556,9 +544,11 @@ def get_response(handler, session_name):
         request_index_key = add_request(session, request_id, stub, system_date,
                                         stub_number,
                                         handler.settings['request_cache_limit'])
+      
         if not stub.response_body():
-            stub.set_response_body(stub.get_response_body_from_cache(
-                                   request_index_key))
+            _response = stub.get_response_from_cache(request_index_key)
+            stub.set_response_body(_response['body'])
+       
         if delay_policy_name:    
             stub.load_delay_from_cache(delay_policy_name)     
         
@@ -604,7 +594,11 @@ def get_response(handler, session_name):
         trace_response.diff('response:transformed',
                             dict(response=response_text[0]),
                             dict(response=transfomed_response_text)) 
-                                     
+    if stub.response_status() != 200:
+        handler.set_status(stub.response_status())
+    if stub.response_headers():     
+        for k, v in stub.response_headers().iteritems():
+            handler.set_header(k, v)                                     
     return transfomed_response_text
 
 def delete_stubs(handler, scenario_name=None, host=None, force=False):
@@ -1204,8 +1198,8 @@ def get_session_status(handler, all_hosts=True):
             last_used = session_last_used(s['name'], session_name, 'playback')
             if last_used:
                 last_used = last_used['start_time'].strftime('%Y-%m-%d %H:%M:%S')
-            else: 
-                # session has never been used for playback   
+            else:
+                # session has never been used for playback 
                 last_used = session.get('last_used', '-')
             session['last_used'] =  last_used  
             sessions.append(session)   

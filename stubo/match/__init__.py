@@ -12,12 +12,67 @@ import datetime
 import copy
 import json
 
+from hamcrest.core.string_description import StringDescription
+from hamcrest import all_of, is_not
+from .request_matcher import (
+    body_contains, has_method, has_path, has_query_args, has_url_pattern,
+    body_xpath, body_jsonpath, has_headers
+)
 from stubo.model.stub import Stub, StubCache
 from stubo.exceptions import exception_response
 from stubo.utils import as_date
 from stubo.ext.transformer import transform
 
 log = logging.getLogger(__name__)
+
+def build_matchers(stub):
+    matchers = []
+    for k, v in stub.request().iteritems():
+        if k == 'bodyPatterns':
+            body_patterns = stub.request()['bodyPatterns']
+            for body_pattern, body_pattern_value in body_patterns.iteritems():
+                # bodyPatterns is a list
+                for s in body_pattern_value:
+                    if body_pattern == 'contains':
+                        matchers.append(body_contains(s))
+                    elif body_pattern == '!contains':
+                        matchers.append(is_not(body_contains(s)))
+                    elif body_pattern == 'xpath':
+                        namespaces = None
+                        if isinstance(s, tuple):
+                            s, namespaces = s
+                        matchers.append(body_xpath(s, namespaces)) 
+                    elif body_pattern == '!xpath':
+                        namespaces = None
+                        if isinstance(s, tuple):
+                            s, namespaces = s
+                        matchers.append(is_not(body_xpath(s, namespaces)))     
+                    elif body_pattern == 'jsonpath':
+                        matchers.append(body_jsonpath(s))
+                    elif body_pattern == '!jsonpath':
+                        matchers.append(is_not(body_jsonpath(s)))    
+                                                        
+        elif k == 'method':
+            matchers.append(has_method(v))
+        elif k == 'urlPath':
+            matchers.append(has_path(v))
+        elif k == 'urlPattern':
+            matchers.append(has_url_pattern(v))    
+        elif k == 'queryArgs':
+            matchers.append(has_query_args(v)) 
+        elif k == '!method':
+            matchers.append(is_not(has_method(v)))
+        elif k == '!urlPath':
+            matchers.append(is_not(has_path(v)))
+        elif k == '!queryArgs':
+            matchers.append(is_not(has_query_args(v))) 
+        elif k == '!urlPattern':
+            matchers.append(is_not(has_url_pattern(v))) 
+        elif k == 'headers':
+            matchers.append(has_headers(v))
+        elif k == '!headers':
+            matchers.append(is_not(has_headers(v)))                                     
+    return matchers 
 
 def match(request, session, trace, system_date, url_args, hooks,
           module_system_date=None):
@@ -73,51 +128,27 @@ def match(request, session, trace, system_date, url_args, hooks,
             trace.info('request was transformed into', request_copy.request_body())
                                                                             
         matcher = StubMatcher(trace)
-        hits = matcher.match(request_copy, stub)
-        stats.append(((hits, stub_number), stub))
-                     
-        if hits == stub.number_of_matchers():
-            #  without most_matchers_win support
-            trace.info(u"stub '{0}' matched".format(stub_number))
-            break 
-    # sort by hits (desc), stub_number (asc)
-    # to match against 1. greatest hits or 2. first stub to get a hit
-    return sorted(stats, key=lambda k: (k[0][0], -k[0][1]), reverse=True)
-
-class Contains(object):
-    
-    def eval(self, x, y):
-        """x in y?
-        x and y should both be unicode
-        """
-        x = u''.join(x.split()).strip()
-        y = u''.join(y.split()).strip()
-        return y.find(x) >= 0
-    
+        if matcher.match(request_copy, stub):
+            return (True, stub_number, stub)
+     
+    return (False,)     
+  
 class StubMatcher(object):
     
     def __init__(self, trace):
         self.trace = trace
-    
+        
     def match(self, request, stub):
         """Match request with single stub"""
-        # TODO: go through all the possible match specifiers when available                      
-        request_text = request.request_body()                           
-        matchers = stub.contains_matchers()
-        num_matchers = len(matchers)                                                                                    
-        hits = 0
-        for i in range(num_matchers):
-            self.trace.info('matcher ({0})'.format(i))
-            matcher = matchers[i]
-            if Contains().eval(matcher, request_text):
-                hits += 1
-                self.trace.info('matched', matcher)
-            else:
-                # all matchers need to match to get a hit
-                hits = 0
-                self.trace.warn('not matched')                                            
-                break
-        return hits                               
+        msg =  StringDescription()
+        all = all_of(*build_matchers(stub))
+        result = all.matches(request, msg)
+        if not result:
+            log.debug(u'No match found: {0}'.format(msg.out))
+            self.trace.warn(msg.out)
+        return result                        
+                                  
+                                 
                     
                     
         

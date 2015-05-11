@@ -295,7 +295,8 @@ put/stub
    * Duplicate stubs can exist in different scenarios
 
 Notes:
-   
+
+see :ref:`stub_reference` for stub definitions.    
 see :ref:`daterolling` for an example of using user arguments to perform date rolling  
 
 

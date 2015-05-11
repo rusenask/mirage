@@ -361,7 +361,7 @@ def make_stub(matchers, response, delay_policy=None, module=None,
               recorded=None):
     request = {
         "method": "POST",
-        "bodyPatterns": [ { "contains": matchers } ]
+        "bodyPatterns": { "contains": matchers }
     }
     response = {
         "status": 200,

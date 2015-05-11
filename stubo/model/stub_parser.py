@@ -23,16 +23,24 @@ class JSONStubParser(StubParser):
      def parse(self, payload, url_args):
          if 'request' not in payload:
              raise ValueError("No 'request' definition found in body") 
+         body_patterns = payload['request'].get('bodyPatterns')
+         if body_patterns and isinstance(body_patterns, list):
+             # convert legacy JSON format
+             payload['request']['bodyPatterns'] = body_patterns[0]
          if 'response' not in payload or not payload['response']:
              # default
-             payload['response'] = dict(status=200)    
+             payload['response'] = dict(status=200) 
+         response_body = payload['response'].get('body')  
+         # we are kind of dependent on having a response body
+         if not response_body:
+             payload['response']['body'] = "" 
          return self.update_args(payload, url_args)   
          
 class LegacyStubParser(StubParser):
     """
     LEGACY format
     ||textMatcher||<status>OK</status>||response||<response>YES</response>
-    =>
+    => JSON
     {
         "request": {
             "method": "POST",
@@ -54,29 +62,28 @@ class LegacyStubParser(StubParser):
     
     def parse(self, body, url_args):
         payload = dict(request=dict(method='POST', 
-                                    bodyPatterns=[dict(contains=[])]),
+                                    bodyPatterns=dict(contains=[])),
                        response=dict(status=200))
         parts = body.partition(LegacyStubParser.RESPONSE_SEP)
         if parts[1] != LegacyStubParser.RESPONSE_SEP or not parts[2]:
-            raise ValueError('NoResponseInBody')
+            raise ValueError('LegacyStubParser: NoResponseInBody')
         payload['response']['body'] = parts[-1]
       
         tokens = parts[0].split(LegacyStubParser.SEPARATOR)
         if tokens[0] != '':
-            raise ValueError("body does not start with separator '{0}'".format(
+            raise ValueError("LegacyStubParser: body does not start with separator '{0}'".format(
                                                 LegacyStubParser.SEPARATOR))
         tokens = tokens[1:]
        
         key_value_pairs = zip(tokens[0::2], tokens[1::2])
-        contains = payload['request']['bodyPatterns'][0]['contains']
+        contains = payload['request']['bodyPatterns']['contains']
         for matcher_key, matcher in key_value_pairs:
             if matcher_key != LegacyStubParser.TEXT_MATCHER_KEY:
-                raise ValueError("Expected '{0}' not '{1}'".format(
+                raise ValueError("LegacyStubParser: Expected '{0}' not '{1}'".format(
                         LegacyStubParser.TEXT_MATCHER_KEY, matcher_key))
-            payload['request']['bodyPatterns']    
             contains.append(matcher)
         if len(contains) == 0:
-            raise ValueError('No matchers found')
+            raise ValueError('LegacyStubParser: No matchers found')
         return self.update_args(payload, url_args)           
             
         

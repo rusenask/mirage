@@ -84,7 +84,7 @@ class Scenario(object):
         if stubs_cursor.count():
             for stub in stubs_cursor:
                 the_stub = Stub(stub['stub'], scenario)
-                if matchers == the_stub.contains_matchers():
+                if matchers and matchers == the_stub.contains_matchers():
                     if not stateful and \
                         doc['stub'].response_body() == the_stub.response_body():
                         msg = 'duplicate stub found, not inserting.'

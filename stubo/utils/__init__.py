@@ -7,7 +7,6 @@
     :copyright: (c) 2015 by OpenCredo.
     :license: GPLv3, see LICENSE for more details.
 """
-
 import os
 import ConfigParser
 import logging
@@ -21,6 +20,7 @@ from tempfile import mkdtemp
 from asyncore import compact_traceback
 from StringIO import StringIO
 from importlib import import_module
+import hashlib
 
 from pytz import timezone
 import redis
@@ -29,7 +29,7 @@ from tornado.template import Template
 from requests.utils import get_encoding_from_headers
 from requests.structures import CaseInsensitiveDict
 from pygments import highlight
-from pygments.lexers import XmlLexer, PythonLexer
+from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
 
 from dogpile.cache import make_region
@@ -164,7 +164,6 @@ def as_date(date_str):
 
 def convert_to_script(data, var_name='_client_data'):
     if data:
-        ##print data
         result = json.dumps(data)
         script = dedent("""\
             <script type="text/javascript">
@@ -233,11 +232,13 @@ def human_size(size_bytes):
 	formatted_size = "{:,}".format(formatted_size)
     return "%s" % (formatted_size)  
 
-def pretty_format(text):
-    return highlight(text, XmlLexer(), HtmlFormatter()) 
+def pretty_format(text, name=None):
+    name = name or 'XML'
+    return highlight(text, get_lexer_by_name(name), 
+                     HtmlFormatter(linenos='table')) 
 
 def pretty_format_python(text):
-    return highlight(text, PythonLexer(), HtmlFormatter()) 
+    return pretty_format(text, 'PYTHON')
 
 def get_unicode_from_request(r):
     """Returns the requested content back in unicode.
@@ -269,8 +270,8 @@ def get_unicode_from_request(r):
         return unicode(r.body, 'utf-8')
     except:
         tried_encodings.append('utf-8')
-        return unicode(r.body, 'latin-1', errors='replace')    
-    
+        return unicode(r.body, 'latin-1', errors='replace')
+
 def compact_traceback_info(tb):
     tbinfo = []
     while tb:
@@ -285,4 +286,11 @@ def compact_traceback_info(tb):
     del tb
      
     # file, function, line = tbinfo[-1]
-    return ' '.join(['[%s|%s|%s]' % x for x in tbinfo])               
+    return ' '.join(['[%s|%s|%s]' % x for x in tbinfo])
+
+def compute_hash(data):
+    if isinstance(data, unicode):
+        _hash = hashlib.sha224(data.encode('utf-8')).hexdigest()
+    else:
+        _hash = hashlib.sha224(data).hexdigest()
+    return _hash
