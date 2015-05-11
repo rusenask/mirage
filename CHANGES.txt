@@ -1,7 +1,21 @@
-Stubo Changelog
-=====================
+Changelog
+=========
 
-0.6
-----
+0.6.2 (unreleased)
+------------------
 
-Initial cut of open source version
+- Rest support
+
+
+0.6.1 (2015-05-11)
+------------------
+
+- Return the http status code of exec/cmds requests (closes #28)
+- Added tracker scenario filter (closes #23)
+- Added stub priority
+- Export runnable scenarios
+
+0.6 (2015-03-25)
+----------------
+
+- Initial cut of open source version

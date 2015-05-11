@@ -3,6 +3,7 @@
     :license: GPLv3, see LICENSE for more details.
 """
 import logging
+import json
 from stubo.model.stub_parser import (
     JSONStubParser, LegacyStubParser
 )
@@ -13,14 +14,16 @@ log = logging.getLogger(__name__)
 def response_hash(response_body, stub):
     return compute_hash(u"".join([response_body, str(stub.response_status())]))
 
-def parse_stub(body, scenario, url_args, json=True):
+def parse_stub(body, scenario, url_args):
     log.debug(u'parse_stub body={0}'.format(body)) 
-    if json:
+    try:
+        body = json.loads(body)
         log.debug('using JSONStubParser')
         parser = JSONStubParser()
-    else:
+    except ValueError:
+        # old format
         log.debug('using LegacyStubParser')
-        parser = LegacyStubParser()     
+        parser = LegacyStubParser()
     return Stub(parser.parse(body, url_args), scenario)
  
 class StubData(object):
@@ -68,7 +71,16 @@ class StubData(object):
         return self.response().get('delayPolicy')
              
     def set_delay_policy(self, policy):
-         self.response()['delayPolicy'] =  policy      
+         self.response()['delayPolicy'] =  policy   
+    
+    def priority(self):
+        return self.payload.get('priority')
+         
+    def set_priority(self, priority):
+        self.payload['priority'] = priority 
+        
+    def set_args(self, args):
+        self.payload['args'] = args           
         
     def request(self):
         return self.payload['request']

@@ -11,5 +11,4 @@ Stub-O-Matic supports functional, performance and load testing. The two (opposin
 
 Efficient use of hardware.
 
-* Test teams can share a StuboNG server and by using different URLs for the server essentially have their own virtual 
-Stubo instance.
+* Test teams can share a Stubo server and by using different URLs for the server essentially have their own virtual Stubo instance.

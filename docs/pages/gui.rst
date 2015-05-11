@@ -63,9 +63,9 @@ stubs/second response rate number of stubs requested per second
 delay added                user defined delays to stubs, these can be specified   to emulate response times of the system being stubbed
 latency                    average time taken to return a stub, excluding network and user defined delays
 request/response size      size in kb of the requests to stubo and responses delivered
-host response latency      where StuboNG is deployed across    multiple servers this chart compares the different servers against each other
+host response latency      where Stubo is deployed across    multiple servers this chart compares the different servers against each other
 failure rate %             percent of failed requests (HTTP response >= 400)
-health checks              StuboNG has a regular health check ping to demonstrate that all systems are working properly
+health checks              Stubo has a regular health check ping to demonstrate that all systems are working properly
 running put/stub count     cumulative total of stubs loaded
 running response count     cumulative total of stubs retrieved
 ========================== ===========

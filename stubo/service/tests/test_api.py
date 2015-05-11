@@ -33,10 +33,12 @@ class TestCmds(unittest.TestCase):
    
     def test_empty_cmds(self):
         from stubo.service.api import run_commands
-        from stubo.exceptions import HTTPClientError
         cmds_text = ''
-        with self.assertRaises(HTTPClientError):
-            run_commands(DummyRequestHandler(), '') 
+        response =  run_commands(DummyRequestHandler(), '')
+        self.assertEqual(response['data'], {
+            'executed_commands': [], 
+            'number_of_requests': 0, 
+            'number_of_errors': 0})
             
     def test_unsupported_cmds(self):
         from stubo.service.api import run_commands
@@ -50,44 +52,46 @@ class TestCmds(unittest.TestCase):
         cmds_text = 'delete/stubs?scenario=foo'    
         response = run_commands(DummyRequestHandler(), cmds_text)
         self.assertEqual(response['data'], {
-            'executed_commands' : [('delete/stubs?scenario=foo', [])]
-            })
+            'executed_commands': [('delete/stubs?scenario=foo', 200)], 
+            'number_of_requests': 1, 
+            'number_of_errors': 0})
         
     def test_1cmd_spaces(self):
         from stubo.service.api import run_commands
         cmds_text = ' delete/stubs?scenario=foo '    
         response = run_commands(DummyRequestHandler(), cmds_text)
         self.assertEqual(response['data'], {
-            'executed_commands' : [('delete/stubs?scenario=foo', [])]
-            })    
+            'executed_commands': [('delete/stubs?scenario=foo', 200)], 
+            'number_of_requests': 1, 
+            'number_of_errors': 0})    
         
     def test_2cmds(self):
         from stubo.service.api import run_commands
-        cmds_text = 'delete/stubs?scenario=foo,delete/stubs?scenario=bar'    
+        cmds_text = 'delete/stubs?scenario=foo\ndelete/stubs?scenario=bar'    
         response = run_commands(DummyRequestHandler(), cmds_text)
-        self.assertEqual(response['data'], { 'executed_commands' : \
-            [('delete/stubs?scenario=foo,delete/stubs?scenario=bar', [])]
-            })
+        self.assertEqual(response['data'], {
+            'executed_commands': [('delete/stubs?scenario=foo', 200), 
+                                  ('delete/stubs?scenario=bar', 200)], 
+            'number_of_requests': 2, 'number_of_errors': 0})
         
     def test_2cmds_spaces(self):
         from stubo.service.api import run_commands
-        cmds_text = ' delete/stubs?scenario=foo, delete/stubs?scenario=bar '    
+        cmds_text = ' delete/stubs?scenario=foo\n delete/stubs?scenario=bar '    
         response = run_commands(DummyRequestHandler(), cmds_text)
-        self.assertEqual(response['data'], { 'executed_commands' : \
-            [('delete/stubs?scenario=foo, delete/stubs?scenario=bar', [])]
-            })    
+        self.assertEqual(response['data'], {
+            'executed_commands': [('delete/stubs?scenario=foo', 200), 
+                                  ('delete/stubs?scenario=bar', 200)], 
+            'number_of_requests': 2, 'number_of_errors': 0})
         
     def test_export_cmd(self):
         from stubo.service.api import run_commands
         cmds_text = 'get/export?scenario=foo'    
         response = run_commands(DummyRequestHandler(), cmds_text)
-        self.assertEqual(response['data'], { 'executed_commands': \
-            [('get/export?scenario=foo', 
-            [('foo.zip', 'http://localhost:8001/static/exports/localhost_foo/foo.zip'), 
-             ('foo.tar.gz', 'http://localhost:8001/static/exports/localhost_foo/foo.tar.gz'),
-             ('foo.jar', 'http://localhost:8001/static/exports/localhost_foo/foo.jar')])]
-            }) 
-                                   
+        self.assertEqual(response['data'], {
+            'export_links': [('get/export?scenario=foo', [('foo.zip', 'http://localhost:8001/static/exports/localhost_foo/foo.zip'), ('foo.tar.gz', 'http://localhost:8001/static/exports/localhost_foo/foo.tar.gz'), ('foo.jar', 'http://localhost:8001/static/exports/localhost_foo/foo.jar')])], 
+            'executed_commands': [('get/export?scenario=foo', 200)], 
+            'number_of_requests': 1, 
+            'number_of_errors': 0})
                                    
 class TestSession(unittest.TestCase):    
     
@@ -353,11 +357,15 @@ class TestPutStub(unittest.TestCase):
         self.db_patch.start()
         self.db_patch2 = mock.patch('stubo.cache.Scenario', self.scenario)
         self.db_patch2.start()
+        self.tracker = DummyTracker()
+        self.tracker_patch = mock.patch('stubo.service.api.Tracker', self.tracker)
+        self.tracker_patch.start()
 
     def tearDown(self):
         self.patch.stop()
         self.db_patch.stop()
         self.db_patch2.stop()
+        self.tracker_patch.stop()
         
     def _make_scenario(self, name, **kwargs):
         doc = dict(name=name, **kwargs)
@@ -389,7 +397,8 @@ class TestPutStub(unittest.TestCase):
         response = begin_session(self.make_request(), 'conversation', 'joe', 'record', 
                                  system_date=None, warm_cache=False) 
         
-        response = put_stub(handler, 'joe', delay_policy=None, stateful=True) 
+        response = put_stub(handler, 'joe', delay_policy=None, stateful=True,
+                            priority=1) 
         self.assertTrue('error' not in response)
         stubs = self.scenario.get_stubs('localhost:conversation')
         stubs = list(stubs)
@@ -399,6 +408,7 @@ class TestPutStub(unittest.TestCase):
         self.assertEqual(stub.contains_matchers(), ['get my stub'])
         self.assertEqual(stub.response_body(), ['a response'])
         self.assertEqual(stub.recorded(), str(date.today()))  
+        self.assertEqual(stub.priority(), 1)
      
     def test_put_with_module(self):
         from stubo.service.api import put_stub, begin_session
@@ -429,7 +439,8 @@ class TestPutStub(unittest.TestCase):
         response = begin_session(self.make_request(), 'conversation', 'joe', 'record', 
                                  system_date=None, warm_cache=False) 
         
-        response = put_stub(handler, 'joe', delay_policy=None, stateful=True) 
+        response = put_stub(handler, 'joe', delay_policy=None, stateful=True,
+                            priority=2) 
         self.assertTrue('error' not in response)
         stubs = list(self.scenario.get_stubs('localhost:conversation'))
         self.assertTrue(len(stubs) == 1)
@@ -438,7 +449,8 @@ class TestPutStub(unittest.TestCase):
         self.assertEqual(stub.module(), module)
         self.assertEqual(stub.contains_matchers(), ['get my stub'])
         self.assertEqual(stub.response_body(), ['a response'])
-        self.assertEqual(stub.recorded(), str(date.today()))   
+        self.assertEqual(stub.recorded(), str(date.today()))
+        self.assertEqual(stub.priority(), 2)   
        
              
     def test_put_with_delay(self):
@@ -462,7 +474,8 @@ class TestPutStub(unittest.TestCase):
         handler.request.body = json.dumps(body)
         begin_session(self.make_request(), 'conversation', 'joe', 'record', 
                       system_date=None, warm_cache=False)    
-        response = put_stub(handler, 'joe', delay_policy=None, stateful=True) 
+        response = put_stub(handler, 'joe', delay_policy=None, stateful=True,
+                            priority=1) 
         self.assertTrue('error' not in response)
         stubs = list(self.scenario.get_stubs('localhost:conversation'))
         self.assertTrue(len(stubs) == 1)
@@ -471,7 +484,8 @@ class TestPutStub(unittest.TestCase):
         self.assertEqual(stub.contains_matchers(), ['get my stub'])
         self.assertEqual(stub.response_body(), ['a response'])
         self.assertEqual(stub.recorded(), str(date.today())) 
-        self.assertEqual(stub.delay_policy(), 'slow')  
+        self.assertEqual(stub.delay_policy(), 'slow') 
+        self.assertEqual(stub.priority(), 1)   
         
     def test_put_with_delay_arg_override(self):
         from stubo.service.api import put_stub, begin_session
@@ -495,7 +509,7 @@ class TestPutStub(unittest.TestCase):
         begin_session(self.make_request(), 'conversation', 'joe', 'record', 
                       system_date=None, warm_cache=False)     
         response = put_stub(handler, 'joe',  delay_policy='fast', 
-                            stateful=True) 
+                            stateful=True, priority=1) 
         self.assertTrue('error' not in response)
         stubs = list(self.scenario.get_stubs('localhost:conversation'))
         self.assertTrue(len(stubs) == 1)
@@ -505,6 +519,7 @@ class TestPutStub(unittest.TestCase):
         self.assertEqual(stub.response_body(), ['a response'])
         self.assertEqual(stub.recorded(), str(date.today())) 
         self.assertEqual(stub.delay_policy(), 'fast') 
+        self.assertEqual(stub.priority(), 1) 
         
     def test_put_in_dormant(self):
         from stubo.service.api import put_stub, begin_session, end_session
@@ -527,10 +542,16 @@ class TestPutStub(unittest.TestCase):
         handler.request.body = json.dumps(body)
         begin_session(self.make_request(), 'conversation', 'joe', 'record', 
                       system_date=None, warm_cache=False)
+        self.tracker.insert(dict(scenario='localhost:conversation',
+                                 request_text=handler.request.body,
+                                 request_params=dict(scenario='conversation'),
+                                 function='put/stub',
+                                 stubo_response='<test>OK</test>'))
         end_session(self.make_request(), 'joe')
         
         with self.assertRaises(HTTPClientError): 
-            put_stub(handler, 'joe', delay_policy=None, stateful=True)   
+            put_stub(handler, 'joe', delay_policy=None, stateful=True,
+                     priority=1)   
             
     def test_put_in_playback(self):
         from stubo.service.api import put_stub, begin_session
@@ -561,7 +582,8 @@ class TestPutStub(unittest.TestCase):
         begin_session(self.make_request(), 'conversation', 'joe', 'playback', 
                       system_date=None, warm_cache=False)
         with self.assertRaises(HTTPClientError): 
-            put_stub(handler, 'joe', delay_policy=None, stateful=True)  
+            put_stub(handler, 'joe', delay_policy=None, stateful=True,
+                     priority=1)  
             
     def test_put_no_session(self):
         from stubo.service.api import put_stub
@@ -573,7 +595,8 @@ class TestPutStub(unittest.TestCase):
         handler.request.body = json.dumps(create(request_body='x', 
                                                  response_body='y'))
         with self.assertRaises(HTTPClientError): 
-            put_stub(handler, 'bogus', delay_policy=None, stateful=True)
+            put_stub(handler, 'bogus', delay_policy=None, stateful=True,
+                     priority=1)
          
             
     def test_put_empty_payload(self):
@@ -588,7 +611,8 @@ class TestPutStub(unittest.TestCase):
         begin_session(self.make_request(), 'conversation', 'joe', 'record', 
                       system_date=None, warm_cache=False)
         with self.assertRaises(HTTPClientError): 
-            put_stub(handler, 'joe', delay_policy=None, stateful=True) 
+            put_stub(handler, 'joe', delay_policy=None, stateful=True,
+                     priority=1) 
                                   
                                  
 class TestPutStubLegacy(unittest.TestCase):
@@ -623,7 +647,8 @@ class TestPutStubLegacy(unittest.TestCase):
         handler.request.body = body
         begin_session(self.make_request(), 'conversation', 'joe', 'record', 
                       system_date=None, warm_cache=False)
-        response = put_stub(handler, 'joe', delay_policy=None, stateful=True) 
+        response = put_stub(handler, 'joe', delay_policy=None, stateful=True,
+                            priority=1) 
         self.assertTrue('error' not in response)
         stubs = list(self.scenario.get_stubs('localhost:conversation'))
         self.assertTrue(len(stubs) == 1)
@@ -632,6 +657,7 @@ class TestPutStubLegacy(unittest.TestCase):
         self.assertEqual(stub.contains_matchers(), ['get my stub'])
         self.assertEqual(stub.response_body(), ['a response'])
         self.assertEqual(stub.recorded(), str(date.today()))
+        self.assertEqual(stub.priority(), 1)
         
     def test_put_with_delay(self):
         from stubo.service.api import put_stub, begin_session
@@ -640,7 +666,8 @@ class TestPutStubLegacy(unittest.TestCase):
         handler.request.body = '||textMatcher||get my stub||response||a response'
         begin_session(self.make_request(), 'conversation', 'joe', 'record', 
                       system_date=None, warm_cache=False) 
-        response = put_stub(handler, 'joe', delay_policy='slow', stateful=True) 
+        response = put_stub(handler, 'joe', delay_policy='slow', stateful=True,
+                            priority=1) 
         stubs = list(self.scenario.get_stubs('localhost:conversation'))
         self.assertTrue(len(stubs) == 1)
         from stubo.model.stub import Stub
@@ -649,6 +676,7 @@ class TestPutStubLegacy(unittest.TestCase):
         self.assertEqual(stub.response_body(), ['a response'])
         self.assertEqual(stub.recorded(), str(date.today()))
         self.assertEqual(stub.delay_policy(), 'slow') 
+        self.assertEqual(stub.priority(), 1)
     
     def test_put_no_session(self):
         from stubo.service.api import put_stub
@@ -656,7 +684,8 @@ class TestPutStubLegacy(unittest.TestCase):
         handler = DummyRequestHandler()
         handler.request.body = '||textMatcher||get my stub||response||a response'
         with self.assertRaises(HTTPClientError): 
-            put_stub(handler, 'bogus', delay_policy=None, stateful=True)
+            put_stub(handler, 'bogus', delay_policy=None, stateful=True,
+                     priority=1)
          
             
     def test_put_no_text_in_body(self):
@@ -668,7 +697,8 @@ class TestPutStubLegacy(unittest.TestCase):
         begin_session(self.make_request(), 'conversation', 'joe', 'record', 
                       system_date=None, warm_cache=False) 
         with self.assertRaises(HTTPClientError): 
-            put_stub(handler, 'joe', delay_policy=None, stateful=True) 
+            put_stub(handler, 'joe', delay_policy=None, stateful=True,
+                     priority=1) 
             
     def test_put_bad_text_in_body(self):
         from stubo.service.api import put_stub, begin_session
@@ -679,7 +709,8 @@ class TestPutStubLegacy(unittest.TestCase):
         begin_session(self.make_request(), 'conversation', 'joe', 'record', 
                       system_date=None, warm_cache=False)  
         with self.assertRaises(HTTPClientError): 
-            put_stub(handler, 'joe', delay_policy=None, stateful=True) 
+            put_stub(handler, 'joe', delay_policy=None, stateful=True,
+                     priority=1) 
             
     def test_put_bad_text_in_body2(self):
         from stubo.service.api import put_stub, begin_session
@@ -690,7 +721,8 @@ class TestPutStubLegacy(unittest.TestCase):
         begin_session(self.make_request(), 'conversation', 'joe', 'record', 
                       system_date=None, warm_cache=False) 
         with self.assertRaises(HTTPClientError): 
-            put_stub(handler, 'joe', delay_policy=None, stateful=True) 
+            put_stub(handler, 'joe', delay_policy=None, stateful=True,
+                     priority=1) 
               
         
 class TestStubCount(unittest.TestCase):
@@ -860,11 +892,15 @@ class TestStubExport(unittest.TestCase):
         self.db_patch.start()
         self.db_patch2 = mock.patch('stubo.cache.Scenario', self.scenario)
         self.db_patch2.start()
+        self.tracker = DummyTracker()
+        self.tracker_patch = mock.patch('stubo.service.api.Tracker', self.tracker)
+        self.tracker_patch.start()
     
     def tearDown(self):
         self.patch.stop()
         self.db_patch.stop()
         self.db_patch2.stop()
+        self.tracker_patch.stop()
     
     def _make_scenario(self, name, **kwargs):
         doc = dict(name=name, **kwargs)
@@ -873,7 +909,65 @@ class TestStubExport(unittest.TestCase):
     def _delete_tmp_export_dir(self, scenario_dir):
         import shutil    
         shutil.rmtree(scenario_dir)
-     
+        
+    def test_runnable_requires_playback_session(self):
+        from stubo.service.api import export_stubs
+        import os.path
+        from stubo.exceptions import HTTPClientError
+        request_handler = DummyRequestHandler(session_id=['1'], runnable=['true'])
+        self._make_scenario('localhost:1stub1matcher')
+        from stubo.model.stub import create, Stub
+        stub = Stub(create('<test>match this</test>', '<test>OK</test>'),
+                    'localhost:1stub1matcher')
+        doc = dict(scenario='localhost:1stub1matcher', stub=stub)
+        self.scenario.insert_stub(doc, stateful=True) 
+        self.scenario.insert_pre_stub('localhost:1stub1matcher', stub) 
+        with self.assertRaises(HTTPClientError): 
+            export_stubs(request_handler, '1stub1matcher')   
+            
+    def test_runnable_requires_playback(self):
+        from stubo.service.api import export_stubs
+        import os.path
+        from stubo.exceptions import HTTPClientError
+        request_handler = DummyRequestHandler(session_id=['1'], 
+                                              runnable=['true'],
+                                              playback_session=['myrunnable'])
+        self._make_scenario('localhost:1stub1matcher')
+        from stubo.model.stub import create, Stub
+        stub = Stub(create('<test>match this</test>', '<test>OK</test>'),
+                    'localhost:1stub1matcher')
+        doc = dict(scenario='localhost:1stub1matcher', stub=stub)
+        self.scenario.insert_stub(doc, stateful=True) 
+        self.scenario.insert_pre_stub('localhost:1stub1matcher', stub)
+        with self.assertRaises(HTTPClientError):
+            export_stubs(request_handler, '1stub1matcher')
+    
+    def test_runnable(self):
+        from stubo.service.api import export_stubs
+        import os.path
+        from stubo.exceptions import HTTPClientError
+        request_handler = DummyRequestHandler(session_id=['1'], 
+                                              runnable=['true'],
+                                              playback_session=['myrunnable'])
+        self._make_scenario('localhost:1stub1matcher')
+        from stubo.model.stub import create, Stub
+        stub = Stub(create('<test>match this</test>', '<test>OK</test>'),
+                    'localhost:1stub1matcher')
+        doc = dict(scenario='localhost:1stub1matcher', stub=stub)
+        self.scenario.insert_stub(doc, stateful=True) 
+        import json
+        payload = json.dumps(stub.payload)
+        self.tracker.insert(dict(scenario='localhost:1stub1matcher',
+                                 request_text=payload,
+                                 request_params=dict(scenario='1stub1matcher'),
+                                 function='put/stub',
+                                 stubo_response='<test>OK</test>'))
+        response =  export_stubs(request_handler, '1stub1matcher') 
+        self.assertTrue('runnable' in response['data'])
+        runnable = response['data']['runnable']
+        self.assertEqual(runnable.get('playback_session'),  'myrunnable')
+        self.assertEqual(runnable.get('number_of_playback_requests'), 1)
+                         
     def test_1stub_1matcher(self):
         from stubo.service.api import export_stubs
         import os.path
@@ -882,16 +976,16 @@ class TestStubExport(unittest.TestCase):
         from stubo.model.stub import create, Stub
         stub = Stub(create('<test>match this</test>', '<test>OK</test>'),
                     'localhost:1stub1matcher')
-        doc = dict(scenario='localhost:1stub1matcher', stub=stub)
-        self.scenario.insert_stub(doc, stateful=True)  
+        self.scenario.insert_pre_stub('localhost:1stub1matcher', stub) 
         
         response = export_stubs(request_handler, '1stub1matcher').get('data')
         self.assertEqual(response['scenario'], '1stub1matcher')
         self.assertTrue(len(response['links']), 5)
         local_server = 'http://{0}:{1}'.format(request_handler.track.server, 
                                            request_handler.track.port) 
+        
         self.assertEqual(response['links'], [
-          ('1stub1matcher_1_0.response.0', local_server + '/static/exports/localhost_1stub1matcher/1stub1matcher_1_0.response.0'),   
+          ('1stub1matcher_1_0.response', local_server + '/static/exports/localhost_1stub1matcher/1stub1matcher_1_0.response'),   
           ('1stub1matcher_1_0_0.textMatcher', local_server + '/static/exports/localhost_1stub1matcher/1stub1matcher_1_0_0.textMatcher'),
           ('1stub1matcher.commands', local_server + '/static/exports/localhost_1stub1matcher/1stub1matcher.commands'),
           ('1stub1matcher.zip', local_server + '/static/exports/localhost_1stub1matcher/1stub1matcher.zip'),
@@ -899,7 +993,7 @@ class TestStubExport(unittest.TestCase):
           ('1stub1matcher.jar', local_server + '/static/exports/localhost_1stub1matcher/1stub1matcher.jar')
           ])
         
-        scenario_dir = response['scenario_dir'] 
+        scenario_dir = response['export_dir_path'] 
         files = [os.path.join(scenario_dir, x[0]) for x in response['links']]
         for f in files:
             self.assertTrue(os.path.exists(f))
@@ -907,7 +1001,7 @@ class TestStubExport(unittest.TestCase):
         cmds = [
             'delete/stubs?scenario=1stub1matcher',
             'begin/session?scenario=1stub1matcher&session=1stub1matcher_1&mode=record',
-            'put/stub?session=1stub1matcher_1,1stub1matcher_1_0_0.textMatcher,1stub1matcher_1_0.response.0',
+            'put/stub?session=1stub1matcher_1,1stub1matcher_1_0_0.textMatcher,1stub1matcher_1_0.response',
             'end/session?session=1stub1matcher_1',
         ]  
         
@@ -917,7 +1011,7 @@ class TestStubExport(unittest.TestCase):
         with open(os.path.join(scenario_dir, '1stub1matcher_1_0_0.textMatcher')) as f: 
             self.assertEqual(f.read(), '<test>match this</test>')  
             
-        with open(os.path.join(scenario_dir, '1stub1matcher_1_0.response.0')) as f: 
+        with open(os.path.join(scenario_dir, '1stub1matcher_1_0.response')) as f: 
             self.assertEqual(f.read(), '<test>OK</test>')
             
         self._delete_tmp_export_dir(scenario_dir)
@@ -932,15 +1026,14 @@ class TestStubExport(unittest.TestCase):
         stub = Stub(make_stub(['<test>match this</test>',
                                '<test>and this</test>'], '<test>OK</test>',
                               delay_policy='slow'), scenario=scenario_name)
-        doc = dict(scenario='localhost:x', stub=stub)
-        self.scenario.insert_stub(doc, stateful=True)  
+        self.scenario.insert_pre_stub('localhost:x', stub)  
         response = export_stubs(handler, scenario_name).get('data')
         self.assertEqual(response['scenario'], scenario_name)
         self.assertTrue(len(response['links']), 6)
         local_server = 'http://{0}:{1}'.format(handler.track.server, 
                                            handler.track.port) 
         self.assertEqual(response['links'], [
-          ('x_1_0.response.0', local_server + '/static/exports/localhost_x/x_1_0.response.0'),
+          ('x_1_0.response', local_server + '/static/exports/localhost_x/x_1_0.response'),
           ('x_1_0_0.textMatcher', local_server + '/static/exports/localhost_x/x_1_0_0.textMatcher'),
           ('x_1_0_1.textMatcher', local_server + '/static/exports/localhost_x/x_1_0_1.textMatcher'),
           ('x.commands', local_server + '/static/exports/localhost_x/x.commands'),
@@ -948,7 +1041,7 @@ class TestStubExport(unittest.TestCase):
           ('x.tar.gz', local_server + '/static/exports/localhost_x/x.tar.gz'),
           ('x.jar', local_server + '/static/exports/localhost_x/x.jar')])
         
-        scenario_dir = response['scenario_dir'] 
+        scenario_dir = response['export_dir_path'] 
         files = [os.path.join(scenario_dir, x[0]) for x in response['links']]
         for f in files:
             self.assertTrue(os.path.exists(f))
@@ -964,15 +1057,12 @@ class TestStubExport(unittest.TestCase):
         stub = Stub(make_stub(['<test>match this</test>',
                                '<test>and this</test>'], '<test>OK</test>',
                               delay_policy='slow'), scenario=scenario_name)
-        doc = dict(scenario='localhost:x', stub=stub)
-        self.scenario.insert_stub(doc, stateful=True) 
+        self.scenario.insert_pre_stub('localhost:x', stub) 
         
         stub2 = Stub(make_stub(['<test>match this 2</test>',
                                '<test>and this</test>'], '<test>OK</test>',
                               delay_policy='slow'), scenario=scenario_name)
-        doc2 = dict(scenario='localhost:x', stub=stub2)
-        self.scenario.insert_stub(doc2, stateful=True)   
-        
+        self.scenario.insert_pre_stub('localhost:x', stub2) 
         
         handler = DummyRequestHandler(session_id=['1'])
         response = export_stubs(handler, scenario_name).get('data')     
@@ -981,10 +1071,10 @@ class TestStubExport(unittest.TestCase):
         local_server = 'http://{0}:{1}'.format(handler.track.server, 
                                            handler.track.port) 
         self.assertEqual(response['links'], [
-         ('x_1_0.response.0', local_server + '/static/exports/localhost_x/x_1_0.response.0'),                                     
+         ('x_1_0.response', local_server + '/static/exports/localhost_x/x_1_0.response'),                                     
          ('x_1_0_0.textMatcher', local_server + '/static/exports/localhost_x/x_1_0_0.textMatcher'), 
          ('x_1_0_1.textMatcher', local_server + '/static/exports/localhost_x/x_1_0_1.textMatcher'), 
-         ('x_1_1.response.0', local_server + '/static/exports/localhost_x/x_1_1.response.0'), 
+         ('x_1_1.response', local_server + '/static/exports/localhost_x/x_1_1.response'), 
          ('x_1_1_0.textMatcher', local_server + '/static/exports/localhost_x/x_1_1_0.textMatcher'), 
          ('x_1_1_1.textMatcher', local_server + '/static/exports/localhost_x/x_1_1_1.textMatcher'),    
          ('x.commands', local_server + '/static/exports/localhost_x/x.commands'), 
@@ -993,7 +1083,7 @@ class TestStubExport(unittest.TestCase):
          ('x.jar', local_server + '/static/exports/localhost_x/x.jar')
         ])  
         
-        scenario_dir = response['scenario_dir'] 
+        scenario_dir = response['export_dir_path'] 
         files = [os.path.join(scenario_dir, x[0]) for x in response['links']]
         for f in files:
             self.assertTrue(os.path.exists(f)) 
@@ -1018,7 +1108,7 @@ class TestStubExport(unittest.TestCase):
           ('0stub0matcher.jar', local_server + '/static/exports/localhost_0stub0matcher/0stub0matcher.jar')
           ])
         
-        scenario_dir = response['scenario_dir'] 
+        scenario_dir = response['export_dir_path'] 
         files = [os.path.join(scenario_dir, x[0]) for x in response['links']]
         for f in files:
             self.assertTrue(os.path.exists(f))
@@ -1199,8 +1289,8 @@ from stubo.model.cmds import StuboCommandFile
         
 class DummyStuboCommandFile(StuboCommandFile):
     
-    def run_command(self, url):
-        pass
+    def run_command(self, url, priority):
+        return 200
     
     
             

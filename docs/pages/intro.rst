@@ -4,7 +4,6 @@ Introduction
 ************
 The target of the Stub-O-matic software is to enable automated testing by mastering system dependencies.
 
-
 Background
 ==========
 Stub-O-Matic (sometimes called Stubo) is a service which provides data stubs for software testing. 

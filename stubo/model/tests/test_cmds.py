@@ -54,7 +54,7 @@ class TestExecCmds(unittest.TestCase):
         from urlparse import urlparse   
         cmds = self.make_one(DummyRequestHandler())  
         with self.assertRaises(HTTPClientError):
-            cmds.run_command(urlparse('put/stub')) 
+            cmds.run_command(urlparse('put/stub'), 1) 
             
     def test_put_stub_with_url_param(self):
         cmds = self.make_one(DummyRequestHandler(), 'cmd_file1')
@@ -79,8 +79,11 @@ class TestExecCmds(unittest.TestCase):
     def test_put_stub_empty_response(self):
         from stubo.exceptions import HTTPClientError
         cmds = self.make_one(DummyRequestHandler(), 'cmd_file_empty_response')
-        with self.assertRaises(HTTPClientError):
-            cmds.run()    
+
+        responses = cmds.run()
+        self.assertEqual(len(responses), 3)
+        self.assertEqual(responses[1], 
+                ('put/stub?session=xy, matcher_text, EMPTY_RESPONSE', 400))
         
     def test_get_response(self):
         cmds = self.make_one(DummyRequestHandler(), 'cmd_file5')
@@ -89,9 +92,9 @@ class TestExecCmds(unittest.TestCase):
         
     def test_get_response_no_session(self):
         from stubo.exceptions import HTTPClientError
-        cmds = self.make_one(DummyRequestHandler(), 'cmd_file6')  
-        with self.assertRaises(HTTPClientError):
-            cmds.run()   
+        cmds = self.make_one(DummyRequestHandler(), 'cmd_file6') 
+        responses = cmds.run()
+        self.assertEqual(responses[-1], ('get/response', 400))
             
     def test_get_response7(self):
         cmds = self.make_one(DummyRequestHandler(), 'cmd_file7')
@@ -180,17 +183,17 @@ class TestUrlFetch(unittest.TestCase):
             
     def test_get_content_not_json(self):
         fetcher = self._make()
-        body, headers = fetcher.get('/content_not_json_1') 
+        body, headers, code = fetcher.get('/content_not_json_1') 
         self.assertEqual(body, 'hello')  
         
     def test_get_content_not_json2(self):
         fetcher = self._make()
-        body, headers = fetcher.get('/content_not_json_2')  
+        body, headers, code = fetcher.get('/content_not_json_2')  
         self.assertEqual(body, 'goodbye')
      
     def test_get_content_not_json3(self):
         fetcher = self._make()
-        body, headers = fetcher.get('/content_not_json_3') 
+        body, headers, code = fetcher.get('/content_not_json_3') 
         self.assertEqual(body, b'\x80abc')
         
     def test_no_response_found(self):

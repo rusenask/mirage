@@ -63,14 +63,12 @@ def stubo_async(f):
                     self.set_status(err.code)
                 else:    
                     status = self.get_status()
+                    stubo_response['error'] = dict(code=500, 
+                        message=u'{0}: {1}'.format(err.__class__.__name__, 
+                                                   str(err)))
                     if not status or status == 200: 
                         # if error has not been set use internal server error
-                        stubo_response['error'] = dict(code=500, 
-                                                       message=str(err))
                         self.set_status(500)
-                    else:
-                        stubo_response['error'] = dict(code=status, 
-                                                       message=str(err)) 
                     if hasattr(future, '_traceback'):
                         stubo_response['error']['traceback'] = compact_traceback_info(future._traceback)       
                 
@@ -147,22 +145,31 @@ def command_handler_form_request(handler):
                                     handler.settings['static_path'])
     elif cmds:
         response = run_commands(handler, cmds)
+    links = dict((k,v) for k,v in response['data'].get('export_links', []))    
     return handler.render_string("commands.html", page_title='Commands',
-                    executed=response['data'].get('executed_commands'))    
+                    executed=response['data'].get('executed_commands'),
+                    export_links=links)    
    
 @stubo_async
 def export_stubs_request(handler):
     scenario_name = get_scenario_arg(handler)  
+    handler.track.scenario = scenario_name
     response = export_stubs(handler, scenario_name)
     html = asbool(handler.get_argument('html', False))
     if html:
+        payload = response['data']
+        title = 'Exported files for Scenario'
+        if 'runnable' in payload:
+            title = 'Exported files for Runnable Scenario'
         response = handler.render_string("export_stubs.html", 
-                        page_title='Exported Stubs', **response['data'])
+                        page_title=title, **payload)
     return response
                                                            
 @stubo_async
 def list_stubs_request(handler, html=False):
     scenario_name = get_scenario_arg(handler)
+    if not html:
+        handler.track.scenario = scenario_name
     response = list_stubs(handler, scenario_name, 
                           handler.get_argument('host', None)).get('data')
     if html:
@@ -254,20 +261,21 @@ def end_sessions_request(handler):
     return end_sessions(handler, scenario_name)   
        
 @stubo_async    
-def put_stub_request(request):
-    session = get_session_arg(request)
-    delay_policy = request.get_argument('delay_policy', None)
-    stateful = asbool(request.get_argument('stateful', True))
-    recorded = request.get_argument('stub_created_date', None)
-    module_name = request.get_argument('ext_module', None)
+def put_stub_request(handler):
+    session = get_session_arg(handler)
+    delay_policy = handler.get_argument('delay_policy', None)
+    stateful = asbool(handler.get_argument('stateful', True))
+    recorded = handler.get_argument('stub_created_date', None)
+    module_name = handler.get_argument('ext_module', None)
     if not module_name:
         # legacy
-        module_name = request.get_argument('stubbedSystem', None)
+        module_name = handler.get_argument('stubbedSystem', None)
          
-    recorded_module_system_date = request.get_argument('stubbedSystemDate',
+    recorded_module_system_date = handler.get_argument('stubbedSystemDate',
                                                        None)
-    return put_stub(request, session, delay_policy=delay_policy,
-                    stateful=stateful, recorded=recorded,
+    priority = int(handler.get_argument('priority', -1))
+    return put_stub(handler, session, delay_policy=delay_policy,
+                    stateful=stateful, priority=priority, recorded=recorded,
                     module_name=module_name,
                     recorded_module_system_date=recorded_module_system_date)                    
        
@@ -353,6 +361,7 @@ def manage_request(handler):
 def tracker_request(handler):
     http_req = handler.request
     host = http_req.host.split(":")[0]
+    scenario_filter = handler.get_argument('scenario_filter', '') 
     session_filter = handler.get_argument('session_filter', '') 
     start_time = handler.get_argument('start_time', '') 
     latency = int(handler.get_argument('latency', 0)) 
@@ -363,7 +372,7 @@ def tracker_request(handler):
     skip = int(handler.get_argument('skip', 0))
     limit = int(handler.get_argument('limit', 100))
     
-    results = get_tracks(handler, session_filter, show_only_errors, skip, 
+    results = get_tracks(handler, scenario_filter, session_filter, show_only_errors, skip, 
                          limit, start_time, latency, all_hosts, function)
     total_tracks = results.count()
     log.debug('track count: {0}'.format(total_tracks))
@@ -420,6 +429,7 @@ def tracker_request(handler):
             if option == function else "", option)
          
     response = dict(raw_data=results,
+                    scenario_filter=scenario_filter,
                     session_filter=session_filter,
                     errors_value='checked' if show_only_errors else '',
                     pagination=pagination(total_tracks, skip, limit, query),

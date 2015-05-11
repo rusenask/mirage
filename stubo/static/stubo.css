@@ -14,6 +14,9 @@ body {
    line-height: 25px;
    padding-top: 160px; /* make room for nav bar */
 }
+.tooltip-inner {
+max-width: none;
+}
 .header-spacing {
   padding-bottom: 20px;
 }
@@ -64,6 +67,10 @@ padding-bottom: 5px;
  overflow-x: hidden;
 }
 
+.navbar-nav {
+ width: 768.96875px;
+}
+
 .tracker-search-width {
  max-width: 180px;
 }
@@ -79,6 +86,8 @@ padding-bottom: 5px;
 
 .table > tbody > tr > td.active {
  background-color: #eeeeee !important;
+ table-layout: fixed;
+ word-wrap: break-word;
 }
 
 .table-bordered th,
@@ -86,7 +95,13 @@ padding-bottom: 5px;
         border: 0px solid #ccc !important;
         padding-right: 3px;
       }
-
+.spaceHead {
+text-align: center;
+}
+.spaceCell {
+text-align: right;
+padding-right: 75px !important;
+}
 .panel-default {
     border-color: #ccc;
   }
@@ -183,7 +198,6 @@ ul {
    margin: 10px 20px 10px 0px;
    padding: 10px 20px;
    text-align: justify;
-   width: 768.96875px;
 }
 
 section.thirds:before {
@@ -322,7 +336,7 @@ tbody#trace td {
 }
 
 .manage-scenario-actions {
-   width: 15em;
+   width: 16em;
 }   
 
 

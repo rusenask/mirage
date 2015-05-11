@@ -2,9 +2,28 @@ Stub-O-Matic
 ============
 
 [![Build Status](https://travis-ci.org/Stub-O-Matic/stubo-app.png?branch=master)](https://travis-ci.org/Stub-O-Matic/stubo-app)
+[![Documentation Status](https://readthedocs.org/projects/stubo-app/badge/?version=latest)](https://readthedocs.org/projects/stubo-app/?badge=latest)
 
 Enable automated testing by mastering system dependencies.
 Use when reality is simply not good enough.
+
+Documentation
+=============
+
+See the The documentation [website](<http://stubo-app.readthedocs.org/en/latest/>) to view
+user documentation.
+
+License
+=======
+
+Stub-O-Matic is offered under GPLv3, see LICENSE for more details.
+
+Authors
+=======
+
+Stub-O-Matic is made available by [OpenCredo](http://opencredo.com)
+and a team of contributors.
+
 
 Install
 =======
@@ -47,7 +66,7 @@ Stubo::
     $ virtualenv --no-site-packages env
     $ source ./env/bin/activate
        
-    (env) $ git clone http://www.github.com/Stub-O-Matic/stubo-app.git
+    (env) $ git clone https://github.com/Stub-O-Matic/stubo-app.git
     
     (env) $ cd stubo-app
     
@@ -65,16 +84,20 @@ You can start Stubo from your env root dir:
 
     $ cd ../env    
 
+You can start Stubo from your env root dir: 
+
+    $ cd ../env    
+
 Active your virtual python env:
 
     $ source ./bin/activate
     
     
-Note you need to create a log & etc dirs under the dir you call stubo from:
+Note you need to create log & etc dirs under the dir you call stubo from:
     
     (first run only)
     $ mkdir log etc
-    $ cp ../stubo-app/dev.ini etc 
+    $ cp ../stubo-app/*.ini etc 
     $ create_tracker_collection
     
     $ stubo
@@ -134,14 +157,10 @@ dependency on redis or mongo you must initialise them first
 
 Now you can make calls that use redis
 
-    from stubo.cache import get_request_index_data
-    get_request_index_data('localhost:conv')
-    {'joe:9b1b58a5c66d8280019c93d48149cd6b94b4a5427efc20d208b05037': '3', 
-    'mary:2cf00b76334fb16c640bb11a99adad49beafd2edf67c34a52218d9c0': '1', 
-    'joe:f2022a5438c084278ec23c400b2a0551203b8d0320e071ff981f9ec4': '1', 
-    'joe:2cf00b76334fb16c640bb11a99adad49beafd2edf67c34a52218d9c0': '2', 
-    'mary:9b1b58a5c66d8280019c93d48149cd6b94b4a5427efc20d208b05037': '2', 
-    'mary:f2022a5438c084278ec23c400b2a0551203b8d0320e071ff981f9ec4': '1'}
+    >>> from stubo.cache import Cache
+    >>> cache = Cache(host='localhost')
+    >>> cache.get_session('first', 'first_1')
+        {u'status': u'dormant', u'system_date': u'2015-02-24', u'scenario': u'localhost:first', u'last_used': u'2015-02-24 11:19:21', u'scenario_id': u'54ec5e3981875908f911a71b', u'session': u'first_1'}
 
 & mongodb
 

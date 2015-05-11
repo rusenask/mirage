@@ -10,7 +10,7 @@ import requests
 from StringIO import StringIO
 import os.path
 from tornado.template import Template
-from stubo.exceptions import exception_response
+from stubo.exceptions import StuboException, exception_response
 from stubo.ext import roll_date, today_str, parse_xml
 from stubo.utils import as_date
 from stubo.model.stub import create
@@ -127,21 +127,21 @@ class UrlFetch(object):
         response = requests.get(url, **kwargs)
         self.raise_on_error(response, url)
         if 'application/json' in response.headers["Content-Type"]:
-            return response.json(), response.headers
+            return response.json(), response.headers, response.status_code 
         else:
             if not response.encoding:
                 try:
-                    return response.content.decode('utf-8'), response.headers
+                    return response.content.decode('utf-8'), response.headers, response.status_code
                 except Exception:    
-                    return response.content, response.headers
+                    return response.content, response.headers, response.status_code
             elif response.encoding == 'ISO-8859-1' and 'xml' in  response.headers["Content-Type"]:
                 # work around for https://github.com/kennethreitz/requests/issues/2086
                 try:
-                    return response.content.decode('utf-8'), response.headers
+                    return response.content.decode('utf-8'), response.headers, response.status_code
                 except Exception:    
-                    return response.content, response.headers  
+                    return response.content, response.headers, response.status_code  
             else:          
-                return response.text, response.headers
+                return response.text, response.headers, response.status_code
         
     def post(self, url, data, **kwargs):
         log.debug(u'post url: {0}'.format(url))
@@ -170,8 +170,8 @@ class StuboCommandFile(object):
     def run(self):
         if not self.cmd_file_url:
             raise exception_response(500,
-                title='run requires a cmd_file_url input to the ctor.')
-        response, _ = UrlFetch().get(self.location(self.cmd_file_url)[0])
+                title='run requires a cmd_file_url input to the ctor.')  
+        response, _, _ = UrlFetch().get(self.location(self.cmd_file_url)[0])
         t = Template(response)
         cmds_templated = t.generate(today=today_str,
                                     as_date=as_date,
@@ -179,17 +179,26 @@ class StuboCommandFile(object):
                                     parse_xml=parse_xml,
                                     with_request=with_request,
                                     **self.location.request.arguments)
-        cmds = self.parse_commands(cmds_templated)
-        self.run_cmds(cmds)
-        return cmds
+        return self.run_cmds(self.parse_commands(cmds_templated))
     
     def run_cmds(self, cmds):
         log.debug('cmds={0}'.format(cmds))
         urls = [urlparse(cmd) for cmd in cmds]
-        for url in urls:  
-            self.run_command(url)
+        priority = 0
+        responses = []
+        for url in urls:
+            if 'put/stub' in url.path:
+                priority += 1  
+            try:    
+                status_code = self.run_command(url, priority) 
+            except StuboException, stubo_error:
+                status_code =  stubo_error.code  
+            except Exception, e:
+                status_code = 500          
+            responses.append((url.geturl(), status_code))
+        return responses    
     
-    def run_command(self, url):
+    def run_command(self, url, priority):
         data = ''
         log.debug('url.path={0}'.format(url.path))
         cmd_path = url.geturl()
@@ -205,8 +214,8 @@ class StuboCommandFile(object):
             log.debug('run_command: {0}'.format(target_url))
             import_cmd_url = self.location(
               'stubo/api/import/bookmarks?location={0}'.format(target_url))[0]
-            response, _ = UrlFetch().get(import_cmd_url)
-            return
+            response, _, status_code = UrlFetch().get(import_cmd_url)
+            return status_code
         
         elif url.path == 'put/stub': 
             # Note: delay policy is an optional param, the text matchers & 
@@ -217,6 +226,8 @@ class StuboCommandFile(object):
             if 'session' not in query_params:
                 raise exception_response(400, title="Missing 'session' param in"
                   " query: {0}".format(url.query))
+            if 'priority' not in query_params:
+                query_params['priority'] = priority    
             matchers_response = u''.join(matchers_response.split()).strip() 
             matchers_response = matchers_response.split(',')  
             response_fname = matchers_response[-1].strip()
@@ -225,27 +236,28 @@ class StuboCommandFile(object):
             for matcher in matchers:
                 if matcher[:4] == 'url=':
                     matcher_data_url = matcher[4:]
-                    matcher_text, _ = UrlFetch().get(matcher_data_url)
+                    matcher_text, _, _ = UrlFetch().get(matcher_data_url)
                 elif matcher[:5] == 'text=':
                     matcher_text = matcher[5:]
                 else:
                     matcher_data_url = urljoin(parent_path, matcher)
-                    matcher_text, _ = UrlFetch().get(matcher_data_url)
+                    matcher_text, _, _ = UrlFetch().get(matcher_data_url)
                 request_matchers.append(matcher_text)
 
             if response_fname[:4] == 'url=':
                 response_data_url = response_fname[4:]
-                response_text, _ = UrlFetch().get(response_data_url)
+                response_text, _, _ = UrlFetch().get(response_data_url)
             elif response_fname[:5] == 'text=':
                 response_text = response_fname[5:]
             else:
                 response_data_url = urljoin(parent_path, response_fname)
-                response_text, hdrs = UrlFetch().get(response_data_url)
+                response_text, hdrs, _ = UrlFetch().get(response_data_url)
                 if 'application/json' in hdrs["Content-Type"]:
                     try:
                         response_text = json.dumps(response_text)
                     except Exception:
                         pass    
+
             if not response_text:
                 raise exception_response(400, 
                     title="put/stub response text can not be empty.") 
@@ -254,8 +266,8 @@ class StuboCommandFile(object):
             cmd_path = url.path + '?{0}'.format(urlencode(query_params))
             url = self.location(urljoin(api_base, cmd_path))[0]
             log.debug(u'run_command: {0}'.format(url))
-            UrlFetch().post(url, data=None, json=stub_payload)
-            return
+            response = UrlFetch().post(url, data=None, json=stub_payload)
+            return response.status_code
         
         elif url.path == 'get/response':    
             # get/response?session=foo_1, my.request
@@ -269,12 +281,12 @@ class StuboCommandFile(object):
             
             if request_fname[:4] == 'url=':
                 request_data_url = request_fname[4:]
-                request_text, _ = UrlFetch().get(request_data_url)
+                request_text, _, _ = UrlFetch().get(request_data_url)
             elif request_fname[:5] == 'text=':
                 request_text = request_fname[5:]
             else:
                 request_data_url = urljoin(parent_path, request_fname)
-                request_text, _ = UrlFetch().get(request_data_url)
+                request_text, _, _ = UrlFetch().get(request_data_url)
             data = request_text
             cmd_path = url.path + '?{0}'.format(query)
             url = self.location(urljoin(api_base, cmd_path))[0]
@@ -293,13 +305,14 @@ class StuboCommandFile(object):
         elif url.path == 'put/delay_policy':
             url = self.location(urljoin(api_base, cmd_path))[0]
             log.debug('run_command: {0}, data={1}'.format(url, data))
-            response, _ = UrlFetch().get(url)
-            return
+            _, _, status_code = UrlFetch().get(url)
+            return status_code
 
         url = self.location(urljoin(api_base, cmd_path))[0]
         log.debug(u'run_command: {0}'.format(url))
         encoded_data = data.encode('utf-8')
-        UrlFetch().post(url, data=encoded_data)
+        response = UrlFetch().post(url, data=encoded_data)
+        return response.status_code
 
     def parse_commands(self, commands):
         sio = StringIO(commands)

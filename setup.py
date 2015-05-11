@@ -8,7 +8,7 @@ README = open(os.path.join(here, 'README.md')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
 requires = [
-    'tornado>=4.0',   
+    'tornado==4.1',   
     'futures>=2.2.0', 
     'redis',         
     'pymongo==2.8',

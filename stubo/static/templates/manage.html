@@ -46,7 +46,7 @@
 
 
 {% if host_scenarios and host_scenarios.values() != [{}] %}
-<h2>Stubs</h2>
+<h2>Scenarios</h2>
 
 {% for hostname, scenario in host_scenarios.iteritems() %}
 {% if scenario %}
@@ -67,29 +67,39 @@
       <th>Stubs</th>
       <th>Loaded</th>
       <th>Last Used</th>
-      <th>Space used</th>
+      <th class="spaceHead">Space used (KB)</th>
       <th></th>
-    </tr>
-    <thead>
+  </tr>
+  </thead>
+    <tbody>
 {% for scenario_name, session_info in scenario.items() %}
 {% set active_sessions = [x for x in session_info[0] if x['status'] in ('record', 'playback')] %}
+{% set possible_playback_sessions = [x for x in session_info[0] if x['status'] in ('dormant', 'playback')] %}
 {% for  i in range(len(session_info[0])) %} 
        <tr>
        <td>
        {% if i == 0 %}
-       <a href="../stubs?scenario={{scenario_name}}&host={{session_info[0][i].get('scenario').partition(':')[0]}}">{{scenario_name}}</a>
+       
+            {% if len(scenario_name) > 20 %}
+                <span data-toggle="tooltip" data-container="body" data-placement="top" title="{{scenario_name}}">  
+                <a href="../stubs?scenario={{scenario_name}}&host={{session_info[0][i].get('scenario').partition(':')[0]}}">{{'{0}...'.format(scenario_name[:20])}}</a></span>  
+            {% else %}
+                <a href="../stubs?scenario={{scenario_name}}&host={{session_info[0][i].get('scenario').partition(':')[0]}}">{{scenario_name}}</a>
+            {% end %}
+
        {% end %}
        </td>
        {% set session_name = session_info[0][i].get('session') %}
+       {% set status = session_info[0][i].get('status').strip() %}
        {% if len(session_name) > 20 %}
        <td id="manage-session-name">
-       <span data-toggle="tooltip" data-container="body" data-placement="top" title="{{session_name[20:]}}">
+       <span data-toggle="tooltip" data-container="body" data-placement="top" title="{{session_name}}">
           {{'{0}...'.format(session_name[:20])}}</span>  
        </td>
        {% else %}
             <td>{{session_name}}</td>
        {% end %}
-       <td>{{session_info[0][i].get('status').strip()}}</td>
+       <td>{{status}}</td>
        <td>{{session_info[1]}}</td>
        <td>{{session_info[2]}}</td>
        {% set last_used =  session_info[0][i].get('last_used') %}
@@ -97,7 +107,7 @@
            {% set last_used = last_used[:-3] %}
        {% end %}
        <td>{{last_used}}</td>
-       <td>{{session_info[3]}}</td>
+       <td class="spaceCell">{{session_info[3]}}</td>
        {% if i == 0 %}
        <td>
            <!-- scenario actions btn -->
@@ -107,6 +117,18 @@
               </button>
               <ul class="dropdown-menu manage-scenario-actions" role="menu">
                 <li><a href="/stubo/api/get/export?scenario={{scenario_name}}&html=true"><span class="glyphicon glyphicon-cloud-download"></span>&nbsp; Export scenario</a></li>
+                <li class="menu-item dropdown dropdown-submenu">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-off"></span>&nbsp;Export runnable scenario</a>
+                    <ul class="dropdown-menu" role="menu">
+                    {% for playback_session in possible_playback_sessions %}
+                        {% set session_name = playback_session.get('session') %}   
+                        <li class="menu-item ">
+                            <a href="/stubo/api/get/export?scenario={{scenario_name}}&runnable=true&playback_session={{session_name}}&html=true">{{session_name}}</a>
+                        </li>
+                    {% end %}        
+                    </ul>
+                </li>       
+                  
                 <li><a href="../stubs?scenario={{scenario_name}}&host={{session_info[0][i].get('scenario').partition(':')[0]}}"><span class="glyphicon glyphicon-search"></span>&nbsp;List stubs</a></li>
                 <li><a href="/manage?action=delete&type=stubs&name={{scenario_name}}"><span class="glyphicon glyphicon-trash"></span>&nbsp;Delete stubs</a></li>
                 {% if active_sessions %}
@@ -131,7 +153,8 @@
        </tr>
 {% end %}       
 
-{% end %}   
+{% end %} 
+</tbody>
 </table>
 </div>
  </div>

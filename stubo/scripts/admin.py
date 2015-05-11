@@ -72,6 +72,7 @@ def create_tracker_collection():
     db.tracker.create_index([('host', ASCENDING)], background=True) 
     db.tracker.create_index([('duration_ms', ASCENDING)], background=True) 
     db.tracker.create_index([('session', ASCENDING)], background=True)
+    db.tracker.create_index([('scenario', ASCENDING)], background=True)
     db.tracker.create_index([('function', ASCENDING)], background=True) 
     
     log.info('created indexes: {0}'.format(db.tracker.index_information()))    
