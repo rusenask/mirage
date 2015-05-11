@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.6.1 (unreleased)
+0.6.1 (2015-05-11)
 ------------------
 
 - Return the http status code of exec/cmds requests (closes #28)
