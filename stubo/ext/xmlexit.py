@@ -99,9 +99,8 @@ class XMLManglerExit(object):
         
         def roll_dt(source_date):
             # source_date = '2014-12-10T15:30'
-            # roll date & preserve time
-            parts = source_date.split('T')
-            return "{{% raw roll_date('{0}', as_date(recorded_on), as_date(played_on)) %}}T{1}".format(parts[0], parts[1])
+            # roll date part of string
+            return "{{% raw roll_date('{0}', as_date(recorded_on), as_date(played_on)) %}}".format(source_date)
                                                          
            
         response_elements = dict(dt=XPathValue('//user:dt', extractor=roll_dt),
