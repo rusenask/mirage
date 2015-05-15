@@ -97,10 +97,11 @@ class XMLManglerExit(object):
         from stubo.ext.xmlutils import XPathValue
         from stubo.ext.xmlexit import XMLManglerExit
         
-        def roll_dt(source_date):
-            # source_date = '2014-12-10T15:30'
+        def roll_dt(date_str):
+            # date_str = '2014-12-10T15:30'
             # roll date part of string
-            return "{{% raw roll_date('{0}', as_date(recorded_on), as_date(played_on)) %}}".format(source_date)
+            date_str = date_str.strip()
+            return "{{% raw roll_date('{0}', as_date(recorded_on), as_date(played_on)) %}}".format(date_str)
                                                          
            
         response_elements = dict(dt=XPathValue('//user:dt', extractor=roll_dt),

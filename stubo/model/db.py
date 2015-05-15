@@ -133,12 +133,12 @@ class Tracker(object):
     def __init__(self, db=None):
         self.db = db or mongo_client
         
-    def insert(self, track):
+    def insert(self, track, write_concern=0):
+        # w=0 disables write ack 
         forced_log_id = track.get('forced_log_id')
         if forced_log_id:
-            track['_id'] = int(forced_log_id)
-        # w=0 disables write ack    
-        return self.db.tracker.insert(track, w=0)
+            track['_id'] = int(forced_log_id)   
+        return self.db.tracker.insert(track, w=write_concern)
     
     def find_tracker_data(self, tracker_filter, skip, limit):
         project = {'start_time':1, 'function':1, 'return_code':1, 'scenario':1,

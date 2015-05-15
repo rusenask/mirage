@@ -1,7 +1,7 @@
 .. examples
 
 Examples
-************
+********
 Lots of example usage of Stubo can be found under /static/cmds/tests. The folders
 under here contain various cmd scripts and their associated files (requests, matchers, responses)
 and user exit code examples. 
@@ -28,9 +28,47 @@ Shows how the same request can return different responses.
 .. code-block:: javascript
 
     Run /static/cmds/tests/state/converse.commands
+    
+Auto Mangling with user exits
+=============================
+
+Shows response mangling
+
+.. code-block:: javascript
+
+    Run /static/cmds/tests/ext/auto_mangle/response/response.all
+
+Shows skipping XML elements from the matching process
+
+.. code-block:: javascript
+    
+    Run /static/cmds/tests/ext/auto_mangle/skip_xml_elements/1.all
+
+Shows skipping XML attributes from the matching process
+
+.. code-block:: javascript
+
+    Run /static/cmds/tests/ext/auto_mangle/skip_xml_attrs/1.all
+
+Shows an extractor modifing the value of an XPATH result to only match on part of an element value
+   
+.. code-block:: javascript
+   
+    Run /static/cmds/tests/ext/auto_mangle/embedded/embedded.all
+
+Shows combined matcher & response mangling
+
+.. code-block:: javascript
+    
+    Run /static/cmds/tests/ext/auto_mangle/all/1.all
+    
+    
+    
+
+    
 
 user exit using XSLT
-======================
+====================
 
 Example showing how the same request but with different
 environmental data can be transformed by 'templating' the env values in
