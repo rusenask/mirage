@@ -3,10 +3,11 @@ from stubo.ext.xmlexit import XMLManglerExit
 
 # exit that deals with responses with and without namespaces with various extractors 
 
-def roll_dt(source_date):
+def roll_dt(date_str):
     # source_date = '2014-12-10T15:30'
     # roll date part of string
-    return "{{% raw roll_date('{0}', as_date(recorded_on), as_date(played_on)) %}}".format(source_date)
+    date_str = date_str.strip()
+    return "{{% raw roll_date('{0}', as_date(recorded_on), as_date(played_on)) %}}".format(date_str)
                                                  
    
 response_elements = dict(a=XPathValue('//response/b', extractor=lambda x: '{% raw getresponse_arg %}'),

@@ -148,7 +148,8 @@ class TrackRequest(RequestHandler):
         elif self.track.function == 'exec/cmds':
             self.track.stubo_response = 'commands executed ...' 
         try:
-            tracker.insert(self.track)
+            write_concern =  1 if self.track.function == 'put/stub' else 0
+            tracker.insert(self.track, write_concern)
         except Exception, e:
             log.warn(u"error inserting track: {0}".format(e))
         self.send_stats()      
