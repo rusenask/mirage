@@ -126,8 +126,7 @@ def export_stubs(handler, scenario_name):
                         title="Unable to find playback session")  
         runnable_info['last_used'] = dict(remote_ip=last_used['remote_ip'],
                                           start_time=str(last_used['start_time']))      
-        playback = tracker.get_last_playback(scenario_name, playback_session,
-                                             last_used['remote_ip'], 
+        playback = tracker.get_last_playback(scenario_name, playback_session, 
                                              last_used['start_time']) 
         playback = list(playback)
         if not playback:
@@ -741,10 +740,10 @@ def store_source_recording(scenario_name_key, record_session):
                                           record_session, 'record')
     if not last_used:
         # empty recordings are currently supported!
+        log.debug('Unable to find a recording for session={0}, scenario={1}'.format(record_session, scenario_name_key))
         return 
     
     recording = tracker.get_last_recording(scenario_name, record_session,
-                                           last_used['remote_ip'], 
                                            last_used['start_time']) 
     recording = list(recording)
     if not recording:
