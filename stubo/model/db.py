@@ -168,19 +168,17 @@ class Tracker(object):
             'request_params.session' : session, 
             'function' : function }, sort=[("start_time", DESCENDING)])
     
-    def get_last_playback(self, scenario, session, remote_ip, start_time):
+    def get_last_playback(self, scenario, session, start_time):
         start = self.db.tracker.find_one({
             'scenario' : scenario, 
             'request_params.session' : session,
-            'request_params.mode' : 'playback',
-            'remote_ip': remote_ip, 
+            'request_params.mode' : 'playback', 
             'function' : 'begin/session',
             'start_time' :  {"$lt": start_time} 
             }, {'start_time':1}, sort=[("start_time", DESCENDING)])
         end = self.db.tracker.find_one({
             'scenario' : scenario, 
             'request_params.session' : session, 
-            'remote_ip': remote_ip,
             'function' : 'end/session',
             'start_time' :  {"$gt": start_time} 
             }, {'start_time':1}, sort=[("start_time", DESCENDING)])
@@ -194,20 +192,18 @@ class Tracker(object):
             'scenario' : scenario, 
             'request_params.session' : session, 
             'function' : 'get/response',
-            'remote_ip': remote_ip,
             'start_time' :  {"$gt": start['start_time'], 
                              "$lt" : end['start_time']} 
             }
         return self.db.tracker.find(query, project).sort("start_time", 
                                                          ASCENDING)
       
-    def get_last_recording(self, scenario, session, remote_ip, end):
+    def get_last_recording(self, scenario, session, end):
         # find the last begin/session?mode=record from the last put/stub time 
         start = self.db.tracker.find_one({
             'scenario' : scenario, 
             'request_params.session' : session,
-            'request_params.mode' : 'record',
-            'remote_ip': remote_ip, 
+            'request_params.mode' : 'record', 
             'function' : 'begin/session',
             'start_time' :  {"$lt": end} 
             }, {'start_time':1}, sort=[("start_time", DESCENDING)])
@@ -222,10 +218,10 @@ class Tracker(object):
             'scenario' : scenario, 
             'request_params.session' : session, 
             'function' : 'put/stub',
-            'remote_ip': remote_ip,
             'start_time' :  {"$gt": start['start_time'], 
                              "$lte" : end} 
             }
+        log.debug('tracker.find: {0}'.format(query))
         return self.db.tracker.find(query, project).sort("start_time", 
                                                          ASCENDING)
           

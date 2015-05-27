@@ -352,7 +352,7 @@ class DummyTracker(object):
         return dict(start_time=datetime.datetime.now(),
                     remote_ip='::1')  
         
-    def get_last_playback(self, scenario, session, remote_ip, start_time):
+    def get_last_playback(self, scenario, session, start_time):
         return self.db.values()
     
     get_last_recording = get_last_playback
