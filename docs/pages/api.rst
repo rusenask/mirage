@@ -41,13 +41,14 @@ exec/cmds
 
     exec/cmds  (GET, POST)
        query args: 
-           cmdfile - URL or a file under /static on the stubo server 
+           cmdfile: URL or a file under /static on the stubo server 
             + any user args will be made avaliable to the cmd file template
+           session_id: session name to substitute within the cmdfile template, best to prefix this with scenario name if provided (optional) 
        response: shows the list of commands (url, return_code) executed, see the Tracker page for responses      
 
    Typically command files are used to load stubs into the Stubo db, but you can run any supported commands from a file. 
    
-   stubo/api/exec/cmds?cmdfile=/static/cmds/demo/first_setup.commands
+   stubo/api/exec/cmds?cmdfile=/static/cmds/demo/first.commands
    
    {
    "version": "1.2.3", 
@@ -478,6 +479,7 @@ a playback of a previous session to the command script. This can be useful to co
            export_dir: export dir name (optional, defaults to scenario key)
            runnable: create a runnable scenario of a previous playback (optional)
            playback_session: playback session to use (required with runnable)
+           session_id: session name to substitute within the cmdfile template (optional)
     returns links to exported archive files (*.zip, *.tar.gz, *.jar)
            
     stubo/api/get/export?scenario=first       

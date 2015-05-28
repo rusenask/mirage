@@ -1000,13 +1000,13 @@ class TestStubExport(unittest.TestCase):
         
         cmds = [
             'delete/stubs?scenario=1stub1matcher',
-            'begin/session?scenario=1stub1matcher&session=1stub1matcher_1&mode=record',
-            'put/stub?session=1stub1matcher_1,1stub1matcher_1_0_0.textMatcher,1stub1matcher_1_0.response',
-            'end/session?session=1stub1matcher_1',
+            'begin/session?scenario=1stub1matcher&session={{session}}&mode=record',
+            'put/stub?session={{session}}&,1stub1matcher_1_0_0.textMatcher,1stub1matcher_1_0.response',
+            'end/session?session={{session}}',
         ]  
         
         with open(os.path.join(scenario_dir, '1stub1matcher.commands')) as f: 
-            self.assertEqual([x.strip() for x in f.readlines()], cmds) 
+            self.assertEqual([x.strip() for x in f.readlines()[2:]], cmds) 
             
         with open(os.path.join(scenario_dir, '1stub1matcher_1_0_0.textMatcher')) as f: 
             self.assertEqual(f.read(), '<test>match this</test>')  
@@ -1115,14 +1115,14 @@ class TestStubExport(unittest.TestCase):
         
         cmds = [
             'delete/stubs?scenario=0stub0matcher',
-            'begin/session?scenario=0stub0matcher&session=0stub0matcher_1&mode=record',
-            'put/stub?session=0stub0matcher_1,text=a_dummy_matcher,text=a_dummy_response',
-            'end/session?session=0stub0matcher_1',
+            'begin/session?scenario=0stub0matcher&session={{session}}&mode=record',
+            'put/stub?session={{session}},text=a_dummy_matcher,text=a_dummy_response',
+            'end/session?session={{session}}',
         ]  
         
         with open(os.path.join(scenario_dir, '0stub0matcher.commands')) as f:
             lines = f.readlines() 
-            self.assertEqual([x.strip() for x in lines], cmds) 
+            self.assertEqual([x.strip() for x in lines[2:]], cmds) 
             
         self._delete_tmp_export_dir(scenario_dir)
  

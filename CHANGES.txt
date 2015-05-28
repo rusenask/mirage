@@ -5,6 +5,7 @@ Changelog
 ------------------
 
 - Rest support
+- Parameterize session on get/export and exec/cmds calls (closes #39)
 
 
 0.6.1 (2015-05-11)

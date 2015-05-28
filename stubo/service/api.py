@@ -70,9 +70,10 @@ def export_stubs(handler, scenario_name):
     session_id = handler.get_argument('session_id', int(time.time()))  
     session = u'{0}_{1}'.format(scenario_name, session_id) 
     cmds = [
+        '# use the session_id url arg from exec/cmds if supplied otherwise it is the one set from the get/export',    
+        "{{% set session = globals().get('session_id',[None])[0] or '{0}' %}}".format(session),       
         'delete/stubs?scenario={0}'.format(scenario_name),
-        'begin/session?scenario={0}&session={1}&mode=record'.format(
-         scenario_name, session)
+        'begin/session?scenario={0}'.format(scenario_name) + '&session={{session}}&mode=record'
     ]
     files = []  
     scenario = Scenario()
@@ -86,7 +87,6 @@ def export_stubs(handler, scenario_name):
                 stub.contains_matchers()))]
             matchers_str = ",".join(x[0] for x in matchers)
             url_args = stub.args()
-            url_args['session'] = session
             module_info = stub.module()
             if module_info:
                 # Note: not including put/module in the export, modules are shared
@@ -95,18 +95,19 @@ def export_stubs(handler, scenario_name):
                 url_args['stub_created_date'] = stub.recorded()
                 url_args['stubbedSystemDate'] = module_info.get('recorded_system_date')
                 url_args['system_date'] = module_info.get('system_date')
+            url_args.pop('session', None)    
             url_args =  urlencode(url_args)    
             responses = stub.response_body()
             assert(len(responses) == 1)  
             response = responses[0]
             response = ('{0}_{1}.response'.format(session, i), response) 
-            cmds.append('put/stub?{0},{1},{2}'.format(url_args, matchers_str,
-                                                          response[0]))
+            cmds.append('put/stub?session={{session}}&' + '{0},{1},{2}'.format(
+                                    url_args, matchers_str, response[0]))
             files.append(response)    
             files.extend(matchers)
     else:
-        cmds.append('put/stub?session={0},text=a_dummy_matcher,text=a_dummy_response'.format(session))
-    cmds.append('end/session?session={0}'.format(session))
+        cmds.append('put/stub?session={{session}},text=a_dummy_matcher,text=a_dummy_response')
+    cmds.append('end/session?session={{session}}')
     
     runnable = asbool(handler.get_argument('runnable', False))
     runnable_info = dict()
@@ -133,8 +134,7 @@ def export_stubs(handler, scenario_name):
             raise exception_response(400, 
               title="Unable to find a playback for scenario='{0}', playback_session='{1}'".format(scenario_name, playback_session))
        
-        cmds.append('begin/session?scenario={0}&session={1}&mode=playback'.format(
-                  scenario_name, session))    
+        cmds.append('begin/session?scenario={0}&session='.format(scenario_name) + '{{session}}&mode=playback')   
         number_of_requests = len(playback)
         runnable_info['number_of_playback_requests'] = number_of_requests
         for nrequest in range(number_of_requests):
@@ -151,15 +151,12 @@ def export_stubs(handler, scenario_name):
             stubo_response_file_name = '{0}_{1}.stubo_response'.format(session, nrequest)
             files.append((stubo_response_file_name, stubo_response_text))
             url_args = track['request_params']
-            url_args['session'] = session
+            url_args.pop('session', None)
             url_args =  urlencode(url_args)
-            cmds.append(u'get/response?{0},{1}'.format(url_args,
-                                                       request_file_name))     
-        cmds.append('end/session?session={0}'.format(session))    
-        
-    
-                            
-    
+            cmds.append(u'get/response?session={{session}}&' + '{0},{1}'.format(
+                                                url_args, request_file_name))     
+        cmds.append('end/session?session={{session}}')    
+  
     bookmarks = cache.get_all_saved_request_index_data() 
     if bookmarks:
         cmds.append('import/bookmarks?location=bookmarks')

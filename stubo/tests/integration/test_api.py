@@ -310,14 +310,14 @@ class TestExport(Base):
         export_lines = []
         export_dir = payload['data']['export_dir_path']
         with open(os.path.join(export_dir, 'order.commands')) as f:
-            export_lines = [x.strip() for x in f.readlines()]   
+            export_lines = [x.strip() for x in f.readlines()[2:]]   
         self.assertEqual(export_lines, [
             'delete/stubs?scenario=order', 
-            'begin/session?scenario=order&session=order_x&mode=record', 
-            'put/stub?priority=1&session=order_x,order_x_0_0.textMatcher,order_x_0.response', 
-            'put/stub?priority=2&session=order_x,order_x_1_0.textMatcher,order_x_1.response', 
-            'put/stub?priority=3&session=order_x,order_x_2_0.textMatcher,order_x_2.response', 
-            'end/session?session=order_x'])
+            'begin/session?scenario=order&session={{session}}&mode=record', 
+            'put/stub?session={{session}}&priority=1,order_x_0_0.textMatcher,order_x_0.response', 
+            'put/stub?session={{session}}&priority=2,order_x_1_0.textMatcher,order_x_1.response', 
+            'put/stub?session={{session}}&priority=3,order_x_2_0.textMatcher,order_x_2.response', 
+            'end/session?session={{session}}'])
         
         for matcher in [0,1,2]:
             matcher_file_path = os.path.join(export_dir, 'order_x_{0}_0.textMatcher'.format(matcher))
