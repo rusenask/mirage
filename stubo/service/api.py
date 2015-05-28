@@ -70,7 +70,7 @@ def export_stubs(handler, scenario_name):
     session_id = handler.get_argument('session_id', int(time.time()))  
     session = u'{0}_{1}'.format(scenario_name, session_id) 
     cmds = [
-        '# use the session_id url arg from exec/cmds if supplied otherwise it is the one set from the get/export',    
+        '# use the session_id url arg from exec/cmds if supplied otherwise the one set from the get/export',    
         "{{% set session = globals().get('session_id',[None])[0] or '{0}' %}}".format(session),       
         'delete/stubs?scenario={0}'.format(scenario_name),
         'begin/session?scenario={0}'.format(scenario_name) + '&session={{session}}&mode=record'
@@ -755,7 +755,7 @@ def store_source_recording(scenario_name_key, record_session):
         if not request_text:
             raise exception_response(400, title='Unable to obtain recording details, was full tracking enabled?')
         
-        priority = int(track['request_params'].get('priority', 0))
+        priority = int(track['request_params'].get('priority', nrequest+1))
         stub = parse_stub(request_text, scenario_name_key, 
                           track['request_params'])
         stub.set_priority(priority)
