@@ -187,6 +187,9 @@ class StuboCommandFile(object):
         priority = 0
         responses = []
         for url in urls:
+            if url.path not in verbs:
+                continue
+           
             if 'put/stub' in url.path:
                 priority += 1  
             try:    
