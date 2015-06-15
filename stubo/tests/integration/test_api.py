@@ -1902,7 +1902,7 @@ class TestGetScenarios(Base):
         self.assertEqual(response.code, 200)
         
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
-            '/static/cmds/tests/state/converse.commands'), self.stop)
+            '/static/cmds/tests/state/text/converse.commands'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
         
