@@ -1,0 +1,32 @@
+commands:
+  -
+    put/module:
+      vars:
+        name: /static/cmds/tests/ext/cache/text/example.py 
+
+recording:
+  scenario: cache
+  session: cache_1
+  stubs:
+  - file: cache_0.json
+    vars:
+      ext_module: example
+  
+playback:
+  requests:
+  - file: cache_0.request
+    vars:
+      ext_module: example
+      x: '1'
+  - file: cache_0.request
+    vars:
+      ext_module: example
+      x: '2'
+  - file: cache_0.request
+    vars:
+      ext_module: example
+      x: '3'  
+      tracking_level: full      
+ 
+  scenario: cache
+  session: cache_1 

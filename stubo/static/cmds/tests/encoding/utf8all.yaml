@@ -1,0 +1,13 @@
+recording:
+  scenario: utf8all
+  session: utf8all_1
+  stubs:
+  - file: utf8all_0.json
+  
+playback:
+  requests:
+  - file: utf8all_0.request
+    vars:
+      tracking_level: full
+  scenario: utf8all
+  session: utf8all_1

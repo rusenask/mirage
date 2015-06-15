@@ -21,6 +21,7 @@ requires = [
     'Pygments',
     'dogpile.cache',
     'matchers',
+    'PyYAML',
     # testing 
     'ming',
     'pylint',        

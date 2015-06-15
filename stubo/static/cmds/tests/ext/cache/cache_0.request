@@ -1,0 +1,9 @@
+{
+   "body": "<request>hello</request>\n", 
+   "headers": "{}", 
+   "host": null, 
+   "path": null, 
+   "query": "", 
+   "uri": null, 
+   "method": "POST"
+}

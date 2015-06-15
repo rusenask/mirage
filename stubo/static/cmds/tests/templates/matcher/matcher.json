@@ -1,0 +1,20 @@
+{
+    "priority": 1, 
+    "request": {
+        "bodyPatterns": {
+            "contains": [
+                "<request>\n<transid>{{xmltree.xpath('/request/transid')[0].text}}</transid>\n<dt>2009-10-24T00:00:00+00:00</dt>\n<flightnumber>0455</flightnumber>\n</request>"
+            ]
+        }, 
+        "method": "POST"
+    }, 
+    "args": {
+        "priority": "1", 
+        "session": "template_matcher_1"
+    }, 
+    "recorded": "2015-06-15", 
+    "response": {
+        "body": "<response>you found me</response>", 
+        "status": 200
+    }
+}

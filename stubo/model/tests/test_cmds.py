@@ -1,21 +1,90 @@
 import mock
 import unittest
 
-from stubo.testing import DummyModel, DummyRequestHandler  
+from stubo.testing import DummyModel, DummyRequestHandler
 
-class TestExecCmds(unittest.TestCase):
+class DummyRequests(object):
+    
+    def __init__(self):
+        self.posts = []
+    
+    def get(self, url):
+        if 'stubo/api/put/delay_policy' in url:
+            # special case as this is not implemented as a HTTP GET
+            return self.post(url,"")
+        import os.path
+        url = os.path.basename(url)
+        response = DummyModel(headers={})
+        if url in globals().keys():  
+            response.content = globals()[url]
+            response.status_code = 200
+            response.headers = {"Content-Type" : 'text/html; charset=UTF-8'}
+            if url == 'content_not_json_1':
+                response.encoding = 'utf8'
+                response.text = response.content
+            elif url in ('content_not_json_2', 'content_not_json_3'):
+                response.encoding = ""       
+            else:
+                response.headers["Content-Type"] = 'application/json; charset=UTF-8'
+                response.json = lambda: response.content                  
+        else:      
+            response.status_code = 404
+        return response
+    
+    def post(self, url, data=None, json=None, **kwargs):
+        if url == 'get/response/cantfindthis':
+            return DummyModel(status_code = 400, content = 'E017')
+            
+        self.posts.append((url, data or json))
+        return DummyModel(status_code = 200, raise_for_status=lambda : 1,
+          headers = {"Content-Type" : 'application/json; charset=UTF-8'},
+          json = lambda: "")  
+
+class TestYAMLImporter(unittest.TestCase):
     
     def setUp(self):
         self.requests = DummyRequests()
-        self.db_patch = mock.patch('stubo.model.cmds.requests', self.requests)
+        self.db_patch = mock.patch('stubo.model.importer.requests', self.requests)
         self.db_patch.start()
 
     def tearDown(self):
         self.db_patch.stop()   
         
     def make_one(self, handler, cmd_file_url=None):
-        from stubo.model.cmds import StuboCommandFile
-        return StuboCommandFile(handler.request, cmd_file_url)     
+        from stubo.model.importer import YAMLImporter, UriLocation
+        return YAMLImporter(UriLocation(handler.request), cmd_file_url)     
+    
+    def test_ctor(self):
+        cmds = self.make_one(DummyRequestHandler(), "/a/b/c")
+        self.assertEqual(cmds.location.get_base_url(), 'http://localhost:8001')
+        self.assertEqual(cmds.cmd_file_url, '/a/b/c')
+        
+    def test_ctor_no_arg(self):
+        cmds = self.make_one(DummyRequestHandler())
+        self.assertEqual(cmds.location.get_base_url(), 'http://localhost:8001')
+        self.assertEqual(cmds.cmd_file_url, '') 
+        
+    def test_parse(self):
+        importer = self.make_one(DummyRequestHandler())
+        payload = importer.parse(yaml1)
+        self.assertTrue('commands' in payload)
+        self.assertTrue('recording' in payload)
+             
+
+class TestTextCommandsImporter(unittest.TestCase):
+    
+    def setUp(self):
+        self.requests = DummyRequests()
+        self.db_patch = mock.patch('stubo.model.importer.requests', self.requests)
+        self.db_patch.start()
+
+    def tearDown(self):
+        self.db_patch.stop()   
+        
+    def make_one(self, handler, cmd_file_url=None):
+        from stubo.model.cmds import TextCommandsImporter
+        from stubo.model.importer import UriLocation
+        return TextCommandsImporter(UriLocation(handler.request), cmd_file_url)     
     
     def test_ctor(self):
         cmds = self.make_one(DummyRequestHandler(), "/a/b/c")
@@ -80,10 +149,13 @@ class TestExecCmds(unittest.TestCase):
         from stubo.exceptions import HTTPClientError
         cmds = self.make_one(DummyRequestHandler(), 'cmd_file_empty_response')
 
-        responses = cmds.run()
-        self.assertEqual(len(responses), 3)
-        self.assertEqual(responses[1], 
-                ('put/stub?session=xy, matcher_text, EMPTY_RESPONSE', 400))
+        response = cmds.run()
+        self.assertTrue('executed_commands' in response)
+        self.assertEqual(len(response['executed_commands']['commands']), 3)
+        
+        self.assertEqual(response['executed_commands']['commands'][1], 
+                ('put/stub?session=xy, matcher_text, EMPTY_RESPONSE', 400,
+                 '400: put/stub response text can not be empty.: The server could not comply with the request since it is either malformed or otherwise incorrect.'))
         
     def test_get_response(self):
         cmds = self.make_one(DummyRequestHandler(), 'cmd_file5')
@@ -94,7 +166,8 @@ class TestExecCmds(unittest.TestCase):
         from stubo.exceptions import HTTPClientError
         cmds = self.make_one(DummyRequestHandler(), 'cmd_file6') 
         responses = cmds.run()
-        self.assertEqual(responses[-1], ('get/response', 400))
+        get_response_result = responses['executed_commands']['commands'][-1]
+        self.assertEqual(get_response_result[:2], ('get/response', 400))
             
     def test_get_response7(self):
         cmds = self.make_one(DummyRequestHandler(), 'cmd_file7')
@@ -109,12 +182,12 @@ class TestExecCmds(unittest.TestCase):
     def test_get_response9(self):
         cmds = self.make_one(DummyRequestHandler(), 'cmd_file9')
         cmds.run()  
-        self.assertTrue(len(self.requests.posts)==5)                    
+        self.assertTrue(len(self.requests.posts)==5)                 
 
 class TestUriLocation(unittest.TestCase):
     
     def _make(self, protocol='http', host='localhost:8001'):
-        from stubo.model.cmds import UriLocation
+        from stubo.model.importer import UriLocation
         return UriLocation(DummyModel(protocol=protocol, host=host))
     
     def test_make_one(self):
@@ -143,14 +216,14 @@ class TestUrlFetch(unittest.TestCase):
     
     def setUp(self):
         self.requests = DummyRequests()
-        self.db_patch = mock.patch('stubo.model.cmds.requests', self.requests)
+        self.db_patch = mock.patch('stubo.model.importer.requests', self.requests)
         self.db_patch.start()
 
     def tearDown(self):
         self.db_patch.stop()   
     
     def _make(self):
-        from stubo.model.cmds import UrlFetch
+        from stubo.model.importer import UrlFetch
         return UrlFetch()
     
     def test_raise_on_error_ok(self):
@@ -201,43 +274,47 @@ class TestUrlFetch(unittest.TestCase):
         response = fetcher.post('get/response/cantfindthis', {}) 
         self.assertEqual(response.status_code, 400)                         
 
-class DummyRequests(object):
-    
-    def __init__(self):
-        self.posts = []
-    
-    def get(self, url):
-        if 'stubo/api/put/delay_policy' in url:
-            # special case as this is not implemented as a HTTP GET
-            return self.post(url,"")
-        import os.path
-        url = os.path.basename(url)
-        response = DummyModel(headers={})
-        if url in globals().keys():  
-            response.content = globals()[url]
-            response.status_code = 200
-            response.headers = {"Content-Type" : 'text/html; charset=UTF-8'}
-            if url == 'content_not_json_1':
-                response.encoding = 'utf8'
-                response.text = response.content
-            elif url in ('content_not_json_2', 'content_not_json_3'):
-                response.encoding = ""       
-            else:
-                response.headers["Content-Type"] = 'application/json; charset=UTF-8'
-                response.json = lambda: response.content                  
-        else:        
-            response.status_code = 404
-        return response
-    
-    def post(self, url, data=None, json=None, **kwargs):
-        if url == 'get/response/cantfindthis':
-            return DummyModel(status_code = 400, content = 'E017')
-            
-        self.posts.append((url, data or json))
-        return DummyModel(status_code = 200, raise_for_status=lambda : 1,
-          headers = {"Content-Type" : 'application/json; charset=UTF-8'},
-          json = lambda: "") 
-    
+
+yaml1 = """# Commands go here 
+commands:
+  -  
+    put/delay_policy:
+      vars:
+        name: slow
+        delay_type: fixed
+        milliseconds: 1000 
+  
+# Describe your stubs here       
+recording:
+  scenario: rest
+  session:  rest_recording
+  stubs: 
+    - 
+     json: {
+           "request": {
+               "method": "GET",
+               "bodyPatterns": [
+                   {
+                     "jsonpath" : ["cmd.x"]
+                   }
+               ],
+               "headers" : {
+                  "Content-Type" : "application/json",
+                  "X-Custom-Header" : "1234"
+               }
+           },
+           "response": {
+               "status": 200,
+               "body": {\"version\": \"1.2.3\", \"data\": {\"status\": \"all ok 2\"}},
+                "headers" : {
+                  "Content-Type" : "application/json",
+                  "X-Custom-Header" : "1234"
+               }
+           }
+         }
+     vars:
+        foo: bar
+"""    
 
 content_not_json_1 = 'hello' 
 content_not_json_2 = 'goodbye'

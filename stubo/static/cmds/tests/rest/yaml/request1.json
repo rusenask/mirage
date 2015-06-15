@@ -1,0 +1,14 @@
+{  
+   "method": "GET",
+   "host": "pastebin.org",
+   "uri" : "http://pastebin.org/hello",
+   "path" : "/hello",
+   "query" : {
+      "foo" : "bar"
+   },
+   "body": {"cmd": {"x": "y"}},
+   "headers" : {
+      "Content-Type" : "application/json",
+      "X-Custom-Header" : "1234"
+   }     
+}

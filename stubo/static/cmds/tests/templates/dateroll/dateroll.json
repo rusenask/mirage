@@ -1,0 +1,22 @@
+{
+    "priority": 1, 
+    "request": {
+        "bodyPatterns": {
+            "contains": [
+                "{% set request_text = request.request_body() %}<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>\n<rollme>                        \n   <OriginDateTime>{{roll_date(\"2014-09-10\", as_date(rec_date), as_date(play_date))}}T00:00:00Z</OriginDateTime>\n</rollme>"
+            ]
+        }, 
+        "method": "POST"
+    }, 
+    "args": {
+        "priority": "1", 
+        "session": "dateroll_1", 
+        "rec_date": "2014-09-10", 
+        "putstub_arg": "this stub was recorded at 2015-06-15 09:06:31.181522"
+    }, 
+    "recorded": "2015-06-15", 
+    "response": {
+        "body": "<response>\n<putstub_arg>{% raw putstub_arg %}</putstub_arg>\n<getresponse_arg>{{ getresponse_arg }}</getresponse_arg>\n</response>", 
+        "status": 200
+    }
+}

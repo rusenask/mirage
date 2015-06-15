@@ -108,7 +108,66 @@ class TestSplitter(Base):
 class TestUserCache(Base):
      
     def test_put_stub(self):
-        self.http_client.fetch(self.get_url('/stubo/api/put/module?name=/static/cmds/tests/ext/cache/example.py'), self.stop)
+        self.http_client.fetch(self.get_url('/stubo/api/put/module?name=/static/cmds/tests/ext/cache/text/example.py'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)  
+        self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario=cache&session=cache_1&mode=record'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200) 
+        
+        stub = {
+           "priority": 1, 
+           "args": {
+              "priority": "1", 
+              "ext_module": "example"
+           }, 
+           "request": {
+              "bodyPatterns": {
+                 "contains": [
+                    "<request>hello</request>\n"
+                 ]
+              }, 
+              "method": "POST"
+           }, 
+           "response": {
+              "body": "<response>0</response>\n", 
+              "status": 200
+           }
+        }        
+        import json
+        self.http_client.fetch(self.get_url('/stubo/api/put/stub?session=cache_1&ext_module=example'), callback=self.stop,
+        method="POST", body=json.dumps(stub),  headers={'Content-Type' : 'application/json'})
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        from stubo.model.db import Scenario
+        scenario_db = Scenario(db=self.db)    
+        stubs = list(scenario_db.get_stubs('localhost:cache'))     
+        self.assertEqual(len(stubs), 1)
+        from stubo.model.stub import Stub
+        stub = Stub(stubs[0]['stub'], 'localhost:cache') 
+        self.assertEqual(stub.contains_matchers(), ['<request>hello</request>\n'])
+        self.assertEqual(stub.response_body()[0], u'<response>0</response>\n')
+        from datetime import date 
+        self.assertEqual(stub.module(), {u'system_date': str(date.today()),
+           u'recorded_system_date': str(date.today()),                                 
+           u'name': u'example'})
+        
+    def test_roundtrip(self):      
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/tests/ext/cache/cache.yaml'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        self.assertEqual(response.headers["Content-Type"], 
+                         'application/json; charset=UTF-8')
+        payload = json.loads(response.body)
+        tracks = dict((x['request_params']['x'], x) for x in self.db.tracker.find() if 'x' in x.get('request_params'))
+        self.assertEqual(tracks['1']['stubo_response'], '<response>1</response>') 
+        self.assertEqual(tracks['2']['stubo_response'], '<response>2</response>')
+        self.assertEqual(tracks['3']['stubo_response'], '<response>3</response>')
+        
+class TestTextUserCache(Base):
+     
+    def test_put_stub(self):
+        self.http_client.fetch(self.get_url('/stubo/api/put/module?name=/static/cmds/tests/ext/cache/text/example.py'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)  
         self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario=cache&session=cache_1&mode=record'), self.stop)
@@ -132,7 +191,7 @@ class TestUserCache(Base):
            u'name': u'example'})
         
     def test_roundtrip(self):      
-        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/tests/ext/cache/1.commands'), self.stop)
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/tests/ext/cache/text/1.commands'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
         self.assertEqual(response.headers["Content-Type"], 
@@ -231,7 +290,7 @@ class TestModule(Base):
 class Test_xmlexit(Base):   
     
     def test_get_response_strip_ns(self):
-        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/tests/ext/get_response_strip_ns/1.record'), self.stop)
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/tests/ext/get_response_strip_ns/record.commands'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)  
         self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario=strip_namespace&session=strip_namespace_1&mode=playback'), self.stop)
@@ -254,7 +313,7 @@ class Test_xmlexit(Base):
 </XYZ>""")       
         
     def test_skip_xml(self):
-        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/tests/ext/auto_mangle/skip_xml/1.record'), self.stop)
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/tests/ext/auto_mangle/skip_xml/record.commands'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)  
         self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario=ignore_xml&session=ignore_xml1&mode=playback'), self.stop)
@@ -284,7 +343,7 @@ class Test_xmlexit(Base):
 </XYZ>""")       
         
     def test_skip_xml_elements(self):
-        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/tests/ext/auto_mangle/skip_xml_elements/1.record'), self.stop)
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/tests/ext/auto_mangle/skip_xml_elements/record.commands'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)  
         self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario=ignore_xml&session=ignore_xml1&mode=playback'), self.stop)
@@ -316,7 +375,7 @@ class Test_xmlexit(Base):
 </XYZ>""")   
         
     def test_skip_xml_attrs(self):
-        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/tests/ext/auto_mangle/skip_xml_attrs/1.record'), self.stop)
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/tests/ext/auto_mangle/skip_xml_attrs/record.commands'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)  
         self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario=ignore_xml&session=ignore_xml1&mode=playback'), self.stop)
@@ -338,7 +397,7 @@ class Test_xmlexit(Base):
 </XYZ>""")      
         
     def test_embedded(self):
-        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/tests/ext/auto_mangle/embedded/embedded.record'), self.stop)
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/tests/ext/auto_mangle/embedded/record.commands'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)  
         self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario=embedded&session=embedded_play&mode=playback'), self.stop)
@@ -355,7 +414,7 @@ class Test_xmlexit(Base):
 </response>""")   
         
     def test_all(self):
-        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/tests/ext/auto_mangle/all/1.record'), self.stop)
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/tests/ext/auto_mangle/all/record.commands'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)  
         self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario=all&session=all_play&mode=playback'), self.stop)
@@ -381,7 +440,7 @@ class Test_xmlexit(Base):
         self.assertEqual(response.body, """<XYZ><a>hello</a></XYZ>""")            
         
     def test_response(self):
-        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/tests/ext/auto_mangle/response/response.record'), self.stop)
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/tests/ext/auto_mangle/response/record.commands'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)  
         self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario=response&session=response_play&mode=playback'), self.stop)
@@ -408,7 +467,7 @@ class Test_xmlexit(Base):
 class TestUnicode(Base):  
 
     def test_non_ascii_matcher_and_response(self):
-        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdFile=/static/cmds/tests/ext/unicode/1.all'), self.stop)
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdFile=/static/cmds/tests/ext/unicode/all.commands'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
         self.assertEqual(response.headers["Content-Type"], 

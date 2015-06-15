@@ -1,0 +1,16 @@
+recording:
+  scenario: converse
+  session: converse_1
+  stubs:
+  - file: converse_0.json
+  - file: converse_1.json
+  
+playback:
+  requests:
+  - file: converse_0.request
+  - file: converse_1.request
+  - file: converse_0.request
+    vars:   
+      tracking_level: full
+  scenario: converse
+  session: converse_1  

@@ -104,7 +104,10 @@ class StubData(object):
         return len(self.contains_matchers() or [])
     
     def args(self):
-        return self.payload.get('args', {})    
+        return self.payload.get('args', {}) 
+    
+    def set_args(self, args):
+        self.payload['args'] = args   
     
     def recorded(self):
         return self.payload.get('recorded')

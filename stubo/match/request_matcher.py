@@ -55,11 +55,15 @@ def has_exactly_query_args(query_args):
 class DictMatcher(RequestMatcher):
 
     def __init__(self, expected, attr, exact_match=False):
-        super(DictMatcher, self).__init__(eval(expected), attr)
+        if not isinstance(expected, dict):
+            expected = dict(eval(expected))
+        super(DictMatcher, self).__init__(expected, attr)
         self.exact_match = exact_match
 
     def _matches(self, request):
-        headers = dict(eval(self._get_value(request)))
+        headers = self._get_value(request)
+        if not isinstance(headers, dict):
+            headers = dict(eval(headers))
         if self.exact_match:
             return headers == self.expected
         return all(headers.get(k) == v for k, v in self.expected.items())

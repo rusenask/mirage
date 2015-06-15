@@ -13,6 +13,7 @@ Stub-O-Matic Documentation |version|
    pages/intro.rst
    pages/basics.rst
    pages/commands.rst
+   pages/text_commands.rst
    pages/gui.rst
    pages/test_tools.rst
    pages/advanced.rst

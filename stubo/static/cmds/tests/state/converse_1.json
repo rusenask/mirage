@@ -1,0 +1,18 @@
+{
+   "priority": 2, 
+   "args": {
+      "priority": "2"
+   }, 
+   "request": {
+      "bodyPatterns": {
+         "contains": [
+            "updatePNR\n"
+         ]
+      }, 
+      "method": "POST"
+   }, 
+   "response": {
+      "body": "PNR 12345 has been updated (meal type change)\n", 
+      "status": 200
+   }
+}

@@ -1,0 +1,74 @@
+# Stubo YAML
+# Execution ordering is 1) commands, 2) recording 3) playback
+
+# Commands go here 
+commands:
+  -
+    put/module:
+      vars:
+        name: /static/cmds/tests/rest/yaml/noop.py 
+  -  
+    put/delay_policy:
+      vars:
+        name: slow
+        delay_type: fixed
+        milliseconds: 1000 
+  
+# Describe your stubs here       
+recording:
+  scenario: rest
+  session:  rest_recording
+  stubs: 
+    - 
+     file: stub1.json
+     vars:
+        recorded_at : "{{as_date('2015-01-10')}}" 
+        ext_module : noop
+    - 
+     json: {
+           "request": {
+               "method": "GET",
+               "bodyPatterns": [
+                   {
+                     "jsonpath" : ["cmd.x"]
+                   }
+               ],
+               "headers" : {
+                  "Content-Type" : "application/json",
+                  "X-Custom-Header" : "1234"
+               }
+           },
+           "response": {
+               "status": 200,
+               "body": "{\"version\": \"1.2.3\", \"data\": {\"status\": \"all ok 2\"}}",
+                "headers" : {
+                  "Content-Type" : "application/json",
+                  "X-Custom-Header" : "1234"
+               }
+           }
+         }
+     vars:
+        foo: bar
+
+# Provide your requests here          
+playback:
+  scenario: rest
+  session:  rest_playback
+  requests:
+    -
+      file: request1.json
+      vars:
+         played_at: "{{as_date('2015-01-20')}}"
+    -     
+      json: {
+               "method": "GET",
+               "body": {"cmd": {"x": "y"}},
+               "headers" : {
+                  "Content-Type" : "application/json",
+                  "X-Custom-Header" : "1234"
+               }
+            }
+      vars:
+         played_at: "{{as_date('2015-01-20')}}"
+                  
+             

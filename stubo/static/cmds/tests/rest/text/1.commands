@@ -1,0 +1,8 @@
+delete/stubs?scenario=restjson&force=true
+begin/session?scenario=restjson&session=restjson_1&mode=record
+put/stub?session=restjson_1,json.textMatcher,response.json
+end/session?session=restjson_1
+
+begin/session?scenario=restjson&session=restjson_1&mode=playback
+get/response?session=restjson_1,request.json
+end/session?session=restjson_1

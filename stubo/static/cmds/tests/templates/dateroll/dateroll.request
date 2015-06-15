@@ -1,0 +1,9 @@
+{
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<rollme>\n    <OriginDateTime>2014-09-12T00:00:00Z</OriginDateTime>\n</rollme>", 
+   "headers": "{}", 
+   "host": null, 
+   "path": null, 
+   "query": "", 
+   "uri": null, 
+   "method": "POST"
+}
