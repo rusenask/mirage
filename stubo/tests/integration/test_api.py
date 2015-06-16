@@ -1128,24 +1128,6 @@ class TestYAMLImport(Base):
         response = json.loads(response.body)
         self.assertEqual(response['data']['number_of_errors'], 0)
         self.assertEqual(response['data']['number_of_requests'], 5)     
-    
-    def test_jar_from_export(self):
-        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
-            '/static/cmds/tests/rest/yaml/1.yaml'), self.stop)
-        response = self.wait()
-        self.assertEqual(response.code, 200)
-        self.http_client.fetch(self.get_url(
-            '/stubo/api/get/export?scenario=rest'), self.stop)
-        response = self.wait()
-        self.assertEqual(response.code, 200)
-        
-        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
-            '/static/exports/localhost_rest/rest.jar'), self.stop)
-        response = self.wait()
-        self.assertEqual(response.code, 200)
-        response = json.loads(response.body)
-        self.assertEqual(response['data']['number_of_errors'], 0)
-        self.assertEqual(response['data']['number_of_requests'], 5) 
         
     def test_post_exec_cmds(self):
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
