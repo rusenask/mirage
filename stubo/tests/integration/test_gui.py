@@ -238,7 +238,7 @@ class TestManage(Base):
         self.assertIn("bob",response.body)
         
     def test_view_modules(self):
-        self.http_client.fetch(self.get_url('/stubo/api/put/module?name=/static/cmds/tests/ext/cache/example.py'), self.stop)
+        self.http_client.fetch(self.get_url('/stubo/api/put/module?name=/static/cmds/tests/ext/cache/text/example.py'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
 
@@ -312,7 +312,7 @@ class TestManage(Base):
         self.assertTrue("""'data': {'message': "Deleted 1 delay policies from [u'bob']"}""" in response.body) 
                     
     def test_module_delete_action(self):
-        self.http_client.fetch(self.get_url('/stubo/api/put/module?name=/static/cmds/tests/ext/cache/example.py'), self.stop)
+        self.http_client.fetch(self.get_url('/stubo/api/put/module?name=/static/cmds/tests/ext/cache/text/example.py'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
 

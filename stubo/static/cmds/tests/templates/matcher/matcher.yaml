@@ -1,0 +1,12 @@
+recording:
+  scenario: matcher
+  session: matcher_1
+  stubs:
+  - file: matcher.json
+  
+playback:
+  scenario: matcher
+  session: matcher_1
+  requests:
+  - file: matcher.request
+

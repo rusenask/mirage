@@ -1,0 +1,9 @@
+{
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n  <ProductCommodityDetails>\n    <SourceSystemLoadTypeDetails>\n      <SourceSystemIdentifier>A*\u00a3$</SourceSystemIdentifier>\n      <LoadTypeDetails>\n        <LoadType>\n          <LoadTypeCode>B</LoadTypeCode>\n          <LoadTypeDescription/>\n          <LoadSubType>\n            <LoadSubTypeCode/>\n          </LoadSubType>\n        </LoadType>\n        <DGSLCodeList/>\n      </LoadTypeDetails>\n    </SourceSystemLoadTypeDetails>\n    <TargetSystemIdentifier>ALTEAFM</TargetSystemIdentifier>\n  </ProductCommodityDetails>\n", 
+   "headers": "{}", 
+   "host": null, 
+   "path": null, 
+   "query": "", 
+   "uri": null, 
+   "method": "POST"
+}

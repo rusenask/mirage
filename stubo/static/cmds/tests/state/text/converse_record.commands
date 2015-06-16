@@ -1,0 +1,6 @@
+delete/stubs?scenario=converse
+begin/session?scenario=converse&session=conv_1&mode=record
+put/stub?session=conv_1, converse_a.textMatcher, converse_a.response
+put/stub?session=conv_1, converse_b.textMatcher, converse_b.response
+put/stub?session=conv_1, converse_a.textMatcher, converse_c.response
+end/session?session=conv_1

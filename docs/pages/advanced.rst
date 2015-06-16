@@ -34,7 +34,12 @@ The next step is to use the delay policy when loading stubs, eg.: ::
 Matching
 ========
 
-Stub-O-Matic currently supports 'contains' matching. One or more matchers can be defined whereby all matchers must be contained in the request to return a specified response. 
+Stub-O-Matic currently supports various types of matchers.
+
+Body contains matching
+======================
+
+One or more matchers can be defined whereby all matchers must be contained in the request to return a specified response. 
 A typical difficulty with system requests is that they often contain superfluous information such as session IDs 
 or time stamps that get in the way of matching a request to the desired response. One way Stub-O-Matic can solve this problem is 
 by the use of 'matchers'. Matchers are parts of the request that matter to you, only what is needed to find the correct
@@ -72,13 +77,13 @@ Templated Matcher
 =================
 
 This is an example of a template matcher than extracts values from the request into the matcher. 
-The xmltree object is an lxml parsed root element.
+The xmltree object is an lxml parsed root element passed into the template. ::
 
-<request>
-<transid>{{xmltree.xpath('/request/transid')[0].text}}</transid>
-<dt>2009-10-24T00:00:00+00:00</dt>
-<flightnumber>0455</flightnumber>
-</request>
+    <request>
+    <transid>{{xmltree.xpath('/request/transid')[0].text}}</transid>
+    <dt>2009-10-24T00:00:00+00:00</dt>
+    <flightnumber>0455</flightnumber>
+    </request>
 
 
 
@@ -148,7 +153,6 @@ from this request: ::
 
 Pull the SessionId from the request and use it within the response template: ::
 
-    {% set tree = parse_xml(request.request_body()) %} 
     {% set namespaces = {'soapenv': 'http://schemas.xmlsoap.org/soap/envelope/',  
        'wbs': 'http://xml.aaa.com/ws/2009/01/WBS_Session-2.0.xsd'}%}
     <?xml version="1.0" encoding="UTF-8"?>
@@ -156,9 +160,12 @@ Pull the SessionId from the request and use it within the response template: ::
       xmlns:wbs="http://xml.aaa.com/ws/2009/01/WBS_Session-2.0.xsd">
       <soapenv:Header>
          <wbs:Session>
-            <wbs:SessionId>{{tree.xpath('//soapenv:Header/wbs:Session/wbs:SessionId', 
+            <wbs:SessionId>{{xmltree.xpath('//soapenv:Header/wbs:Session/wbs:SessionId', 
                   namespaces=namespaces)[0].text}}</wbs:SessionId>
                 ......
+
+Note the xmltree variable is the parsed xml request (as an lxml Root object) made available to the template
+if the request is valid xml.
 
 Another example - no namespaces in the request.
 Request: ::
@@ -168,8 +175,7 @@ Request: ::
 
 Response: ::
 
-    {% set tree = parse_xml(request.request_body()) %}
-    {% set currency_code = tree.xpath('/CompensateCustomersCheck')[0].attrib['LocalCurrencyCode'] %}
+    {% set currency_code = xmltree.xpath('/CompensateCustomersCheck')[0].attrib['LocalCurrencyCode'] %}
     <response LocalCurrencyCode={{currency_code}}>pay me</response>
 
 Stateful Stubs
@@ -288,30 +294,44 @@ Caching Values
 If emulating back-end behaviour means writing some code for a particularly tricky behaviour,
 Stubo exposes a simple key-value cache API to matchers and responses.
 
-For example, if a response needs to increment a count each time it is used, you can
-: ::
+For example, if a response needs to increment a count each time it is used, you can 
+define a module like this ::
 
 
-    def inc_response(payload, **ext_info):
-        request_text = ext_info.get('request_text') 
-        log.debug('ext_info: {0}'.format(ext_info))
-        assert(ext_info['ext'] == 'response')
-        if ext_info['function'] == 'get/response':
-            # get/response processing
-            cache = ext_info['cache']
+    import logging
+    from stubo.ext.user_exit import GetResponse, ExitResponse
+    
+    log = logging.getLogger(__name__)
+    
+    class IncResponse(GetResponse):
+        '''
+        Increments a value in the response using the provided cache.
+        '''    
+        def __init__(self, request, context):
+            GetResponse.__init__(self, request, context)
+            
+        def inc(self):
+            cache = self.context['cache']
             val = cache.get('foo')
             log.debug('cache val = {0}'.format(val))
             if not val:
                 val = 0
             val += 1
-            cache.set('foo', val)    
-            return '<response>{0}</response>'.format(val)   
-    
-        return payload
+            cache.set('foo', val)
+            return val                
+                    
+        def doResponse(self):  
+            stub = self.context['stub']
+            stub.set_response_body('<response>{0}</response>'.format(self.inc()))  
+            return ExitResponse(self.request, stub)        
+            
+    def exits(request, context):
+        if context['function'] == 'get/response':
+            return IncResponse(request, context)
 
 The lines above to note are: ::
 
-    val = cach.get('foo')
+    val = cache.get('foo')
 
     cache.set('foo', val)
 
@@ -320,4 +340,4 @@ As with other user extensions the example above can be loaded in a command with:
 
     put/module?name=/static/cmds/tests/ext/cache/example.py
     ....
-    put/stub?session=cache_1&ext_module=example&ext_response=inc_response&tracking_level=full,1.request,1.response
+    put/stub?session=cache_1&ext_module=example&tracking_level=full,1.request,1.response

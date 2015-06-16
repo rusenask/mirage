@@ -5,5 +5,5 @@ put/stub?session=dateroll_1&rec_date=2014-09-10&putstub_arg=this stub was record
 end/session?session=dateroll_1
 
 begin/session?scenario=dateroll&session=dateroll_1&mode=playback
-get/response?session=dateroll_1&play_date=2014-09-12&tracking_level=full&getresponse_arg=this stub was played at {{datetime.datetime.utcnow()}},request.xml
+get/response?session=dateroll_1&play_date=2014-09-12&tracking_level=full&getresponse_arg=this stub was played at {{datetime.datetime.utcnow()+datetime.timedelta(1)}},request.xml
 end/session?session=dateroll_1

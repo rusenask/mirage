@@ -1,4 +1,4 @@
 <response>
 <putstub_arg>{% raw putstub_arg %}</putstub_arg>
-<getresponse_arg>{% raw getresponse_arg %}</getresponse_arg>
+<getresponse_arg>{{ getresponse_arg }}</getresponse_arg>
 </response>

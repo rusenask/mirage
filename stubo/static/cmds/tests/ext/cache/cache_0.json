@@ -1,0 +1,19 @@
+{
+   "priority": 1, 
+   "args": {
+      "priority": "1", 
+      "ext_module": "example"
+   }, 
+   "request": {
+      "bodyPatterns": {
+         "contains": [
+            "<request>hello</request>\n"
+         ]
+      }, 
+      "method": "POST"
+   }, 
+   "response": {
+      "body": "<response>0</response>\n", 
+      "status": 200
+   }
+}

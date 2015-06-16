@@ -17,7 +17,6 @@ from urlparse import urlparse
 from urllib import urlencode
 from StringIO import StringIO
 from contextlib import closing
-import codecs
 
 from tornado.web import MissingArgumentError
 
@@ -25,8 +24,10 @@ from stubo.model.db import (
     Scenario, get_mongo_client, session_last_used, Tracker
 )    
 import stubo.model.db
+from stubo.model.importer import YAMLImporter, UriLocation, UrlFetch
+from stubo.model.exporter import Exporter
 from stubo.model.cmds import (
-    StuboCommandFile, UriLocation, UrlFetch, form_input_cmds
+    TextCommandsImporter, form_input_cmds
 )
 from stubo.model.stub import Stub, StubCache, parse_stub
 from stubo.exceptions import (
@@ -48,7 +49,6 @@ from stubo.ext import today_str
 from stubo.ext.transformer import transform
 from stubo.ext.module import Module
 from stubo.testing import DummyModel
-
     
 log = logging.getLogger(__name__)
 
@@ -61,141 +61,27 @@ def get_dbenv(handler):
             'port' : int(handler.settings['mongo.port'])
             })
     return dbenv    
-    
+
 def export_stubs(handler, scenario_name):
     cache = Cache(get_hostname(handler.request))  
     scenario_name_key = cache.scenario_key_name(scenario_name)
-   
-    # use user arg or epoch time
-    session_id = handler.get_argument('session_id', int(time.time()))  
-    session = u'{0}_{1}'.format(scenario_name, session_id) 
-    cmds = [
-        '# use the session_id url arg from exec/cmds if supplied otherwise the one set from the get/export',    
-        "{{% set session = globals().get('session_id',[None])[0] or '{0}' %}}".format(session),       
-        'delete/stubs?scenario={0}'.format(scenario_name),
-        'begin/session?scenario={0}'.format(scenario_name) + '&session={{session}}&mode=record'
-    ]
-    files = []  
-    scenario = Scenario()
-    stubs = list(scenario.get_pre_stubs(scenario_name_key))
-    if len(stubs) > 0:
-        for i in range(len(stubs)):
-            entry = stubs[i]
-            stub = Stub(entry['stub'], scenario_name_key)
-            matchers = [('{0}_{1}_{2}.textMatcher'.format(session, i, x), 
-                stub.contains_matchers()[x]) for x in range(len(
-                stub.contains_matchers()))]
-            matchers_str = ",".join(x[0] for x in matchers)
-            url_args = stub.args()
-            module_info = stub.module()
-            if module_info:
-                # Note: not including put/module in the export, modules are shared
-                # by multiple scenarios.
-                url_args['ext_module'] = module_info['name']
-                url_args['stub_created_date'] = stub.recorded()
-                url_args['stubbedSystemDate'] = module_info.get('recorded_system_date')
-                url_args['system_date'] = module_info.get('system_date')
-            url_args.pop('session', None)    
-            url_args =  urlencode(url_args)    
-            responses = stub.response_body()
-            assert(len(responses) == 1)  
-            response = responses[0]
-            response = ('{0}_{1}.response'.format(session, i), response) 
-            cmds.append('put/stub?session={{session}}&' + '{0},{1},{2}'.format(
-                                    url_args, matchers_str, response[0]))
-            files.append(response)    
-            files.extend(matchers)
-    else:
-        cmds.append('put/stub?session={{session}},text=a_dummy_matcher,text=a_dummy_response')
-    cmds.append('end/session?session={{session}}')
-    
+
+    exporter = Exporter(static_dir = handler.settings['static_path'])
     runnable = asbool(handler.get_argument('runnable', False))
-    runnable_info = dict()
-    
-    if runnable:
-        playback_session = handler.get_argument('playback_session', None)
-        if not playback_session:
-            raise exception_response(400, 
-                        title="'playback_session' argument required with 'runnable") 
-        runnable_info['playback_session'] = playback_session          
-            
-        tracker = Tracker()    
-        last_used = tracker.session_last_used(scenario_name_key, 
-                                              playback_session, 'playback')
-        if not last_used:
-            raise exception_response(400, 
-                        title="Unable to find playback session")  
-        runnable_info['last_used'] = dict(remote_ip=last_used['remote_ip'],
-                                          start_time=str(last_used['start_time']))      
-        playback = tracker.get_last_playback(scenario_name, playback_session, 
-                                             last_used['start_time']) 
-        playback = list(playback)
-        if not playback:
-            raise exception_response(400, 
-              title="Unable to find a playback for scenario='{0}', playback_session='{1}'".format(scenario_name, playback_session))
-       
-        cmds.append('begin/session?scenario={0}&session='.format(scenario_name) + '{{session}}&mode=playback')   
-        number_of_requests = len(playback)
-        runnable_info['number_of_playback_requests'] = number_of_requests
-        for nrequest in range(number_of_requests):
-            track = playback[nrequest]
-            request_text = track.get('request_text')
-            if not request_text:
-                raise exception_response(400, title='Unable to obtain playback details, was full tracking enabled?')
-                
-            request_file_name = '{0}_{1}.request'.format(session, nrequest)
-            files.append((request_file_name, request_text))
-            stubo_response_text = track['stubo_response']
-            if not isinstance(stubo_response_text, basestring):
-                stubo_response_text = unicode(stubo_response_text)
-            stubo_response_file_name = '{0}_{1}.stubo_response'.format(session, nrequest)
-            files.append((stubo_response_file_name, stubo_response_text))
-            url_args = track['request_params']
-            url_args.pop('session', None)
-            url_args =  urlencode(url_args)
-            cmds.append(u'get/response?session={{session}}&' + '{0},{1}'.format(
-                                                url_args, request_file_name))     
-        cmds.append('end/session?session={{session}}')    
-  
-    bookmarks = cache.get_all_saved_request_index_data() 
-    if bookmarks:
-        cmds.append('import/bookmarks?location=bookmarks')
-        files.append(('bookmarks', json.dumps(bookmarks)))  
-    
-    files.append(('{0}.commands'.format(scenario_name),
-                  b"\r\n".join(cmds)))
+    playback_session = handler.get_argument('playback_session', None)
+    export_dir_path, files, runnable_info = exporter.export(scenario_name_key, 
+                                             runnable=runnable, 
+                                             playback_session=playback_session, 
+               session_id=handler.get_argument('session_id', None), 
+               export_dir=handler.get_argument('export_dir', None))
 
-    static_dir = handler.settings['static_path']
-    export_dir = handler.get_argument('export_dir', scenario_name_key).replace(':', '_')
-    export_dir_path = os.path.join(static_dir, 'exports', export_dir)
-
-    if os.path.exists(export_dir_path):
-        shutil.rmtree(export_dir_path)
-    os.makedirs(export_dir_path)
-
-    archive_name = os.path.join(export_dir_path, scenario_name)
-    zout = zipfile.ZipFile(archive_name+'.zip', "w")
-    tar = tarfile.open(archive_name+".tar.gz", "w:gz")
-    for finfo in files:
-        fname, contents = finfo
-        file_path = os.path.join(export_dir_path, fname)
-        with codecs.open(file_path, mode='wb', encoding='utf-8') as f:
-            f.write(contents)
-        tar.add(file_path, fname)
-        zout.write(file_path, fname)
-    tar.close()     
-    zout.close() 
-    shutil.copy(archive_name+'.zip', archive_name+'.jar')  
-
-    files.extend([(scenario_name+'.zip',), (scenario_name+'.tar.gz',),
-                  (scenario_name+'.jar',)])
     links = get_export_links(handler, scenario_name_key, files)
     payload = dict(scenario=scenario_name, export_dir_path=export_dir_path,
                    links=links)
     if runnable_info:
         payload['runnable'] = runnable_info
     return dict(version=version, data=payload)
-
+        
 def list_stubs(handler, scenario_name, host=None):
     cache = Cache(host or get_hostname(handler.request))
     scenario = Scenario()
@@ -244,24 +130,25 @@ def get_stubs(host, scenario_name=None):
     scenario = Scenario()
     return scenario.get_stubs(scenario_name_key)
 
-def run_command_file(cmd_file_url, request, static_path):   
+def run_command_file(cmd_file_url, request, static_path):
+
     def run(cmd_file_path):
         response = {
             'version' : version
         }
-        cmd_processor = StuboCommandFile(request, cmd_file_path)
+        is_legacy_text_format = cmd_file_path.endswith('.commands')
+        location = UriLocation(request) 
+        cmd_processor = TextCommandsImporter(location, cmd_file_path) if is_legacy_text_format else YAMLImporter(location, cmd_file_path)  
         responses = cmd_processor.run()
-        response['data'] = {
-            'executed_commands' : responses,
-            'number_of_requests' : len(responses),
-            'number_of_errors' : len([v for k, v in responses if v > 399])
-         }
+        log.debug('responses: {0}'.format(responses))
+        response['data'] = responses
         return response
+    
     file_type = os.path.basename(urlparse(cmd_file_url).path).rpartition(
                                 '.')[-1]  
     supported_types = ('zip', 'gz', 'tar', 'jar')  
     if file_type in supported_types:
-        # import compressed contents and run contained .commands file
+        # import compressed contents and run contained config file
         import_dir = os.path.join(static_path, 'imports')
         with make_temp_dir(dirname=import_dir) as temp_dir: 
             temp_dir_name = os.path.basename(temp_dir)
@@ -269,31 +156,28 @@ def run_command_file(cmd_file_url, request, static_path):
                                         UriLocation(request)(cmd_file_url)[0])
             content_type = headers["Content-Type"]
             log.debug('received {0} file.'.format(content_type))
+            config_types = ('.yaml', '.commands')
+            
+            def run_config(files):
+                # find the config file in the extract and run it
+                config_file =  [x for x in files if x.endswith(config_types)]
+                if not config_file:
+                    raise exception_response(400, title='Config file not'
+                            ' found in archive: {0}'.format(cmd_file_url))
+                return run(os.path.join('static', 'imports', temp_dir_name, 
+                                        config_file[0]))    
+            
             if content_type == 'application/x-tar' or file_type == 'tar':
                 with closing(tarfile.open(fileobj=StringIO(response))) as tar:
                     tar.extractall(path=temp_dir)
-                    # find the commands file in the extract
-                    cmds = [x for x in tar.getnames() if x.endswith(
-                        '.commands')]
-                    if not cmds:
-                        raise exception_response(400, title='.commands file not'
-                            ' found in tar: {0}'.format(cmd_file_url))            
-                    response = run(os.path.join('static', 'imports', 
-                                                temp_dir_name, cmds[0]))
+                    response = run_config(tar.getnames())         
                
             elif content_type in ('application/zip',
                                   'application/java-archive') or file_type in \
                                   ('zip', 'jar'):
                 with zipfile.ZipFile(StringIO(response)) as zipf:
                     zipf.extractall(path=temp_dir)
-                    # find the commands file in the extract
-                    cmds = [x for x in zipf.namelist() if x.endswith(
-                        '.commands')]
-                    if not cmds:
-                        raise exception_response(400, title='.commands file not'
-                            ' found in zip: {0}'.format(cmd_file_url))       
-                    response = run(os.path.join('static', 'imports', 
-                                                temp_dir_name, cmds[0]))
+                    response = run_config(zipf.namelist()) 
             else:
                 raise exception_response(400, title='Expected Content-Type has'
                     ' to be one of these: {0} not {1}'.format(supported_types,
@@ -308,17 +192,19 @@ def run_commands(handler, cmds_text):
     }
     host = get_hostname(handler.request)
     
-    cmd_processor = StuboCommandFile(handler.request)
-    cmds = cmd_processor.parse_commands(cmds_text)
+    cmd_processor = TextCommandsImporter(UriLocation(handler.request))
+    cmds = cmd_processor.parse(cmds_text)
     if any(x for x in cmds if urlparse(x).path not in form_input_cmds):
         raise exception_response(400, title='command/s not supported, must be '
             'one of these: {0}'.format(form_input_cmds))
-       
-    responses = cmd_processor.run_cmds(cmds)             
+    
+    responses = cmd_processor.run_cmds(cmds)
+    log.debug('responses: {0}'.format(responses))
+               
     response['data'] = {
         'executed_commands' : responses,
-        'number_of_requests' : len(responses),
-        'number_of_errors' : len([v for k, v in responses if v > 399])
+        'number_of_requests' : len(responses['commands']),
+        'number_of_errors' : len([x for x in responses['commands'] if x[1] > 399])
     }
     
     def get_links(cmd):
@@ -615,9 +501,9 @@ def delete_stubs(handler, scenario_name=None, host=None, force=False):
                                                         local=False)
             if active_sessions:
                 raise exception_response(400, 
-                    title='E016: Sessons in playback/record, can'
-                    'not delete. Found the following active sessions: {0} for '
-                    'scenario: {1}'.format(active_sessions, scenario_name))     
+                    title='Sessons in playback/record, can not delete. Found th'
+                    'e following active sessions: {0} for scenario: {1}'.format(
+                                            active_sessions, scenario_name))     
           
         scenario_db.remove_all(scenario_name_key) 
         cache.delete_caches(scenario_name)
@@ -1208,8 +1094,6 @@ def get_session_status(handler, all_hosts=True):
                 recorded =  max(x['stub'].get('recorded') for x in stubs)   
                 for stub in stubs:
                     stub = Stub(stub['stub'], s['name']) 
-                    for matcher in stub.contains_matchers():
-                        space_used += len(matcher)
                     space_used += stub.space_used()             
                 host_scenarios[host][scenario_name] = (sessions, stub_counts, 
                                             recorded, human_size(space_used)) 

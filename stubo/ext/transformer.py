@@ -60,14 +60,14 @@ def transform(stub, request, **kwargs):
 class StuboTemplateProcessor(TemplateProcessor):
     
     def eval_text(self, templ, request, **kwargs):
-        request_text = request.request_body()
         stub = kwargs['stub']
         kwargs['recorded'] = stub.recorded()
         recorded = kwargs.get('recorded')
         if recorded:
             kwargs['recorded'] = as_date(recorded) 
         return run_template(templ, 
-            request_text=request_text,
+            request=request,                
+            request_text=request.request_body(), # legacy
             # utility functions   
             roll_date=roll_date,
             today=today_str,

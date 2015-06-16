@@ -1,7 +1,7 @@
 .. commands
 
-Stub Commands
-*************
+Stubo Command File
+******************
 
 Command files are used to load stub files and add behaviour to them (state, dates, etc.).
 
@@ -9,67 +9,209 @@ Stubs can also be loaded and tested using individual calls to the Stub-O-Matic s
 using the Stubo HTTP API. Command files are a shorthand for the API, making it simpler 
 to enable repeatable, automated interactions with Stub-O-Matic by grouping a set of commands together required for a particular test.
 
-Commands
-========
 
-* Lines beginning with a '#' are treated as comments
-* Commands follow the Stub-O-Matic REST API, for example: begin/session?scenario=abc&session=12345&mode=record
-* When the API requires something in the HTTP body, input can be sourced by listing files after the command (separated by commas). Files are assumed to be in the same directory as the command file. Alternatively a full URI can be provided to source the input (matcher, request or response).
-* Blank lines are ignored.
-* An example command is: put/stub?session=12345',feng_001.textMatcher, feng_002.textMatcher, feng_001.response. A put/stub command must have at least one matcher file and one response file. This example has two matchers.
+Command file (YAML)
+===================
 
-What goes in the command files?
+An example ::
 
-* A .textMatcher file could be some or all of the text from the request, e.g. AB1234</FlightInfoQuery>
-* Multiple .textMatchers files may be used in a stub. All must evaluate to True against the request for a response to be returned.
-* .request files contain the text of a request (e.g. text, xml, json). Note the using playback in commands is only used to test the stubs as these would be issued by the real system being tested in normal situations.
-* .response files contain the text of a response (e.g. text, xml, json).
-* Any naming convention can be used for matcher, request and response files. 
-  We have used suffixes of .textMatcher, .request & .response but you are free to use other extensions like matcher.xml, request.json, response.xml etc.
+   # Stubo YAML
+   # Execution ordering is 1) commands, 2) recording 3) playback
+   
+   # Commands go here 
+   commands:
+     -
+       put/module:
+         vars:
+           name: /static/cmds/tests/rest/yaml/noop.py 
+     -  
+       put/delay_policy:
+         vars:
+           name: slow
+           delay_type: fixed
+           milliseconds: 1000 
+     
+   # Describe your stubs here       
+   recording:
+     scenario: rest
+     session:  rest_recording
+     stubs: 
+       - 
+        file: stub1.json
+        vars:
+           recorded_at : "{{as_date('2015-01-10')}}" 
+           ext_module : noop
+       - 
+        json: {
+              "request": {
+                  "method": "GET",
+                  "bodyPatterns": [
+                      {
+                        "jsonpath" : ["cmd.x"]
+                      }
+                  ],
+                  "headers" : {
+                     "Content-Type" : "application/json",
+                     "X-Custom-Header" : "1234"
+                  }
+              },
+              "response": {
+                  "status": 200,
+                  "body": "{\"version\": \"1.2.3\", \"data\": {\"status\": \"all ok 2\"}}",
+                   "headers" : {
+                     "Content-Type" : "application/json",
+                     "X-Custom-Header" : "1234"
+                  }
+              }
+            }
+        vars:
+           foo: bar
+   
+   # Provide your requests here          
+   playback:
+     scenario: rest
+     session:  rest_playback
+     requests:
+       -
+         file: request1.json
+         vars:
+            played_at: "{{as_date('2015-01-20')}}"
+       -     
+         json: {
+                  "method": "GET",
+                  "body": {"cmd": {"x": "y"}},
+                  "headers" : {
+                     "Content-Type" : "application/json",
+                     "X-Custom-Header" : "1234"
+                  }
+               }
+         vars:
+            played_at: "{{as_date('2015-01-20')}}"
+            
+Note the payloads can be defined either in place with the 'json' key or point to an external reference via
+the 'file' key. The file can either reference a local statically served file as shown above or be a URI reference. 
+Typically it will be a URI reference to a location in a users source control system where their stubs are stored.
 
+The local file references in this example are shown below
+
+stub1.json ::
+
+   {
+          "request": {
+              "method": "GET",
+              "bodyPatterns": [
+                  {
+                    "jsonpath" : ["cmd.a"]
+                  }
+              ],
+              "headers" : {
+                 "Content-Type" : "application/json",
+                 "X-Custom-Header" : "1234"
+              }
+          },
+          "response": {
+              "status": 200,
+              "body": "{\"version\": \"1.2.3\", \"data\": {\"status\": \"all ok\"}}",
+               "headers" : {
+                 "Content-Type" : "application/json",
+                 "X-Custom-Header" : "1234"
+              }
+          }
+   }
+   
+request1.json ::
+
+   {
+          "request": {
+              "method": "GET",
+              "bodyPatterns": [
+                  {
+                    "jsonpath" : ["cmd.a"]
+                  }
+              ],
+              "headers" : {
+                 "Content-Type" : "application/json",
+                 "X-Custom-Header" : "1234"
+              }
+          },
+          "response": {
+              "status": 200,
+              "body": "{\"version\": \"1.2.3\", \"data\": {\"status\": \"all ok\"}}",
+               "headers" : {
+                 "Content-Type" : "application/json",
+                 "X-Custom-Header" : "1234"
+              }
+          }
+   }   
+
+Note that these json payloads for the request and response are defined as strings. Stubo also excepts the defintion as dictionaries.
+            
+         
 Command Scripting
 =================
-Stub-O-Matic supports the ability to load stubs from various and multiple sources. This means people can organise all the stubs that support a particular service or 
-use case together, and any test that needs those stubs could pull them in from common stub libraries maximising stub reuse. ::
 
-    {% set foreign_url = 'http://www.google.co.uk' %}
-    {% set other_url = 'http://www.sun.com' %}
-    delete/stubs?scenario=smart
-    begin/session?scenario=smart&session=smart_1&mode=record
-    put/stub?session=smart_1,url={{other_url}},url={{foreign_url}}
-    put/stub?session=smart_1,text=random_rubble,text=response_text
-    end/session?session=smart_1
+The YAML file is run through a tornado templete processor before beging parsed and executed by Stubo. Any variables defined such
+as 'played_at' will evaluated and appropriate subsitutions made.
 
-Command files are also programmable with Python code snippets. See the example below: ::
+A roll date example 
 
-    {% set session_name = 'smart_1' %}
-    delete/stubs?scenario=smart
-    begin/session?scenario=smart&session={{session_name}}&mode=record
-    put/stub?session={{session_name}},first.textMatcher,first.response
-    end/session?session={{session_name}}
-    begin/session?scenario=smart&session={{session_name}}&mode=playback
-    # make 3 requests
-    {% for i in range(0,3) %}
-    get/response?session={{session_name}},first.request
-    {% end %}
-    end/session?session={{session_name}}
+(dateroll.yaml) ::
 
-Passing Arguments
-=================
-Arguments can be passed into command files and used in them. The following example
-allows the session and scenario to be named externally to the command file. ::
+   playback:
+     requests:
+     - file: dateroll_1433930288_0.request
+       response: dateroll_1433930288_0.stubo_response
+       vars:
+         getresponse_arg: this stub was played at 2015-06-10 09:57:44.839438
+         play_date: '2014-09-12'
+         priority: '1'
+         putstub_arg: this stub was recorded at 2015-06-10 09:57:44.839387
+         rec_date: '2014-09-10'
+         tracking_level: full
+     scenario: dateroll
+     session: dateroll_1433930288
+   recording:
+     scenario: dateroll
+     session: dateroll_1433930288
+     stubs:
+     - file: dateroll_1433930288_0.json
+     
+Referenced files 
 
-    exec/cmds?cmdFile=/static/cmds/tests/accept/smart_arg.commands&scen=bob&session=smart_1
+dateroll_1433930288_0.json ::
 
-The above call can be used as follows: ::
-
-    delete/stubs?scenario={{scen[0]}}
-    begin/session?scenario={{scen[0]}}&session={{ session[0] }}&mode=record
-    put/stub?session={{session[0]}},first.textMatcher,first.response
-    end/session?session={{session[0]}}
-    begin/session?scenario={{scen[0]}}&session={{session[0]}}&mode=playback
-    {% for i in range(0,3) %}
-    get/response?session={{session[0]}},first.request
-    {% end %}
-    end/session?session={{session[0]}}
+   {
+      "priority": 1, 
+      "args": {
+         "priority": "1", 
+         "rec_date": "2014-09-10", 
+         "putstub_arg": "this stub was recorded at 2015-06-10 09:57:44.839387"
+      }, 
+      "request": {
+         "bodyPatterns": {
+            "contains": [
+               "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>\n<rollme>                        \n   <OriginDateTime>{{roll_date(\"2014-09-10\", as_date(rec_date), as_date(play_date))}}T00:00:00Z</OriginDateTime>\n</rollme>"
+            ]
+         }, 
+         "method": "POST"
+      }, 
+      "response": {
+         "body": "<response>\n<putstub_arg>{% raw putstub_arg %}</putstub_arg>\n<getresponse_arg>{{ getresponse_arg }}</getresponse_arg>\n</response>", 
+         "status": 200
+      }
+   } 
+   
+dateroll_1433930288_0.request ::
+   
+   {
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<rollme>\n    <OriginDateTime>2014-09-12T00:00:00Z</OriginDateTime>\n</rollme>", 
+   "headers": "{}", 
+   "host": null, 
+   "path": null, 
+   "query": "", 
+   "uri": null, 
+   "method": "POST"
+   }  
+   
+     
 

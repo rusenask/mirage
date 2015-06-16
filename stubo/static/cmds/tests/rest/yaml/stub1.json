@@ -1,0 +1,22 @@
+{
+       "request": {
+           "method": "GET",
+           "bodyPatterns": [
+               {
+                 "jsonpath" : ["cmd.a"]
+               }
+           ],
+           "headers" : {
+              "Content-Type" : "application/json",
+              "X-Custom-Header" : "1234"
+           }
+       },
+       "response": {
+           "status": 200,
+           "body": "{\"version\": \"1.2.3\", \"data\": {\"status\": \"all ok\"}}",
+            "headers" : {
+              "Content-Type" : "application/json",
+              "X-Custom-Header" : "1234"
+           }
+       }
+}

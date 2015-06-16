@@ -276,9 +276,9 @@ class TestExport(Base):
         self.assertEqual(response.code, 200)
         payload = json.loads(response.body)
         self.assertTrue('links' in payload['data'])
-        self.assertEqual(6, len(payload['data']['links']))
+        self.assertEqual(5, len(payload['data']['links']))
         self.assertEqual(1, len([x for x in payload['data']['links'] \
-                                if x[0] == 'first.commands']))
+                                if x[0] == 'first.yaml']))
         
         
         self.http_client.fetch(self.get_url(
@@ -288,8 +288,8 @@ class TestExport(Base):
         self.assertEqual(response.code, 200)
 
         # load from the export
-        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdFile='
-            '/static/exports/localhost_first/first.commands'), self.stop)
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
+            '/static/exports/localhost_first/first.yaml'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
         
@@ -309,21 +309,25 @@ class TestExport(Base):
         import os
         export_lines = []
         export_dir = payload['data']['export_dir_path']
-        with open(os.path.join(export_dir, 'order.commands')) as f:
-            export_lines = [x.strip() for x in f.readlines()[2:]]   
-        self.assertEqual(export_lines, [
-            'delete/stubs?scenario=order', 
-            'begin/session?scenario=order&session={{session}}&mode=record', 
-            'put/stub?session={{session}}&priority=1,order_x_0_0.textMatcher,order_x_0.response', 
-            'put/stub?session={{session}}&priority=2,order_x_1_0.textMatcher,order_x_1.response', 
-            'put/stub?session={{session}}&priority=3,order_x_2_0.textMatcher,order_x_2.response', 
-            'end/session?session={{session}}'])
+
+        with open(os.path.join(export_dir, 'order.yaml')) as f:
+            export_lines = [x.strip() for x in f.readlines()] 
         
-        for matcher in [0,1,2]:
-            matcher_file_path = os.path.join(export_dir, 'order_x_{0}_0.textMatcher'.format(matcher))
-            with open(matcher_file_path) as f:
-                exported_matcher = f.read()
-                self.assertEqual(exported_matcher, str(matcher))    
+        self.assertEqual(export_lines[2:], [
+         'recording:', 
+         'scenario: order', 
+         "session: '{{session}}'", 
+         'stubs:', 
+         '- file: order_x_0.json', 
+         '- file: order_x_1.json', 
+         '- file: order_x_2.json'])
+        for stub_no in [0,1,2]:
+            file_path = os.path.join(export_dir, 
+                                     'order_x_{0}.json'.format(stub_no))
+            with open(file_path) as f:
+                stub = json.loads(f.read())
+                self.assertEqual(stub.get('request').get('bodyPatterns').get(
+                                            'contains')[0], str(stub_no))    
         
     def test_runnable_export(self):
         self.http_client.fetch(self.get_url(
@@ -342,14 +346,14 @@ class TestExport(Base):
         payload = json.loads(response.body)
         self.assertTrue('links' in payload['data'])
      
-        self.assertEqual(8, len(payload['data']['links']))
+        self.assertEqual(7, len(payload['data']['links']))
         self.assertTrue('runnable' in payload['data'])
         runnable = payload['data']['runnable']
         self.assertEqual(runnable.get('playback_session'),  'first_1')
         self.assertEqual(runnable.get('number_of_playback_requests'), 1)
         
         self.assertEqual(1, len([x for x in payload['data']['links'] \
-                                if x[0] == 'first.commands']))
+                                if x[0] == 'first.yaml']))
         self.http_client.fetch(self.get_url(
                                '/stubo/api/delete/stubs?scenario=first'),
                                self.stop)
@@ -357,8 +361,8 @@ class TestExport(Base):
         self.assertEqual(response.code, 200)
 
         # load from the export
-        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdFile='
-            '/static/exports/localhost_first/first.commands'), self.stop)
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
+            '/static/exports/localhost_first/first.yaml'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
              
@@ -385,13 +389,13 @@ class TestExport(Base):
         payload = json.loads(response.body)
         self.assertTrue('links' in payload['data'])
      
-        self.assertEqual(8, len(payload['data']['links']))
+        self.assertEqual(7, len(payload['data']['links']))
         self.assertTrue('runnable' in payload['data'])
         runnable = payload['data']['runnable']
         self.assertEqual(runnable.get('playback_session'),  'first_1')
         self.assertEqual(runnable.get('number_of_playback_requests'), 1)
         self.assertEqual(1, len([x for x in payload['data']['links'] \
-                                if x[0] == 'first.commands']))
+                                if x[0] == 'first.yaml']))
         self.http_client.fetch(self.get_url(
                                '/stubo/api/delete/stubs?scenario=first'),
                                self.stop)
@@ -399,8 +403,8 @@ class TestExport(Base):
         self.assertEqual(response.code, 200)
 
         # load from the export
-        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdFile='
-            '/static/exports/localhost_first/first.commands'), self.stop)
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
+            '/static/exports/localhost_first/first.yaml'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)               
         
@@ -416,14 +420,13 @@ class TestExport(Base):
         self.assertEqual(response.code, 200)
         payload = json.loads(response.body)
         self.assertTrue('links' in payload['data'])
-     
-        self.assertEqual(8, len(payload['data']['links']))
+        self.assertEqual(7, len(payload['data']['links']))
         self.assertTrue('runnable' in payload['data'])
         runnable = payload['data']['runnable']
         self.assertEqual(runnable.get('playback_session'),  'multi_play_2')
         self.assertEqual(runnable.get('number_of_playback_requests'), 1)
         self.assertEqual(1, len([x for x in payload['data']['links'] \
-                                if x[0] == 'multi_play.commands']))
+                                if x[0] == 'multi_play.yaml']))
         self.http_client.fetch(self.get_url(
                                '/stubo/api/delete/stubs?scenario=multi_play'),
                                self.stop)
@@ -431,8 +434,8 @@ class TestExport(Base):
         self.assertEqual(response.code, 200)
 
         # load from the export
-        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdFile='
-            '/static/exports/localhost_multi_play/multi_play.commands'), self.stop)
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
+            '/static/exports/localhost_multi_play/multi_play.yaml'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200) 
         
@@ -448,14 +451,14 @@ class TestExport(Base):
         self.assertEqual(response.code, 200)
         payload = json.loads(response.body)
         self.assertTrue('links' in payload['data'])
-        self.assertEqual(16, len(payload['data']['links']))
+        self.assertEqual(15, len(payload['data']['links']))
         self.assertTrue('runnable' in payload['data'])
         runnable = payload['data']['runnable']
         self.assertEqual(runnable.get('playback_session'),  'multi_play_2')
         self.assertEqual(runnable.get('number_of_playback_requests'), 5)
         
         self.assertEqual(1, len([x for x in payload['data']['links'] \
-                                if x[0] == 'multi_play.commands']))
+                                if x[0] == 'multi_play.yaml']))
         self.http_client.fetch(self.get_url(
                                '/stubo/api/delete/stubs?scenario=multi_play'),
                                self.stop)
@@ -464,7 +467,7 @@ class TestExport(Base):
 
         # load from the export
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdFile='
-            '/static/exports/localhost_multi_play/multi_play.commands'), self.stop)
+            '/static/exports/localhost_multi_play/multi_play.yaml'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)            
         
@@ -489,7 +492,7 @@ class TestExport(Base):
 
         # load from the export
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
-            '/static/exports/localhost_mangler_xslt/mangler_xslt.commands'),
+            '/static/exports/localhost_mangler_xslt/mangler_xslt.yaml'),
                                self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)  
@@ -701,10 +704,21 @@ class TestUseRequestInResponse(Base):
         self.assertIn("Hello to abc123", response.body)
 
 class TestEncoding(Base):
+        
+    def test_utf8_in_all(self):
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
+            '/static/cmds/tests/encoding/utf8all.yaml'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)      
+        stubo_response = self.db.tracker.find_one({'function':'get/response'},
+            {'stubo_response':1})['stubo_response']
+        self.assertTrue(u'A*\xa3$' in stubo_response)    
+
+class TestTextEncoding(Base):
 
     def test_utf8_request(self):
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
-                               '/static/cmds/tests/encoding/1.commands'),
+                               '/static/cmds/tests/encoding/text/1.commands'),
                                self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)      
@@ -714,7 +728,7 @@ class TestEncoding(Base):
         
     def test_utf8_in_all(self):
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
-            '/static/cmds/tests/encoding/utf8_in_all.commands'), self.stop)
+            '/static/cmds/tests/encoding/text/utf8_in_all.commands'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)      
         stubo_response = self.db.tracker.find_one({'function':'get/response'},
@@ -815,12 +829,48 @@ class TestPrivateVirtualStubo(Base):
         response = self.wait()
         self.assertEqual(response.code, 200)                
 
-
 class TestState(Base):
     
     def test_state(self):
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
-            '/static/cmds/tests/state/converse.commands'), self.stop)
+            '/static/cmds/tests/state/converse.yaml'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+
+        stubo_responses = self.db.tracker.find({'function':'get/response'})
+        sr = []
+        for resp in stubo_responses:
+            sr.append(resp['stubo_response'])
+        self.assertEqual(3,len(sr))
+        self.assertTrue('PNR 12345 with standard meal' in sr[0])
+        self.assertTrue('PNR 12345 has been updated (meal type change)' in sr[1])
+        self.assertTrue('PNR 12345 with veggy meal' in sr[2])
+        
+    def test_state_loop(self):
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
+            '/static/cmds/tests/state/converse_loop.yaml'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+
+        stubo_responses = self.db.tracker.find({'function':'get/response'})
+        sr = []
+        for resp in stubo_responses:
+            sr.append(resp['stubo_response'])
+        self.assertEqual(6,len(sr))
+        self.assertTrue('PNR 12345 with standard meal' in sr[0])
+        self.assertTrue('PNR 12345 has been updated (meal type change)' \
+                        in sr[1])
+        self.assertTrue('PNR 12345 with veggy meal' in sr[2])
+        self.assertTrue('PNR 12345 with veggy meal' in sr[3])
+        self.assertTrue('PNR 12345 has been updated (meal type change)' \
+                        in sr[4])
+        self.assertTrue('PNR 12345 with veggy meal' in sr[5])     
+
+class TestTextState(Base):
+    
+    def test_state(self):
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
+            '/static/cmds/tests/state/text/converse.commands'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
 
@@ -836,7 +886,7 @@ class TestState(Base):
 
     def test_state_reset(self):
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
-            '/static/cmds/tests/state/converse_reset.commands'), self.stop)
+            '/static/cmds/tests/state/text/converse_reset.commands'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
 
@@ -852,7 +902,7 @@ class TestState(Base):
     
     def test_state_loop(self):
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
-            '/static/cmds/tests/state/converse_loop.commands'), self.stop)
+            '/static/cmds/tests/state/text/converse_loop.commands'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
 
@@ -872,7 +922,7 @@ class TestState(Base):
     
     def test_multi_state(self):
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
-            '/static/cmds/tests/state/converse_multi.commands'), self.stop)
+            '/static/cmds/tests/state/text/converse_multi.commands'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
 
@@ -1019,6 +1069,91 @@ class TestSmartCommands(Base):
             {'stubo_response':1})['stubo_response']
         self.assertEqual('Hello 2 World', stubo_response)
 
+class TestYAMLImport(Base):
+    
+    def _test_archive(self, archive):
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=' 
+            '/static/cmds/tests/rest/yaml/{0}'.format(archive)),
+                               self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        response = json.loads(response.body)
+        self.assertEqual(response['data']['number_of_errors'], 0)
+        self.assertEqual(response['data']['number_of_requests'], 11)
+          
+    def test_tar_gzip(self):
+        self._test_archive('yaml.tar.gz') 
+            
+    def test_zip(self):
+        self._test_archive('yaml.zip') 
+        
+    def test_jar(self):
+        self._test_archive('yaml.zip')     
+            
+    def test_tar(self):
+        self._test_archive('yaml.tar')
+        
+    def test_zip_from_export(self):
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
+            '/static/cmds/tests/rest/yaml/1.yaml'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        self.http_client.fetch(self.get_url(
+            '/stubo/api/get/export?scenario=rest'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
+            '/static/exports/localhost_rest/rest.zip'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        response = json.loads(response.body)
+        self.assertEqual(response['data']['number_of_errors'], 0)
+        self.assertEqual(response['data']['number_of_requests'], 5)
+        
+    def test_gzip_from_export(self):
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
+            '/static/cmds/tests/rest/yaml/1.yaml'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        self.http_client.fetch(self.get_url(
+            '/stubo/api/get/export?scenario=rest'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
+            '/static/exports/localhost_rest/rest.tar.gz'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        response = json.loads(response.body)
+        self.assertEqual(response['data']['number_of_errors'], 0)
+        self.assertEqual(response['data']['number_of_requests'], 5)     
+    
+    def test_jar_from_export(self):
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
+            '/static/cmds/tests/rest/yaml/1.yaml'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        self.http_client.fetch(self.get_url(
+            '/stubo/api/get/export?scenario=rest'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
+            '/static/exports/localhost_rest/rest.jar'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        response = json.loads(response.body)
+        self.assertEqual(response['data']['number_of_errors'], 0)
+        self.assertEqual(response['data']['number_of_requests'], 5) 
+        
+    def test_post_exec_cmds(self):
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
+            '/static/exports/localhost_rest/rest.yaml'), callback=self.stop, 
+                               method="POST", body="")
+        response = self.wait()
+        self.assertEqual(response.code, 200)   
+    
 class TestCommandsImport(Base):
     
     def _test_archive(self, archive):
@@ -1673,11 +1808,11 @@ class TestSetting(Base):
             'message': "Sorry the host URL 'localhost' has been blacklisted. Please contact Stub-O-Matic support."
         })                               
              
-class TestTemplates(Base):  
+class TestTextTemplates(Base):  
 
     def test_matcher(self):
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
-            '/static/cmds/tests/templates/matcher/all.commands'), self.stop)
+            '/static/cmds/tests/templates/matcher/text/all.commands'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
 
@@ -1689,7 +1824,7 @@ class TestTemplates(Base):
         
     def test_dateroll_args(self):
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
-            '/static/cmds/tests/templates/dateroll/first.commands'), self.stop)
+            '/static/cmds/tests/templates/dateroll/text/first.commands'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
 
@@ -1701,9 +1836,37 @@ class TestTemplates(Base):
         self.assertTrue('<putstub_arg>this stub was recorded at {0}'.format(
                         d) in response)
         self.assertTrue('<getresponse_arg>this stub was played at {0}'.format(
+                        d+datetime.timedelta(1)) in response)
+        
+class TestTemplates(Base):  
+
+    def test_matcher(self):
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
+            '/static/cmds/tests/templates/matcher/matcher.yaml'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+
+        result = list(self.db.tracker.find({'function':'get/response'}))
+        self.assertEqual(1, len(result))
+        response = result[0]['stubo_response']
+        self.assertEqual(response, '<response>you found me</response>')
+      
+        
+    def test_dateroll_args(self):
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
+            '/static/cmds/tests/templates/dateroll/dateroll.yaml'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+
+        result = list(self.db.tracker.find({'function':'get/response'}))
+        self.assertEqual(1, len(result))
+        response = result[0]['stubo_response']
+        import datetime
+        d = datetime.date.today()
+        self.assertTrue('<putstub_arg>this stub was recorded at {0}'.format(
                         d) in response)
-        
-        
+        self.assertTrue('<getresponse_arg>this stub was played at {0}'.format(
+                        d++datetime.timedelta(1)) in response)        
        
 class TestGetScenarios(Base):       
     
@@ -1740,7 +1903,7 @@ class TestGetScenarios(Base):
         self.assertEqual(response.code, 200)
         
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
-            '/static/cmds/tests/state/converse.commands'), self.stop)
+            '/static/cmds/tests/state/text/converse.commands'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
         

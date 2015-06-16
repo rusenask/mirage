@@ -1,0 +1,21 @@
+{% import datetime %}
+recording:
+  scenario: dateroll
+  session: dateroll_1
+  stubs:
+  - file: dateroll.json
+    vars: 
+      rec_date: "2014-09-10"
+      putstub_arg: "this stub was recorded at {{datetime.datetime.utcnow()}}" 
+  
+playback:
+  scenario: dateroll
+  session: dateroll_1
+  requests:
+  - file: dateroll.request
+    vars:
+      getresponse_arg: "this stub was played at {{datetime.datetime.utcnow()+datetime.timedelta(1)}}"
+      play_date: "2014-09-12"
+      tracking_level: full
+  
+

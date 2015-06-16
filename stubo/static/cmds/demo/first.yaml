@@ -1,0 +1,38 @@
+# First use of Stub-O-Matic
+# run this from a browser with uri:
+#   http://<stubo server>/stubo/default/exec/cmds?cmdfile=/static/cmds/demo/first.yaml
+
+{% set session = globals().get('session_id',[None])[0] or 'first_1' %}
+
+# Describe your stubs here       
+recording:
+  scenario: first
+  session:  {{session}}
+  stubs: 
+    - 
+     json: {
+           "request": {
+               "method": "GET",
+               "bodyPatterns": [
+                   {
+                     "contains" : ["get my stub"]
+                   }
+               ],
+           },
+           "response": {
+               "status": 200,
+               "body": "Hello {{1+1}} World",
+           }
+         }
+
+# Provide your requests here          
+playback:
+  scenario: first
+  session:  {{session}}
+  requests:
+    -     
+      json: {
+               "method": "GET",
+               "body": "timestamp: 09:23:45
+get my stub",
+            }

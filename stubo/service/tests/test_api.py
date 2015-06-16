@@ -24,7 +24,7 @@ class Test_functions(unittest.TestCase):
 class TestCmds(unittest.TestCase):
     
     def setUp(self):
-        self.patch = mock.patch('stubo.service.api.StuboCommandFile', 
+        self.patch = mock.patch('stubo.service.api.TextCommandsImporter', 
                                 DummyStuboCommandFile)
         self.patch.start()
 
@@ -33,10 +33,9 @@ class TestCmds(unittest.TestCase):
    
     def test_empty_cmds(self):
         from stubo.service.api import run_commands
-        cmds_text = ''
         response =  run_commands(DummyRequestHandler(), '')
         self.assertEqual(response['data'], {
-            'executed_commands': [], 
+            'executed_commands':  {'commands': []}, 
             'number_of_requests': 0, 
             'number_of_errors': 0})
             
@@ -52,7 +51,7 @@ class TestCmds(unittest.TestCase):
         cmds_text = 'delete/stubs?scenario=foo'    
         response = run_commands(DummyRequestHandler(), cmds_text)
         self.assertEqual(response['data'], {
-            'executed_commands': [('delete/stubs?scenario=foo', 200)], 
+            'executed_commands': {'commands': [('delete/stubs?scenario=foo', 200)]}, 
             'number_of_requests': 1, 
             'number_of_errors': 0})
         
@@ -61,7 +60,7 @@ class TestCmds(unittest.TestCase):
         cmds_text = ' delete/stubs?scenario=foo '    
         response = run_commands(DummyRequestHandler(), cmds_text)
         self.assertEqual(response['data'], {
-            'executed_commands': [('delete/stubs?scenario=foo', 200)], 
+            'executed_commands': {'commands': [('delete/stubs?scenario=foo', 200)]}, 
             'number_of_requests': 1, 
             'number_of_errors': 0})    
         
@@ -70,8 +69,8 @@ class TestCmds(unittest.TestCase):
         cmds_text = 'delete/stubs?scenario=foo\ndelete/stubs?scenario=bar'    
         response = run_commands(DummyRequestHandler(), cmds_text)
         self.assertEqual(response['data'], {
-            'executed_commands': [('delete/stubs?scenario=foo', 200), 
-                                  ('delete/stubs?scenario=bar', 200)], 
+            'executed_commands': {'commands': [('delete/stubs?scenario=foo', 200), 
+                                  ('delete/stubs?scenario=bar', 200)]}, 
             'number_of_requests': 2, 'number_of_errors': 0})
         
     def test_2cmds_spaces(self):
@@ -79,8 +78,8 @@ class TestCmds(unittest.TestCase):
         cmds_text = ' delete/stubs?scenario=foo\n delete/stubs?scenario=bar '    
         response = run_commands(DummyRequestHandler(), cmds_text)
         self.assertEqual(response['data'], {
-            'executed_commands': [('delete/stubs?scenario=foo', 200), 
-                                  ('delete/stubs?scenario=bar', 200)], 
+            'executed_commands': {'commands': [('delete/stubs?scenario=foo', 200), 
+                                  ('delete/stubs?scenario=bar', 200)]}, 
             'number_of_requests': 2, 'number_of_errors': 0})
         
     def test_export_cmd(self):
@@ -89,7 +88,7 @@ class TestCmds(unittest.TestCase):
         response = run_commands(DummyRequestHandler(), cmds_text)
         self.assertEqual(response['data'], {
             'export_links': [('get/export?scenario=foo', [('foo.zip', 'http://localhost:8001/static/exports/localhost_foo/foo.zip'), ('foo.tar.gz', 'http://localhost:8001/static/exports/localhost_foo/foo.tar.gz'), ('foo.jar', 'http://localhost:8001/static/exports/localhost_foo/foo.jar')])], 
-            'executed_commands': [('get/export?scenario=foo', 200)], 
+            'executed_commands': {'commands': [('get/export?scenario=foo', 200)]}, 
             'number_of_requests': 1, 
             'number_of_errors': 0})
                                    
@@ -888,12 +887,12 @@ class TestStubExport(unittest.TestCase):
         self.patch = mock.patch('stubo.service.api.Cache', self.cache)
         self.patch.start()
         self.scenario = DummyScenario()
-        self.db_patch = mock.patch('stubo.service.api.Scenario', self.scenario)
+        self.db_patch = mock.patch('stubo.model.exporter.Scenario', self.scenario)
         self.db_patch.start()
         self.db_patch2 = mock.patch('stubo.cache.Scenario', self.scenario)
         self.db_patch2.start()
         self.tracker = DummyTracker()
-        self.tracker_patch = mock.patch('stubo.service.api.Tracker', self.tracker)
+        self.tracker_patch = mock.patch('stubo.model.exporter.Tracker', self.tracker)
         self.tracker_patch.start()
     
     def tearDown(self):
@@ -960,6 +959,7 @@ class TestStubExport(unittest.TestCase):
         self.tracker.insert(dict(scenario='localhost:1stub1matcher',
                                  request_text=payload,
                                  request_params=dict(scenario='1stub1matcher'),
+                                 request_headers=dict(),
                                  function='put/stub',
                                  stubo_response='<test>OK</test>'))
         response =  export_stubs(request_handler, '1stub1matcher') 
@@ -983,37 +983,43 @@ class TestStubExport(unittest.TestCase):
         self.assertTrue(len(response['links']), 5)
         local_server = 'http://{0}:{1}'.format(request_handler.track.server, 
                                            request_handler.track.port) 
-        
         self.assertEqual(response['links'], [
-          ('1stub1matcher_1_0.response', local_server + '/static/exports/localhost_1stub1matcher/1stub1matcher_1_0.response'),   
-          ('1stub1matcher_1_0_0.textMatcher', local_server + '/static/exports/localhost_1stub1matcher/1stub1matcher_1_0_0.textMatcher'),
-          ('1stub1matcher.commands', local_server + '/static/exports/localhost_1stub1matcher/1stub1matcher.commands'),
-          ('1stub1matcher.zip', local_server + '/static/exports/localhost_1stub1matcher/1stub1matcher.zip'),
-          ('1stub1matcher.tar.gz', local_server + '/static/exports/localhost_1stub1matcher/1stub1matcher.tar.gz'),
-          ('1stub1matcher.jar', local_server + '/static/exports/localhost_1stub1matcher/1stub1matcher.jar')
-          ])
+        ('1stub1matcher_1_0.json', local_server + '/static/exports/localhost_1stub1matcher/1stub1matcher_1_0.json'), 
+        ('1stub1matcher.yaml', local_server + '/static/exports/localhost_1stub1matcher/1stub1matcher.yaml'), 
+        ('1stub1matcher.zip', local_server + '/static/exports/localhost_1stub1matcher/1stub1matcher.zip'), 
+        ('1stub1matcher.tar.gz', local_server + '/static/exports/localhost_1stub1matcher/1stub1matcher.tar.gz'), 
+        ('1stub1matcher.jar', local_server + '/static/exports/localhost_1stub1matcher/1stub1matcher.jar')])
+
         
         scenario_dir = response['export_dir_path'] 
         files = [os.path.join(scenario_dir, x[0]) for x in response['links']]
         for f in files:
             self.assertTrue(os.path.exists(f))
         
-        cmds = [
-            'delete/stubs?scenario=1stub1matcher',
-            'begin/session?scenario=1stub1matcher&session={{session}}&mode=record',
-            'put/stub?session={{session}}&,1stub1matcher_1_0_0.textMatcher,1stub1matcher_1_0.response',
-            'end/session?session={{session}}',
-        ]  
-        
-        with open(os.path.join(scenario_dir, '1stub1matcher.commands')) as f: 
-            self.assertEqual([x.strip() for x in f.readlines()[2:]], cmds) 
+        expected = ['recording:\n', '  scenario: 1stub1matcher\n', "  session: '{{session}}'\n", '  stubs:\n', '  - file: 1stub1matcher_1_0.json\n']
+
+        with open(os.path.join(scenario_dir, '1stub1matcher.yaml')) as f: 
+            lines = f.readlines()
+            self.assertEqual([x.strip() for x in lines[2:]], 
+                             [x.strip() for x in expected]) 
             
-        with open(os.path.join(scenario_dir, '1stub1matcher_1_0_0.textMatcher')) as f: 
-            self.assertEqual(f.read(), '<test>match this</test>')  
-            
-        with open(os.path.join(scenario_dir, '1stub1matcher_1_0.response')) as f: 
-            self.assertEqual(f.read(), '<test>OK</test>')
-            
+        with open(os.path.join(scenario_dir, '1stub1matcher_1_0.json')) as f: 
+            payload = f.read()
+            self.assertEqual(payload, """{
+   "args": {}, 
+   "request": {
+      "bodyPatterns": {
+         "contains": [
+            "<test>match this</test>"
+         ]
+      }, 
+      "method": "POST"
+   }, 
+   "response": {
+      "body": "<test>OK</test>", 
+      "status": 200
+   }
+}""")       
         self._delete_tmp_export_dir(scenario_dir)
                     
     def test_1stub_2matcher(self):
@@ -1033,13 +1039,11 @@ class TestStubExport(unittest.TestCase):
         local_server = 'http://{0}:{1}'.format(handler.track.server, 
                                            handler.track.port) 
         self.assertEqual(response['links'], [
-          ('x_1_0.response', local_server + '/static/exports/localhost_x/x_1_0.response'),
-          ('x_1_0_0.textMatcher', local_server + '/static/exports/localhost_x/x_1_0_0.textMatcher'),
-          ('x_1_0_1.textMatcher', local_server + '/static/exports/localhost_x/x_1_0_1.textMatcher'),
-          ('x.commands', local_server + '/static/exports/localhost_x/x.commands'),
-          ('x.zip', local_server + '/static/exports/localhost_x/x.zip'),
-          ('x.tar.gz', local_server + '/static/exports/localhost_x/x.tar.gz'),
-          ('x.jar', local_server + '/static/exports/localhost_x/x.jar')])
+        ('x_1_0.json', local_server + '/static/exports/localhost_x/x_1_0.json'), 
+        ('x.yaml', local_server + '/static/exports/localhost_x/x.yaml'), 
+        ('x.zip', local_server + '/static/exports/localhost_x/x.zip'), 
+        ('x.tar.gz', local_server + '/static/exports/localhost_x/x.tar.gz'), 
+        ('x.jar', local_server + '/static/exports/localhost_x/x.jar')])
         
         scenario_dir = response['export_dir_path'] 
         files = [os.path.join(scenario_dir, x[0]) for x in response['links']]
@@ -1071,17 +1075,13 @@ class TestStubExport(unittest.TestCase):
         local_server = 'http://{0}:{1}'.format(handler.track.server, 
                                            handler.track.port) 
         self.assertEqual(response['links'], [
-         ('x_1_0.response', local_server + '/static/exports/localhost_x/x_1_0.response'),                                     
-         ('x_1_0_0.textMatcher', local_server + '/static/exports/localhost_x/x_1_0_0.textMatcher'), 
-         ('x_1_0_1.textMatcher', local_server + '/static/exports/localhost_x/x_1_0_1.textMatcher'), 
-         ('x_1_1.response', local_server + '/static/exports/localhost_x/x_1_1.response'), 
-         ('x_1_1_0.textMatcher', local_server + '/static/exports/localhost_x/x_1_1_0.textMatcher'), 
-         ('x_1_1_1.textMatcher', local_server + '/static/exports/localhost_x/x_1_1_1.textMatcher'),    
-         ('x.commands', local_server + '/static/exports/localhost_x/x.commands'), 
-         ('x.zip', local_server + '/static/exports/localhost_x/x.zip'), 
-         ('x.tar.gz', local_server + '/static/exports/localhost_x/x.tar.gz'),
-         ('x.jar', local_server + '/static/exports/localhost_x/x.jar')
-        ])  
+        ('x_1_0.json', local_server + '/static/exports/localhost_x/x_1_0.json'), 
+        ('x_1_1.json', local_server + '/static/exports/localhost_x/x_1_1.json'), 
+        ('x.yaml', local_server + '/static/exports/localhost_x/x.yaml'), 
+        ('x.zip', local_server + '/static/exports/localhost_x/x.zip'), 
+        ('x.tar.gz', local_server + '/static/exports/localhost_x/x.tar.gz'), 
+        ('x.jar', local_server + '/static/exports/localhost_x/x.jar')])
+
         
         scenario_dir = response['export_dir_path'] 
         files = [os.path.join(scenario_dir, x[0]) for x in response['links']]
@@ -1101,18 +1101,21 @@ class TestStubExport(unittest.TestCase):
         self.assertTrue(len(response['links']), 3)
         local_server = 'http://{0}:{1}'.format(request_handler.track.server, 
                                            request_handler.track.port) 
+        
         self.assertEqual(response['links'], [
-          ('0stub0matcher.commands', local_server + '/static/exports/localhost_0stub0matcher/0stub0matcher.commands'),
-          ('0stub0matcher.zip', local_server + '/static/exports/localhost_0stub0matcher/0stub0matcher.zip'),
-          ('0stub0matcher.tar.gz', local_server + '/static/exports/localhost_0stub0matcher/0stub0matcher.tar.gz'),
-          ('0stub0matcher.jar', local_server + '/static/exports/localhost_0stub0matcher/0stub0matcher.jar')
+          ('0stub0matcher_1_0.json', local_server + '/static/exports/localhost_0stub0matcher/0stub0matcher_1_0.json'),                                   
+          ('0stub0matcher.yaml', local_server + '/static/exports/localhost_0stub0matcher/0stub0matcher.yaml'), 
+          ('0stub0matcher.zip', local_server + '/static/exports/localhost_0stub0matcher/0stub0matcher.zip'), 
+          ('0stub0matcher.tar.gz', local_server + '/static/exports/localhost_0stub0matcher/0stub0matcher.tar.gz'), 
+          ('0stub0matcher.jar', local_server + '/static/exports/localhost_0stub0matcher/0stub0matcher.jar') 
           ])
         
         scenario_dir = response['export_dir_path'] 
         files = [os.path.join(scenario_dir, x[0]) for x in response['links']]
         for f in files:
             self.assertTrue(os.path.exists(f))
-        
+       
+        expected = ['recording:\n', '  scenario: 0stub0matcher\n', "  session: '{{session}}'\n", '  stubs: []\n']
         cmds = [
             'delete/stubs?scenario=0stub0matcher',
             'begin/session?scenario=0stub0matcher&session={{session}}&mode=record',
@@ -1120,9 +1123,10 @@ class TestStubExport(unittest.TestCase):
             'end/session?session={{session}}',
         ]  
         
-        with open(os.path.join(scenario_dir, '0stub0matcher.commands')) as f:
+        with open(os.path.join(scenario_dir, '0stub0matcher.yaml')) as f:
             lines = f.readlines() 
-            self.assertEqual([x.strip() for x in lines[2:]], cmds) 
+            self.assertEqual([x.strip() for x in lines[2:]], 
+                             [x.strip() for x in expected]) 
             
         self._delete_tmp_export_dir(scenario_dir)
  
@@ -1285,9 +1289,9 @@ class TestGetStatus(unittest.TestCase):
         response = get_status(DummyRequestHandler())
         self.assertEqual(response.keys(), ['version', 'data'])
             
-from stubo.model.cmds import StuboCommandFile
+from stubo.model.cmds import TextCommandsImporter
         
-class DummyStuboCommandFile(StuboCommandFile):
+class DummyStuboCommandFile(TextCommandsImporter):
     
     def run_command(self, url, priority):
         return 200

@@ -1,0 +1,18 @@
+{
+   "priority": 1, 
+   "args": {
+      "priority": "1"
+   }, 
+   "request": {
+      "bodyPatterns": {
+         "contains": [
+            "getPNR\n"
+         ]
+      }, 
+      "method": "POST"
+   }, 
+   "response": {
+      "body": ["PNR 12345 with standard meal\n", "PNR 12345 with veggy meal\n"],
+      "status": 200
+   }
+}
