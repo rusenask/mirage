@@ -43,17 +43,23 @@ function build_dash(servers) {
                 "unstack": true,  // other parameters like unstack, interpolation, stroke, min, height are also available (see rickshaw documentation for more info)
               },
               {
-                "alias": "latency (ms)",
-                //"targets": "averageSeries(stats.timers.stubo."  + server + ".stuboapi.get_response.latency.upper_90)",   // see below for more advanced usage
+                "alias": "latency (ms) - mean 90%",
                 "targets": "averageSeries(stats.timers.stubo."  + server + ".stuboapi.get_response.latency.mean_90)",   // see below for more advanced usage
                 "description": "latency average (excluding 10% outliers)",
                 "height" : 200,
                 "colspan": 2,  
                 "renderer": "line",  // use any rickshaw-supported renderer
-                //"summary": "avg",
                 "unstack": true  // other parameters like unstack, interpolation, stroke, min, height are also available (see rickshaw documentation for more info)
               },
-
+               {
+                "alias": "latency (ms)",
+                "targets": "averageSeries(stats.timers.stubo."  + server + ".stuboapi.get_response.latency.mean)",   // see below for more advanced usage
+                "description": "latency average",
+                "height" : 200,
+                "colspan": 2,  
+                "renderer": "line",  // use any rickshaw-supported renderer
+                "unstack": true  // other parameters like unstack, interpolation, stroke, min, height are also available (see rickshaw documentation for more info)
+              },
               {
                 "alias": "request / response size (kb)",
                 "targets": ["alias(averageSeries(stats.gauges.stubo."  + server + ".stuboapi.get_response.sent), 'sent')",
@@ -61,12 +67,21 @@ function build_dash(servers) {
                 "description": "stub request and response sizes",
                 "height" : 200,
                 "renderer": "bar",  // use any rickshaw-supported renderer
-                //"summary": "last",
                 "unstack": true,  // other parameters like unstack, interpolation, stroke, min, height are also available (see rickshaw documentation for more info)
               },
               {
-                "alias": "host response latency",
-                "targets": "aliasByNode(stats.timers.stubo."  + server + ".stuboapi.get_response.latency.mean_90, 5)",   // see below for more advanced usage
+                "alias": "host latency - mean 90%",
+                "targets": "aliasByNode(stats.timers.stubo."  + server + ".stuboapi.get_response.latency.mean_90, 4)",   // see below for more advanced usage
+                "description": "response latency by host ms (excluding 10% outliers)",
+                "height" : 250,
+                "colspan": 2,  
+                "renderer": "line",  // use any rickshaw-supported renderer
+                //"summary": "last",
+                "unstack": true  // other parameters like unstack, interpolation, stroke, min, height are also available (see rickshaw documentation for more info)
+              },
+              {
+                "alias": "host latency",
+                "targets": "aliasByNode(stats.timers.stubo."  + server + ".stuboapi.get_response.latency.mean, 4)",   // see below for more advanced usage
                 "description": "response latency by host ms",
                 "height" : 250,
                 "colspan": 2,  
@@ -83,7 +98,7 @@ function build_dash(servers) {
                 //"summary": "last",
               },
               {
-                "alias": "health checks (latency ms)",
+                "alias": "health checks (latency ms) - mean 90%",
                 "targets": "stats.timers.stubo."  + cluster + ".*.stuboapi.get_status.latency.mean_90",
                 "description": "get status health latency",
                 "height" : 200,
