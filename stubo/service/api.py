@@ -1027,8 +1027,6 @@ def manage_request_api(handler):
                                           host=all_hosts)    
                 else:
                     result = 'error: unexpected action type={0}'.format(_type)
-            elif action == 'end_session':
-                result = end_session(handler, name)
             elif action == 'end_sessions':
                 result = end_sessions(handler, name)    
             else:

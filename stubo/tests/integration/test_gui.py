@@ -247,7 +247,7 @@ class TestManage(Base):
         self.assertEqual(response.code, 200) 
         self.assertIn("example",response.body)   
         
-    def test_scenario_session_action(self):
+    def test_end_sessions_action(self):
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/demo/first.commands'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
@@ -264,18 +264,7 @@ class TestManage(Base):
         self.http_client.fetch(self.get_url('/manage'), self.stop)
         response = self.wait()
         self.assertTrue('End all active sessions' in response.body)
-        self.assertTrue('End a session' in response.body)
         
-        self.http_client.fetch(self.get_url('/manage?action=end_session&name=playme'), self.stop)
-        response = self.wait()
-        self.assertEqual(response.code, 200)
-        self.assertEqual(response.headers["Content-Type"], 
-                         'text/html; charset=UTF-8')
-        self.assertTrue("'data': {'message': 'Session ended'}}" in response.body)
-        
-        self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario=first&session=playme&mode=playback'), self.stop)
-        response = self.wait()
-        self.assertEqual(response.code, 200)
         self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario=first&session=playme2&mode=playback'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
