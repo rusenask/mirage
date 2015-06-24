@@ -9,10 +9,10 @@ def roll_dt(date_str):
     date_str = date_str.strip()
     return "{{% raw roll_date('{0}', as_date(recorded_on), as_date(played_on)) %}}".format(date_str)
                                                     
-response_elements = dict(a=XPathValue('//response/b', extractor=lambda x: '{% raw getresponse_arg %}', element_index_func='position() - 1'),
+response_elements = dict(a=XPathValue('//response/b', extractor=lambda x: '{% raw getresponse_arg %}'),
                          b=XPathValue('//response/c', extractor=lambda x: "{{xmltree.xpath('/request/dt')[0].text}}"),
-                         info_date=XPathValue('//response/info/date', extractor=roll_dt, element_index_func='count(../preceding-sibling::info) + 1'),
-                         dt=XPathValue('//user:dt', extractor=roll_dt, element_index_func='count(../preceding-sibling::user:Body) + 1'),
+                         info_date=XPathValue('//response/info/date', extractor=roll_dt),
+                         dt=XPathValue('//user:dt', extractor=roll_dt),
                          userid=XPathValue('//user:InformationSystemUserIdentity/info:UserId',
                                            extractor=lambda x: "{{xmltree.xpath('/request2/user')[0].text}}"))
     

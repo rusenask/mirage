@@ -24,21 +24,18 @@ class XPathValue(Value):
     or attributes. If an extractor is provided the result of the extractor will
     be used as the value for all matches in the transformation.
     """
-    def __init__(self, xpath, extractor=None, name=None, element_index_func=None):
+    def __init__(self, xpath, extractor=None, name=None):
         """Create an XPathValue.
         
         :Params:
           - `xpath`: XPATH expression to locate an one or more XML elements or attributes.  An instance of :class:`string`
           - `extractor`  (optional): functor that can be used to transform the result of the XPATH value. Called with a single arg which is the XPATH result text of the first match (xpath_result[0].text). e.g. extractor=lambda x: x.upper()
           - `name` (optional): element name to use, defaults to basename(xpath)
-          - `element_index_func` (optional): XSLT value function to return the current index count of a repeating element. Defaults to 'position()' for elements contained within the same parent i.e. XPATH=//x/y following this form <x><y>1</y><y>2</y></x>. An example index with the same XPATH=//x/y following this form <x><y>1</y></x><x><y>2</y></x> would be 'count(../preceding-sibling::x) + 1' 
         """  
         self.xpath = xpath
         self.extractor = extractor
         self.name = name or os.path.basename(xpath)
         self.parent = os.path.basename(os.path.dirname(xpath))
-        self.element_index_func = element_index_func or 'position()'
-        
 
 class StripNamespace(object):
     
@@ -153,10 +150,11 @@ class XMLMangler(object):
                 {% if copy_attrs_on_match %}
                   <xsl:apply-templates select="@*"/>
                 {% end %} 
-               
+                
+                <xsl:variable name="name" select="name()" />
                 <xsl:variable name="element_index">
-                    <xsl:value-of select="{{path.element_index_func}}" />
-                </xsl:variable>                
+                  <xsl:value-of select="count(preceding::*[name()= $name]) + count(ancestor::*[name()= $name]) + 1" />
+                </xsl:variable>              
 
                 <xsl:variable name="value_count">
                   <xsl:value-of select="count(str:tokenize(string(${{name}}), ';'))"/>
@@ -175,8 +173,7 @@ class XMLMangler(object):
                     <xsl:otherwise>
                        <xsl:value-of select="${{name}}" /> 
                     </xsl:otherwise>
-                </xsl:choose>   
-              
+                </xsl:choose>      
             </xsl:when>
             <xsl:otherwise>
                <xsl:value-of select="." /> 
@@ -184,10 +181,7 @@ class XMLMangler(object):
         </xsl:choose>    
       </xsl:element>
     </xsl:template>
-{% end %}       
-
-
- 
+{% end %}        
 </xsl:stylesheet>'''
     
     def __init__(self, elements=None, attrs=None, 
