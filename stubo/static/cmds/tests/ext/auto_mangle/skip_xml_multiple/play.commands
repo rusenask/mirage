@@ -1,0 +1,3 @@
+begin/session?scenario=ignore_xml&session=ignore_xml1&mode=playback
+get/response?session=ignore_xml1&tracking_level=full, request.xml
+end/session?session=ignore_xml1

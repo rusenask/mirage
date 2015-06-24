@@ -24,15 +24,20 @@ class XPathValue(Value):
     or attributes. If an extractor is provided the result of the extractor will
     be used as the value for all matches in the transformation.
     """
-    def __init__(self, xpath, extractor=None):
+    def __init__(self, xpath, extractor=None, name=None, element_index_func=None):
         """Create an XPathValue.
         
         :Params:
           - `xpath`: XPATH expression to locate an one or more XML elements or attributes.  An instance of :class:`string`
           - `extractor`  (optional): functor that can be used to transform the result of the XPATH value. Called with a single arg which is the XPATH result text of the first match (xpath_result[0].text). e.g. extractor=lambda x: x.upper()
+          - `name` (optional): element name to use, defaults to basename(xpath)
+          - `element_index_func` (optional): XSLT value function to return the current index count of a repeating element. Defaults to 'position()' for elements contained within the same parent i.e. XPATH=//x/y following this form <x><y>1</y><y>2</y></x>. An example index with the same XPATH=//x/y following this form <x><y>1</y></x><x><y>2</y></x> would be 'count(../preceding-sibling::x) + 1' 
         """  
         self.xpath = xpath
         self.extractor = extractor
+        self.name = name or os.path.basename(xpath)
+        self.parent = os.path.basename(os.path.dirname(xpath))
+        self.element_index_func = element_index_func or 'position()'
         
 
 class StripNamespace(object):
@@ -114,12 +119,14 @@ class XMLMangler(object):
     
     xslt_template = '''<?xml version="1.0"?>
 <xsl:stylesheet version="1.0"
-  xmlns:xsl="http://www.w3.org/1999/XSL/Transform" {% raw namespaces %}>
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+  xmlns:str="http://exslt.org/strings" extension-element-prefixes="str"
+  {% raw namespaces %}>
   <xsl:output omit-xml-declaration="yes" encoding="UTF-8"/>
   <xsl:strip-space elements="*"/>  
 <xsl:template match="@*|node()">
    <xsl:copy>
-    <xsl:apply-templates select="@*|node()"/>
+    <xsl:apply-templates select="@*|node()" />
    </xsl:copy>
 </xsl:template>
 {% for name, path in attrs.iteritems() %}
@@ -137,16 +144,39 @@ class XMLMangler(object):
       </xsl:attribute>
     </xsl:template>
 {% end %} 
+
 {% for name, path in elements.iteritems() %}
-    {% set path = path.xpath %}
-    <xsl:template match="{{path}}"> 
-       <xsl:element name="{{basename(path)}}"  namespace="{namespace-uri(.)}">    
+    <xsl:template match="{{path.xpath}}">
+       <xsl:element name="{{path.name}}"  namespace="{namespace-uri(.)}">    
         <xsl:choose>
             <xsl:when test="${{name}} != '___stubo_ignore___'">
                 {% if copy_attrs_on_match %}
                   <xsl:apply-templates select="@*"/>
-                {% end %}     
-                  <xsl:value-of select="${{name}}" /> 
+                {% end %} 
+               
+                <xsl:variable name="element_index">
+                    <xsl:value-of select="{{path.element_index_func}}" />
+                </xsl:variable>                
+
+                <xsl:variable name="value_count">
+                  <xsl:value-of select="count(str:tokenize(string(${{name}}), ';'))"/>
+                </xsl:variable>  
+                                
+                <xsl:variable name="element_index_value">
+                    <xsl:if test="($element_index >= 1) and ($value_count > 1)">
+                        <xsl:value-of select="str:tokenize(string(${{name}}), ';')[number($element_index)]" />  
+                    </xsl:if>
+                </xsl:variable>
+                
+                <xsl:choose>
+                    <xsl:when test="($element_index_value != '')">
+                        <xsl:value-of select="$element_index_value" />  
+                    </xsl:when>
+                    <xsl:otherwise>
+                       <xsl:value-of select="${{name}}" /> 
+                    </xsl:otherwise>
+                </xsl:choose>   
+              
             </xsl:when>
             <xsl:otherwise>
                <xsl:value-of select="." /> 
@@ -154,7 +184,10 @@ class XMLMangler(object):
         </xsl:choose>    
       </xsl:element>
     </xsl:template>
-{% end %}    
+{% end %}       
+
+
+ 
 </xsl:stylesheet>'''
     
     def __init__(self, elements=None, attrs=None, 
@@ -213,6 +246,20 @@ class XMLMangler(object):
         return unicode(result_tree).rstrip()
       
     def path_values_for(self, xml_doc, excludes, elements_or_attrs):
+        def get_value(value, extractor):
+            if not isinstance(value, basestring):
+                # found element
+                value = value.text or ''
+            if path.extractor:
+                value = path.extractor(value)
+            return value  
+        
+        def get_values(els, extractor):
+            values = []
+            for el in els:
+                values.append(get_value(el, extractor))
+            return values      
+                
         args = dict()
         for name, path in elements_or_attrs.iteritems():
             if name not in excludes or path.extractor == ignore_children:
@@ -221,15 +268,16 @@ class XMLMangler(object):
                 # value if there is a match for this path.
                 value = '___stubo_ignore___'
                 if vals:
-                    value = vals[0]
-                    if not isinstance(value, basestring):
-                        # found element
-                        value = vals[0].text or ''
-                    if path.extractor:
-                        value = path.extractor(value)
+                    if len(vals) > 1:
+                        value = ";".join(get_values(vals, path.extractor))
+                    else:
+                        value =   get_value(vals[0], path.extractor)  
                 else:     
                     log.debug("Unable to find {0} using xpath={1} in request".format(name, path.xpath))
+                log.debug('{0}={1}'.format(name, value))    
                 args[name] = etree.XSLT.strparam(value)
+               
+        log.debug('args={0}'.format(args))                   
         return args             
     
     def path_values(self, xml_doc, excludes):
