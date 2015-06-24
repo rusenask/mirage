@@ -29,7 +29,7 @@ class XPathValue(Value):
         
         :Params:
           - `xpath`: XPATH expression to locate an one or more XML elements or attributes.  An instance of :class:`string`
-          - `extractor`  (optional): functor that can be used to transform the result of the XPATH value. Called with a single arg which is the XPATH result text of the first match (xpath_result[0].text). e.g. extractor=lambda x: x.upper()
+          - `extractor`  (optional): functor that can be used to transform the result of the XPATH value. Called with a single arg which is the XPATH result text of the corresponding matching element (xpath_result[X].text). e.g. extractor=lambda x: x.upper()
           - `name` (optional): element name to use, defaults to basename(xpath)
         """  
         self.xpath = xpath
