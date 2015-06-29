@@ -1129,24 +1129,6 @@ class TestStubExport(unittest.TestCase):
                              [x.strip() for x in expected]) 
             
         self._delete_tmp_export_dir(scenario_dir)
- 
-
-class TestCalcDelay(unittest.TestCase):
-
-    def _calc(self, policy):
-        from stubo.service.api import calculate_delay
-        return calculate_delay(policy)
-    
-    def test_fixed(self):
-        delay = self._calc(dict(delay_type='fixed', milliseconds=5))
-        self.assertEqual(delay, 5.0)
-        
-    def test_variable(self):
-        delay = self._calc(dict(delay_type='normalvariate', mean=1, stddev=5))
-        self.assertTrue(delay is not None)
-        
-    def test_unknown(self):
-        self.assertEqual(0, self._calc(dict(delay_type='bogus')))    
                 
 class TestDelayPolicy(unittest.TestCase):
     
@@ -1223,6 +1205,20 @@ class TestDelayPolicy(unittest.TestCase):
         self.assertEqual(self.cache.get_delay_policy('x'), 
                          {'delay_type': 'normalvariate', 'name': 'x',
                           'mean': '100', 'stddev' : '50'})
+        
+    def test_put_weighted(self):
+        from stubo.service.api import update_delay_policy
+        args = {
+          'delay_type' : 'weighted',
+          'name' : 'x',
+          'delays' : 'fixed,30000,5:normalvariate,1000,1000,15:normalvariate,500,1000,70'
+        }
+        response = update_delay_policy(self.make_request(), args)
+        self.assertEqual(response['data']['message'],
+            "Put Delay Policy Finished")
+        self.assertEqual(self.cache.get_delay_policy('x'), 
+                         {'delay_type': 'weighted', 'name': 'x',
+                          'delays' : 'fixed,30000,5:normalvariate,1000,1000,15:normalvariate,500,1000,70'})    
            
     def test_invalid_args(self):
         from stubo.service.api import update_delay_policy
@@ -1245,6 +1241,26 @@ class TestDelayPolicy(unittest.TestCase):
         }
         with self.assertRaises(HTTPClientError):
             update_delay_policy(self.make_request(), args)
+            
+    def test_invalid_args3(self):
+        from stubo.service.api import update_delay_policy
+        from stubo.exceptions import HTTPClientError
+        args = {
+          'delay_type' : 'weighted',
+          'name' : 'x',
+        }
+        with self.assertRaises(HTTPClientError):
+            update_delay_policy(self.make_request(), args)   
+            
+    def test_invalid_args4(self):
+        from stubo.service.api import update_delay_policy
+        from stubo.exceptions import HTTPClientError
+        args = {
+          'delay_type' : 'weighted',
+          'delays' : 'baddata',
+        }
+        with self.assertRaises(HTTPClientError):
+            update_delay_policy(self.make_request(), args)                 
     
 class TestBookmarks(unittest.TestCase):
 

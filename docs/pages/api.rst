@@ -351,10 +351,12 @@ put/delay_policy
     put/delay_policy (GET, POST)  
        query args: 
            name: delay name
-           delay_type: fixed or normalvariate
+           delay_type: fixed, normalvariate or weighted
            milliseconds: used with fixed delay_type only
            mean: used with normalvariate delay_type only
            stddev: used with normalvariate delay_type only
+           values: used with weighted delay_type only. values is a delimited string of delays. 
+           For each delay the last value represents the percentage this delay will occur. 
     
     stubo/api/put/delay_policy?name=slow&delay_type=fixed&milliseconds=1000     
     
@@ -367,7 +369,19 @@ put/delay_policy
            "name": "slow"
        }
     }
+    
+    i.e. to set a weighted percentage of delays with 5% fixed at 30s, 15% having a delay of 5s +/- 1s and 70% having a delay of 1s +/- 0.5s 
+    stubo/api/put/delay_policy?name=pcent_random_samples&delay_type=weighted&delays=fixed,30000,5:normalvariate,5000,1000,15:normalvariate,1000,500,70
 
+    {
+       "version": "1.2.3", 
+       "data": {
+           "status": "new", 
+           "message": "Put Delay Policy Finished", 
+           "delay_type": "weighted", 
+           "name": "pcent_random_samples"
+       }
+    }
 
 get/delay_policy
 ================
