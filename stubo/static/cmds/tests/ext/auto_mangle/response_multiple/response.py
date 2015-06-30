@@ -11,6 +11,7 @@ def roll_dt(date_str):
                                                     
 response_elements = dict(a=XPathValue('//response/b', extractor=lambda x: '{% raw getresponse_arg %}'),
                          b=XPathValue('//response/c', extractor=lambda x: "{{xmltree.xpath('/request/dt')[0].text}}"),
+                         info_date=XPathValue('//response/info/date', extractor=roll_dt),
                          dt=XPathValue('//user:dt', extractor=roll_dt),
                          userid=XPathValue('//user:InformationSystemUserIdentity/info:UserId',
                                            extractor=lambda x: "{{xmltree.xpath('/request2/user')[0].text}}"))

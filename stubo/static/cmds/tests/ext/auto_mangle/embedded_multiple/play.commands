@@ -1,0 +1,3 @@
+begin/session?scenario=embedded&session=embedded_play&mode=playback
+get/response?session=embedded_play,embedded.request2.xml
+end/session?session=embedded_play

@@ -1,0 +1,9 @@
+delete/stubs?scenario=embedded&force=true
+put/module?name=/static/cmds/tests/ext/auto_mangle/embedded_multiple/embedded.py
+begin/session?scenario=embedded&session=embedded_rec&mode=record
+put/stub?session=embedded_rec&ext_module=embedded,embedded.request.xml,embedded.response.xml
+end/session?session=embedded_rec
+
+begin/session?scenario=embedded&session=embedded_play&mode=playback
+get/response?session=embedded_play,embedded.request2.xml
+end/session?session=embedded_play
