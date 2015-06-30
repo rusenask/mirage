@@ -1,18 +1,25 @@
 Changelog
 =========
 
-0.6.2 (unreleased)
+0.6.3 (2015-06-30)
 ------------------
 
+- YAML config (#12)
+- Fix to support repeating elements within XMLMangler (#55)
+- New weighted delay (#45)
+
+0.6.2
+------
+
 - Rest support
-- Parameterize session on get/export and exec/cmds calls (closes #39)
+- Parameterize session on get/export and exec/cmds calls (#39)
 
 
 0.6.1 (2015-05-11)
 ------------------
 
-- Return the http status code of exec/cmds requests (closes #28)
-- Added tracker scenario filter (closes #23)
+- Return the http status code of exec/cmds requests (#28)
+- Added tracker scenario filter (#23)
 - Added stub priority
 - Export runnable scenarios
 
