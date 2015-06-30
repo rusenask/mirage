@@ -340,7 +340,45 @@ class Test_xmlexit(Base):
         self.assertEqual(response.body, """<?xml version="1.0" encoding="UTF-8"?>
 <XYZ>
 <a>goodbye</a>
-</XYZ>""")       
+</XYZ>""")   
+        
+    def test_skip_xml_multiple(self):
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/tests/ext/auto_mangle/skip_xml_multiple/record.commands'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)  
+        self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario=ignore_xml&session=ignore_xml1&mode=playback'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)  
+        self.http_client.fetch(self.get_url('/stubo/api/get/response?session=ignore_xml1'), callback=self.stop,
+            method="POST", body="""<user:Request xmlns:user="http://www.my.com/userschema">
+<user:dispatchTime>
+        <user:businessSemantic>DTD</user:businessSemantic>
+        <user:timeMode>U</user:timeMode>
+        <user:dateTime>
+            <user:year>2014</user:year>
+            <user:month>12</user:month>
+            <user:day>25</user:day>
+            <user:hour>09</user:hour>
+            <user:minutes>30</user:minutes>
+            <user:seconds>00</user:seconds>
+        </user:dateTime>
+        <user:dateTime>
+            <user:year>2015</user:year>
+            <user:month>10</user:month>
+            <user:day>01</user:day>
+            <user:hour>12</user:hour>
+            <user:minutes>24</user:minutes>
+            <user:seconds>46</user:seconds>
+        </user:dateTime>
+        <user:date year="2014" month="12" day="25"></user:date>
+</user:dispatchTime>
+</user:Request>""")       
+        response = self.wait()
+        self.assertEqual(response.code, 200)  
+        self.assertEqual(response.body, """<?xml version="1.0" encoding="UTF-8"?>
+<XYZ>
+<a>goodbye</a>
+</XYZ>""")    
         
     def test_skip_xml_elements(self):
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/tests/ext/auto_mangle/skip_xml_elements/record.commands'), self.stop)
@@ -411,7 +449,25 @@ class Test_xmlexit(Base):
         self.assertEqual(response.code, 200)  
         self.assertEqual(response.body, """<response>
 <a>my response is kind</a>
-</response>""")   
+</response>""")
+        
+    def test_embedded_multiple(self):
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/tests/ext/auto_mangle/embedded_multiple/record.commands'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)  
+        self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario=embedded&session=embedded_play&mode=playback'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)  
+        self.http_client.fetch(self.get_url('/stubo/api/get/response?session=embedded_play'), callback=self.stop,
+            method="POST", body="""<X>
+    <Command>FQC1GBP/EUR/25Oct14</Command>
+    <Command>FQC1USD/USD/25Oct15</Command>
+</X>""")   
+        response = self.wait()
+        self.assertEqual(response.code, 200)  
+        self.assertEqual(response.body, """<response>
+<a>my response is kind</a>
+</response>""")       
         
     def test_all(self):
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/tests/ext/auto_mangle/all/record.commands'), self.stop)
@@ -463,6 +519,33 @@ class Test_xmlexit(Base):
         response = self.wait()
         self.assertEqual(response.code, 200)  
         self.assertEqual(response.body, """<user:Response xmlns:user="http://www.my.com/userschema" xmlns:info="http://www.my.com/infoschema"><user:Body><user:dt>2014-12-15T15:30</user:dt><user:InformationSystemUserIdentity><info:UserId>fred</info:UserId></user:InformationSystemUserIdentity></user:Body></user:Response>""")  
+    
+    def test_response_multiple(self):
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/tests/ext/auto_mangle/response_multiple/record.commands'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)  
+        self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario=response&session=response_play&mode=playback'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)  
+        self.http_client.fetch(self.get_url('/stubo/api/get/response?session=response_play&getresponse_arg=foo&played_on=2014-12-15'), callback=self.stop,
+            method="POST", body="""<request>
+<dt>2014-12-25</dt>
+<user>fred</user>
+</request>""")       
+        response = self.wait()
+        self.assertEqual(response.code, 200)  
+        self.assertEqual(response.body,  
+                         """<response><a>hello</a><b>foo</b><b>foo</b><c>2014-12-25</c><info><date>2014-12-06</date></info><info><date>2015-12-06</date></info></response>""") 
+        
+        self.http_client.fetch(self.get_url('/stubo/api/get/response?session=response_play&played_on=2014-12-15'), callback=self.stop,
+            method="POST", body="""<request2>
+<dt>2014-12-25</dt>
+<user>fred</user>
+</request2>""")       
+        response = self.wait()
+        self.assertEqual(response.code, 200)  
+        self.assertEqual(response.body,  
+                         """<user:Response xmlns:user="http://www.my.com/userschema" xmlns:info="http://www.my.com/infoschema"><user:Body><user:dt>2014-12-15T15:30</user:dt><user:InformationSystemUserIdentity><info:UserId>fred</info:UserId></user:InformationSystemUserIdentity></user:Body><user:Body><user:dt>2015-12-15T15:30</user:dt><user:InformationSystemUserIdentity><info:UserId>fred</info:UserId></user:InformationSystemUserIdentity></user:Body></user:Response>""")
         
 class TestUnicode(Base):  
 

@@ -49,6 +49,7 @@ from stubo.ext import today_str
 from stubo.ext.transformer import transform
 from stubo.ext.module import Module
 from stubo.testing import DummyModel
+from .delay import Delay
     
 log = logging.getLogger(__name__)
 
@@ -450,8 +451,9 @@ def get_response(handler, session_name):
     # get latest delay policy
     delay_policy = stub.delay_policy()
     if delay_policy:
-        delay = calculate_delay(delay_policy)
+        delay = Delay.parse_args(delay_policy)
         if delay:
+            delay = delay.calculate()
             msg = 'apply delay: {0} => {1}'.format(delay_policy, delay)
             log.debug(msg) 
             handler.track['delay'] = delay 
@@ -725,6 +727,14 @@ def update_delay_policy(handler, doc):
         if 'mean' not in doc or 'stddev' not in doc:
             err = "'mean' and 'stddev' params are required for " \
               "'normalvariate' delays"
+    elif doc['delay_type'] == 'weighted':
+        if 'delays' not in doc:
+            err = "'delays' are required for 'weighted' delays" 
+        else:
+            try:
+                Delay.parse_args(doc)
+            except Exception, e:
+                err = 'Unable to parse weighted delay arguments: {0}'.format(str(e))                 
     else:
         err = 'Unknown delay type: {0}'.format(doc['delay_type'])
     if err:
@@ -1027,8 +1037,6 @@ def manage_request_api(handler):
                                           host=all_hosts)    
                 else:
                     result = 'error: unexpected action type={0}'.format(_type)
-            elif action == 'end_session':
-                result = end_session(handler, name)
             elif action == 'end_sessions':
                 result = end_sessions(handler, name)    
             else:

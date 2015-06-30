@@ -1,0 +1,16 @@
+ <?xml version="1.0" encoding="UTF-8" ?>
+<user:Response xmlns:user="http://www.my.com/userschema"
+	xmlns:info="http://www.my.com/infoschema">
+	<user:Body>
+		<user:dt>2014-12-10T15:30</user:dt>
+		<user:InformationSystemUserIdentity>
+			<info:UserId>joe</info:UserId>
+		</user:InformationSystemUserIdentity>
+	</user:Body>
+	<user:Body>
+		<user:dt>2015-12-10T15:30</user:dt>
+		<user:InformationSystemUserIdentity>
+			<info:UserId>joe</info:UserId>
+		</user:InformationSystemUserIdentity>
+	</user:Body>
+</user:Response>
