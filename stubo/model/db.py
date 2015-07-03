@@ -6,6 +6,7 @@ from pymongo import MongoClient, DESCENDING, ASCENDING
 import logging
 from bson.objectid import ObjectId
 from stubo.utils import asbool
+from stubo.model.stub import Stub
 
 default_env = {
     'port' : 27017,
@@ -77,7 +78,15 @@ class Scenario(object):
         return self.db.scenario.insert(kwargs)
     
     def insert_stub(self, doc, stateful):
-        from stubo.model.stub import Stub
+        """
+        Insert stub into DB. Performs a check whether this stub already exists in database or not.  If it exists
+        and stateful is True - new response is appended to the response list, else - reports that duplicate stub
+        found and it will not be inserted.
+
+        :param doc: Stub class with Stub that will be inserted
+        :param stateful: <boolean> specify whether stub insertion should be stateful or not
+        :return: <string> message with insertion status
+        """
         matchers = doc['stub'].contains_matchers()
         scenario = doc['scenario']
         stubs_cursor = self.get_stubs(scenario)
@@ -102,6 +111,7 @@ class Scenario(object):
                     return 'updated with stateful response'
         doc['stub'] = doc['stub'].payload       
         status = self.db.scenario_stub.insert(doc)
+        self.db.scenario_stub.create_index([("stub.priority", ASCENDING), ("scenario", ASCENDING)])
         return 'inserted scenario_stub: {0}'.format(status)
     
     def insert_pre_stub(self, scenario, stub):
