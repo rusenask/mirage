@@ -23,6 +23,8 @@ log = logging.getLogger(__name__)
 
 dummy_stub = create('dummy matcher', 'dummy response')
 
+YAML_FORMAT_SUBDIR = 'yaml_format'
+
 class Exporter(object):
     
     def __init__(self, static_dir):
@@ -35,7 +37,12 @@ class Exporter(object):
         # use session_id arg or epoch time
         session_id = session_id or int(time.time()) 
         session = u'{0}_{1}'.format(scenario_name, session_id)
+
         export_dir = (export_dir or scenario).replace(':', '_')
+
+        # specifying sub directory to store yaml configuration
+
+        export_dir += '/' + YAML_FORMAT_SUBDIR
         
         # write this at the top of the yaml
         comment = '# use the session_id url arg from exec/cmds if supplied otherwise the one set from the get/export'    
@@ -159,6 +166,7 @@ class Exporter(object):
             file_path = os.path.join(export_dir_path, fname)
             with codecs.open(file_path, mode='wb', encoding='utf-8') as f:
                 f.write(contents)
+            f.close()
             tar.add(file_path, fname)
             zout.write(file_path, fname)
         tar.close()     
