@@ -50,7 +50,8 @@ from stubo.ext.transformer import transform
 from stubo.ext.module import Module
 from stubo.testing import DummyModel
 from .delay import Delay
-    
+from stubo.model.export_commands import export_stubs_to_commands_format
+
 log = logging.getLogger(__name__)
 
 def get_dbenv(handler):
@@ -64,6 +65,10 @@ def get_dbenv(handler):
     return dbenv    
 
 def export_stubs(handler, scenario_name):
+    from stubo.model.exporter import YAML_FORMAT_SUBDIR
+    # export stubs in the old format
+    command_links = export_stubs_to_commands_format(handler, scenario_name)
+    # continue stub export in the new format
     cache = Cache(get_hostname(handler.request))  
     scenario_name_key = cache.scenario_key_name(scenario_name)
 
@@ -76,13 +81,16 @@ def export_stubs(handler, scenario_name):
                session_id=handler.get_argument('session_id', None), 
                export_dir=handler.get_argument('export_dir', None))
 
-    links = get_export_links(handler, scenario_name_key, files)
+    # getting export links
+    yaml_links = get_export_links(handler, scenario_name_key+"/"+YAML_FORMAT_SUBDIR, files)
+
     payload = dict(scenario=scenario_name, export_dir_path=export_dir_path,
-                   links=links)
+                   command_links=command_links, yaml_links=yaml_links)
     if runnable_info:
         payload['runnable'] = runnable_info
     return dict(version=version, data=payload)
-        
+
+
 def list_stubs(handler, scenario_name, host=None):
     cache = Cache(host or get_hostname(handler.request))
     scenario = Scenario()
