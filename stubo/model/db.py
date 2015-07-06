@@ -94,7 +94,7 @@ class Scenario(object):
         # use the pipe to calculate scenario sizes
         result = self.db.command('aggregate', 'scenario_stub', pipeline=pipeline)['result']
         # using dict comprehension to form a new dict for fast access to elements
-        result_dict = {x['_id'].split(':')[1]: x['size'] for x in result}
+        result_dict = {x['_id']: x['size'] for x in result}
 
         # if name is provided - return only single size for specific scenario.
         if name:

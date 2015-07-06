@@ -1113,11 +1113,11 @@ def get_session_status(handler, all_hosts=True):
                 # getting scenario size
                 scenario_size = 0
                 try:
-                    scenario_size = scenario_sizes[scenario_name]
+                    scenario_size = scenario_sizes[s['name']]
                 except KeyError:
-                    log.debug("Could not get scenario size for: %s" % scenario_name)
+                    log.debug("Could not get scenario size for: %s" % s['name'])
                 except Exception as ex:
-                    log.warn("Failed to get scenario size for: %s, got error: %s" % (scenario_name, ex))
+                    log.warn("Failed to get scenario size for: %s, got error: %s" % (s['name'], ex))
                 # creating a dict with scenario information
                 host_scenarios[host][scenario_name] = (sessions, stub_counts,
                                             recorded, human_size(scenario_size))
