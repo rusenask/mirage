@@ -275,9 +275,9 @@ class TestExport(Base):
         response = self.wait()
         self.assertEqual(response.code, 200)
         payload = json.loads(response.body)
-        self.assertTrue('links' in payload['data'])
-        self.assertEqual(5, len(payload['data']['links']))
-        self.assertEqual(1, len([x for x in payload['data']['links'] \
+        self.assertTrue('yaml_links' in payload['data'])
+        self.assertEqual(5, len(payload['data']['yaml_links']))
+        self.assertEqual(1, len([x for x in payload['data']['yaml_links'] \
                                 if x[0] == 'first.yaml']))
         
         
@@ -289,7 +289,7 @@ class TestExport(Base):
 
         # load from the export
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
-            '/static/exports/localhost_first/first.yaml'), self.stop)
+            '/static/exports/localhost_first/yaml_format/first.yaml'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
         
@@ -344,15 +344,15 @@ class TestExport(Base):
         response = self.wait()
         self.assertEqual(response.code, 200)
         payload = json.loads(response.body)
-        self.assertTrue('links' in payload['data'])
+        self.assertTrue('yaml_links' in payload['data'])
      
-        self.assertEqual(7, len(payload['data']['links']))
+        self.assertEqual(7, len(payload['data']['yaml_links']))
         self.assertTrue('runnable' in payload['data'])
         runnable = payload['data']['runnable']
         self.assertEqual(runnable.get('playback_session'),  'first_1')
         self.assertEqual(runnable.get('number_of_playback_requests'), 1)
         
-        self.assertEqual(1, len([x for x in payload['data']['links'] \
+        self.assertEqual(1, len([x for x in payload['data']['yaml_links'] \
                                 if x[0] == 'first.yaml']))
         self.http_client.fetch(self.get_url(
                                '/stubo/api/delete/stubs?scenario=first'),
@@ -362,7 +362,7 @@ class TestExport(Base):
 
         # load from the export
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
-            '/static/exports/localhost_first/first.yaml'), self.stop)
+            '/static/exports/localhost_first/yaml_format/first.yaml'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
              
@@ -387,14 +387,14 @@ class TestExport(Base):
         response = self.wait()
         self.assertEqual(response.code, 200)
         payload = json.loads(response.body)
-        self.assertTrue('links' in payload['data'])
+        self.assertTrue('yaml_links' in payload['data'])
      
-        self.assertEqual(7, len(payload['data']['links']))
+        self.assertEqual(7, len(payload['data']['yaml_links']))
         self.assertTrue('runnable' in payload['data'])
         runnable = payload['data']['runnable']
         self.assertEqual(runnable.get('playback_session'),  'first_1')
         self.assertEqual(runnable.get('number_of_playback_requests'), 1)
-        self.assertEqual(1, len([x for x in payload['data']['links'] \
+        self.assertEqual(1, len([x for x in payload['data']['yaml_links'] \
                                 if x[0] == 'first.yaml']))
         self.http_client.fetch(self.get_url(
                                '/stubo/api/delete/stubs?scenario=first'),
@@ -404,7 +404,7 @@ class TestExport(Base):
 
         # load from the export
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
-            '/static/exports/localhost_first/first.yaml'), self.stop)
+            '/static/exports/localhost_first/yaml_format/first.yaml'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)               
         
@@ -419,13 +419,13 @@ class TestExport(Base):
         response = self.wait()
         self.assertEqual(response.code, 200)
         payload = json.loads(response.body)
-        self.assertTrue('links' in payload['data'])
-        self.assertEqual(7, len(payload['data']['links']))
+        self.assertTrue('yaml_links' in payload['data'])
+        self.assertEqual(7, len(payload['data']['yaml_links']))
         self.assertTrue('runnable' in payload['data'])
         runnable = payload['data']['runnable']
         self.assertEqual(runnable.get('playback_session'),  'multi_play_2')
         self.assertEqual(runnable.get('number_of_playback_requests'), 1)
-        self.assertEqual(1, len([x for x in payload['data']['links'] \
+        self.assertEqual(1, len([x for x in payload['data']['yaml_links'] \
                                 if x[0] == 'multi_play.yaml']))
         self.http_client.fetch(self.get_url(
                                '/stubo/api/delete/stubs?scenario=multi_play'),
@@ -435,7 +435,7 @@ class TestExport(Base):
 
         # load from the export
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
-            '/static/exports/localhost_multi_play/multi_play.yaml'), self.stop)
+            '/static/exports/localhost_multi_play/yaml_format/multi_play.yaml'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200) 
         
@@ -450,14 +450,14 @@ class TestExport(Base):
         response = self.wait()
         self.assertEqual(response.code, 200)
         payload = json.loads(response.body)
-        self.assertTrue('links' in payload['data'])
-        self.assertEqual(15, len(payload['data']['links']))
+        self.assertTrue('yaml_links' in payload['data'])
+        self.assertEqual(15, len(payload['data']['yaml_links']))
         self.assertTrue('runnable' in payload['data'])
         runnable = payload['data']['runnable']
         self.assertEqual(runnable.get('playback_session'),  'multi_play_2')
         self.assertEqual(runnable.get('number_of_playback_requests'), 5)
         
-        self.assertEqual(1, len([x for x in payload['data']['links'] \
+        self.assertEqual(1, len([x for x in payload['data']['yaml_links'] \
                                 if x[0] == 'multi_play.yaml']))
         self.http_client.fetch(self.get_url(
                                '/stubo/api/delete/stubs?scenario=multi_play'),
@@ -467,7 +467,7 @@ class TestExport(Base):
 
         # load from the export
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdFile='
-            '/static/exports/localhost_multi_play/multi_play.yaml'), self.stop)
+            '/static/exports/localhost_multi_play/yaml_format/multi_play.yaml'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)            
         
@@ -492,7 +492,7 @@ class TestExport(Base):
 
         # load from the export
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
-            '/static/exports/localhost_mangler_xslt/mangler_xslt.yaml'),
+            '/static/exports/localhost_mangler_xslt/yaml_format/mangler_xslt.yaml'),
                                self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)  
@@ -1131,7 +1131,7 @@ class TestYAMLImport(Base):
         
     def test_post_exec_cmds(self):
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
-            '/static/exports/localhost_rest/rest.yaml'), callback=self.stop, 
+            '/static/exports/localhost_rest/yaml_format/rest.yaml'), callback=self.stop,
                                method="POST", body="")
         response = self.wait()
         self.assertEqual(response.code, 200)   
