@@ -111,7 +111,12 @@ class Scenario(object):
                     return 'updated with stateful response'
         doc['stub'] = doc['stub'].payload       
         status = self.db.scenario_stub.insert(doc)
-        self.db.scenario_stub.create_index([("stub.priority", ASCENDING), ("scenario", ASCENDING)])
+        if 'priority' in doc['stub']:
+            try:
+                # creating index for priority and scenario name to optimise new stub insertion and getting lists
+                self.db.scenario_stub.create_index([("stub.priority", ASCENDING), ("scenario", ASCENDING)])
+            except Exception as ex:
+                log.debug("Failed to create index: %s" % ex)
         return 'inserted scenario_stub: {0}'.format(status)
     
     def insert_pre_stub(self, scenario, stub):
