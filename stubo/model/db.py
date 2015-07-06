@@ -76,7 +76,40 @@ class Scenario(object):
     
     def insert(self, **kwargs):
         return self.db.scenario.insert(kwargs)
-    
+
+    def size(self, name=None):
+        """
+        Calculates scenario sizes. If name is not supplied - returns a dictionary with scenario name and size
+        (in bytes):
+        { 'scenario_1': 5646145,
+          'scenario_2': 12312312}
+        If a name is supplied - returns a size Integer in bytes.
+        :param name: optional parameter to get size of specific scenario
+        :return: <dict> - if name is not supplied, <int> - if scenario name supplied.
+        """
+        pipeline = [{'$group': {
+            '_id': '$scenario',
+            'size': {'$sum': '$space_used'}}}]
+
+        # use the pipe to calculate scenario sizes
+        result = self.db.command('aggregate', 'scenario_stub', pipeline=pipeline)['result']
+        # using dict comprehension to form a new dict for fast access to elements
+        result_dict = {x['_id'].split(':')[1]: x['size'] for x in result}
+
+        # if name is provided - return only single size for specific scenario.
+        if name:
+            scenario_size = None
+            try:
+                scenario_size = result_dict[name]
+            except KeyError:
+                log.debug("Wrong scenario name supplied (%s)" % name)
+            except Exception as ex:
+                log.warn("Failed to get scenario size for: %s, error: %s" % (name, ex))
+            return scenario_size
+        else:
+            # returning full list (scenarios and sizes)
+            return result_dict
+
     def insert_stub(self, doc, stateful):
         """
         Insert stub into DB. Performs a check whether this stub already exists in database or not.  If it exists
@@ -104,12 +137,16 @@ class Scenario(object):
                                                                       matchers))
                     response = the_stub.response_body()
                     response.extend(doc['stub'].response_body())
-                    the_stub.set_response_body(response)   
+                    the_stub.set_response_body(response)
+                    # updating Stub body and size
                     self.db.scenario_stub.update(
                         {'_id': ObjectId(stub['_id'])},
-                        {'$set' : {'stub' : the_stub.payload}})
+                        {'$set':{'stub' : the_stub.payload,
+                                 'space_used': len(unicode(the_stub.payload))}})
                     return 'updated with stateful response'
-        doc['stub'] = doc['stub'].payload       
+        doc['stub'] = doc['stub'].payload
+        # calculating stub size
+        doc['space_used'] = len(unicode(doc['stub']))
         status = self.db.scenario_stub.insert(doc)
         if 'priority' in doc['stub']:
             try:
