@@ -144,13 +144,13 @@ request1.json ::
           }
    }   
 
-Note that these json payloads for the request and response are defined as strings. Stubo also excepts the defintion as dictionaries.
+Note that these json payloads for the request and response are defined as strings. Stubo also excepts the definition as dictionaries.
             
          
 Command Scripting
 =================
 
-The YAML file is run through a tornado templete processor before beging parsed and executed by Stubo. Any variables defined such
+The YAML file is run through a template processor before being parsed and executed by Stubo. Any variables defined such
 as 'played_at' will evaluated and appropriate subsitutions made.
 
 A roll date example 
