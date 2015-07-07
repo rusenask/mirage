@@ -75,6 +75,30 @@ class Scenario(object):
     def insert(self, **kwargs):
         return self.db.scenario.insert(kwargs)
 
+    def recorded(self, name=None):
+        pipeline = [
+            {'$group': {
+                '_id': '$scenario',
+                'recorded': {'$max': '$recorded'}}}]
+        # use the pipe to calculate latest date
+        result = self.db.command('aggregate', 'scenario_stub', pipeline=pipeline)['result']
+        # using dict comprehension to form a new dict for fast access to elements
+        result_dict = {x['_id']: x['recorded'] for x in result}
+
+        # if name is provided - return only single recorded date for specific scenario.
+        if name:
+            scenario_recorded = None
+            try:
+                scenario_recorded = result_dict[name]
+            except KeyError:
+                log.debug("Wrong scenario name supplied (%s)" % name)
+            except Exception as ex:
+                log.warn("Failed to get scenario recorded date for: %s, error: %s" % (name, ex))
+            return scenario_recorded
+        else:
+            # returning full list (scenarios and sizes)
+            return result_dict
+
     def size(self, name=None):
         """
         Calculates scenario sizes. If name is not supplied - returns a dictionary with scenario name and size
@@ -125,14 +149,12 @@ class Scenario(object):
             for stub in stubs_cursor:
                 the_stub = Stub(stub['stub'], scenario)
                 if matchers and matchers == the_stub.contains_matchers():
-                    if not stateful and \
-                        doc['stub'].response_body() == the_stub.response_body():
+                    if not stateful and doc['stub'].response_body() == the_stub.response_body():
                         msg = 'duplicate stub found, not inserting.'
                         log.warn(msg)
                         return msg
                     log.debug('In scenario: {0} found exact match for matchers:'
-                      ' {1}. Perform stateful update of stub.'.format(scenario,
-                                                                      matchers))
+                              ' {1}. Perform stateful update of stub.'.format(scenario, matchers))
                     response = the_stub.response_body()
                     response.extend(doc['stub'].response_body())
                     the_stub.set_response_body(response)
@@ -143,6 +165,8 @@ class Scenario(object):
                                  'space_used': len(unicode(the_stub.payload))}})
                     return 'updated with stateful response'
         doc['stub'] = doc['stub'].payload
+        # additional helper for aggregation framework
+        doc['recorded'] = doc['stub']['recorded']
         # calculating stub size
         doc['space_used'] = len(unicode(doc['stub']))
         status = self.db.scenario_stub.insert(doc)
@@ -158,8 +182,7 @@ class Scenario(object):
         status = self.db.pre_scenario_stub.insert(dict(scenario=scenario,
                                                        stub=stub.payload))
         return 'inserted pre_scenario_stub: {0}'.format(status)
-        
-    
+
     def remove_all(self, name):
         self.db.scenario.remove({'name' : name})
         self.db.scenario_stub.remove({'scenario' : name})
