@@ -90,7 +90,14 @@ class Scenario(object):
                 '_id': '$scenario',
                 'recorded': {'$max': '$recorded'}}}]
         # use the pipe to calculate latest date
-        result = self.db.command('aggregate', 'scenario_stub', pipeline=pipeline)['result']
+        try:
+            result = self.db.command('aggregate', 'scenario_stub', pipeline=pipeline)['result']
+        except KeyError as ex:
+            log.error(ex)
+            return None
+        except Exception as ex:
+            log.error("Got error when trying to use aggregation framework: %s" % ex)
+            return None
         # using dict comprehension to form a new dict for fast access to elements
         result_dict = {x['_id']: x['recorded'] for x in result}
 
@@ -123,7 +130,14 @@ class Scenario(object):
             'size': {'$sum': '$space_used'}}}]
 
         # use the pipe to calculate scenario sizes
-        result = self.db.command('aggregate', 'scenario_stub', pipeline=pipeline)['result']
+        try:
+            result = self.db.command('aggregate', 'scenario_stub', pipeline=pipeline)['result']
+        except KeyError as ex:
+            log.error(ex)
+            return None
+        except Exception as ex:
+            log.error("Got error when trying to use aggregation framework: %s" % ex)
+            return None
         # using dict comprehension to form a new dict for fast access to elements
         result_dict = {x['_id']: x['size'] for x in result}
 
@@ -175,7 +189,11 @@ class Scenario(object):
                     return 'updated with stateful response'
         doc['stub'] = doc['stub'].payload
         # additional helper for aggregation framework
-        doc['recorded'] = doc['stub']['recorded']
+        try:
+            doc['recorded'] = doc['stub']['recorded']
+        except KeyError:
+            # during tests "recorded" value is not supplied
+            pass
         # calculating stub size
         doc['space_used'] = len(unicode(doc['stub']))
         status = self.db.scenario_stub.insert(doc)
