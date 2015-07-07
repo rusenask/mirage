@@ -1540,10 +1540,10 @@ class TestTracker(Base):
         self.assertEqual(tracker['stubo_response'], "Hello 2 World")
 
         # not for minimal tracking as these can be big.
-        self.assertFalse(tracker.has_key('request_text'))
-        self.assertFalse(tracker.has_key('matchers'))
-        self.assertFalse(tracker.has_key('raw_response'))
-        self.assertFalse(tracker.has_key('encoded_response'))
+        self.assertFalse('request_text' in tracker)
+        self.assertFalse('matchers' in tracker)
+        self.assertFalse('raw_response' in tracker)
+        self.assertFalse('encoded_response' in tracker)
 
     def test_full_tracking_level(self):
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdFile='
