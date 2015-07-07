@@ -76,6 +76,15 @@ class Scenario(object):
         return self.db.scenario.insert(kwargs)
 
     def recorded(self, name=None):
+        """
+        Calculates scenario recorded date. If name is not supplied - returns a dictionary with scenario name and
+        recorded date:
+        { 'scenario_1': '2015-05-07',
+          'scenario_2': '2015-05-07'}
+        If a name is supplied - returns recorded date string (since MongoDB does not support DateTimeField).
+        :param name: optional parameter to get recorded date for specific scenario
+        :return: <dict> - if name is not supplied, <string> with date - if scenario name supplied.
+        """
         pipeline = [
             {'$group': {
                 '_id': '$scenario',
