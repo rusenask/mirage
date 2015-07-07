@@ -1104,7 +1104,7 @@ class TestYAMLImport(Base):
         self.assertEqual(response.code, 200)
         
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
-            '/static/exports/localhost_rest/rest.zip'), self.stop)
+            '/static/exports/localhost_rest/yaml_format/rest.zip'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
         response = json.loads(response.body)
@@ -1112,8 +1112,7 @@ class TestYAMLImport(Base):
         self.assertEqual(response['data']['number_of_requests'], 5)
         
     def test_gzip_from_export(self):
-        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
-            '/static/cmds/tests/rest/yaml/1.yaml'), self.stop)
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/tests/rest/yaml/1.yaml'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
         self.http_client.fetch(self.get_url(
@@ -1122,7 +1121,7 @@ class TestYAMLImport(Base):
         self.assertEqual(response.code, 200)
         
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
-            '/static/exports/localhost_rest/rest.tar.gz'), self.stop)
+            '/static/exports/localhost_rest/yaml_format/rest.tar.gz'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
         response = json.loads(response.body)
@@ -1179,7 +1178,7 @@ class TestCommandsImport(Base):
         self.assertEqual(response.code, 200)
         
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
-            '/static/exports/localhost_first/first.zip'), self.stop)
+            '/static/exports/localhost_first/yaml_format/first.zip'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
         
@@ -1202,7 +1201,7 @@ class TestCommandsImport(Base):
         self.assertEqual(response.code, 200)
         
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
-            '/static/exports/localhost_first/first.tar.gz'), self.stop)
+            '/static/exports/localhost_first/yaml_format/first.tar.gz'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
         
