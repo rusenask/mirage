@@ -1541,15 +1541,15 @@ class TestTracker(Base):
         tracker = self.db.tracker.find_one({'function':'get/response'})
         # minimal or full tracking level items
         self.assertEqual(tracker['function'], "get/response")
-        self.assertTrue(tracker['start_time'] != None)
+        self.assertTrue(tracker['start_time'] is not None)
         self.assertEqual(tracker['return_code'], 200)
-        self.assertTrue(tracker['server'] != None)
-        self.assertTrue(tracker['host'] != None)
+        self.assertTrue(tracker['server'] is not None)
+        self.assertTrue(tracker['host'] is not None)
         self.assertEqual(tracker['request_params']['session'], "first_1")
         self.assertEqual(tracker['scenario'], "first")
-        self.assertTrue(tracker['duration_ms'] != None)
-        self.assertTrue(tracker['remote_ip'] != None)
-        self.assertTrue(tracker['delay'] != None)
+        self.assertTrue(tracker['duration_ms'] is not None)
+        self.assertTrue(tracker['remote_ip'] is not None)
+        self.assertTrue(tracker['delay'] is not None)
         self.assertIn("Hello 2 World this is", tracker['stubo_response'])
 
         # full tracking only 
