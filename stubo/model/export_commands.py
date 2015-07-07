@@ -47,13 +47,18 @@ def export_stubs_to_commands_format(handler, scenario_name):
     scenario = Scenario()
     # get scenario pre stubs for specified scenario
     stubs = list(scenario.get_pre_stubs(scenario_name_key))
-    if len(stubs) > 0:
+    if stubs:
         for i in range(len(stubs)):
             entry = stubs[i]
             stub = Stub(entry['stub'], scenario_name_key)
-            matchers = [('{0}_{1}_{2}.textMatcher'.format(session, i, x),
-                         stub.contains_matchers()[x]) for x in range(len(
-                stub.contains_matchers()))]
+            # if stub is rest - matcher may be None, checking that
+            if stub.contains_matchers() is None:
+                cmds.append('# Stub skipped since no matchers were found. Consider using .yaml format for additional '
+                            'capabilities')
+                # skipping to next stub, this stub is not compatible with .commands format
+                continue
+            matchers = [('{0}_{1}_{2}.textMatcher'.format(session, i, x), stub.contains_matchers()[x])
+                        for x in range(len(stub.contains_matchers()))]
             matchers_str = ",".join(x[0] for x in matchers)
             url_args = stub.args()
             url_args['session'] = session
