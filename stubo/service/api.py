@@ -1084,6 +1084,8 @@ def get_session_status(handler, all_hosts=True):
     host_scenarios = {}
     # getting a dictionary with sizes for all scenarios
     scenario_sizes = scenario.size()
+    scenarios_recorded = scenario.recorded()
+
     for s in scenario.get_all():
         host, scenario_name = s['name'].split(':')
         if not all_hosts and get_hostname(handler.request)  != host:
@@ -1107,20 +1109,18 @@ def get_session_status(handler, all_hosts=True):
         recorded = '-'
         if sessions:
             if stub_counts:
-                stubs = list(get_stubs(host, scenario_name))
-                recorded =  max(x['stub'].get('recorded') for x in stubs)   
-
-                # getting scenario size
+                # getting scenario size and recorded values
                 scenario_size = 0
                 try:
                     scenario_size = scenario_sizes[s['name']]
+                    recorded = scenarios_recorded[s['name']]
                 except KeyError:
                     log.debug("Could not get scenario size for: %s" % s['name'])
                 except Exception as ex:
                     log.warn("Failed to get scenario size for: %s, got error: %s" % (s['name'], ex))
                 # creating a dict with scenario information
                 host_scenarios[host][scenario_name] = (sessions, stub_counts,
-                                            recorded, human_size(scenario_size))
+                                                       recorded, human_size(scenario_size))
             else:
                 host_scenarios[host][scenario_name] = (sessions, 0, '-', 0)        
     return host_scenarios  
