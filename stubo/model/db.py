@@ -48,16 +48,14 @@ class Scenario(object):
     def get_stubs(self, name=None):
         if name:
             filter = {'scenario' : name}
-            return self.db.scenario_stub.find(filter).sort("stub.priority", 
-                                                            ASCENDING)
+            return self.db.scenario_stub.find(filter)
         else:
             return self.db.scenario_stub.find() 
         
     def get_pre_stubs(self, name=None):
         if name:
             filter = {'scenario' : name}
-            return self.db.pre_scenario_stub.find(filter).sort("stub.priority", 
-                                                               ASCENDING)
+            return self.db.pre_scenario_stub.find(filter)
         else:
             return self.db.scenario_pre_stub.find()       
     
