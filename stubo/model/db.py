@@ -159,6 +159,18 @@ class Scenario(object):
             # returning full list (scenarios and sizes)
             return result_dict
 
+    def get_matched_stub(self, name, matchers):
+        """
+        Gets matched stub for specific scenario. Relies on indexed "matchers" key in scenario_stub object
+        :param name: <string> scenario name
+        :param matchers: <list> containing matchers
+        :return: matched stub document or None if stub not found
+        """
+        if name:
+            pattern = {'scenario': name,
+                       'matchers': matchers}
+            return self.db.scenario_stub.find_one(pattern)
+
     def insert_stub(self, doc, stateful):
         """
         Insert stub into DB. Performs a check whether this stub already exists in database or not.  If it exists
