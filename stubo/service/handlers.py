@@ -573,4 +573,130 @@ class PlopProfileHandler(RequestHandler):
             f.write(stats)
         self.finish(stats)
 
+"""
+-------------------------------------------------------------------
+------------------ below are handlers for API v2 ------------------
+-------------------------------------------------------------------
 
+"""
+NOT_ALLOWED_MSG = 'Method not allowed'
+
+class CreateScenarioHandler(RequestHandler):
+    """
+    /stubo/api/v2/scenarios
+    """
+    def compute_etag(self):
+        return None
+
+    def get(self):
+        self.clear()
+        self.send_error(status_code=405, reason=NOT_ALLOWED_MSG)
+
+    def put(self):
+        """
+
+        Creates a scenario and returns a link to it: query example:
+        { “scenario”: “scenario_name” }
+        :return:  returns a JSON response that contains information about created object,
+        example:
+        { “name”: “myscenario”,
+          “path”: “localhost:8001/stubo/api/v2/scenarios/myscenario/”
+        }
+        """
+        self._status_code(201)
+        self.write("not implemented")
+
+
+class GetAllScenariosHandler(RequestHandler):
+    """
+    /stubo/api/v2/scenarios/detail
+
+    """
+
+    def compute_etag(self):
+        return None
+
+    def get(self):
+        """
+
+        Returns a list with all scenarios (and URL paths to these resources),
+        stub count
+        """
+        self.write("not implemented")
+
+    def post(self):
+        self.clear()
+        self.send_error(status_code=405, reason=NOT_ALLOWED_MSG)
+
+
+class GetScenarioDetailsHandler(RequestHandler):
+    """
+    /stubo/api/v2/scenarios/(.*)
+
+    """
+
+    def compute_etag(self):
+        return None
+
+    def get(self, scenario_name):
+        """
+
+        Returns scenario name, current sessions and their states,
+        stub count, total, document size. Also, provides direct URL link to stub list.
+        :param scenario_name: <string> scenario name
+        """
+        self.write("not implemented")
+
+    def delete(self, scenario_name):
+        """
+
+        Deletes scenario object from database. Fails if there are existing stubs
+        in the database
+        :param scenario_name: <string> scenario name
+        """
+        self.write("not implemented")
+
+    def post(self):
+        self.clear()
+        self.send_error(status_code=405, reason=NOT_ALLOWED_MSG)
+
+
+class ScenarioActionHandler(RequestHandler):
+    """
+    /stubo/api/v2/scenarios/(?P<scenario_name>[^\/]+)/action
+    """
+
+    def compute_etag(self):
+        return None
+
+    def get(self, scenario_name):
+        self.clear()
+        self.send_error(status_code=405, reason=NOT_ALLOWED_MSG)
+
+    def post(self):
+        """
+
+        Launches actions such as export, begin session, end session. Examples:
+        body parameter:
+        { “export”: null }
+        You can also add these optional parameters during export to override defaults:
+        { “session”: “session_name”,
+         “export_dir”: “export_dir_name”,
+         “runnable”: true,
+         “playback_session”: “session_to_use(required when runnable)”}
+
+        Begin session:
+        { “begin”: null,
+          “session”: “session_name”,
+          “mode”: “record” }
+
+        End session:
+        { “end”: null,
+          “session”: “session_name” }
+
+        End all sessions:
+        { “end”: “sessions” }
+
+
+        """
+        self.write("not implemented")
