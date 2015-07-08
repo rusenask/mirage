@@ -181,29 +181,41 @@ class Scenario(object):
         :param stateful: <boolean> specify whether stub insertion should be stateful or not
         :return: <string> message with insertion status
         """
+        # getting initial values - stub matchers, scenario name
         matchers = doc['stub'].contains_matchers()
         scenario = doc['scenario']
-        stubs_cursor = self.get_stubs(scenario)
-        if stubs_cursor.count():
-            for stub in stubs_cursor:
-                the_stub = Stub(stub['stub'], scenario)
-                if matchers and matchers == the_stub.contains_matchers():
-                    if not stateful and doc['stub'].response_body() == the_stub.response_body():
-                        msg = 'duplicate stub found, not inserting.'
-                        log.warn(msg)
-                        return msg
-                    log.debug('In scenario: {0} found exact match for matchers:'
-                              ' {1}. Perform stateful update of stub.'.format(scenario, matchers))
-                    response = the_stub.response_body()
-                    response.extend(doc['stub'].response_body())
-                    the_stub.set_response_body(response)
-                    # updating Stub body and size
-                    self.db.scenario_stub.update(
-                        {'_id': ObjectId(stub['_id'])},
-                        {'$set': {'stub': the_stub.payload,
-                                  'space_used': len(unicode(the_stub.payload))}})
-                    return 'updated with stateful response'
+
+        matched_stub = self.get_matched_stub(name=scenario, matchers=matchers)
+        # checking if stub already exists
+        if matched_stub:
+            # creating stub object from found document
+            the_stub = Stub(matched_stub['stub'], scenario)
+            # checking if matchers match
+            if matchers and matchers == the_stub.contains_matchers():
+                if not stateful and doc['stub'].response_body() == the_stub.response_body():
+                    msg = 'duplicate stub found, not inserting.'
+                    log.warn(msg)
+                    return msg
+                # since stateful is true - updating stub body by extending the list
+                log.debug('In scenario: {0} found exact match for matchers:'
+                          ' {1}. Perform stateful update of stub.'.format(scenario, matchers))
+                response = the_stub.response_body()
+                response.extend(doc['stub'].response_body())
+                the_stub.set_response_body(response)
+                # updating Stub body and size, writing to database
+                self.db.scenario_stub.update(
+                    {'_id': matched_stub['_id']},
+                    {'$set': {'stub': the_stub.payload,
+                              'space_used': len(unicode(the_stub.payload))}})
+                return 'updated with stateful response'
+        # Stub doesn't exist in DB - preparing new object
         doc['stub'] = doc['stub'].payload
+        # additional helper value for indexing
+        doc['matchers'] = matchers
+        try:
+            self.db.scenario_stub.create_index("matchers")
+        except Exception as ex:
+            log.debug("Could not create index: %s" % ex)
         # additional helper for aggregation framework
         try:
             doc['recorded'] = doc['stub']['recorded']
