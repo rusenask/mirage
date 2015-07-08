@@ -700,3 +700,34 @@ class ScenarioActionHandler(RequestHandler):
 
         """
         self.write("not implemented")
+
+
+class CreateDelayPolicyHandler(RequestHandler):
+    """
+    /stubo/api/v2/delay-policy
+    """
+    def compute_etag(self):
+        return None
+
+    def get(self):
+        self.clear()
+        self.send_error(status_code=405, reason=NOT_ALLOWED_MSG)
+
+    def put(self):
+        """
+
+        Creates a delay policy. Examples:
+        { “name”: “delay_name”,
+          “delay_type”: “fixed”,
+          “milliseconds”: 50}
+        or
+        { “name”: “delay_name”,
+          “delay_type”: “normalvariate”,
+          “mean”: “mean_val”,
+          “stddev”: “val”}
+
+        Returns 201 status code if successful or 409 if request body options
+        are wrong (type fixed provided with mean and stddev options)
+        """
+        self._status_code(201)
+        self.write("not implemented")
