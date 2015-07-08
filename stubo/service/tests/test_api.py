@@ -900,10 +900,10 @@ class TestGetStubs(unittest.TestCase):
         response = response[0]
         response.pop('_id')
         self.assertEqual(response,
-                         dict(stub={u'request': {u'bodyPatterns': {u'contains': [u'<test>match this</test>']},
-                                                 u'method': u'POST'},
-                                    u'response': {u'body': u'<test>OK</test>', u'status': 200}},
-                              scenario='localhost:1stub1matcher'))
+                         {'stub': {u'request': {u'bodyPatterns': {u'contains': [u'<test>match this</test>']},
+                                                u'method': u'POST'},
+                                   u'response': {u'body': u'<test>OK</test>', u'status': 200}},
+                          'scenario': 'localhost:1stub1matcher', 'space_used': 146})
 
     def test_get_stubs_host_arg(self):
         from stubo.service.api import get_stubs
@@ -921,10 +921,10 @@ class TestGetStubs(unittest.TestCase):
         response = response[0]
         response.pop('_id')
         self.assertEqual(response,
-                         dict(stub={u'request': {u'bodyPatterns': {u'contains': [u'<test>match this</test>']},
-                                                 u'method': u'POST'},
-                                    u'response': {u'body': u'<test>OK</test>', u'status': 200}},
-                              scenario='localhost:1stub1matcher'))
+                         {'stub': {u'request': {u'bodyPatterns': {u'contains': [u'<test>match this</test>']},
+                                                u'method': u'POST'},
+                                   u'response': {u'body': u'<test>OK</test>', u'status': 200}},
+                          'scenario': 'localhost:1stub1matcher', 'space_used': 146})
 
 
 class TestStubExport(unittest.TestCase):
