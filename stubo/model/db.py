@@ -162,7 +162,12 @@ class Scenario(object):
 
     @staticmethod
     def _create_hash(matchers):
-        return hashlib.md5(u"".join(matchers)).hexdigest()
+        """
+        Creates a hash out of matchers list.
+        :param matchers: <list> matchers
+        :return: matchers md5 hash
+        """
+        return hashlib.md5(u"".join(unicode(matchers))).hexdigest()
 
     def get_matched_stub(self, name, matchers_hash):
         """
@@ -189,8 +194,7 @@ class Scenario(object):
         # getting initial values - stub matchers, scenario name
         matchers = doc['stub'].contains_matchers()
         scenario = doc['scenario']
-        import pdb
-        # pdb.set_trace()
+
         matchers_hash = self._create_hash(matchers)
         matched_stub = self.get_matched_stub(name=scenario, matchers_hash=matchers_hash)
 
@@ -219,11 +223,6 @@ class Scenario(object):
         doc['stub'] = doc['stub'].payload
         # additional helper value for indexing
         doc['matchers_hash'] = matchers_hash
-        if matchers_hash:
-            try:
-                self.db.scenario_stub.create_index("matchers_hash")
-            except Exception as ex:
-                log.debug("Could not create index: %s" % ex)
         # additional helper for aggregation framework
         try:
             doc['recorded'] = doc['stub']['recorded']
@@ -232,15 +231,33 @@ class Scenario(object):
             pass
         # calculating stub size
         doc['space_used'] = len(unicode(doc['stub']))
-        # pdb.set_trace()
+
+        # inserting stub into DB
         status = self.db.scenario_stub.insert(doc)
+
+        # create indexes
+        if matchers_hash:
+            self._create_index(key="matchers_hash")
+        # creating index for scenario and priority
+        self._create_index(key="scenario")
         if 'priority' in doc['stub']:
-            try:
-                # creating index for priority and scenario name to optimise new stub insertion and getting lists
-                self.db.scenario_stub.create_index([("stub.priority", ASCENDING), ("scenario", ASCENDING)])
-            except Exception as ex:
-                log.debug("Failed to create index: %s" % ex)
+             # creating index for priority
+            self._create_index("stub.priority")
+
         return 'inserted scenario_stub: {0}'.format(status)
+
+    def _create_index(self, key=None, direction=ASCENDING):
+        """
+        Creates index for specific key, fails silently if index creation was unsuccessful. Key examples:
+        "matchers_hash" , "stub.priority", "scenario"
+        :param key: <string>
+        :param direction: ASCENDING or DESCENDING (from pymongo)
+        """
+        if key:
+            try:
+                self.db.scenario_stub.create_index(key, direction)
+            except Exception as ex:
+                log.debug("Could not create index for key %s, got error: %s" % (key, ex))
 
     def insert_pre_stub(self, scenario, stub):
         status = self.db.pre_scenario_stub.insert(dict(scenario=scenario,
