@@ -899,11 +899,13 @@ class TestGetStubs(unittest.TestCase):
         self.assertEqual(len(response), 1)
         response = response[0]
         response.pop('_id')
-        self.assertEqual(response,
-                         {'stub': {u'request': {u'bodyPatterns': {u'contains': [u'<test>match this</test>']},
-                                                u'method': u'POST'},
-                                   u'response': {u'body': u'<test>OK</test>', u'status': 200}},
-                          'scenario': 'localhost:1stub1matcher', 'space_used': 146})
+        test_dict = {u'matchers': [u'<test>match this</test>'],
+                     u'scenario': u'localhost:1stub1matcher',
+                     u'space_used': 146,
+                     u'stub': {u'request': {u'bodyPatterns': {u'contains': [u'<test>match this</test>']},
+                                            u'method': u'POST'},
+                               u'response': {u'body': u'<test>OK</test>', u'status': 200}}}
+        self.assertEqual(response, test_dict)
 
     def test_get_stubs_host_arg(self):
         from stubo.service.api import get_stubs
@@ -920,11 +922,13 @@ class TestGetStubs(unittest.TestCase):
         self.assertEqual(len(response), 1)
         response = response[0]
         response.pop('_id')
-        self.assertEqual(response,
-                         {'stub': {u'request': {u'bodyPatterns': {u'contains': [u'<test>match this</test>']},
-                                                u'method': u'POST'},
-                                   u'response': {u'body': u'<test>OK</test>', u'status': 200}},
-                          'scenario': 'localhost:1stub1matcher', 'space_used': 146})
+        test_dict = {u'matchers': [u'<test>match this</test>'],
+                     u'scenario': u'localhost:1stub1matcher',
+                     u'space_used': 146,
+                     u'stub': {u'request': {u'bodyPatterns': {u'contains': [u'<test>match this</test>']},
+                                            u'method': u'POST'},
+                               u'response': {u'body': u'<test>OK</test>', u'status': 200}}}
+        self.assertEqual(response, test_dict)
 
 
 class TestStubExport(unittest.TestCase):
