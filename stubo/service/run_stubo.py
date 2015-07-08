@@ -169,6 +169,14 @@ class TornadoManager(object):
             ("/stubo/default/execCmds", "StuboCommandHandler"), 
             ("/stubo/api/exec/cmds", "StuboCommandHandler"),
             ]
+
+        rest_api = [
+            ("/stubo/api/v2/scenarios", "CreateScenarioHandler"),
+            ("/stubo/api/v2/scenarios/detail", "GetAllScenariosHandler"),
+            ("/stubo/api/v2/scenarios/(?P<scenario_name>[^\/]+)/action", "ScenarioActionHandler"),
+            ("/stubo/api/v2/scenarios/(?P<scenario_name>[^\/]+)", "GetScenarioDetailsHandler"),
+
+        ]
         
         ui_pages = [
             ("/tracker", "ViewTrackerHandler"),
@@ -184,7 +192,7 @@ class TornadoManager(object):
             ('/_profile2', 'PlopProfileHandler'),
         ]       
        
-        handler_routes = json_api + ui_pages
+        handler_routes = json_api + rest_api + ui_pages
         
         config_route_list = [(uri, HandlerFactory.make(handler_name))
                              for uri, handler_name in handler_routes]
@@ -197,7 +205,8 @@ class TornadoManager(object):
         route_list = [static_route, static_route2, static_route3, 
                       static_bootstrap_route] + config_route_list 
         return route_list
-    
+
+
 def main():
     TornadoManager(sys.argv[1]).start_server()
  
