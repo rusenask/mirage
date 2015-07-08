@@ -7,6 +7,7 @@ import logging
 from bson.objectid import ObjectId
 from stubo.utils import asbool
 from stubo.model.stub import Stub
+import hashlib
 
 default_env = {
     'port': 27017,
@@ -159,7 +160,11 @@ class Scenario(object):
             # returning full list (scenarios and sizes)
             return result_dict
 
-    def get_matched_stub(self, name, matchers):
+    @staticmethod
+    def _create_hash(matchers):
+        return hashlib.md5(u"".join(matchers)).hexdigest()
+
+    def get_matched_stub(self, name, matchers_hash):
         """
         Gets matched stub for specific scenario. Relies on indexed "matchers" key in scenario_stub object
         :param name: <string> scenario name
@@ -168,7 +173,7 @@ class Scenario(object):
         """
         if name:
             pattern = {'scenario': name,
-                       'matchers': matchers}
+                       'matchers_hash': matchers_hash}
             return self.db.scenario_stub.find_one(pattern)
 
     def insert_stub(self, doc, stateful):
@@ -184,8 +189,10 @@ class Scenario(object):
         # getting initial values - stub matchers, scenario name
         matchers = doc['stub'].contains_matchers()
         scenario = doc['scenario']
-
-        matched_stub = self.get_matched_stub(name=scenario, matchers=matchers)
+        import pdb
+        # pdb.set_trace()
+        matchers_hash = self._create_hash(matchers)
+        matched_stub = self.get_matched_stub(name=scenario, matchers_hash=matchers_hash)
 
         # checking if stub already exists
         if matched_stub:
@@ -211,10 +218,10 @@ class Scenario(object):
         # Stub doesn't exist in DB - preparing new object
         doc['stub'] = doc['stub'].payload
         # additional helper value for indexing
-        doc['matchers'] = matchers
-        if matchers:
+        doc['matchers_hash'] = matchers_hash
+        if matchers_hash:
             try:
-                self.db.scenario_stub.create_index("matchers")
+                self.db.scenario_stub.create_index("matchers_hash")
             except Exception as ex:
                 log.debug("Could not create index: %s" % ex)
         # additional helper for aggregation framework
@@ -225,6 +232,7 @@ class Scenario(object):
             pass
         # calculating stub size
         doc['space_used'] = len(unicode(doc['stub']))
+        # pdb.set_trace()
         status = self.db.scenario_stub.insert(doc)
         if 'priority' in doc['stub']:
             try:
