@@ -175,7 +175,7 @@ class TornadoManager(object):
             ("/stubo/api/v2/scenarios/detail", "GetAllScenariosHandler"),
             ("/stubo/api/v2/scenarios/(?P<scenario_name>[^\/]+)/action", "ScenarioActionHandler"),
             ("/stubo/api/v2/scenarios/(?P<scenario_name>[^\/]+)", "GetScenarioDetailsHandler"),
-
+            ("/stubo/api/v2/delay-policy", "CreateDelayPolicyHandler"),
         ]
         
         ui_pages = [
