@@ -899,7 +899,7 @@ class TestGetStubs(unittest.TestCase):
         self.assertEqual(len(response), 1)
         response = response[0]
         response.pop('_id')
-        test_dict = {u'matchers': [u'<test>match this</test>'],
+        test_dict = {u'matchers_hash': u'ed9351449fd0d98abd79c2aa2436f392',
                      u'scenario': u'localhost:1stub1matcher',
                      u'space_used': 146,
                      u'stub': {u'request': {u'bodyPatterns': {u'contains': [u'<test>match this</test>']},
@@ -922,7 +922,7 @@ class TestGetStubs(unittest.TestCase):
         self.assertEqual(len(response), 1)
         response = response[0]
         response.pop('_id')
-        test_dict = {u'matchers': [u'<test>match this</test>'],
+        test_dict = {u'matchers_hash': u'ed9351449fd0d98abd79c2aa2436f392',
                      u'scenario': u'localhost:1stub1matcher',
                      u'space_used': 146,
                      u'stub': {u'request': {u'bodyPatterns': {u'contains': [u'<test>match this</test>']},
