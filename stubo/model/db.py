@@ -167,7 +167,10 @@ class Scenario(object):
         :param matchers: <list> matchers
         :return: matchers md5 hash
         """
-        return hashlib.md5(u"".join(unicode(matchers))).hexdigest()
+        if matchers is not None:
+            return hashlib.md5(u"".join(unicode(matchers))).hexdigest()
+        elif matchers is None:
+            return None
 
     def get_matched_stub(self, name, matchers_hash):
         """
