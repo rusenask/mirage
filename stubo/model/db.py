@@ -7,6 +7,7 @@ import logging
 from bson.objectid import ObjectId
 from stubo.utils import asbool
 from stubo.model.stub import Stub
+import hashlib
 
 default_env = {
     'port': 27017,
@@ -159,6 +160,30 @@ class Scenario(object):
             # returning full list (scenarios and sizes)
             return result_dict
 
+    @staticmethod
+    def _create_hash(matchers):
+        """
+        Creates a hash out of matchers list.
+        :param matchers: <list> matchers
+        :return: matchers md5 hash
+        """
+        if matchers is not None:
+            return hashlib.md5(u"".join(unicode(matchers))).hexdigest()
+        elif matchers is None:
+            return None
+
+    def get_matched_stub(self, name, matchers_hash):
+        """
+        Gets matched stub for specific scenario. Relies on indexed "matchers" key in scenario_stub object
+        :param name: <string> scenario name
+        :param matchers: <list> containing matchers
+        :return: matched stub document or None if stub not found
+        """
+        if name:
+            pattern = {'scenario': name,
+                       'matchers_hash': matchers_hash}
+            return self.db.scenario_stub.find_one(pattern)
+
     def insert_stub(self, doc, stateful):
         """
         Insert stub into DB. Performs a check whether this stub already exists in database or not.  If it exists
@@ -169,29 +194,41 @@ class Scenario(object):
         :param stateful: <boolean> specify whether stub insertion should be stateful or not
         :return: <string> message with insertion status
         """
+        # getting initial values - stub matchers, scenario name
         matchers = doc['stub'].contains_matchers()
         scenario = doc['scenario']
-        stubs_cursor = self.get_stubs(scenario)
-        if stubs_cursor.count():
-            for stub in stubs_cursor:
-                the_stub = Stub(stub['stub'], scenario)
-                if matchers and matchers == the_stub.contains_matchers():
-                    if not stateful and doc['stub'].response_body() == the_stub.response_body():
-                        msg = 'duplicate stub found, not inserting.'
-                        log.warn(msg)
-                        return msg
-                    log.debug('In scenario: {0} found exact match for matchers:'
-                              ' {1}. Perform stateful update of stub.'.format(scenario, matchers))
-                    response = the_stub.response_body()
-                    response.extend(doc['stub'].response_body())
-                    the_stub.set_response_body(response)
-                    # updating Stub body and size
-                    self.db.scenario_stub.update(
-                        {'_id': ObjectId(stub['_id'])},
-                        {'$set': {'stub': the_stub.payload,
-                                  'space_used': len(unicode(the_stub.payload))}})
-                    return 'updated with stateful response'
+
+        matchers_hash = self._create_hash(matchers)
+        # check if we have matchers - should be None for REST calls
+        if matchers is not None:
+            # additional helper value for indexing
+            doc['matchers_hash'] = matchers_hash
+            matched_stub = self.get_matched_stub(name=scenario, matchers_hash=matchers_hash)
+
+            # checking if stub already exists
+            if matched_stub:
+                # creating stub object from found document
+                the_stub = Stub(matched_stub['stub'], scenario)
+                if not stateful and doc['stub'].response_body() == the_stub.response_body():
+                    msg = 'duplicate stub found, not inserting.'
+                    log.warn(msg)
+                    return msg
+                # since stateful is true - updating stub body by extending the list
+                log.debug('In scenario: {0} found exact match for matchers:'
+                          ' {1}. Perform stateful update of stub.'.format(scenario, matchers))
+                response = the_stub.response_body()
+                response.extend(doc['stub'].response_body())
+                the_stub.set_response_body(response)
+                # updating Stub body and size, writing to database
+                self.db.scenario_stub.update(
+                    {'_id': matched_stub['_id']},
+                    {'$set': {'stub': the_stub.payload,
+                              'space_used': len(unicode(the_stub.payload))}})
+                return 'updated with stateful response'
+
+        # Stub doesn't exist in DB - preparing new object
         doc['stub'] = doc['stub'].payload
+
         # additional helper for aggregation framework
         try:
             doc['recorded'] = doc['stub']['recorded']
@@ -200,14 +237,33 @@ class Scenario(object):
             pass
         # calculating stub size
         doc['space_used'] = len(unicode(doc['stub']))
+
+        # inserting stub into DB
         status = self.db.scenario_stub.insert(doc)
+
+        # create indexes
+        if matchers_hash:
+            self._create_index(key="matchers_hash")
+        # creating index for scenario and priority
+        self._create_index(key="scenario")
         if 'priority' in doc['stub']:
-            try:
-                # creating index for priority and scenario name to optimise new stub insertion and getting lists
-                self.db.scenario_stub.create_index([("stub.priority", ASCENDING), ("scenario", ASCENDING)])
-            except Exception as ex:
-                log.debug("Failed to create index: %s" % ex)
+            # creating index for priority
+            self._create_index("stub.priority")
+
         return 'inserted scenario_stub: {0}'.format(status)
+
+    def _create_index(self, key=None, direction=ASCENDING):
+        """
+        Creates index for specific key, fails silently if index creation was unsuccessful. Key examples:
+        "matchers_hash" , "stub.priority", "scenario"
+        :param key: <string>
+        :param direction: ASCENDING or DESCENDING (from pymongo)
+        """
+        if key:
+            try:
+                self.db.scenario_stub.create_index(key, direction)
+            except Exception as ex:
+                log.debug("Could not create index for key %s, got error: %s" % (key, ex))
 
     def insert_pre_stub(self, scenario, stub):
         status = self.db.pre_scenario_stub.insert(dict(scenario=scenario,
