@@ -148,6 +148,7 @@ class TornadoManager(object):
             ("/stubo/api/get/stubcount", "GetStubCountHandler"),
             ("/stubo/api/get/stublist", "GetStubListHandler"),
             ("/stubo/api/get/scenarios", "GetScenariosHandler"),
+            ("/stubo/api/put/scenarios/(?P<scenario_name>[^\/]+)", "PutScenarioHandler"),
             ("/stubo/api/get/export", "GetStubExportHandler"),
             ("/stubo/api/get/stats", "GetStatsHandler"),
             ("/stubo/api/put/delay_policy", "PutDelayPolicyHandler"),
