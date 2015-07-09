@@ -191,7 +191,39 @@ def list_scenarios_request(handler):
 def stub_count_request(handler):
     host = handler.get_argument('host', get_hostname(handler.request))
     return stub_count(host, handler.get_argument('scenario', None))
-    
+
+from stubo.model.db import Scenario
+
+@stubo_async
+def rename_scenario(handler, scenario_name, new_name):
+    """
+    Renames specified scenario, renames Stubs, reloads cache
+    :param handler: TrackRequest handler
+    :param scenario_name: <string> scenario name
+    :param new_name: <string> new scenario name
+    :return: <tuple> containing status code and message that will be returned
+    """
+    response = {
+        'version': version
+    }
+
+    scenario = Scenario()
+    # getting hostname
+    host = handler.get_argument('host', get_hostname(handler.request))
+    # getting object
+    scenario_obj = scenario.get("{0}:{1}".format(host, scenario_name))
+    # checking if scenario exist, if not - quit
+    if scenario_obj is None:
+        handler.set_status(404)
+        response['data'] = "Scenario not found. Name provided: {0}, host checked: {1}.".format(scenario_name, host)
+        return response
+
+    import pdb
+    pdb.set_trace()
+    # do stuff here
+    pass
+
+
 @stubo_async    
 def delete_stubs_request(handler):
     return delete_stubs(handler, 
