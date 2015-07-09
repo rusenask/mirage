@@ -81,12 +81,31 @@ class Scenario(object):
         return self.db.scenario.insert(kwargs)
 
     def change_name(self, name, new_name):
-        result = self.db.scenario_stub.update_many({'scenario': name}, {'$inc': {'scenario': new_name}})
-        matched_stubs = result.matched_count
-        result = self.db.scenario_pre_stub.update_many({'scenario': name}, {'$inc': {'scenario': new_name}})
-        matched_pre_stubs = result.matched_count
-        result = self.db.scenario.update_one({'name': name}, {'$inc': {'name': new_name}})
+        """
+        Rename scenario and all stubs
+        :param name: current scenario name
+        :param new_name: new scenario name
+        :return: statistics, how many stubs were changed
+        """
+        # updating scenario stub collection. You have to specify all parameters as booleans up to the one that you
+        # actually want, in our case - the fourth parameter "multi" = True
+        # update(spec, document[, upsert=False[,
+        #                        manipulate=False[, safe=None[, multi=False[, check_keys=True[, **kwargs]]]]]])
+        response = {}
+        result = self.db.scenario_stub.update(
+            {'scenario': name}, {'$set': {'scenario': new_name}}, False, False, None, True)
+        response['Stubs changed'] = result['nModified']
 
+        # updating pre stubs
+        result = self.db.scenario_pre_stub.update(
+            {'scenario': name}, {'$set': {'scenario': new_name}}, False, False, None, True)
+        response['Pre stubs changed'] = result['nModified']
+
+        # updating scenario itself
+        result = self.db.scenario.update({'name': name}, {'name': new_name})
+        response['Scenarios changed'] = result['nModified']
+
+        return response
 
     def recorded(self, name=None):
         """
