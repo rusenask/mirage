@@ -193,6 +193,8 @@ def stub_count_request(handler):
     return stub_count(host, handler.get_argument('scenario', None))
 
 from stubo.model.db import Scenario
+from stubo.cache import Cache
+from stubo.service.api import end_session
 
 @stubo_async
 def rename_scenario(handler, scenario_name, new_name):
@@ -223,6 +225,23 @@ def rename_scenario(handler, scenario_name, new_name):
 
     # renaming scenario and all stubs, getting a dict with results
     response = scenario.change_name(full_scenario_name, new_full_scenario_name)
+
+    cache = Cache(host)
+    # change cache
+    scenario_sessions = cache.get_sessions_status(scenario_name)
+    # scenario sessions contains tuples [(u'myscenario_session2_1', u'dormant'), ....]
+    session_info = []
+
+    cache.delete_caches(scenario_name)
+
+    # rebuild cache
+    for session_name, mode in scenario_sessions:
+        cache.create_session_cache(new_name, session_name)
+        session_info.append({'name': session_name})
+        # sessions after creation go into playback mode, ending them
+        end_session(handler, session_name)
+
+    response['Remapped sessions'] = session_info
 
     return response
 
