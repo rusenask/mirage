@@ -210,18 +210,21 @@ def rename_scenario(handler, scenario_name, new_name):
     scenario = Scenario()
     # getting hostname
     host = handler.get_argument('host', get_hostname(handler.request))
-    # getting object
-    scenario_obj = scenario.get("{0}:{1}".format(host, scenario_name))
+    # full names hostname:scenario_name
+    full_scenario_name = "{0}:{1}".format(host, scenario_name)
+    new_full_scenario_name = "{0}:{1}".format(host, new_name)
+    # getting scenario object
+    scenario_obj = scenario.get(full_scenario_name)
     # checking if scenario exist, if not - quit
     if scenario_obj is None:
         handler.set_status(404)
         response['data'] = "Scenario not found. Name provided: {0}, host checked: {1}.".format(scenario_name, host)
         return response
 
-    import pdb
-    pdb.set_trace()
-    # do stuff here
-    pass
+    # renaming scenario and all stubs, getting a dict with results
+    response = scenario.change_name(full_scenario_name, new_full_scenario_name)
+
+    return response
 
 
 @stubo_async    
