@@ -80,6 +80,14 @@ class Scenario(object):
     def insert(self, **kwargs):
         return self.db.scenario.insert(kwargs)
 
+    def change_name(self, name, new_name):
+        result = self.db.scenario_stub.update_many({'scenario': name}, {'$inc': {'scenario': new_name}})
+        matched_stubs = result.matched_count
+        result = self.db.scenario_pre_stub.update_many({'scenario': name}, {'$inc': {'scenario': new_name}})
+        matched_pre_stubs = result.matched_count
+        result = self.db.scenario.update_one({'name': name}, {'$inc': {'name': new_name}})
+
+
     def recorded(self, name=None):
         """
         Calculates scenario recorded date. If name is not supplied - returns a dictionary with scenario name and
