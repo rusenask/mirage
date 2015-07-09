@@ -34,6 +34,9 @@ from stubo import version
 from stubo.exceptions import StuboException, exception_response
 from stubo.testing import DummyModel
 
+from handlers_mt import rename_scenario
+
+
 log = logging.getLogger(__name__)
 
 class HandlerFactory(object):
@@ -389,6 +392,22 @@ class GetScenariosHandler(TrackRequest):
         
     def post(self):
         self.get()                       
+class PutScenarioHandler(TrackRequest):
+    """
+    /stubo/api/put/scenarios/(?P<scenario_name>[^\/]+)?new_name=some_new_name
+
+    """
+    def compute_etag(self):
+        return None
+
+    def get(self, scenario_name):
+        new_scenario_name = RequestHandler.get_query_arguments(self, 'new_name')
+        # checking whether scenario name and new scenario name values are supplied
+        if new_scenario_name and scenario_name:
+            rename_scenario(self, scenario_name=scenario_name, new_name=new_scenario_name)
+
+        else:
+            self.set_status(412, "Precondition failed: name not supplied")
 
 class GetStubCountHandler(TrackRequest):
     
