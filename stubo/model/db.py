@@ -91,7 +91,10 @@ class Scenario(object):
         # actually want, in our case - the fourth parameter "multi" = True
         # update(spec, document[, upsert=False[,
         #                        manipulate=False[, safe=None[, multi=False[, check_keys=True[, **kwargs]]]]]])
-        response = {}
+        response = {
+            'Old name': name,
+            "New name": new_name
+        }
         result = self.db.scenario_stub.update(
             {'scenario': name}, {'$set': {'scenario': new_name}}, False, False, None, True)
         response['Stubs changed'] = result['nModified']
