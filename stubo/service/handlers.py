@@ -406,10 +406,10 @@ class PutScenarioHandler(TrackRequest):
         new_scenario_name = RequestHandler.get_query_arguments(self, 'new_name')
         # checking whether scenario name and new scenario name values are supplied
         if new_scenario_name and scenario_name and new_scenario_name != ['']:
-            if re.match(r'[\w-]*$', new_scenario_name[0]):
-                rename_scenario(self, scenario_name=scenario_name, new_name=new_scenario_name[0])
-            else:
-                self.set_status(400, "Illegal characters supplied. Name provided: %s" % new_scenario_name[0])
+            #if re.match(r'[\w-]*$', new_scenario_name[0]):
+            rename_scenario(self, scenario_name=scenario_name, new_name=new_scenario_name[0])
+            # else:
+            #     self.set_status(400, "Illegal characters supplied. Name provided: %s" % new_scenario_name[0])
         else:
             self.set_status(412, "Precondition failed: name not supplied")
 
