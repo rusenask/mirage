@@ -1239,18 +1239,17 @@ class TestSession(Base):
     def test_change_scenario_name(self):
         """
 
-        Testing scenario change name functionality
+        Testing scenario change name functionality. This test is under TestSession because scenarios are created
+        through sessions and are related to them. Updating a test name requires to update cache as well.
+        In this case - copying all sessions from particular scenario, wiping scenario cache and then repopulating
+        cache with updated scenario name and sessions.
         """
-        # creating new scenario and session
+        # creating new scenario and session, setting record mode to prepare it for stub insertion
         scenario_old_name = 'first_old_name'
         self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario='
                                             '%s&session=first_1&mode=record' % scenario_old_name), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
-        # self.http_client.fetch(self.get_url('/stubo/api/end/session?session='
-        #                                     'first_1'), self.stop)
-        # response = self.wait()
-        # self.assertEqual(response.code, 200)
 
         # checking scenario
         self.http_client.fetch(self.get_url('/stubo/api/get/status?scenario=%s' % scenario_old_name), self.stop)
@@ -1284,6 +1283,11 @@ class TestSession(Base):
         self.assertEqual(response.code, 200)
 
     def _change_scenario_name(self, scenario_old_name, scenario_new_name):
+        """
+        Changes scenario name, checks whether returned data meets expectations
+        :param scenario_old_name: <string> without host, only scenario key name
+        :param scenario_new_name: <string> without host, only scenario key name
+        """
         self.http_client.fetch(
             self.get_url('/stubo/api/put/scenarios/%s?new_name=%s' % (scenario_old_name, scenario_new_name)), self.stop)
         response = self.wait()
@@ -1295,6 +1299,21 @@ class TestSession(Base):
         # splitting into two parts, because full name also contains hostname
         self.assertEqual(response_dict['Old name'].split(':')[1], scenario_old_name)
         self.assertEqual(response_dict['New name'].split(':')[1], scenario_new_name)
+
+    def test_change_non_existing_scenario_name(self):
+        """
+
+        Test scenario name change when non existent scenario name is provided
+        """
+        scenario_name_that_doesnt_exist = 'foobar1000'
+        self.http_client.fetch(
+            self.get_url('/stubo/api/put/scenarios/%s?new_name=%s' % (
+                scenario_name_that_doesnt_exist, 'new_name')), self.stop)
+        response = self.wait()
+        response_dict = json.loads(response.body)
+        self.assertTrue("error" in response_dict.keys())
+        self.assertTrue('Scenario not found' in response_dict['error'])
+        self.assertEqual(response.code, 400)
 
 
     def test_end_session(self):
