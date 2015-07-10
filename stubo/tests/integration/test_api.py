@@ -1315,6 +1315,16 @@ class TestSession(Base):
         self.assertTrue('Scenario not found' in response_dict['error'])
         self.assertEqual(response.code, 400)
 
+    def test_change_name_without_name(self):
+        """
+
+        Test scenario name change when
+        """
+        self.http_client.fetch(
+            self.get_url('/stubo/api/put/scenarios/some_name'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 412)
+        self.assertTrue('Precondition failed: name not supplied' in response.error.message)
 
     def test_end_session(self):
         self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario='
