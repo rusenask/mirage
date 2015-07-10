@@ -405,7 +405,7 @@ class PutScenarioHandler(TrackRequest):
     def get(self, scenario_name):
         new_scenario_name = RequestHandler.get_query_arguments(self, 'new_name')
         # checking whether scenario name and new scenario name values are supplied
-        if new_scenario_name and scenario_name:
+        if new_scenario_name and scenario_name and new_scenario_name != ['']:
             rename_scenario(self, scenario_name=scenario_name, new_name=new_scenario_name[0])
 
         else:
