@@ -1236,6 +1236,67 @@ class TestSession(Base):
         response = self.wait()
         self.assertEqual(response.code, 400)
 
+    def test_change_scenario_name(self):
+        """
+
+        Testing scenario change name functionality
+        """
+        # creating new scenario and session
+        scenario_old_name = 'first_old_name'
+        self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario='
+                                            '%s&session=first_1&mode=record' % scenario_old_name), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        # self.http_client.fetch(self.get_url('/stubo/api/end/session?session='
+        #                                     'first_1'), self.stop)
+        # response = self.wait()
+        # self.assertEqual(response.code, 200)
+
+        # checking scenario
+        self.http_client.fetch(self.get_url('/stubo/api/get/status?scenario=%s' % scenario_old_name), self.stop)
+        response = self.wait()
+        self.assertTrue('first_1' in response.body)
+
+        # insert stub
+        self._test_stub_insert(scenario_old_name)
+
+        # change scenario name
+        scenario_new_name = 'first_new_name'
+        self._change_scenario_name(scenario_old_name=scenario_old_name, scenario_new_name=scenario_new_name)
+
+        # check scenario again with new name
+        self.http_client.fetch(self.get_url('/stubo/api/get/status?scenario=%s' % scenario_new_name), self.stop)
+        response = self.wait()
+        # check if the session is still attached to this scenario
+        self.assertTrue('first_1' in response.body)
+
+    def _test_stub_insert(self, scenario_name):
+        # setting session to record mode
+        """
+
+        Helper function to insert stub during record
+        """
+        self.http_client.fetch(self.get_url('/stubo/api/put/stub?session=first_1'),
+                               callback=self.stop,
+                               method="POST",
+                               body="||textMatcher||abcdef||response||a response")
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+
+    def _change_scenario_name(self, scenario_old_name, scenario_new_name):
+        self.http_client.fetch(
+            self.get_url('/stubo/api/put/scenarios/%s?new_name=%s' % (scenario_old_name, scenario_new_name)), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        response_dict = json.loads(response.body)
+        # checking if stub was found and updated
+        self.assertEqual(response_dict['Stubs changed'], 1)
+        self.assertEqual(response_dict['Scenarios changed'], 1)
+        # splitting into two parts, because full name also contains hostname
+        self.assertEqual(response_dict['Old name'].split(':')[1], scenario_old_name)
+        self.assertEqual(response_dict['New name'].split(':')[1], scenario_new_name)
+
+
     def test_end_session(self):
         self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario='
                                             'first&session=first_1&mode=record'), self.stop)
