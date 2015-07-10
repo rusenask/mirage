@@ -1291,7 +1291,7 @@ class TestSession(Base):
         self.http_client.fetch(
             self.get_url('/stubo/api/put/scenarios/%s?new_name=%s' % (scenario_old_name, scenario_new_name)), self.stop)
         response = self.wait()
-        self.assertEqual(response.code, 200)
+        self.assertEqual(response.code, 200, response.error.message)
         response_dict = json.loads(response.body)
         # checking if stub was found and updated
         self.assertEqual(response_dict['Stubs changed'], 1)
