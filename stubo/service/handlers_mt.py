@@ -219,8 +219,9 @@ def rename_scenario(handler, scenario_name, new_name):
     scenario_obj = scenario.get(full_scenario_name)
     # checking if scenario exist, if not - quit
     if scenario_obj is None:
-        handler.set_status(404)
-        response['data'] = "Scenario not found. Name provided: {0}, host checked: {1}.".format(scenario_name, host)
+        handler.set_status(400)
+        handler.track.scenario = scenario_name
+        response['error'] = "Scenario not found. Name provided: {0}, host checked: {1}.".format(scenario_name, host)
         return response
 
     # renaming scenario and all stubs, getting a dict with results
