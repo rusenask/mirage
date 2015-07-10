@@ -1257,7 +1257,7 @@ class TestSession(Base):
         self.assertTrue('first_1' in response.body)
 
         # insert stub
-        self._test_stub_insert(scenario_old_name)
+        self._test_stub_insert()
 
         # change scenario name
         scenario_new_name = 'first_new_name'
@@ -1269,7 +1269,7 @@ class TestSession(Base):
         # check if the session is still attached to this scenario
         self.assertTrue('first_1' in response.body)
 
-    def _test_stub_insert(self, scenario_name):
+    def _test_stub_insert(self):
         # setting session to record mode
         """
 
@@ -1325,6 +1325,22 @@ class TestSession(Base):
         response = self.wait()
         self.assertEqual(response.code, 412)
         self.assertTrue('Precondition failed: name not supplied' in response.error.message)
+
+    def test_change_name_blank(self):
+        # creating new scenario and session, setting record mode to prepare it for stub insertion
+        scenario_old_name = 'first_old_name'
+        self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario='
+                                            '%s&session=first_change_name&mode=record' % scenario_old_name), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+
+        # providing '' to new change
+        self.http_client.fetch(
+            self.get_url('/stubo/api/put/scenarios/%s?new_name=' % scenario_old_name), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 412)
+        self.assertTrue('Precondition failed: name not supplied' in response.error.message)
+
 
     def test_end_session(self):
         self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario='
