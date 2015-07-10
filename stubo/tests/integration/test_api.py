@@ -1347,6 +1347,10 @@ class TestSession(Base):
 
     def test_change_name_with_illegalcharacters(self):
         # providing '' to new change
+        """
+
+        Passes illegal characters to stubo to check for response code. Expected response code - 400
+        """
         name = '@#$name'
         self.http_client.fetch(
             self.get_url('/stubo/api/put/scenarios/some_name?new_name=%s' % name), self.stop)
