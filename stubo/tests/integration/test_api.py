@@ -1318,7 +1318,7 @@ class TestSession(Base):
     def test_change_name_without_name(self):
         """
 
-        Test scenario name change when
+        Test scenario name change when query is missing
         """
         self.http_client.fetch(
             self.get_url('/stubo/api/put/scenarios/some_name'), self.stop)
@@ -1327,8 +1327,12 @@ class TestSession(Base):
         self.assertTrue('Precondition failed: name not supplied' in response.error.message)
 
     def test_change_name_blank(self):
+        """
+
+        Test scenario name change when new name is empty
+        """
         # creating new scenario and session, setting record mode to prepare it for stub insertion
-        scenario_old_name = 'first_old_name'
+        scenario_old_name = 'first_old_name_1'
         self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario='
                                             '%s&session=first_change_name&mode=record' % scenario_old_name), self.stop)
         response = self.wait()
@@ -1340,6 +1344,15 @@ class TestSession(Base):
         response = self.wait()
         self.assertEqual(response.code, 412)
         self.assertTrue('Precondition failed: name not supplied' in response.error.message)
+
+    def test_change_name_with_illegalcharacters(self):
+        # providing '' to new change
+        name = '@#$name'
+        self.http_client.fetch(
+            self.get_url('/stubo/api/put/scenarios/some_name?new_name=%s' % name), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 400)
+        self.assertTrue('Illegal characters supplied' in response.error.message)
 
 
     def test_end_session(self):
