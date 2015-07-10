@@ -222,28 +222,37 @@ def rename_scenario(handler, scenario_name, new_name):
         handler.set_status(400)
         handler.track.scenario = scenario_name
         response['error'] = "Scenario not found. Name provided: {0}, host checked: {1}.".format(scenario_name, host)
+        log.debug("Scenario not found. Name provided: {0}, host checked: {1}.".format(scenario_name, host))
         return response
 
     # renaming scenario and all stubs, getting a dict with results
-    response = scenario.change_name(full_scenario_name, new_full_scenario_name)
+    try:
+        response = scenario.change_name(full_scenario_name, new_full_scenario_name)
+    except Exception as ex:
+        handler.set_status()
+        log.debug("Failed to change scenario name, got error: %s" % ex)
+        response['error']['database'] = "Failed to change scenario name, got error: %s" % ex
+    try:
 
-    cache = Cache(host)
-    # change cache
-    scenario_sessions = cache.get_sessions_status(scenario_name)
-    # scenario sessions contains tuples [(u'myscenario_session2_1', u'dormant'), ....]
-    session_info = []
+        cache = Cache(host)
+        # change cache
+        scenario_sessions = cache.get_sessions_status(scenario_name)
+        # scenario sessions contains tuples [(u'myscenario_session2_1', u'dormant'), ....]
+        session_info = []
 
-    cache.delete_caches(scenario_name)
+        cache.delete_caches(scenario_name)
 
-    # rebuild cache
-    for session_name, mode in scenario_sessions:
-        cache.create_session_cache(new_name, session_name)
-        session_info.append({'name': session_name})
-        # sessions after creation go into playback mode, ending them
-        end_session(handler, session_name)
+        # rebuild cache
+        for session_name, mode in scenario_sessions:
+            cache.create_session_cache(new_name, session_name)
+            session_info.append({'name': session_name})
+            # sessions after creation go into playback mode, ending them
+            end_session(handler, session_name)
 
-    response['Remapped sessions'] = session_info
-
+        response['Remapped sessions'] = session_info
+    except Exception as ex:
+        log.debug("Failed to repopulate cache, got error: %s" % ex)
+        response['error']['cache'] = "Failed to repopulate cache, got error: %s" % ex
     return response
 
 
