@@ -80,6 +80,67 @@ class Scenario(object):
     def insert(self, **kwargs):
         return self.db.scenario.insert(kwargs)
 
+    def change_name(self, name, new_name):
+        """
+        Rename scenario and all stubs
+        :param name: current scenario name
+        :param new_name: new scenario name
+        :return: statistics, how many stubs were changed
+        """
+        # updating scenario stub collection. You have to specify all parameters as booleans up to the one that you
+        # actually want, in our case - the fourth parameter "multi" = True
+        # update(spec, document[, upsert=False[,
+        #                        manipulate=False[, safe=None[, multi=False[, check_keys=True[, **kwargs]]]]]])
+        response = {
+            'Old name': name,
+            "New name": new_name
+        }
+        try:
+            result = self.db.scenario_stub.update(
+                {'scenario': name}, {'$set': {'scenario': new_name}}, False, False, None, True)
+            try:
+                response['Stubs changed'] = result['nModified']
+            except KeyError:
+                # older versions of mongodb returns 'n' instead of 'nModified'
+                response['Stubs changed'] = result['n']
+            except Exception as ex1:
+                # this is probably KeyError, leaving Exception for debugging purposes
+                log.debug("Could not get STUB nModified key, result returned: %s. Error: %s" % (result, ex1))
+        except Exception as ex:
+            log.debug("Could not update scenario stub, got error: %s " % ex)
+            response['Stubs changed'] = 0
+
+        # updating pre stubs
+        try:
+            result = self.db.scenario_pre_stub.update(
+                {'scenario': name}, {'$set': {'scenario': new_name}}, False, False, None, True)
+            try:
+                response['Pre stubs changed'] = result['nModified']
+            except KeyError:
+                # older versions of mongodb returns 'n' instead of 'nModified'
+                response['Pre stubs changed'] = result['n']
+            except Exception as ex1:
+                log.debug("Could not get PRE STUB nModified key, result returned: %s. Error: %s" % (result, ex1))
+        except Exception as ex:
+            log.debug("Could not update scenario pre stub, got error: %s" % ex)
+            response['Pre stubs changed'] = 0
+
+        try:
+            # updating scenario itself
+            result = self.db.scenario.update({'name': name}, {'name': new_name})
+            try:
+                response['Scenarios changed'] = result['nModified']
+            except KeyError:
+                # older versions of mongodb returns 'n' instead of 'nModified'
+                response['Scenarios changed'] = result['n']
+            except Exception as ex1:
+                log.debug("Could not get SCENARIO nModified key, result returned: %s. Error: %s" % (result, ex1))
+        except Exception as ex:
+            log.debug("Could not update scenario, got error: %s" % ex)
+            response['Scenarios changed'] = 0
+
+        return response
+
     def recorded(self, name=None):
         """
         Calculates scenario recorded date. If name is not supplied - returns a dictionary with scenario name and

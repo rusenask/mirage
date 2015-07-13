@@ -250,7 +250,39 @@ end/sessions
         }
     }
 
-    
+
+put/scenarios
+=============
+
+Scenario names can be changed by providing current scenario name and new name. This operation includes renaming all the
+stubs that belong to this scenario, as well as changing scenario name value in saved sessions. Sessions will be
+transfered to new scenario. During rename procedure - all sessions will be set to dormant mode. Returns status code
+412 if no name or no query is provided. Returns status code 400 if scenario name has illegal characters.
+Scenario name check regex: r'[\w-]*$' - letters, numbers, dashes, underscores
+
+.. code-block:: javascript
+
+    put/scenarios/(?P<scenario_name>[^\/]+) (GET)
+       query args:
+           new_name: new scenario name
+
+    stubo/api/put/scenarios/first?new_name=new_first_scenario_name
+
+    {
+    "Scenarios changed": 1,
+
+    "Remapped sessions": [
+             {
+                 "name": "myscenario_session2"
+             }
+         ],
+    "New name": "localhost:new_first_scenario_name",
+    "Old name": "localhost:first",
+    "Stubs changed": 5,
+    "Pre stubs changed": 0
+    }
+
+
 put/stub
 ========
 
