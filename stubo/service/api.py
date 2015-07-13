@@ -50,7 +50,8 @@ from stubo.ext.transformer import transform
 from stubo.ext.module import Module
 from stubo.testing import DummyModel
 from .delay import Delay
-    
+from stubo.model.export_commands import export_stubs_to_commands_format
+
 log = logging.getLogger(__name__)
 
 def get_dbenv(handler):
@@ -64,6 +65,10 @@ def get_dbenv(handler):
     return dbenv    
 
 def export_stubs(handler, scenario_name):
+    from stubo.model.exporter import YAML_FORMAT_SUBDIR
+    # export stubs in the old format
+    command_links = export_stubs_to_commands_format(handler, scenario_name)
+    # continue stub export in the new format
     cache = Cache(get_hostname(handler.request))  
     scenario_name_key = cache.scenario_key_name(scenario_name)
 
@@ -76,13 +81,16 @@ def export_stubs(handler, scenario_name):
                session_id=handler.get_argument('session_id', None), 
                export_dir=handler.get_argument('export_dir', None))
 
-    links = get_export_links(handler, scenario_name_key, files)
+    # getting export links
+    yaml_links = get_export_links(handler, scenario_name_key+"/"+YAML_FORMAT_SUBDIR, files)
+
     payload = dict(scenario=scenario_name, export_dir_path=export_dir_path,
-                   links=links)
+                   command_links=command_links, yaml_links=yaml_links)
     if runnable_info:
         payload['runnable'] = runnable_info
     return dict(version=version, data=payload)
-        
+
+
 def list_stubs(handler, scenario_name, host=None):
     cache = Cache(host or get_hostname(handler.request))
     scenario = Scenario()
@@ -1074,6 +1082,10 @@ def manage_request_api(handler):
 def get_session_status(handler, all_hosts=True):
     scenario = Scenario()
     host_scenarios = {}
+    # getting a dictionary with sizes for all scenarios
+    scenario_sizes = scenario.size()
+    scenarios_recorded = scenario.recorded()
+
     for s in scenario.get_all():
         host, scenario_name = s['name'].split(':')
         if not all_hosts and get_hostname(handler.request)  != host:
@@ -1095,16 +1107,20 @@ def get_session_status(handler, all_hosts=True):
             sessions.append(session)   
         stub_counts =  stub_count(host, scenario_name)['data']['count']
         recorded = '-'
-        space_used = 0
         if sessions:
             if stub_counts:
-                stubs = list(get_stubs(host, scenario_name))
-                recorded =  max(x['stub'].get('recorded') for x in stubs)   
-                for stub in stubs:
-                    stub = Stub(stub['stub'], s['name']) 
-                    space_used += stub.space_used()             
-                host_scenarios[host][scenario_name] = (sessions, stub_counts, 
-                                            recorded, human_size(space_used)) 
+                # getting scenario size and recorded values
+                scenario_size = 0
+                try:
+                    scenario_size = scenario_sizes[s['name']]
+                    recorded = scenarios_recorded[s['name']]
+                except KeyError:
+                    log.debug("Could not get scenario size for: %s" % s['name'])
+                except Exception as ex:
+                    log.warn("Failed to get scenario size for: %s, got error: %s" % (s['name'], ex))
+                # creating a dict with scenario information
+                host_scenarios[host][scenario_name] = (sessions, stub_counts,
+                                                       recorded, human_size(scenario_size))
             else:
                 host_scenarios[host][scenario_name] = (sessions, 0, '-', 0)        
     return host_scenarios  

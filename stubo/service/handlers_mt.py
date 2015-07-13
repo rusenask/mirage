@@ -191,7 +191,71 @@ def list_scenarios_request(handler):
 def stub_count_request(handler):
     host = handler.get_argument('host', get_hostname(handler.request))
     return stub_count(host, handler.get_argument('scenario', None))
-    
+
+from stubo.model.db import Scenario
+from stubo.cache import Cache
+from stubo.service.api import end_session
+
+@stubo_async
+def rename_scenario(handler, scenario_name, new_name):
+    """
+    Renames specified scenario, renames Stubs, reloads cache
+    :param handler: TrackRequest handler
+    :param scenario_name: <string> scenario name
+    :param new_name: <string> new scenario name
+    :return: <tuple> containing status code and message that will be returned
+    """
+    response = {
+        'version': version
+    }
+
+    scenario = Scenario()
+    # getting hostname
+    host = handler.get_argument('host', get_hostname(handler.request))
+    # full names hostname:scenario_name
+    full_scenario_name = "{0}:{1}".format(host, scenario_name)
+    new_full_scenario_name = "{0}:{1}".format(host, new_name)
+    # getting scenario object
+    scenario_obj = scenario.get(full_scenario_name)
+    # checking if scenario exist, if not - quit
+    if scenario_obj is None:
+        handler.set_status(400)
+        handler.track.scenario = scenario_name
+        response['error'] = "Scenario not found. Name provided: {0}, host checked: {1}.".format(scenario_name, host)
+        log.debug("Scenario not found. Name provided: {0}, host checked: {1}.".format(scenario_name, host))
+        return response
+
+    # renaming scenario and all stubs, getting a dict with results
+    try:
+        response = scenario.change_name(full_scenario_name, new_full_scenario_name)
+    except Exception as ex:
+        handler.set_status()
+        log.debug("Failed to change scenario name, got error: %s" % ex)
+        response['error']['database'] = "Failed to change scenario name, got error: %s" % ex
+    try:
+
+        cache = Cache(host)
+        # change cache
+        scenario_sessions = cache.get_sessions_status(scenario_name)
+        # scenario sessions contains tuples [(u'myscenario_session2_1', u'dormant'), ....]
+        session_info = []
+
+        cache.delete_caches(scenario_name)
+
+        # rebuild cache
+        for session_name, mode in scenario_sessions:
+            cache.create_session_cache(new_name, session_name)
+            session_info.append({'name': session_name})
+            # sessions after creation go into playback mode, ending them
+            end_session(handler, session_name)
+
+        response['Remapped sessions'] = session_info
+    except Exception as ex:
+        log.debug("Failed to repopulate cache, got error: %s" % ex)
+        response['error']['cache'] = "Failed to repopulate cache, got error: %s" % ex
+    return response
+
+
 @stubo_async    
 def delete_stubs_request(handler):
     return delete_stubs(handler, 

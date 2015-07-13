@@ -1,7 +1,12 @@
 # http://travis-ci.org/#!/Stub-O-Matic/stubo-app
 language: python
+
+cache: pip
+
 python:
     - 2.7
+
+
   
 install:
     - travis_retry python setup.py install
