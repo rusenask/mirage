@@ -100,6 +100,9 @@ class Scenario(object):
                 {'scenario': name}, {'$set': {'scenario': new_name}}, False, False, None, True)
             try:
                 response['Stubs changed'] = result['nModified']
+            except KeyError:
+                # older versions of mongodb returns 'n' instead of 'nModified'
+                response['Stubs changed'] = result['n']
             except Exception as ex1:
                 # this is probably KeyError, leaving Exception for debugging purposes
                 log.debug("Could not get STUB nModified key, result returned: %s. Error: %s" % (result, ex1))
@@ -113,6 +116,9 @@ class Scenario(object):
                 {'scenario': name}, {'$set': {'scenario': new_name}}, False, False, None, True)
             try:
                 response['Pre stubs changed'] = result['nModified']
+            except KeyError:
+                # older versions of mongodb returns 'n' instead of 'nModified'
+                response['Pre stubs changed'] = result['n']
             except Exception as ex1:
                 log.debug("Could not get PRE STUB nModified key, result returned: %s. Error: %s" % (result, ex1))
         except Exception as ex:
@@ -124,6 +130,9 @@ class Scenario(object):
             result = self.db.scenario.update({'name': name}, {'name': new_name})
             try:
                 response['Scenarios changed'] = result['nModified']
+            except KeyError:
+                # older versions of mongodb returns 'n' instead of 'nModified'
+                response['Scenarios changed'] = result['n']
             except Exception as ex1:
                 log.debug("Could not get SCENARIO nModified key, result returned: %s. Error: %s" % (result, ex1))
         except Exception as ex:
