@@ -98,16 +98,23 @@ class Scenario(object):
         try:
             result = self.db.scenario_stub.update(
                 {'scenario': name}, {'$set': {'scenario': new_name}}, False, False, None, True)
-            response['Stubs changed'] = result['nModified']
+            try:
+                response['Stubs changed'] = result['nModified']
+            except Exception as ex1:
+                # this is probably KeyError, leaving Exception for debugging purposes
+                log.debug("Could not get STUB nModified key, result returned: %s. Error: %s" % (result, ex1))
         except Exception as ex:
-            log.debug("Could not update scenario stub, got error: %s" % ex)
+            log.debug("Could not update scenario stub, got error: %s " % ex)
             response['Stubs changed'] = 0
 
         # updating pre stubs
         try:
             result = self.db.scenario_pre_stub.update(
                 {'scenario': name}, {'$set': {'scenario': new_name}}, False, False, None, True)
-            response['Pre stubs changed'] = result['nModified']
+            try:
+                response['Pre stubs changed'] = result['nModified']
+            except Exception as ex1:
+                log.debug("Could not get PRE STUB nModified key, result returned: %s. Error: %s" % (result, ex1))
         except Exception as ex:
             log.debug("Could not update scenario pre stub, got error: %s" % ex)
             response['Pre stubs changed'] = 0
@@ -115,7 +122,10 @@ class Scenario(object):
         try:
             # updating scenario itself
             result = self.db.scenario.update({'name': name}, {'name': new_name})
-            response['Scenarios changed'] = result['nModified']
+            try:
+                response['Scenarios changed'] = result['nModified']
+            except Exception as ex1:
+                log.debug("Could not get SCENARIO nModified key, result returned: %s. Error: %s" % (result, ex1))
         except Exception as ex:
             log.debug("Could not update scenario, got error: %s" % ex)
             response['Scenarios changed'] = 0
