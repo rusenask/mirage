@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import json
 from stubo.testing import Base
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class TestPutDelay(Base):
@@ -1288,11 +1291,13 @@ class TestSession(Base):
         :param scenario_old_name: <string> without host, only scenario key name
         :param scenario_new_name: <string> without host, only scenario key name
         """
+        self.assertIsNotNone(scenario_old_name, "Old scenario name is none!")
+        self.assertIsNotNone(scenario_new_name, "New scenario name is none!")
         self.http_client.fetch(
             self.get_url('/stubo/api/put/scenarios/%s?new_name=%s' % (scenario_old_name, scenario_new_name)), self.stop)
         response = self.wait()
         if response.code == 500:
-            print(response.error)
+            log.debug(response)
         self.assertEqual(response.code, 200, response.error)
         response_dict = json.loads(response.body)
         # checking if stub was found and updated

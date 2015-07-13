@@ -95,18 +95,30 @@ class Scenario(object):
             'Old name': name,
             "New name": new_name
         }
-        result = self.db.scenario_stub.update(
-            {'scenario': name}, {'$set': {'scenario': new_name}}, False, False, None, True)
-        response['Stubs changed'] = result['nModified']
+        try:
+            result = self.db.scenario_stub.update(
+                {'scenario': name}, {'$set': {'scenario': new_name}}, False, False, None, True)
+            response['Stubs changed'] = result['nModified']
+        except Exception as ex:
+            log.debug("Could not update scenario stub, got error: %s" % ex)
+            response['Stubs changed'] = 0
 
         # updating pre stubs
-        result = self.db.scenario_pre_stub.update(
-            {'scenario': name}, {'$set': {'scenario': new_name}}, False, False, None, True)
-        response['Pre stubs changed'] = result['nModified']
+        try:
+            result = self.db.scenario_pre_stub.update(
+                {'scenario': name}, {'$set': {'scenario': new_name}}, False, False, None, True)
+            response['Pre stubs changed'] = result['nModified']
+        except Exception as ex:
+            log.debug("Could not update scenario pre stub, got error: %s" % ex)
+            response['Pre stubs changed'] = 0
 
-        # updating scenario itself
-        result = self.db.scenario.update({'name': name}, {'name': new_name})
-        response['Scenarios changed'] = result['nModified']
+        try:
+            # updating scenario itself
+            result = self.db.scenario.update({'name': name}, {'name': new_name})
+            response['Scenarios changed'] = result['nModified']
+        except Exception as ex:
+            log.debug("Could not update scenario, got error: %s" % ex)
+            response['Scenarios changed'] = 0
 
         return response
 
