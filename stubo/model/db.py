@@ -8,6 +8,7 @@ from bson.objectid import ObjectId
 from stubo.utils import asbool
 from stubo.model.stub import Stub
 import hashlib
+import time
 
 default_env = {
     'port': 27017,
@@ -151,6 +152,7 @@ class Scenario(object):
         :param name: optional parameter to get recorded date for specific scenario
         :return: <dict> - if name is not supplied, <string> with date - if scenario name supplied.
         """
+        start_time = time.time()
         pipeline = [
             {'$group': {
                 '_id': '$scenario',
@@ -167,6 +169,9 @@ class Scenario(object):
         # using dict comprehension to form a new dict for fast access to elements
         result_dict = {x['_id']: x['recorded'] for x in result}
 
+        # finish time
+        finish_time = time.time()
+        log.info("Recorded calculated in %s ms" % int((finish_time-start_time)*1000))
         # if name is provided - return only single recorded date for specific scenario.
         if name:
             scenario_recorded = None
@@ -191,9 +196,12 @@ class Scenario(object):
         :param name: optional parameter to get size of specific scenario
         :return: <dict> - if name is not supplied, <int> - if scenario name supplied.
         """
+        start_time = time.time()
         pipeline = [{'$group': {
             '_id': '$scenario',
-            'size': {'$sum': '$space_used'}}}]
+            'size': {'$sum': {'$divide': ['$space_used', 1024]}}
+                                }
+                    }]
 
         # use the pipe to calculate scenario sizes
         try:
@@ -207,6 +215,9 @@ class Scenario(object):
         # using dict comprehension to form a new dict for fast access to elements
         result_dict = {x['_id']: x['size'] for x in result}
 
+        # finish time
+        finish_time = time.time()
+        log.info("Sizes calculated in %s ms" % int((finish_time-start_time)*1000))
         # if name is provided - return only single size for specific scenario.
         if name:
             scenario_size = None
