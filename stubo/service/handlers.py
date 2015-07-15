@@ -631,7 +631,7 @@ class GetAllScenariosHandler(RequestHandler):
 
 class GetScenarioDetailsHandler(RequestHandler):
     """
-    /stubo/api/v2/scenarios/(.*)
+    /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)
 
     """
 
@@ -731,3 +731,53 @@ class CreateDelayPolicyHandler(RequestHandler):
         """
         self._status_code(201)
         self.write("not implemented")
+
+
+class GetAllDelayPoliciesHandler(RequestHandler):
+    """
+    /stubo/api/v2/delay-policy/detail
+    """
+    def compute_etag(self):
+        return None
+
+    def get(self):
+        """
+
+        Returns a list with all delay policies (and URL paths to these resources),
+        stub count
+        """
+        self.write("not implemented")
+
+    def post(self):
+        self.clear()
+        self.send_error(status_code=405, reason=NOT_ALLOWED_MSG)
+
+
+class GetDelayPolicyDetailsHandler(RequestHandler):
+    """
+    /stubo/api/v2/delay-policy/objects/(?P<delay_policy_name>[^\/]+)
+
+    """
+
+    def compute_etag(self):
+        return None
+
+    def get(self, delay_policy_name):
+        """
+
+        Returns delay policy name and all details about his resource
+        :param delay_policy_name: <string> delay policy name
+        """
+        self.write("not implemented")
+
+    def delete(self, delay_policy_name):
+        """
+
+        Deletes delay policy object from database
+        :param delay_policy_name: <string> delay policy name
+        """
+        self.write("not implemented")
+
+    def post(self):
+        self.clear()
+        self.send_error(status_code=405, reason=NOT_ALLOWED_MSG)
