@@ -22,6 +22,7 @@ requires = [
     'dogpile.cache',
     'matchers',
     'PyYAML',
+    'motor',
     # testing 
     'ming',
     'pylint',        
