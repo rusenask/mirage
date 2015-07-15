@@ -356,10 +356,36 @@ class Tracker(object):
 
     def insert(self, track, write_concern=0):
         # w=0 disables write ack 
+        """
+        Insert tracker doc into MongoDB and creates indexes for faster search.
+        :param track: tracker object
+        :param write_concern: 1 or 0, check mongo docs for more info
+        :return:
+        """
         forced_log_id = track.get('forced_log_id')
         if forced_log_id:
             track['_id'] = int(forced_log_id)
-        return self.db.tracker.insert(track, w=write_concern)
+        result = self.db.tracker.insert(track, w=write_concern)
+        # creating indexes. Based on these indexes stubo will be searching/filtering tracker collection
+        self._create_index("host")
+        self._create_index("scenario")
+        self._create_index("request_params.session")
+        self._create_index("function")
+        self._create_index("start_time")
+        return result
+
+    def _create_index(self, key=None, direction=DESCENDING):
+        """
+        Creates index for specific key, fails silently if index creation was unsuccessful. Key examples:
+        "host" , "scenario", "scenario", "request_params.session"
+        :param key: <string>
+        :param direction: ASCENDING or DESCENDING (from pymongo)
+        """
+        if key:
+            try:
+                self.db.tracker.create_index(key, direction)
+            except Exception as ex:
+                log.debug("Could not create index (tracker collection) for key %s, got error: %s" % (key, ex))
 
     def find_tracker_data(self, tracker_filter, skip, limit):
         project = {'start_time': 1, 'function': 1, 'return_code': 1, 'scenario': 1,
