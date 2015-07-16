@@ -9,7 +9,7 @@ import datetime
 import csv
 from StringIO import StringIO
 import re
-from tornado.web import RequestHandler, asynchronous
+from tornado.web import RequestHandler, asynchronous, gen
 import tornado.ioloop
 from plop.collector import Collector
 import yappi
@@ -36,43 +36,42 @@ from stubo.testing import DummyModel
 
 from handlers_mt import rename_scenario
 
-
 log = logging.getLogger(__name__)
 
-class HandlerFactory(object):
 
+class HandlerFactory(object):
     @classmethod
     def make(cls, handler_name):
         """Return the relevant handler class"""
         this_module = sys.modules[cls.__module__]
         return getattr(this_module, handler_name)
 
-class BeginSessionHandler(TrackRequest):
 
+class BeginSessionHandler(TrackRequest):
     def get(self):
         self.post()
 
     def post(self):
         begin_session_request(self)
 
-class EndSessionHandler(TrackRequest):
 
+class EndSessionHandler(TrackRequest):
     def get(self):
         self.post()
 
     def post(self):
         end_session_request(self)
 
-class EndSessionsHandler(TrackRequest):
 
+class EndSessionsHandler(TrackRequest):
     def get(self):
         self.post()
 
     def post(self):
         end_sessions_request(self)
 
-class GetResponseHandler(TrackRequest):
 
+class GetResponseHandler(TrackRequest):
     def post(self):
         get_response_request(self)
 
@@ -84,8 +83,8 @@ class GetResponseHandler(TrackRequest):
         self.track.stubo_response = response
         self.finish()
 
-class DeleteStubsHandler(TrackRequest):
 
+class DeleteStubsHandler(TrackRequest):
     def compute_etag(self):
         return None
 
@@ -95,8 +94,8 @@ class DeleteStubsHandler(TrackRequest):
     def post(self):
         delete_stubs_request(self)
 
-class PutStubHandler(TrackRequest):
 
+class PutStubHandler(TrackRequest):
     def get(self):
         self.set_status(405)
         emsg = 'Not allowed to use HTTP GET for put/stub, use POST instead.'
@@ -108,8 +107,8 @@ class PutStubHandler(TrackRequest):
     def post(self):
         put_stub_request(self)
 
-class PutModuleHandler(TrackRequest):
 
+class PutModuleHandler(TrackRequest):
     def get(self):
         self.post()
 
@@ -127,6 +126,7 @@ class DeleteModuleHandler(TrackRequest):
     def post(self):
         delete_module_request(self)
 
+
 class DeleteModulesHandler(TrackRequest):
     """ Delete all user exit modules 
     """
@@ -137,13 +137,14 @@ class DeleteModulesHandler(TrackRequest):
     def post(self):
         delete_modules_request(self)
 
-class GetModuleListHandler(TrackRequest):
 
+class GetModuleListHandler(TrackRequest):
     def get(self):
         self.post()
 
     def post(self):
         list_module_request(self)
+
 
 class PutBookmarkHandler(TrackRequest):
     '''/api/put/bookmark?session=joe&session=mary&name=mary_and_joe_fri_2pm
@@ -177,40 +178,40 @@ class PutBookmarkHandler(TrackRequest):
     def post(self):
         put_bookmark_request(self)
 
-class GetBookmarksHandler(TrackRequest):
 
+class GetBookmarksHandler(TrackRequest):
     def get(self):
         self.post()
 
     def post(self):
         get_bookmark_request(self)
 
-class JumpBookmarkHandler(TrackRequest):
 
+class JumpBookmarkHandler(TrackRequest):
     def get(self):
         self.post()
 
     def post(self):
         jump_bookmark_request(self)
 
-class DeleteBookmarkHandler(TrackRequest):
 
+class DeleteBookmarkHandler(TrackRequest):
     def get(self):
         self.post()
 
     def post(self):
         delete_bookmark_request(self)
 
-class ImportBookmarksHandler(TrackRequest):
 
+class ImportBookmarksHandler(TrackRequest):
     def get(self):
         self.post()
 
     def post(self):
         import_bookmarks_request(self)
 
-class BookmarkHandler(RequestHandler):
 
+class BookmarkHandler(RequestHandler):
     def compute_etag(self):
         return None
 
@@ -220,18 +221,19 @@ class BookmarkHandler(RequestHandler):
     def post(self):
         self.get()
 
-class ViewTrackerHandler(RequestHandler):
 
+class ViewTrackerHandler(RequestHandler):
     def compute_etag(self):
         return None
 
     def get(self):
         tracker_request(self)
 
-class ViewATrackerHandler(RequestHandler):
 
+class ViewATrackerHandler(RequestHandler):
     def get(self, tracker_id, **kwargs):
         tracker_detail_request(self, tracker_id)
+
 
 class HomeHandler(RequestHandler):
     def get(self):
@@ -240,15 +242,16 @@ class HomeHandler(RequestHandler):
         self.set_header('x-stubo-version', version)
         self.finish()
 
+
 class DocsHandler(RequestHandler):
     def get(self):
         self.redirect('http://stubo-app.readthedocs.org/en/latest/',
                       permanent=True)
 
-class GetVersionHandler(TrackRequest):
 
+class GetVersionHandler(TrackRequest):
     def get(self):
-        response = {'version' : self.settings['stubo_version']}
+        response = {'version': self.settings['stubo_version']}
         self.write(response)
         self.track.stubo_response = response
         self.finish()
@@ -256,8 +259,8 @@ class GetVersionHandler(TrackRequest):
     def post(self):
         self.get()
 
-class StuboCommandHandler(TrackRequest):
 
+class StuboCommandHandler(TrackRequest):
     def compute_etag(self):
         # override tornado default which will return a 304 (not modified)
         # if the response contents of a GET call with the same signature matches
@@ -274,7 +277,7 @@ class StuboCommandHandler(TrackRequest):
                 cmd_file_url = self.get_argument('cmdFile', None)
             if not cmd_file_url:
                 raise exception_response(400,
-                    title="'cmdfile' parameter not supplied.")
+                                         title="'cmdfile' parameter not supplied.")
 
             request = DummyModel(protocol=self.request.protocol,
                                  host=self.request.host,
@@ -302,7 +305,6 @@ class StuboCommandHandler(TrackRequest):
         self.write(stubo_response)
         self.set_header('x-stubo-version', version)
         self.finish()
-
 
     @tornado.gen.coroutine
     def post(self):
@@ -315,7 +317,7 @@ class StuboCommandHandler(TrackRequest):
                 cmd_file_url = self.get_argument('cmdFile', None)
             if not cmd_file_url:
                 raise exception_response(400,
-                    title="'cmdfile' parameter not supplied.")
+                                         title="'cmdfile' parameter not supplied.")
 
             request = DummyModel(protocol=self.request.protocol,
                                  host=self.request.host,
@@ -344,8 +346,8 @@ class StuboCommandHandler(TrackRequest):
         self.set_header('x-stubo-version', version)
         self.finish()
 
-class StuboCommandHandlerHTML(TrackRequest):
 
+class StuboCommandHandlerHTML(TrackRequest):
     def compute_etag(self):
         # override tornado default which will return a 304 (not modified)
         # if the response contents of a GET call with the same signature matches
@@ -358,21 +360,21 @@ class StuboCommandHandlerHTML(TrackRequest):
     def post(self):
         self.get()
 
-class GetStubExportHandler(TrackRequest):
 
+class GetStubExportHandler(TrackRequest):
     def get(self):
         export_stubs_request(self)
 
     def post(self):
         self.get()
 
-class GetStubListHandlerHTML(RequestHandler):
 
+class GetStubListHandlerHTML(RequestHandler):
     def get(self):
         list_stubs_request(self, html=True)
 
-class GetStubListHandler(TrackRequest):
 
+class GetStubListHandler(TrackRequest):
     def compute_etag(self):
         return None
 
@@ -382,8 +384,8 @@ class GetStubListHandler(TrackRequest):
     def post(self):
         self.get()
 
-class GetScenariosHandler(TrackRequest):
 
+class GetScenariosHandler(TrackRequest):
     def compute_etag(self):
         return None
 
@@ -399,6 +401,7 @@ class PutScenarioHandler(TrackRequest):
     /stubo/api/put/scenarios/(?P<scenario_name>[^\/]+)?new_name=some_new_name
 
     """
+
     def compute_etag(self):
         return None
 
@@ -415,7 +418,6 @@ class PutScenarioHandler(TrackRequest):
 
 
 class GetStubCountHandler(TrackRequest):
-
     def compute_etag(self):
         return None
 
@@ -425,8 +427,8 @@ class GetStubCountHandler(TrackRequest):
     def post(self):
         self.get()
 
-class GetStatsHandler(TrackRequest):
 
+class GetStatsHandler(TrackRequest):
     def compute_etag(self):
         return None
 
@@ -436,48 +438,48 @@ class GetStatsHandler(TrackRequest):
     def post(self):
         self.get()
 
-class PutDelayPolicyHandler(TrackRequest):
 
+class PutDelayPolicyHandler(TrackRequest):
     def get(self):
         self.post()
 
     def post(self):
         delay_policy_request(self)
 
-class PutSettingHandler(TrackRequest):
 
+class PutSettingHandler(TrackRequest):
     def get(self):
         self.post()
 
     def post(self):
         put_setting_request(self)
 
-class GetSettingHandler(RequestHandler):
 
+class GetSettingHandler(RequestHandler):
     def get(self):
         self.post()
 
     def post(self):
         get_setting_request(self)
 
-class GetDelayPolicyHandler(TrackRequest):
 
+class GetDelayPolicyHandler(TrackRequest):
     def get(self):
         get_delay_policy_request(self)
 
     def post(self):
         self.get()
 
-class DeleteDelayPolicyHandler(TrackRequest):
 
+class DeleteDelayPolicyHandler(TrackRequest):
     def get(self):
         self.post()
 
     def post(self):
         delete_delay_policy_request(self)
 
-class GetStatusHandler(RequestHandler):
 
+class GetStatusHandler(RequestHandler):
     def compute_etag(self):
         return None
 
@@ -487,18 +489,18 @@ class GetStatusHandler(RequestHandler):
     def post(self):
         self.get()
 
-class AnalyticsHandler(RequestHandler):
 
+class AnalyticsHandler(RequestHandler):
     def get(self):
         analytics_request(self)
 
-class ManageHandler(RequestHandler):
 
+class ManageHandler(RequestHandler):
     def get(self):
         manage_request(self)
 
-class ProfileHandler(RequestHandler):
 
+class ProfileHandler(RequestHandler):
     PROF_COLUMNS = (
         'name',
         'n',
@@ -516,7 +518,7 @@ class ProfileHandler(RequestHandler):
     def get(self):
         self.interval = int(self.get_argument('interval', self.interval))
         self.sort_type = yappi.SORT_TYPES_FUNCSTATS[self.get_argument(
-                                                        'sort_type', 'tsub')]
+            'sort_type', 'tsub')]
         self.limit = self.get_argument('limit', self.limit)
         yappi.start()
         tornado.ioloop.IOLoop.instance().add_timeout(
@@ -549,7 +551,6 @@ class ProfileHandler(RequestHandler):
 
 
 class PlopProfileHandler(RequestHandler):
-
     def __init__(self, application, request, **kwargs):
         super(PlopProfileHandler, self).__init__(application, request, **kwargs)
         self.interval = 60
@@ -573,18 +574,25 @@ class PlopProfileHandler(RequestHandler):
             f.write(stats)
         self.finish(stats)
 
+
 """
 -------------------------------------------------------------------
 ------------------ below are handlers for API v2 ------------------
 -------------------------------------------------------------------
 
 """
+import json
+from stubo.utils import get_hostname
+from pymongo.errors import DuplicateKeyError
+
 NOT_ALLOWED_MSG = 'Method not allowed'
+
 
 class CreateScenarioHandler(RequestHandler):
     """
     /stubo/api/v2/scenarios
     """
+
     def compute_etag(self):
         return None
 
@@ -592,19 +600,70 @@ class CreateScenarioHandler(RequestHandler):
         self.clear()
         self.send_error(status_code=405, reason=NOT_ALLOWED_MSG)
 
+    @tornado.web.asynchronous
+    @gen.coroutine
     def put(self):
         """
+        Call example:
+        curl -i -H "Content-Type: application/json" -X PUT -d '{"scenario":"scenario_0001"}' http://127.0.0.1:8001/stubo/api/v2/scenarios
 
         Creates a scenario and returns a link to it: query example:
         { “scenario”: “scenario_name” }
         :return:  returns a JSON response that contains information about created object,
-        example:
-        { “name”: “myscenario”,
-          “path”: “localhost:8001/stubo/api/v2/scenarios/myscenario/”
-        }
+        example success (201 response code):
+        {"scenarioRef": "/stubo/api/v2/scenarios/objects/127.0.0.1:scenario_0001",
+         "name": "127.0.0.1:scenario_0001"}
+
+        example duplicate error (422 response code):
+        <html>
+            <title>
+                 422: Scenario (127.0.0.1:scenario_0001) already exists.
+            </title>
+            <body>
+                 422: Scenario (127.0.0.1:scenario_0001) already exists.
+            </body>
+        </html>
         """
-        self._status_code(201)
-        self.write("not implemented")
+        # get motor driver
+        db = self.settings['mdb']
+        # setting header
+        self.set_header('x-stub-o-matic-version', version)
+        body_dict = None
+        # get body
+        try:
+            body_dict = json.loads(self.request.body)
+        except ValueError as ex:
+            log.debug(ex)
+            self.send_error(status_code=400, reason="No JSON body found")
+        except Exception as ex:
+            log.debug(ex)
+            self.send_error(status_code=400, reason="Failed to get JSON body: %s" % ex.message)
+        if body_dict:
+            # check if scenario name is supplied
+            if 'scenario' not in body_dict:
+                self.send_error(status_code=400, reason="Scenario name not supplied")
+            else:
+                host = get_hostname(self.request)
+                name = body_dict['scenario']
+                full_name = '%s:%s' % (host, name)
+                scenario_document = {'name': full_name}
+                try:
+                    # inserting scenario document, adding index and unique constraint
+                    yield db.scenario.insert(scenario_document)
+                    db.scenario.create_index('name', unique=True)
+                    # creating result dict
+                    result_dict = {'name': full_name,
+                                   'scenarioRef': '/stubo/api/v2/scenarios/objects/{0}'.format(full_name)}
+                    self.set_status(201)
+                    self.write(result_dict)
+                except DuplicateKeyError as ex:
+                    log.debug(ex)
+                    self.send_error(status_code=422,
+                                    reason="Scenario (%s) already exists." % full_name)
+                except Exception as ex:
+                    log.warn(ex)
+                    self.send_error(status_code=400,
+                                    reason="Failed to create scenario resource. Exception: %s" % ex.message)
 
 
 class GetAllScenariosHandler(RequestHandler):
@@ -706,6 +765,7 @@ class CreateDelayPolicyHandler(RequestHandler):
     """
     /stubo/api/v2/delay-policy
     """
+
     def compute_etag(self):
         return None
 
@@ -737,6 +797,7 @@ class GetAllDelayPoliciesHandler(RequestHandler):
     """
     /stubo/api/v2/delay-policy/detail
     """
+
     def compute_etag(self):
         return None
 
