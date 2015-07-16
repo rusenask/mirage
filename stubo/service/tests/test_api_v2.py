@@ -24,8 +24,8 @@ class TestScenarioOperations(Base):
                          'application/json; charset=UTF-8')
         payload = json.loads(response.body)
         # check if scenario ref link and name are available in payload
-        self.assertEqual(payload['scenarioRef'], '/stubo/api/v2/scenarios/objects/scenario_0001')
-        self.assertEqual(payload['name'], 'scenario_0001')
+        self.assertEqual(payload['scenarioRef'], '/stubo/api/v2/scenarios/objects/localhost:scenario_0001')
+        self.assertEqual(payload['name'], 'localhost:scenario_0001')
 
     def _test_insert_scenario(self, name="scenario_0001"):
         """
@@ -94,6 +94,19 @@ class TestScenarioOperations(Base):
         self.assertEqual(response.code, 400)
         self.assertTrue('name is blank or contains illegal characters' in response.reason)
         self.assertTrue('@foo' in response.reason)
+
+    def test_get_all_scenarios(self):
+
+        # creating some scenarios
+        for scenario_number in xrange(5):
+            response = self._test_insert_scenario(name="scenario_name_with_no_%s" % scenario_number)
+            self.assertEqual(response.code, 201)
+
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios'), self.stop, method="GET")
+        response = self.wait()
+        payload = json.loads(response.body)
+        self.assertTrue('scenarios' in payload)
+        self.assertEqual(len(payload['scenarios']), 5)
 
 
 

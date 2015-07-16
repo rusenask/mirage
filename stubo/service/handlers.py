@@ -628,22 +628,25 @@ class BaseScenarioHandler(RequestHandler):
         """
         db = self.settings['mdb']
 
-        # getting all scenarios
-        cursor = db.scenario.find()
-        # sorting based on name
-        cursor.sort([('name', pymongo.ASCENDING)])
-        scenarios = []
-        result_dict = {}
-        while (yield cursor.fetch_next):
-            document = cursor.next_object()
-            try:
-                scenarios.append({'name': document['name'],
-                                  'scenarioRef': '/stubo/api/v2/scenarios/objects/%s' % document['name']})
-            except KeyError:
-                log.warn('Scenario name not found for object: %s' % document['_id'])
-        result_dict['scenarios'] = scenarios
-        self.set_status(200)
-        self.write(result_dict)
+        if self.request.body is not None:
+            self.send_error(status_code=405, reason="Trying to create scenario? Use PUT method instead.")
+        else:
+            # getting all scenarios
+            cursor = db.scenario.find()
+            # sorting based on name
+            cursor.sort([('name', pymongo.ASCENDING)])
+            scenarios = []
+            result_dict = {}
+            while (yield cursor.fetch_next):
+                document = cursor.next_object()
+                try:
+                    scenarios.append({'name': document['name'],
+                                      'scenarioRef': '/stubo/api/v2/scenarios/objects/%s' % document['name']})
+                except KeyError:
+                    log.warn('Scenario name not found for object: %s' % document['_id'])
+            result_dict['scenarios'] = scenarios
+            self.set_status(200)
+            self.write(result_dict)
 
     @tornado.web.asynchronous
     @gen.coroutine
@@ -678,10 +681,10 @@ class BaseScenarioHandler(RequestHandler):
             body_dict = json.loads(self.request.body)
         except ValueError as ex:
             log.debug(ex)
-            self.send_error(status_code=400, reason="No JSON body found")
+            self.send_error(status_code=415, reason="No JSON body found")
         except Exception as ex:
             log.debug(ex)
-            self.send_error(status_code=400, reason="Failed to get JSON body: %s" % ex.message)
+            self.send_error(status_code=415, reason="Failed to get JSON body: %s" % ex.message)
 
         if body_dict:
             # check if scenario name is supplied
