@@ -46,7 +46,7 @@ class TestScenarioOperations(Base):
         self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios'), self.stop,
                                method="PUT", body="")
         response = self.wait()
-        self.assertEqual(response.code, 400)
+        self.assertEqual(response.code, 415, response.reason)
         self.assertEqual(response.reason, 'No JSON body found')
 
     def test_put_scenario_wrong_body(self):
@@ -57,7 +57,7 @@ class TestScenarioOperations(Base):
         self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios'), self.stop,
                                method="PUT", body='{"foo": "bar"}')
         response = self.wait()
-        self.assertEqual(response.code, 400)
+        self.assertEqual(response.code, 400, response.reason)
         self.assertEqual(response.reason, 'Scenario name not supplied')
 
     def test_put_duplicate_scenario(self):
@@ -69,10 +69,10 @@ class TestScenarioOperations(Base):
         self.assertEqual(response.code, 201)
         # insert it second time
         response = self._test_insert_scenario()
-        self.assertEqual(response.code, 422)
+        self.assertEqual(response.code, 422, response.reason)
         self.assertTrue('already exists' in response.reason)
 
-    def test_put_stub_name_none(self):
+    def test_put_scenario_name_none(self):
         """
 
         Test blank scenario name insertion
@@ -80,10 +80,10 @@ class TestScenarioOperations(Base):
         self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios'), self.stop,
                                method="PUT", body='{"scenario": "" }')
         response = self.wait()
-        self.assertEqual(response.code, 400)
+        self.assertEqual(response.code, 400, response.reason)
         self.assertTrue('name is blank or contains illegal characters' in response.reason)
 
-    def test_put_stub_name_w_illegal_chars(self):
+    def test_put_scenario_name_w_illegal_chars(self):
         """
 
         Test scenario name with illegal characters insertion
@@ -91,12 +91,27 @@ class TestScenarioOperations(Base):
         self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios'), self.stop,
                                method="PUT", body='{"scenario": "@foo" }')
         response = self.wait()
-        self.assertEqual(response.code, 400)
+        self.assertEqual(response.code, 400, response.reason)
         self.assertTrue('name is blank or contains illegal characters' in response.reason)
         self.assertTrue('@foo' in response.reason)
 
-    def test_get_all_scenarios(self):
+    def test_put_scenario_name_w_hostname(self):
+        """
 
+        Test override function - providing hostname for stubo to create a scenario with it
+        """
+        response = self._test_insert_scenario(name="hostname:scenario_name_x")
+        self.assertEqual(response.code, 201)
+        payload = json.loads(response.body)
+        # check if scenario ref link and name are available in payload
+        self.assertEqual(payload['scenarioRef'], '/stubo/api/v2/scenarios/objects/hostname:scenario_name_x')
+        self.assertEqual(payload['name'], 'hostname:scenario_name_x')
+
+    def test_get_all_scenarios(self):
+        """
+
+        Test getting multiple scenarios
+        """
         # creating some scenarios
         for scenario_number in xrange(5):
             response = self._test_insert_scenario(name="scenario_name_with_no_%s" % scenario_number)
@@ -104,10 +119,9 @@ class TestScenarioOperations(Base):
 
         self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios'), self.stop, method="GET")
         response = self.wait()
+        self.assertEqual(response.code, 200)
         payload = json.loads(response.body)
         self.assertTrue('scenarios' in payload)
         self.assertEqual(len(payload['scenarios']), 5)
-
-
 
 
