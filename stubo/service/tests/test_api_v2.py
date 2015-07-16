@@ -125,6 +125,10 @@ class TestScenarioOperations(Base):
         self.assertEqual(len(payload['scenarios']), 5)
 
     def test_get_scenario_details(self):
+        """
+
+        Test get scenario details, should also do a basic check of details provided
+        """
         response = self._test_insert_scenario("new_scenario_details")
         self.assertEqual(response.code, 201)
 
@@ -138,4 +142,36 @@ class TestScenarioOperations(Base):
         self.assertEqual(payload['name'], 'localhost:new_scenario_details')
         self.assertEqual(payload['space_used_kb'], 0)
 
+    def test_delete_scenario(self):
+        """
 
+        Test scenario deletion
+        """
+        response = self._test_insert_scenario("new_scenario_for_deletion")
+        self.assertEqual(response.code, 201)
+
+        # delete scenario
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/new_scenario_for_deletion'),
+                               self.stop, method="DELETE")
+        response = self.wait()
+        self.assertEqual(response.code, 200, response.reason)
+
+    def test_non_existing_delete_scenario(self):
+        """
+
+        Test scenario deletion
+        """
+        response = self._test_insert_scenario("new_scenario_for_deletion")
+        self.assertEqual(response.code, 201)
+
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/new_scenario_for_deletion'),
+                               self.stop, method="DELETE")
+        response = self.wait()
+        self.assertEqual(response.code, 200, response.reason)
+
+        # trying to delete scenario again
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/new_scenario_for_deletion'),
+                               self.stop, method="DELETE")
+        response = self.wait()
+        # expecting to get "precondition failed"
+        self.assertEqual(response.code, 412, response.reason)
