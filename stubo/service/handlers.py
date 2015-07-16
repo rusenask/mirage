@@ -767,6 +767,12 @@ class GetScenarioDetailsHandler(RequestHandler):
 
     """
 
+    def initialize(self):
+        # setting header
+        self.set_header('x-stub-o-matic-version', version)
+        # get motor driver
+        self.db = self.settings['mdb']
+
     def compute_etag(self):
         return None
 
@@ -787,20 +793,18 @@ class GetScenarioDetailsHandler(RequestHandler):
              "scenarioRef": "/stubo/api/v2/scenarios/objects/localhost:scenario_16"
          }
         """
-        # get motor driver
-        db = self.settings['mdb']
+        # # get motor driver
+        # self.db = self.settings['mdb']
 
         # check if hostname is supplied - if not, override scenario name with new value
-        if ":" not in scenario_name:
-            host = get_hostname(self.request)
-            scenario_name = '%s:%s' % (host, scenario_name)
+        scenario_name = self._get_full_name(scenario_name)
         # query MongoDB
-        document = yield db.scenario.find_one({'name': scenario_name})
+        document = yield self.db.scenario.find_one({'name': scenario_name})
 
         # form a result dictionary
         if document is not None:
             # get stub count
-            stub_count = yield db.scenario_stub.find({'scenario': scenario_name}).count()
+            stub_count = yield self.db.scenario_stub.find({'scenario': scenario_name}).count()
             # get size
             scenario_cl = Scenario()
             size = scenario_cl.size(scenario_name)
@@ -808,6 +812,8 @@ class GetScenarioDetailsHandler(RequestHandler):
             if size is None:
                 size = 0
             recorded = scenario_cl.recorded(scenario_name)
+            if recorded is None:
+                recorded = '-'
             result_dict = {'name': scenario_name,
                            'stubs': stub_count,
                            'recorded': recorded,
@@ -818,6 +824,7 @@ class GetScenarioDetailsHandler(RequestHandler):
         else:
             self.send_error(404)
 
+    @gen.coroutine
     def delete(self, scenario_name):
         """
 
@@ -825,7 +832,30 @@ class GetScenarioDetailsHandler(RequestHandler):
         in the database
         :param scenario_name: <string> scenario name
         """
-        self.write("not implemented")
+        scenario_name = self._get_full_name(scenario_name)
+
+        query = {'name': scenario_name}
+        # query MongoDB
+        document = yield self.db.scenario.find_one(query)
+
+        if document is not None:
+            # delete document
+            yield self.db.scenario.remove(query)
+            self.set_status(200)
+        else:
+            self.send_error(412, reason="Precondition failed - scenario (%s) does not exist." % scenario_name)
+
+    def _get_full_name(self, name):
+        # check if hostname is supplied - if not, override scenario name with new value
+        """
+        Gets full name hostname:scenario_name
+        :param name:
+        :return:
+        """
+        if ":" not in name:
+            host = get_hostname(self.request)
+            name = '%s:%s' % (host, name)
+        return name
 
     def post(self):
         self.clear()
