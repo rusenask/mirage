@@ -795,8 +795,10 @@ class GetScenarioDetailsHandler(RequestHandler):
             # get size
             scenario_cl = Scenario()
             size = scenario_cl.size(scenario_name)
+            recorded = scenario_cl.recorded(scenario_name)
             result_dict = {'name': scenario_name,
                            'stubs': stub_count,
+                           'recorded': recorded,
                            'space_used_kb': int(size),
                            'scenarioRef': '/stubo/api/v2/scenarios/objects/{0}'.format(scenario_name)}
             self.set_status(200)
