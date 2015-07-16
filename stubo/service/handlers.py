@@ -585,6 +585,7 @@ import json
 from stubo.utils import get_hostname
 from pymongo.errors import DuplicateKeyError
 import pymongo
+from stubo.model.db import Scenario
 
 NOT_ALLOWED_MSG = 'Method not allowed'
 
@@ -769,6 +770,7 @@ class GetScenarioDetailsHandler(RequestHandler):
     def compute_etag(self):
         return None
 
+    @gen.coroutine
     def get(self, scenario_name):
         """
 
@@ -776,7 +778,31 @@ class GetScenarioDetailsHandler(RequestHandler):
         stub count, total, document size. Also, provides direct URL link to stub list.
         :param scenario_name: <string> scenario name
         """
-        self.write("not implemented")
+        # get motor driver
+        db = self.settings['mdb']
+
+        # check if hostname is supplied - if not, override scenario name with new value
+        if ":" not in scenario_name:
+            host = get_hostname(self.request)
+            scenario_name = '%s:%s' % (host, scenario_name)
+        # query MongoDB
+        document = yield db.scenario.find_one({'name': scenario_name})
+
+        # form a result dictionary
+        if document is not None:
+            # get stub count
+            stub_count = yield db.scenario_stub.find({'scenario': scenario_name}).count()
+            # get size
+            scenario_cl = Scenario()
+            size = scenario_cl.size(scenario_name)
+            result_dict = {'name': scenario_name,
+                           'stubs': stub_count,
+                           'space_used_kb': int(size),
+                           'scenarioRef': '/stubo/api/v2/scenarios/objects/{0}'.format(scenario_name)}
+            self.set_status(200)
+            self.write(result_dict)
+        else:
+            self.send_error(404)
 
     def delete(self, scenario_name):
         """
