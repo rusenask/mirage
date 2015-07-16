@@ -638,10 +638,18 @@ class CreateScenarioHandler(RequestHandler):
         except Exception as ex:
             log.debug(ex)
             self.send_error(status_code=400, reason="Failed to get JSON body: %s" % ex.message)
+
         if body_dict:
             # check if scenario name is supplied
             if 'scenario' not in body_dict:
-                self.send_error(status_code=400, reason="Scenario name not supplied")
+                self.send_error(status_code=400,
+                                reason="Scenario name not supplied")
+            # check if scenario contains illegal characters or is blank
+            elif not (re.match(r'[\w-]*$', body_dict['scenario']) and body_dict['scenario']):
+                self.send_error(status_code=400,
+                                reason="Scenario name is blank or contains illegal characters. Name supplied: %s"
+                                       % body_dict['scenario'])
+            # name is validated, getting hostname, full_name and inserting
             else:
                 host = get_hostname(self.request)
                 name = body_dict['scenario']
