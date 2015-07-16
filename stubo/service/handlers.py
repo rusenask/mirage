@@ -603,6 +603,29 @@ class BaseScenarioHandler(RequestHandler):
     @gen.coroutine
     def get(self):
         # get motor driver
+        """
+        Gets all scenarios from the database. Response contains names and paths to resources
+
+        {
+            scenarios:
+              {
+                scenarioRef: "/stubo/api/v2/scenarios/objects/127.0.0.1:scenario_0001"
+                name: "127.0.0.1:scenario_0001"
+                },
+                {
+                scenarioRef: "/stubo/api/v2/scenarios/objects/localhost:scenario_1"
+                name: "localhost:scenario_1"
+                },
+                {
+                scenarioRef: "/stubo/api/v2/scenarios/objects/localhost:scenario_10"
+                name: "localhost:scenario_10"
+                },
+                ..
+                ..
+              }
+        }
+
+        """
         db = self.settings['mdb']
 
         # getting all scenarios
@@ -674,21 +697,25 @@ class BaseScenarioHandler(RequestHandler):
             else:
                 host = get_hostname(self.request)
                 name = body_dict['scenario']
-                full_name = '%s:%s' % (host, name)
+                # checking whether user supplied name with hostname
+                if ":" in name:
+                    full_name = name
+                else:
+                    full_name = '%s:%s' % (host, name)
                 scenario_document = {'name': full_name}
                 try:
                     # inserting scenario document, adding index and unique constraint
                     yield db.scenario.insert(scenario_document)
                     db.scenario.create_index('name', unique=True)
                     # creating result dict
-                    result_dict = {'name': name,
-                                   'scenarioRef': '/stubo/api/v2/scenarios/objects/{0}'.format(name)}
+                    result_dict = {'name': full_name,
+                                   'scenarioRef': '/stubo/api/v2/scenarios/objects/{0}'.format(full_name)}
                     self.set_status(201)
                     self.write(result_dict)
                 except DuplicateKeyError as ex:
                     log.debug(ex)
                     self.send_error(status_code=422,
-                                    reason="Scenario (%s) already exists." % name)
+                                    reason="Scenario (%s) already exists." % full_name)
                 except Exception as ex:
                     log.warn(ex)
                     self.send_error(status_code=400,
