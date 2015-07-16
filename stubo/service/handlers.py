@@ -777,6 +777,15 @@ class GetScenarioDetailsHandler(RequestHandler):
         Returns scenario name, current sessions and their states,
         stub count, total, document size. Also, provides direct URL link to stub list.
         :param scenario_name: <string> scenario name
+
+        Response JSON:
+        {
+            "stubs": 32,
+             "space_used_kb": 840,
+             "recorded": "2015-07-15",
+             "name": "localhost:scenario_16",
+             "scenarioRef": "/stubo/api/v2/scenarios/objects/localhost:scenario_16"
+         }
         """
         # get motor driver
         db = self.settings['mdb']
