@@ -1079,9 +1079,11 @@ def manage_request_api(handler):
     response['page_name'] = 'Manage'
     return response
 
+from collections import defaultdict
+
 def get_session_status(handler, all_hosts=True):
     scenario = Scenario()
-    host_scenarios = {}
+    host_scenarios = defaultdict()
     # getting a dictionary with sizes for all scenarios
     scenario_sizes = scenario.size()
     scenarios_recorded = scenario.recorded()
@@ -1092,8 +1094,11 @@ def get_session_status(handler, all_hosts=True):
             continue
         if host not in host_scenarios:
             host_scenarios[host] = {}
+            
+        # getting session data
         sessions = []
         cache = Cache(host)
+
         for session_name, session in cache.get_sessions(scenario_name):
             # try and get the last_used from the last tracker get/response
             # else when the begin/session playback was called
@@ -1103,10 +1108,16 @@ def get_session_status(handler, all_hosts=True):
             else:
                 # session has never been used for playback 
                 last_used = session.get('last_used', '-')
-            session['last_used'] =  last_used  
-            sessions.append(session)   
-        stub_counts =  stub_count(host, scenario_name)['data']['count']
+            session['last_used'] = last_used
+            # removing stub information since we aren't using it anyway and it can consume a lot of memory
+            session.pop('stubs', None)
+            # creating sessions list
+            sessions.append(session)
+        # getting stub count
+        stub_counts = stub_count(host, scenario_name)['data']['count']
         recorded = '-'
+
+        # adding session information
         if sessions:
             if stub_counts:
                 # getting scenario size and recorded values
@@ -1119,9 +1130,10 @@ def get_session_status(handler, all_hosts=True):
                 except Exception as ex:
                     log.warn("Failed to get scenario size for: %s, got error: %s" % (s['name'], ex))
                 # creating a dict with scenario information
-                host_scenarios[host][scenario_name] = (sessions, stub_counts,
-                                                       recorded, human_size(scenario_size))
+                host_scenarios[host][scenario_name] = (sessions, stub_counts, recorded, round(scenario_size, 0))
+
             else:
-                host_scenarios[host][scenario_name] = (sessions, 0, '-', 0)        
-    return host_scenarios  
-   
+                host_scenarios[host][scenario_name] = (sessions, 0, '-', 0)
+
+    return host_scenarios
+
