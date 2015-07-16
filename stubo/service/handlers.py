@@ -584,21 +584,43 @@ class PlopProfileHandler(RequestHandler):
 import json
 from stubo.utils import get_hostname
 from pymongo.errors import DuplicateKeyError
-
+import pymongo
+from stubo.service.api import list_scenarios
 NOT_ALLOWED_MSG = 'Method not allowed'
 
 
-class CreateScenarioHandler(RequestHandler):
+class BaseScenarioHandler(RequestHandler):
     """
     /stubo/api/v2/scenarios
     """
+    def initialize(self):
+        # setting header
+        self.set_header('x-stub-o-matic-version', version)
 
     def compute_etag(self):
         return None
 
+    @gen.coroutine
     def get(self):
-        self.clear()
-        self.send_error(status_code=405, reason=NOT_ALLOWED_MSG)
+        # get motor driver
+        db = self.settings['mdb']
+
+        # getting all scenarios
+        cursor = db.scenario.find()
+        # sorting based on name
+        cursor.sort([('name', pymongo.ASCENDING)])
+        scenarios = []
+        result_dict = {}
+        while (yield cursor.fetch_next):
+            document = cursor.next_object()
+            try:
+                scenarios.append({'name': document['name'],
+                                  'scenarioRef': '/stubo/api/v2/scenarios/objects/%s' % document['name']})
+            except KeyError:
+                log.warn('Scenario name not found for object: %s' % document['_id'])
+        result_dict['scenarios'] = scenarios
+        self.set_status(200)
+        self.write(result_dict)
 
     @tornado.web.asynchronous
     @gen.coroutine
@@ -627,8 +649,6 @@ class CreateScenarioHandler(RequestHandler):
         """
         # get motor driver
         db = self.settings['mdb']
-        # setting header
-        self.set_header('x-stub-o-matic-version', version)
         body_dict = None
         # get body
         try:

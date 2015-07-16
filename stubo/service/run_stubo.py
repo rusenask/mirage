@@ -177,7 +177,7 @@ class TornadoManager(object):
             ]
 
         rest_api = [
-            ("/stubo/api/v2/scenarios", "CreateScenarioHandler"),
+            ("/stubo/api/v2/scenarios", "BaseScenarioHandler"),
             ("/stubo/api/v2/scenarios/detail", "GetAllScenariosHandler"),
             ("/stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/action", "ScenarioActionHandler"),
             ("/stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)", "GetScenarioDetailsHandler"),
