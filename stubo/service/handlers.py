@@ -585,7 +585,7 @@ import json
 from stubo.utils import get_hostname
 from pymongo.errors import DuplicateKeyError
 import pymongo
-from stubo.service.api import list_scenarios
+
 NOT_ALLOWED_MSG = 'Method not allowed'
 
 
@@ -628,7 +628,7 @@ class BaseScenarioHandler(RequestHandler):
         """
         db = self.settings['mdb']
 
-        if self.request.body is not None:
+        if len(self.request.body) > 0:
             self.send_error(status_code=405, reason="Trying to create scenario? Use PUT method instead.")
         else:
             # getting all scenarios
@@ -648,8 +648,6 @@ class BaseScenarioHandler(RequestHandler):
             self.set_status(200)
             self.write(result_dict)
 
-    @tornado.web.asynchronous
-    @gen.coroutine
     def put(self):
         """
         Call example:
@@ -673,8 +671,7 @@ class BaseScenarioHandler(RequestHandler):
             </body>
         </html>
         """
-        # get motor driver
-        db = self.settings['mdb']
+
         body_dict = None
         # get body
         try:
@@ -686,43 +683,59 @@ class BaseScenarioHandler(RequestHandler):
             log.debug(ex)
             self.send_error(status_code=415, reason="Failed to get JSON body: %s" % ex.message)
 
+        # check if scenario name is supplied
+        full_name = None
+
         if body_dict:
-            # check if scenario name is supplied
             if 'scenario' not in body_dict:
                 self.send_error(status_code=400,
                                 reason="Scenario name not supplied")
             # check if scenario contains illegal characters or is blank
-            elif not (re.match(r'[\w-]*$', body_dict['scenario']) and body_dict['scenario']):
-                self.send_error(status_code=400,
-                                reason="Scenario name is blank or contains illegal characters. Name supplied: %s"
-                                       % body_dict['scenario'])
-            # name is validated, getting hostname, full_name and inserting
             else:
-                host = get_hostname(self.request)
                 name = body_dict['scenario']
-                # checking whether user supplied name with hostname
+                # check if hostname is provided
                 if ":" in name:
-                    full_name = name
+                    scenario_name = name.split(':')[1]
+                    if re.match(r'[\w-]*$', scenario_name) and scenario_name != "":
+                        full_name = name
+                # check if name is not empty string and only allowed characters are in this string
+                elif name != "":
+                    if re.match(r'[\w-]*$', name):
+                        # form a full name
+                        host = get_hostname(self.request)
+                        full_name = '%s:%s' % (host, name)
+
+                # if full name is validated and formed
+                if full_name is not None:
+                    self.insert_scenario(full_name)
                 else:
-                    full_name = '%s:%s' % (host, name)
-                scenario_document = {'name': full_name}
-                try:
-                    # inserting scenario document, adding index and unique constraint
-                    yield db.scenario.insert(scenario_document)
-                    db.scenario.create_index('name', unique=True)
-                    # creating result dict
-                    result_dict = {'name': full_name,
-                                   'scenarioRef': '/stubo/api/v2/scenarios/objects/{0}'.format(full_name)}
-                    self.set_status(201)
-                    self.write(result_dict)
-                except DuplicateKeyError as ex:
-                    log.debug(ex)
-                    self.send_error(status_code=422,
-                                    reason="Scenario (%s) already exists." % full_name)
-                except Exception as ex:
-                    log.warn(ex)
                     self.send_error(status_code=400,
-                                    reason="Failed to create scenario resource. Exception: %s" % ex.message)
+                                    reason="Scenario name is blank or contains illegal characters. Name supplied: %s"
+                                           % body_dict['scenario'])
+
+    @tornado.web.asynchronous
+    @gen.coroutine
+    def insert_scenario(self, name):
+        # get motor driver
+        db = self.settings['mdb']
+        scenario_document = {'name': name}
+        try:
+            # inserting scenario document, adding index and unique constraint
+            yield db.scenario.insert(scenario_document)
+            db.scenario.create_index('name', unique=True)
+            # creating result dict
+            result_dict = {'name': name,
+                           'scenarioRef': '/stubo/api/v2/scenarios/objects/{0}'.format(name)}
+            self.set_status(201)
+            self.write(result_dict)
+        except DuplicateKeyError as ex:
+            log.debug(ex)
+            self.send_error(status_code=422,
+                            reason="Scenario (%s) already exists." % name)
+        except Exception as ex:
+            log.warn(ex)
+            self.send_error(status_code=400,
+                            reason="Failed to create scenario resource. Exception: %s" % ex.message)
 
 
 class GetAllScenariosHandler(RequestHandler):
