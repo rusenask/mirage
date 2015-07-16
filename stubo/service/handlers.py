@@ -661,14 +661,14 @@ class CreateScenarioHandler(RequestHandler):
                     yield db.scenario.insert(scenario_document)
                     db.scenario.create_index('name', unique=True)
                     # creating result dict
-                    result_dict = {'name': full_name,
-                                   'scenarioRef': '/stubo/api/v2/scenarios/objects/{0}'.format(full_name)}
+                    result_dict = {'name': name,
+                                   'scenarioRef': '/stubo/api/v2/scenarios/objects/{0}'.format(name)}
                     self.set_status(201)
                     self.write(result_dict)
                 except DuplicateKeyError as ex:
                     log.debug(ex)
                     self.send_error(status_code=422,
-                                    reason="Scenario (%s) already exists." % full_name)
+                                    reason="Scenario (%s) already exists." % name)
                 except Exception as ex:
                     log.warn(ex)
                     self.send_error(status_code=400,

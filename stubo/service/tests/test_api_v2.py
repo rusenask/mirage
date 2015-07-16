@@ -24,8 +24,8 @@ class TestScenarioOperations(Base):
                          'application/json; charset=UTF-8')
         payload = json.loads(response.body)
         # check if scenario ref link and name are available in payload
-        self.assertEqual(payload['scenarioRef'], '/stubo/api/v2/scenarios/objects/localhost:scenario_0001')
-        self.assertEqual(payload['name'].split(':')[1], 'scenario_0001')
+        self.assertEqual(payload['scenarioRef'], '/stubo/api/v2/scenarios/objects/scenario_0001')
+        self.assertEqual(payload['name'], 'scenario_0001')
 
     def _test_insert_scenario(self, name="scenario_0001"):
         """
