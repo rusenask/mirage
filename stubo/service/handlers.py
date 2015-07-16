@@ -605,7 +605,8 @@ class CreateScenarioHandler(RequestHandler):
     def put(self):
         """
         Call example:
-        curl -i -H "Content-Type: application/json" -X PUT -d '{"scenario":"scenario_0001"}' http://127.0.0.1:8001/stubo/api/v2/scenarios
+        curl -i -H "Content-Type: application/json" -X PUT -d '{"scenario":"scenario_0001"}'
+                                                                         http://127.0.0.1:8001/stubo/api/v2/scenarios
 
         Creates a scenario and returns a link to it: query example:
         { “scenario”: “scenario_name” }
