@@ -804,6 +804,9 @@ class GetScenarioDetailsHandler(RequestHandler):
             # get size
             scenario_cl = Scenario()
             size = scenario_cl.size(scenario_name)
+            # check if size is None
+            if size is None:
+                size = 0
             recorded = scenario_cl.recorded(scenario_name)
             result_dict = {'name': scenario_name,
                            'stubs': stub_count,
