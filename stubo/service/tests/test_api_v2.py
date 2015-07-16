@@ -124,4 +124,18 @@ class TestScenarioOperations(Base):
         self.assertTrue('scenarios' in payload)
         self.assertEqual(len(payload['scenarios']), 5)
 
+    def test_get_scenario_details(self):
+        response = self._test_insert_scenario("new_scenario_details")
+        self.assertEqual(response.code, 201)
+
+        # get inserted scenario
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/new_scenario_details'),
+                               self.stop, method="GET")
+        response = self.wait()
+        self.assertEqual(response.code, 200, response.reason)
+        payload = json.loads(response.body)
+        self.assertEqual(payload['scenarioRef'], '/stubo/api/v2/scenarios/objects/localhost:new_scenario_details')
+        self.assertEqual(payload['name'], 'localhost:new_scenario_details')
+        self.assertEqual(payload['space_used_kb'], 0)
+
 
