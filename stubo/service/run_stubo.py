@@ -21,6 +21,7 @@ from stubo.utils.command_queue import InternalCommandQueue
 from stubo.utils.stats import StatsdStats
 from stubo import version, static_path 
 from stubo.model.db import default_env, coerce_mongo_param
+import motor
 
 log = logging.getLogger(__name__)
         
@@ -51,7 +52,7 @@ class TornadoManager(object):
         cfg['decompress_request'] = cfg.get('decompress_request', True)
         cfg['compress_response'] = cfg.get('compress_response', False)
         self.cfg = cfg
-        
+
     def get_cluster_name(self):
         name = 'unknown'
         try:
@@ -69,7 +70,7 @@ class TornadoManager(object):
             static_path=static_path(),
             template_path=static_path('templates'),
             xheaders=True,
-            **self.cfg)          
+            **self.cfg)
         tornado_app.add_handlers('.*$', self._make_route_list())
         return tornado_app
             
@@ -82,20 +83,25 @@ class TornadoManager(object):
         log.debug('mongo params: {0}'.format(dbenv))
         retry_count = int(self.cfg.get('retry_count', 10)) 
         retry_interval = int(self.cfg.get('retry_interval', 10))
+        # getting database
         mongo_client = None
         for i in range(retry_count):  
             try:         
                 mongo_client = init_mongo(dbenv)
+                # getting motor client
+                client = motor.MotorClient(dbenv['host'], dbenv['port'])
+                # self.mdb = client[dbenv['db']]
+                self.cfg['mdb'] = client[dbenv['db']]
                 break
-            except:
-                log.warn('mongo not available, try again in {0} '
-                         'secs'.format(retry_interval))
+            except Exception as ex:
+                log.warn('mongo not available, try again in {0} secs. Error: {1}'.format(retry_interval, ex))
                 time.sleep(retry_interval) 
         if not mongo_client:
             log.critical('Unable to connect to mongo, exiting ...')
             sys.exit(1)
         log.info('mongo server_info: {0}'.format(
-                            mongo_client.connection.server_info()))    
+                            mongo_client.connection.server_info()))
+
         slave, master = start_redis(self.cfg) 
         self.cfg['is_cluster'] = False
         if slave != master:
@@ -176,6 +182,9 @@ class TornadoManager(object):
             ("/stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/action", "ScenarioActionHandler"),
             ("/stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)", "GetScenarioDetailsHandler"),
             ("/stubo/api/v2/delay-policy", "CreateDelayPolicyHandler"),
+            ("/stubo/api/v2/delay-policy/detail", "GetAllDelayPoliciesHandler"),
+            ("/stubo/api/v2/delay-policy/objects/(?P<delay_policy_name>[^\/]+)", "GetDelayPolicyDetailsHandler"),
+
         ]
         
         ui_pages = [
