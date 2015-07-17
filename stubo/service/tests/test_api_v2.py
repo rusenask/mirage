@@ -124,6 +124,50 @@ class TestScenarioOperations(Base):
         self.assertTrue('scenarios' in payload)
         self.assertEqual(len(payload['scenarios']), 5)
 
+    def test_get_all_scenarios_with_details(self):
+        """
+
+        Test getting multiple scenarios with details
+        """
+        # creating some scenarios
+        for scenario_number in xrange(5):
+            response = self._test_insert_scenario(name="scenario_name_with_no_%s" % scenario_number)
+            self.assertEqual(response.code, 201)
+
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/detail'), self.stop, method="GET")
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        payload = json.loads(response.body)
+        self.assertTrue('scenarios' in payload)
+        self.assertTrue('name' in payload['scenarios'][1])
+        self.assertTrue('recorded' in payload['scenarios'][1])
+        self.assertTrue('space_used_kb' in payload['scenarios'][1])
+        self.assertTrue('stub_count' in payload['scenarios'][1])
+        self.assertEqual(len(payload['scenarios']), 5)
+
+    def test_get_all_scenarios_with_post_method(self):
+        """
+
+        Test getting multiple scenarios with details using POST, PUT methods
+        """
+        # using PUT method
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/detail'), self.stop,
+                               method="PUT", body='{"foo": "bar"}')
+        response = self.wait()
+        self.assertEqual(response.code, 405, response.reason)
+
+        # using POST method
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/detail'), self.stop,
+                               method="POST", body='{"foo": "bar"}')
+        response = self.wait()
+        self.assertEqual(response.code, 405, response.reason)
+
+        # using DELETE method
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/detail'), self.stop,
+                               method="DELETE")
+        response = self.wait()
+        self.assertEqual(response.code, 405, response.reason)
+
     def test_get_scenario_details(self):
         """
 

@@ -244,7 +244,7 @@ class Scenario(object):
           'scenario_2': 20}
 
         Remember, that if the scenario doesn't have any stubs - it will not be in this list since it is not accessing
-        scenario collection to add scenarios with 0 stubs. 
+        scenario collection to add scenarios with 0 stubs.
         :return: <dict>
         """
         start_time = time.time()
