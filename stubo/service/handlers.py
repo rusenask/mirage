@@ -596,6 +596,11 @@ class BaseScenarioHandler(RequestHandler):
     /stubo/api/v2/scenarios
     """
     def initialize(self):
+        """
+
+        Initializing database and setting header. Using global tornado settings that are generated
+        during startup to acquire database client
+        """
         # setting header
         self.set_header('x-stub-o-matic-version', version)
         self.db = motor_driver(self.settings)
@@ -745,16 +750,57 @@ class GetAllScenariosHandler(RequestHandler):
 
     """
 
+    def initialize(self):
+        """
+
+        Initializing database and setting header. Using global tornado settings that are generated
+        during startup to acquire database client
+        """
+        # setting header
+        self.set_header('x-stub-o-matic-version', version)
+        # get motor driver
+        self.db = motor_driver(self.settings)
+
     def compute_etag(self):
         return None
 
+    @gen.coroutine
     def get(self):
         """
 
         Returns a list with all scenarios (and URL paths to these resources),
         stub count
         """
-        self.write("not implemented")
+        # getting all scenarios
+        cursor = self.db.scenario.find()
+        # sorting based on name
+        cursor.sort([('name', pymongo.ASCENDING)])
+
+        # get size
+        scenario_cl = Scenario()
+        scenarios_sizes = scenario_cl.size()
+        scenarios_recorded = scenario_cl.recorded()
+        scenarios_stub_counts = scenario_cl.stub_counts()
+
+        # start mapping data
+        scenarios = []
+        result_dict = {}
+        while (yield cursor.fetch_next):
+            document = cursor.next_object()
+            try:
+                scenario_recorded = scenarios_recorded.get(document['name'], '-')
+                scenario_size = int(scenarios_sizes.get(document['name'], 0))
+                scenario_stub_count = scenarios_stub_counts.get(document['name'], 0)
+                scenarios.append({'name': document['name'],
+                                  'recorded': scenario_recorded,
+                                  'space_used_kb': scenario_size,
+                                  'stub_count': scenario_stub_count,
+                                  'scenarioRef': '/stubo/api/v2/scenarios/objects/%s' % document['name']})
+            except KeyError:
+                log.warn('Scenario name not found for object: %s' % document['_id'])
+        result_dict['scenarios'] = scenarios
+        self.set_status(200)
+        self.write(result_dict)
 
     def post(self):
         self.clear()
@@ -768,6 +814,11 @@ class GetScenarioDetailsHandler(RequestHandler):
     """
 
     def initialize(self):
+        """
+
+        Initializing database and setting header. Using global tornado settings that are generated
+        during startup to acquire database client
+        """
         # setting header
         self.set_header('x-stub-o-matic-version', version)
         # get motor driver
@@ -793,8 +844,6 @@ class GetScenarioDetailsHandler(RequestHandler):
              "scenarioRef": "/stubo/api/v2/scenarios/objects/localhost:scenario_16"
          }
         """
-        # # get motor driver
-        # self.db = self.settings['mdb']
 
         # check if hostname is supplied - if not, override scenario name with new value
         scenario_name = self._get_full_name(scenario_name)
