@@ -9,6 +9,7 @@ from stubo.utils import asbool
 from stubo.model.stub import Stub
 import hashlib
 import time
+import motor
 
 default_env = {
     'port': 27017,
@@ -30,6 +31,10 @@ log = logging.getLogger(__name__)
 
 mongo_client = None
 
+def motor_driver(settings):
+    # getting motor client
+    client = motor.MotorClient(settings['mongo.host'], int(settings['mongo.port']))
+    return client[settings['mongo.db']]
 
 def get_mongo_client():
     return mongo_client

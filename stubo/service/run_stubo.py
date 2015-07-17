@@ -21,10 +21,10 @@ from stubo.utils.command_queue import InternalCommandQueue
 from stubo.utils.stats import StatsdStats
 from stubo import version, static_path 
 from stubo.model.db import default_env, coerce_mongo_param
-import motor
+
 
 log = logging.getLogger(__name__)
-        
+
 class TornadoManager(object):
     """Set up and start Tornado ioloop.
     """
@@ -42,8 +42,8 @@ class TornadoManager(object):
             cfg['statsd_client'] = StatsClient(host=cfg.get('statsd.host', 
                 'localhost'), prefix=cfg.get('statsd.prefix', 'stubo')) 
             cfg['stats'] = StatsdStats()
-            log.info('statsd host addr={0}, prefix={1}'.format(
-                    cfg['statsd_client']._addr, cfg['statsd_client']._prefix))
+            log.info('statsd host addr={0}, prefix={1}'.format(cfg['statsd_client']._addr,
+                                                               cfg['statsd_client']._prefix))
         except socket.gaierror, e:
             log.warn("unable to connect to statsd: {0}".format(e))
                       
@@ -88,10 +88,6 @@ class TornadoManager(object):
         for i in range(retry_count):  
             try:         
                 mongo_client = init_mongo(dbenv)
-                # getting motor client
-                client = motor.MotorClient(dbenv['host'], dbenv['port'])
-                # self.mdb = client[dbenv['db']]
-                self.cfg['mdb'] = client[dbenv['db']]
                 break
             except Exception as ex:
                 log.warn('mongo not available, try again in {0} secs. Error: {1}'.format(retry_interval, ex))

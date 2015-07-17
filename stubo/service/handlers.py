@@ -586,6 +586,7 @@ from stubo.utils import get_hostname
 from pymongo.errors import DuplicateKeyError
 import pymongo
 from stubo.model.db import Scenario
+from stubo.model.db import motor_driver
 
 NOT_ALLOWED_MSG = 'Method not allowed'
 
@@ -597,6 +598,7 @@ class BaseScenarioHandler(RequestHandler):
     def initialize(self):
         # setting header
         self.set_header('x-stub-o-matic-version', version)
+        self.db = motor_driver(self.settings)
 
     def compute_etag(self):
         return None
@@ -627,13 +629,12 @@ class BaseScenarioHandler(RequestHandler):
         }
 
         """
-        db = self.settings['mdb']
 
         if len(self.request.body) > 0:
             self.send_error(status_code=405, reason="Trying to create scenario? Use PUT method instead.")
         else:
             # getting all scenarios
-            cursor = db.scenario.find()
+            cursor = self.db.scenario.find()
             # sorting based on name
             cursor.sort([('name', pymongo.ASCENDING)])
             scenarios = []
@@ -717,13 +718,12 @@ class BaseScenarioHandler(RequestHandler):
     @tornado.web.asynchronous
     @gen.coroutine
     def insert_scenario(self, name):
-        # get motor driver
-        db = self.settings['mdb']
+
         scenario_document = {'name': name}
         try:
             # inserting scenario document, adding index and unique constraint
-            yield db.scenario.insert(scenario_document)
-            db.scenario.create_index('name', unique=True)
+            yield self.db.scenario.insert(scenario_document)
+            self.db.scenario.create_index('name', unique=True)
             # creating result dict
             result_dict = {'name': name,
                            'scenarioRef': '/stubo/api/v2/scenarios/objects/{0}'.format(name)}
@@ -771,7 +771,7 @@ class GetScenarioDetailsHandler(RequestHandler):
         # setting header
         self.set_header('x-stub-o-matic-version', version)
         # get motor driver
-        self.db = self.settings['mdb']
+        self.db = motor_driver(self.settings)
 
     def compute_etag(self):
         return None
