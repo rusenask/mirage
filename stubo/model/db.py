@@ -237,6 +237,41 @@ class Scenario(object):
             # returning full list (scenarios and sizes)
             return result_dict
 
+    def stub_counts(self):
+        """
+        Calculates stub counts:
+        { 'scenario_1': 100,
+          'scenario_2': 20}
+
+        Remember, that if the scenario doesn't have any stubs - it will not be in this list since it is not accessing
+        scenario collection to add scenarios with 0 stubs. 
+        :return: <dict>
+        """
+        start_time = time.time()
+        pipeline = [{'$group': {
+            '_id': '$scenario',
+            'count': {'$sum': 1}
+        }
+        }]
+
+        # use the pipe to calculate scenario stub counts
+        try:
+            result = self.db.command('aggregate', 'scenario_stub', pipeline=pipeline)['result']
+        except KeyError as ex:
+            log.error(ex)
+            return None
+        except Exception as ex:
+            log.error("Got error when trying to use aggregation framework: %s" % ex)
+            return None
+        # using dict comprehension to form a new dict for fast access to elements
+        result_dict = {x['_id']: x['count'] for x in result}
+
+        # finish time
+        finish_time = time.time()
+        log.info("Stub counts calculated in %s ms" % int((finish_time-start_time)*1000))
+
+        return result_dict
+
     @staticmethod
     def _create_hash(matchers):
         """
