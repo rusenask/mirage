@@ -587,6 +587,9 @@ from pymongo.errors import DuplicateKeyError
 import pymongo
 from stubo.model.db import Scenario
 from stubo.model.db import motor_driver
+from stubo.service.handlers_mt import stubo_async
+
+from stubo.service.api_v2 import begin_session as api_v2_begin_session
 
 NOT_ALLOWED_MSG = 'Method not allowed'
 
@@ -911,7 +914,7 @@ class GetScenarioDetailsHandler(RequestHandler):
         self.send_error(status_code=405, reason=NOT_ALLOWED_MSG)
 
 
-class ScenarioActionHandler(RequestHandler):
+class ScenarioActionHandler(TrackRequest):
     """
     /stubo/api/v2/scenarios/(?P<scenario_name>[^\/]+)/action
     """
@@ -923,7 +926,7 @@ class ScenarioActionHandler(RequestHandler):
         self.clear()
         self.send_error(status_code=405, reason=NOT_ALLOWED_MSG)
 
-    def post(self):
+    def post(self, scenario_name):
         """
 
         Launches actions such as export, begin session, end session. Examples:
@@ -936,9 +939,7 @@ class ScenarioActionHandler(RequestHandler):
          “playback_session”: “session_to_use(required when runnable)”}
 
         Begin session:
-        { “begin”: null,
-          “session”: “session_name”,
-          “mode”: “record” }
+        { "begin": null, "session": "session_name", "mode": "record" }
 
         End session:
         { “end”: null,
@@ -949,7 +950,73 @@ class ScenarioActionHandler(RequestHandler):
 
 
         """
-        self.write("not implemented")
+        body_dict = None
+        # get body
+        try:
+            # checking request body
+            body_dict = json.loads(self.request.body)
+        except ValueError as ex:
+            log.debug(ex)
+            self.send_error(status_code=415, reason="No JSON body found")
+        except Exception as ex:
+            log.debug(ex)
+            self.send_error(status_code=415, reason="Failed to get JSON body: %s" % ex.message)
+
+        if body_dict:
+            self.scenario_name = scenario_name
+
+            # begin session
+            if 'begin' in body_dict:
+                # getting variables
+                self.session_name = body_dict.get('session', None)
+                self.mode = body_dict.get('mode', None)
+
+                # Check whether session name and mode variables supplied
+                if not (self.session_name and self.mode):
+                    self.send_error(412, reason="Precondition failed, session name or mode is missing.")
+                else:
+                    self._begin_session()
+
+            # end session
+            elif 'end' in body_dict:
+                self.session_name = body_dict['session']
+                self._end_session()
+
+            # export scenario
+            elif 'export' in body_dict:
+                # do scenario export
+                pass
+
+            else:
+                self.send_error(status_code=400)
+        else:
+            self.send_error(status_code=400)
+
+    @stubo_async
+    def _begin_session(self):
+        """
+
+        Begins session
+        :raise exception_response:
+        """
+        scenario = self.scenario_name
+        session = self.session_name
+        # mode = handler.get_argument('mode', None)
+        mode = self.mode
+        warm_cache = asbool(self.get_argument('warm_cache', False))
+        if not mode:
+            raise exception_response(400,
+                                     title="'mode' of playback or record required")
+        # passing parameters to api v2 handler, it avoids creating scenario if there is an existing one,
+        # since all scenarios should be existing!
+        api_v2_begin_session(self, scenario, session, mode, self.get_argument('system_date', None), warm_cache)
+
+    def _end_session(self):
+        """
+
+        Ends session
+        """
+        pass
 
 
 class CreateDelayPolicyHandler(RequestHandler):
