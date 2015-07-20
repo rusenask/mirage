@@ -613,7 +613,6 @@ class BaseScenarioHandler(RequestHandler):
 
     @gen.coroutine
     def get(self):
-        # get motor driver
         """
         Gets all scenarios from the database. Response contains names and paths to resources
 
@@ -916,7 +915,7 @@ class GetScenarioDetailsHandler(RequestHandler):
 
 class ScenarioActionHandler(TrackRequest):
     """
-    /stubo/api/v2/scenarios/(?P<scenario_name>[^\/]+)/action
+    /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/action
     """
 
     def compute_etag(self):
@@ -998,6 +997,19 @@ class ScenarioActionHandler(TrackRequest):
 
         Begins session
         :raise exception_response:
+
+        Example outputs:
+        Record new session
+        {
+         "version": "0.6.3",
+         "data":
+            {"status": "record",
+            "scenario": "localhost:scenario_rest_api",
+            "scenarioRef": "/stubo/api/v2/scenarios/objects/localhost:scenario_rest_api",
+            "scenario_id": "55acba53fc456205eaf7e258",
+            "session": "new_session_rest2",
+            "message": "Record mode initiated...."}
+        }
         """
         scenario = self.scenario_name
         session = self.session_name
@@ -1009,7 +1021,11 @@ class ScenarioActionHandler(TrackRequest):
                                      title="'mode' of playback or record required")
         # passing parameters to api v2 handler, it avoids creating scenario if there is an existing one,
         # since all scenarios should be existing!
-        api_v2_begin_session(self, scenario, session, mode, self.get_argument('system_date', None), warm_cache)
+        response = api_v2_begin_session(self, scenario, session, mode, self.get_argument('system_date', None),
+                                        warm_cache)
+        # adding scenarioRef key for easier resource access.
+        response['data']['scenarioRef'] = '/stubo/api/v2/scenarios/objects/%s' % response['data']['scenario']
+        self.write(response)
 
     def _end_session(self):
         """

@@ -39,6 +39,7 @@ def begin_session(handler, scenario_name, session_name, mode, system_date=None,
         raise exception_response(400, title="Sorry the host URL '{0}' has been "
                                             "blacklisted. Please contact Stub-O-Matic support.".format(cache.host))
     # checking whether full name (with hostname) was passed, if not - getting full name
+    # scenario_name_key = "localhost:scenario_1"
     if ":" not in scenario_name:
         scenario_name_key = cache.scenario_key_name(scenario_name)
     else:
@@ -50,7 +51,7 @@ def begin_session(handler, scenario_name, session_name, mode, system_date=None,
     # get scenario document
     scenario_doc = scenario_manager.get(scenario_name_key)
     if not scenario_doc:
-        raise exception_response(400,
+        raise exception_response(404,
                                  title='Scenario not found - {0}'.format(scenario_name_key))
 
     cache.assert_valid_session(scenario_name, session_name)
@@ -67,16 +68,16 @@ def begin_session(handler, scenario_name, session_name, mode, system_date=None,
         scenario_id = scenario_doc['_id']
         log.debug('new scenario: {0}'.format(scenario_id))
         session_payload = {
-            'status' : 'record',
-            'scenario' : scenario_name_key,
-            'scenario_id' : str(scenario_id),
-            'session' : str(session_name)
+            'status': 'record',
+            'scenario': scenario_name_key,
+            'scenario_id': str(scenario_id),
+            'session': str(session_name)
         }
         cache.set_session(scenario_name, session_name, session_payload)
         log.debug('new redis session: {0}:{1}'.format(scenario_name_key,
                                                       session_name))
         response["data"] = {
-            'message' : 'Record mode initiated....',
+            'message': 'Record mode initiated....',
         }
         response["data"].update(session_payload)
         cache.set_session_map(scenario_name, session_name)
@@ -85,7 +86,7 @@ def begin_session(handler, scenario_name, session_name, mode, system_date=None,
     elif mode == 'playback':
 
         recordings = cache.get_sessions_status(scenario_name,
-                                               status=('record'),
+                                               status='record',
                                                local=False)
         if recordings:
             raise exception_response(400, title='Scenario recordings taking ' \
@@ -106,12 +107,12 @@ def begin_session(handler, scenario_name, session_name, mode, system_date=None,
             cache.reset_request_index(scenario_name)
 
         response["data"] = {
-            "message" : "Playback mode initiated...."
+            "message": "Playback mode initiated...."
         }
         response["data"].update({
-            "status" : "playback",
-            "scenario" : scenario_name_key,
-            "session" : str(session_name)
+            "status": "playback",
+            "scenario": scenario_name_key,
+            "session": str(session_name)
         })
     else:
         raise exception_response(400,
