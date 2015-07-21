@@ -590,6 +590,7 @@ from stubo.model.db import motor_driver
 from stubo.service.handlers_mt import stubo_async
 from stubo.cache import Cache
 from stubo.service.api_v2 import begin_session as api_v2_begin_session
+from stubo.service.api import end_session
 
 NOT_ALLOWED_MSG = 'Method not allowed'
 
@@ -987,8 +988,16 @@ class ScenarioActionHandler(TrackRequest):
 
             # end session
             elif 'end' in body_dict:
-                self.session_name = body_dict['session']
-                self._end_session()
+
+                if body_dict['end'] == "sessions":
+                    # ending all sessions
+                    self._end_all_sessions()
+                elif 'session' in body_dict:
+                    # ending session
+                    self.session_name = body_dict['session']
+                    self._end_session()
+                else:
+                    self.send_error(status_code=400, reason="Can't determine which session to end.")
 
             # export scenario
             elif 'export' in body_dict:
@@ -1020,29 +1029,36 @@ class ScenarioActionHandler(TrackRequest):
             "message": "Record mode initiated...."}
         }
         """
-        scenario = self.scenario_name
-        session = self.session_name
-        # mode = handler.get_argument('mode', None)
-        mode = self.mode
         warm_cache = asbool(self.get_argument('warm_cache', False))
-        if not mode:
+        if not self.mode:
             raise exception_response(400,
                                      title="'mode' of playback or record required")
         # passing parameters to api v2 handler, it avoids creating scenario if there is an existing one,
         # since all scenarios should be existing!
-        response = api_v2_begin_session(self, scenario, session, mode, self.get_argument('system_date', None),
+        response = api_v2_begin_session(self, self.scenario_name,
+                                        self.session_name,
+                                        self.mode,
+                                        self.get_argument('system_date', None),
                                         warm_cache)
         # adding scenarioRef key for easier resource access.
         response['data']['scenarioRef'] = '/stubo/api/v2/scenarios/objects/%s' % response['data']['scenario']
         self.write(response)
+
+    def _end_all_sessions(self):
+        pass
 
     def _end_session(self):
         """
 
         Ends session
         """
-        pass
-
+        try:
+            response = end_session(self, self.session_name)
+            self.write(response)
+        except Exception as ex:
+            log.warn("Failed to end session %s for scenario: %s. Got error: %s" % (self.session_name,
+                                                                                   self.scenario_name,
+                                                                                   ex))
 
 class CreateDelayPolicyHandler(RequestHandler):
     """
