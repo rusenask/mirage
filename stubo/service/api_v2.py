@@ -52,7 +52,8 @@ def begin_session(handler, scenario_name, session_name, mode, system_date=None,
     scenario_doc = scenario_manager.get(scenario_name_key)
     if not scenario_doc:
         raise exception_response(404,
-                                 title='Scenario not found - {0}'.format(scenario_name_key))
+                                 title='Scenario not found - {0}. To begin a'
+                                       ' session - create a scenario.'.format(scenario_name_key))
 
     cache.assert_valid_session(scenario_name, session_name)
 
