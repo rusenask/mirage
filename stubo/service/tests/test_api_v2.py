@@ -263,4 +263,33 @@ class TestSessionOperations(Base):
         response = self.wait()
         self.assertEqual(response.code, 200, response.reason)
 
+    def test_end_all_sessions(self):
+        """
+
+        Test end all sessions
+        """
+        response = self._test_insert_scenario("new_scenario_0x")
+        self.assertEqual(response.code, 201)
+
+        session_count = 10
+        # inserting some sessions
+        for session_number in xrange(session_count):
+            self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/new_scenario_0x/action'),
+                                   self.stop,
+                                   method="POST",
+                                   body='{ "begin": null, "session": "session_name_%s", "mode": "record" }'
+                                        % session_number)
+            response = self.wait()
+            self.assertEqual(response.code, 200, response.reason)
+
+        # ordering stubo to finish them all!
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/new_scenario_0x/action'),
+                               self.stop,
+                               method="POST",
+                               body='{ "end": "sessions"}')
+        response = self.wait()
+        self.assertEqual(response.code, 200, response.reason)
+        # checking whether 10 sessions were affected
+        self.assertEqual(len(json.loads(response.body)['data']), 10)
+
 
