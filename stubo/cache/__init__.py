@@ -426,8 +426,9 @@ class Cache(object):
         stubs_cursor = scenario_col.get_stubs(scenario_key)
         stubs = list(stubs_cursor)
         if not stubs:
-            raise exception_response(500,
-                title="found no stubs in mongo for {0}".format(scenario_key))
+            raise exception_response(412,
+                                     title="Precondition failed: no stubs were"
+                                           " found in database for scenario: {0}".format(scenario_key))
         from stubo.ext.module import Module
         for scenario_stub in stubs:
             stub = Stub(scenario_stub['stub'], scenario_stub['scenario'])
