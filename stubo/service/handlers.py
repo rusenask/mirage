@@ -590,7 +590,7 @@ from stubo.model.db import motor_driver
 from stubo.service.handlers_mt import stubo_async
 from stubo.cache import Cache
 from stubo.service.api_v2 import begin_session as api_v2_begin_session
-from stubo.service.api import end_session
+from stubo.service.api import end_session, end_sessions
 
 NOT_ALLOWED_MSG = 'Method not allowed'
 
@@ -1016,7 +1016,7 @@ class ScenarioActionHandler(TrackRequest):
         Begins session
         :raise exception_response:
 
-        Example outputs:
+        Example output:
         Record new session
         {
          "version": "0.6.3",
@@ -1045,12 +1045,46 @@ class ScenarioActionHandler(TrackRequest):
         self.write(response)
 
     def _end_all_sessions(self):
-        pass
+        """
+        {
+         "version": "0.6.3",
+         "data": {
+             "session_name_5": {
+                 "message": "Session ended"
+                 },
+             "session_name_4": {
+                 "message": "Session ended"
+                 },
+             "session_name_6": {
+                 "message": "Session ended"
+                 }
+                 }
+        }
+        :return:
+        """
+        try:
+            # need to pass scenario name without hostname
+            if ":" in self.scenario_name:
+                scenario_name = self.scenario_name.split(":")[1]
+            else:
+                scenario_name = self.scenario_name
+            response = end_sessions(self, scenario_name)
+            self.write(response)
+        except Exception as ex:
+            log.warn("Failed to end all sessions for scenario: %s. Got error: %s" % (self.scenario_name, ex))
 
     def _end_session(self):
         """
 
         Ends session
+
+        Example output:
+        {
+         "version": "0.6.3",
+         "data": {
+             "message": "Session ended"
+             }
+        }
         """
         try:
             response = end_session(self, self.session_name)
