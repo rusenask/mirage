@@ -266,7 +266,7 @@ class TestSessionOperations(Base):
     def test_end_all_sessions(self):
         """
 
-        Test end all sessions
+        Test end all sessions - creating scenario, then multiple sessions setting to record, then to dormant.
         """
         response = self._test_insert_scenario("new_scenario_0x")
         self.assertEqual(response.code, 201)
@@ -291,5 +291,14 @@ class TestSessionOperations(Base):
         self.assertEqual(response.code, 200, response.reason)
         # checking whether 10 sessions were affected
         self.assertEqual(len(json.loads(response.body)['data']), 10)
+
+    def test_setting_playback(self):
+        """
+
+        Test playback
+        """
+        # TODO: implement this test after stub creation through API v2 is available
+        pass
+
 
 
