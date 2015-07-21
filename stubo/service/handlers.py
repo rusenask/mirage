@@ -588,7 +588,7 @@ import pymongo
 from stubo.model.db import Scenario
 from stubo.model.db import motor_driver
 from stubo.service.handlers_mt import stubo_async
-
+from stubo.cache import Cache
 from stubo.service.api_v2 import begin_session as api_v2_begin_session
 
 NOT_ALLOWED_MSG = 'Method not allowed'
@@ -892,6 +892,15 @@ class GetScenarioDetailsHandler(RequestHandler):
         if document is not None:
             # delete document
             yield self.db.scenario.remove(query)
+            try:
+                # scenario name contains host, splitting it and using this value to clear cache
+                host = scenario_name.split(":")[0]
+                cache = Cache(host)
+                # change cache
+                cache.delete_caches(scenario_name)
+            except Exception as ex:
+                log.warn("Failed to delete caches for scenario: %s. Got error: %s" % (scenario_name, ex))
+
             self.set_status(200)
         else:
             self.send_error(412, reason="Precondition failed - scenario (%s) does not exist." % scenario_name)
