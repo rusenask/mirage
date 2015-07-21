@@ -34,8 +34,8 @@ class Base(unittest.TestCase):
 class Test_create_session_cache(Base):
             
     def test_no_stubs(self):
-        from stubo.exceptions import HTTPServerError
-        with self.assertRaises(HTTPServerError):
+        from stubo.exceptions import HTTPClientError
+        with self.assertRaises(HTTPClientError):
             self._get_cache().create_session_cache('foo', 'bar')  
                                                                          
     def test_new_session(self):
