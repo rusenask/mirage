@@ -219,3 +219,48 @@ class TestScenarioOperations(Base):
         response = self.wait()
         # expecting to get "precondition failed"
         self.assertEqual(response.code, 412, response.reason)
+
+class TestSessionOperations(Base):
+
+    def _test_insert_scenario(self, name="scenario_0001"):
+        """
+        Inserts test scenario
+        :return: response from future
+        """
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios'), self.stop,
+                               method="PUT", body='{"scenario": "%s"}' % name)
+
+        response = self.wait()
+        return response
+
+    def test_begin_n_end_session(self):
+        """
+
+        Test begin session
+        """
+        response = self._test_insert_scenario("new_scenario_0x")
+        self.assertEqual(response.code, 201)
+
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/new_scenario_0x/action'),
+                               self.stop,
+                               method="POST",
+                               body='{ "begin": null, "session": "session_name", "mode": "record" }')
+        response = self.wait()
+        self.assertEqual(response.code, 200, response.reason)
+        body_dict = json.loads(response.body)['data']
+        self.assertEqual(body_dict['status'], 'record')
+        self.assertEqual(body_dict['session'], 'session_name')
+        # splitting scenario name and comparing only scenario name (removing hostname)
+        self.assertEqual(body_dict['scenario'].split(":")[1], 'new_scenario_0x')
+        self.assertTrue('scenarioRef' in body_dict)
+        self.assertTrue('message' in body_dict)
+
+        # ending session
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/new_scenario_0x/action'),
+                               self.stop,
+                               method="POST",
+                               body='{ "end": null, "session": "session_name" }')
+        response = self.wait()
+        self.assertEqual(response.code, 200, response.reason)
+
+
