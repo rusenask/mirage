@@ -1023,7 +1023,12 @@ def bookmarks_request_api(handler):
                                      
 
 def manage_request_api(handler):
-    cache = Cache(get_hostname(handler.request)) 
+    """
+    Generate data for /manage page.
+    :param handler: instance of RequestHandler or TrackRequest
+    :return: dictionary with information about stubo instance - modules, delays, sessions..
+    """
+    cache = Cache(get_hostname(handler.request))
     action = handler.get_argument('action', None)
     all_hosts = asbool(handler.get_argument("all_hosts", False))
     message = error_message = ""
@@ -1060,11 +1065,14 @@ def manage_request_api(handler):
             error_message = "Error: {0}".format(e.title)       
     
     cmdFile = handler.get_argument('cmdFile', '') 
-    http_req = handler.request
-    response = dict(host_scenarios=get_session_status(handler, 
+    response = dict(host_scenarios=get_session_status(handler,
                                                       all_hosts=all_hosts))                                                 
-    cache_loc = handler.get_argument('cache', 'master') 
-    response['delays'] = get_delay_policy(handler, None, cache_loc).get('data')
+    cache_loc = handler.get_argument('cache', 'master')
+    # get delays and format output (splitting weighted delays into a list)
+    delays = get_delay_policy(handler, None, cache_loc).get('data')
+    delays = _format_delay_types(delays)
+
+    response['delays'] = delays
     modules = list_module(handler, None)['data'].get('info')
     for name in modules.keys():
         source_text = pretty_format_python(Module(cache.host).get_source(name))
@@ -1078,6 +1086,18 @@ def manage_request_api(handler):
     response['host'] = cache.host
     response['page_name'] = 'Manage'
     return response
+
+def _format_delay_types(delays):
+    """
+    Format delay types, removing colon and moving delay types into separate lines
+    :param delays: delays dictionary
+    :return: delays dictionary
+    """
+    if delays:
+        for name, delay_data in delays.iteritems():
+            if delay_data['delay_type'] == "weighted":
+                delay_data['delays'] = delay_data['delays'].split(":")
+    return delays
 
 from collections import defaultdict
 

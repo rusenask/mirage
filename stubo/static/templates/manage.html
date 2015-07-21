@@ -171,18 +171,32 @@
     </tr>
     <thead>
     {% for delay in delays %}
+
     {% if delays[delay]['delay_type'] == 'fixed' %}
     {% set values = delays[delay]['milliseconds'] +  ' msecs' %}
+
     {% elif delays[delay]['delay_type'] == 'normalvariate' %}
     {% set values = 'mean: ' + delays[delay]['mean'] %}
     {% set values = values + ', stddev: ' + delays[delay]['stddev'] %}
+
+    {% elif delays[delay]['delay_type'] == 'weighted' %}
+    {% set values = delays[delay]['delays'] %}
+
     {% else %}
     {% set values = 'invalid record' %}
     {% end %}
     <tr>
        <td>{{delay}}</td>
        <td>{{delays[delay]['delay_type']}}</td>
-       <td>{{values}}</td>
+       <td>
+           {% if delays[delay]['delay_type'] == 'weighted' %}
+              {% for val in values %}
+                <li> {{ val }} </li>
+               {% end %}
+           {% else %}
+               {{values}}
+           {% end %}
+       </td>
        <td>
            <!-- Single button -->
             <div class="btn-group">
