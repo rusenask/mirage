@@ -5,12 +5,11 @@ cache: pip
 
 python:
     - 2.7
-
-
   
 install:
     - travis_retry python setup.py install
     - travis_retry pip install coveralls
+    - travis_retry pip install -r requirements/development.txt
 
 services:
   - redis-server

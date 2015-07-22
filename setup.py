@@ -7,35 +7,36 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.md')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
-requires = [
-    'tornado==4.1',   
-    'futures>=2.2.0', 
-    'redis',         
-    'pymongo==2.8',
-    'statsd',        
-    'pytz',          
-    'requests>=2.4.3',
-    'lxml',
-    'jsonpath-rw',
-    'python-dateutil>=2.2',
-    'Pygments',
-    'dogpile.cache',
-    'matchers',
-    'PyYAML',
-    # testing 
-    'ming',
-    'pylint',        
-    'coverage',       
-    'nose',           
-    'nosexcover',     
-    'mock',          
-    # performance profiling
-    'plop',
-    'yappi',
-    # docs
-    'Sphinx',       
-
-    ]
+# moving requirements to pip file
+# requires = [
+#     'tornado==4.1',
+#     'futures>=2.2.0',
+#     'redis',
+#     'pymongo==2.8',
+#     'statsd',
+#     'pytz',
+#     'requests>=2.4.3',
+#     'lxml',
+#     'jsonpath-rw',
+#     'python-dateutil>=2.2',
+#     'Pygments',
+#     'dogpile.cache',
+#     'matchers',
+#     'PyYAML',
+#     # testing
+#     'ming',
+#     'pylint',
+#     'coverage',
+#     'nose',
+#     'nosexcover',
+#     'mock',
+#     # performance profiling
+#     'plop',
+#     'yappi',
+#     # docs
+#     'Sphinx',
+#
+#     ]
 
 
 setup(name='stubo',
@@ -52,8 +53,8 @@ setup(name='stubo',
       packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
-      install_requires = requires,
-      tests_require= requires,
+      # install_requires = requires,
+      # tests_require= requires,
       test_suite="stubo",
       entry_points = """\
       [console_scripts]
