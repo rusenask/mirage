@@ -376,6 +376,7 @@ class Tracker(object):
         forced_log_id = track.get('forced_log_id')
         if forced_log_id:
             track['_id'] = int(forced_log_id)
+
         result = self.db.tracker.insert(track, w=write_concern)
         # creating indexes. Based on these indexes stubo will be searching/filtering tracker collection
         self._create_index("host")
