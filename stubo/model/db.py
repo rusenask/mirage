@@ -8,6 +8,7 @@ from bson.objectid import ObjectId
 from stubo.utils import asbool
 from stubo.model.stub import Stub
 import hashlib
+import time
 
 default_env = {
     'port': 27017,
@@ -151,6 +152,7 @@ class Scenario(object):
         :param name: optional parameter to get recorded date for specific scenario
         :return: <dict> - if name is not supplied, <string> with date - if scenario name supplied.
         """
+        start_time = time.time()
         pipeline = [
             {'$group': {
                 '_id': '$scenario',
@@ -167,6 +169,9 @@ class Scenario(object):
         # using dict comprehension to form a new dict for fast access to elements
         result_dict = {x['_id']: x['recorded'] for x in result}
 
+        # finish time
+        finish_time = time.time()
+        log.info("Recorded calculated in %s ms" % int((finish_time-start_time)*1000))
         # if name is provided - return only single recorded date for specific scenario.
         if name:
             scenario_recorded = None
@@ -191,9 +196,12 @@ class Scenario(object):
         :param name: optional parameter to get size of specific scenario
         :return: <dict> - if name is not supplied, <int> - if scenario name supplied.
         """
+        start_time = time.time()
         pipeline = [{'$group': {
             '_id': '$scenario',
-            'size': {'$sum': '$space_used'}}}]
+            'size': {'$sum': {'$divide': ['$space_used', 1024]}}
+                                }
+                    }]
 
         # use the pipe to calculate scenario sizes
         try:
@@ -207,6 +215,9 @@ class Scenario(object):
         # using dict comprehension to form a new dict for fast access to elements
         result_dict = {x['_id']: x['size'] for x in result}
 
+        # finish time
+        finish_time = time.time()
+        log.info("Sizes calculated in %s ms" % int((finish_time-start_time)*1000))
         # if name is provided - return only single size for specific scenario.
         if name:
             scenario_size = None
@@ -356,10 +367,37 @@ class Tracker(object):
 
     def insert(self, track, write_concern=0):
         # w=0 disables write ack 
+        """
+        Insert tracker doc into MongoDB and creates indexes for faster search.
+        :param track: tracker object
+        :param write_concern: 1 or 0, check mongo docs for more info
+        :return:
+        """
         forced_log_id = track.get('forced_log_id')
         if forced_log_id:
             track['_id'] = int(forced_log_id)
-        return self.db.tracker.insert(track, w=write_concern)
+
+        result = self.db.tracker.insert(track, w=write_concern)
+        # creating indexes. Based on these indexes stubo will be searching/filtering tracker collection
+        self._create_index("host")
+        self._create_index("scenario")
+        self._create_index("request_params.session")
+        self._create_index("function")
+        self._create_index("start_time")
+        return result
+
+    def _create_index(self, key=None, direction=DESCENDING):
+        """
+        Creates index for specific key, fails silently if index creation was unsuccessful. Key examples:
+        "host" , "scenario", "scenario", "request_params.session"
+        :param key: <string>
+        :param direction: ASCENDING or DESCENDING (from pymongo)
+        """
+        if key:
+            try:
+                self.db.tracker.create_index(key, direction)
+            except Exception as ex:
+                log.debug("Could not create index (tracker collection) for key %s, got error: %s" % (key, ex))
 
     def find_tracker_data(self, tracker_filter, skip, limit):
         project = {'start_time': 1, 'function': 1, 'return_code': 1, 'scenario': 1,
