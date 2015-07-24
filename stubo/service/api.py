@@ -1104,6 +1104,7 @@ from collections import defaultdict
 def get_session_status(handler, all_hosts=True):
     scenario = Scenario()
     host_scenarios = defaultdict()
+
     # getting a dictionary with sizes for all scenarios
     scenario_sizes = scenario.size()
     scenarios_recorded = scenario.recorded()

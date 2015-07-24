@@ -70,6 +70,8 @@ Stubo::
     
     (env) $ cd stubo-app
     
+    (env) $ pip install -r requirements/development.txt  (in production environment use pip install -r requirements.txt)
+    
     (env) $ python setup.py develop
 
 RUN
