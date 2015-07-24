@@ -1175,3 +1175,16 @@ class GetDelayPolicyDetailsHandler(RequestHandler):
     def post(self):
         self.clear()
         self.send_error(status_code=405, reason=NOT_ALLOWED_MSG)
+
+
+class GetStuboAPIversion(RequestHandler):
+    """
+
+    """
+
+    def compute_etag(self):
+        return None
+
+    def get(self):
+        self.write({'Stubo version': version,
+                    'API version': 'v2'})
