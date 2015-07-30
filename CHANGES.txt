@@ -1,6 +1,25 @@
 Changelog
 =========
 
+0.6.5 (2015-07-24)
+------------------
+
+- Correctly showing weighted delays in /manage page #77
+- Moving python package requirements into separate requirements file, added production and development requirement files to avoid installing unnecessary testing packages in production. #78
+
+
+0.6.4 (2015-07-16)
+------------------
+
+- Added indexes to database, optimized queries to database - /manage page is loading quickly now even when there are tens of thousands of stubs and tracker collection larger than > 100 000 records. #75
+- Switched to mongo aggregation framework functionality when querying scenarios for their sizes and record dates. #68
+- Added API call to rename scenario (should improve automated testing as it is a solution to several GitHub issues raised by BA). #71
+- Optimised stub insertion #69
+- Brought back export to .commands file, new YAML format files are exported in separate directory #64
+- Fixed several bugs that could have been causing memory overflow in Stubo instances. #61 #62
+- Parameter overrides when uploading stubs
+- “worst latency” chart
+
 0.6.3 (2015-06-30)
 ------------------
 
