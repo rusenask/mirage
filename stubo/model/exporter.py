@@ -16,9 +16,10 @@ from .db import Scenario, Tracker
 from .stub import Stub, create
 from .request import StuboRequest
 from stubo.exceptions import exception_response
+from tornado.util import ObjectDict
 
-# this variable is overwritten during tests
-from stubo.service import DummyModel
+
+DummyModel = ObjectDict
 
 log = logging.getLogger(__name__)
 

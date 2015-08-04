@@ -32,9 +32,10 @@ from stubo.utils.track import TrackRequest
 from stubo import version
 from stubo.exceptions import StuboException, exception_response
 from handlers_mt import rename_scenario
+from tornado.util import ObjectDict
 
-# this variable is overwritten during tests
-from stubo.service import DummyModel
+
+DummyModel = ObjectDict
 
 log = logging.getLogger(__name__)
 
