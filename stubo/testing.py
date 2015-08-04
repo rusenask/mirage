@@ -9,7 +9,8 @@ from tornado.testing import AsyncHTTPTestCase
 from tornado.web import MissingArgumentError
 import time
 
-DummyModel = ObjectDict
+# this variable is overwritten during tests
+from stubo.service import DummyModel
 
 
 def testdb_name():

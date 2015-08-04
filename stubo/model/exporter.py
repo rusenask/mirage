@@ -11,13 +11,14 @@ import shutil
 import codecs
 import yaml
 import json
-import copy
 
 from .db import Scenario, Tracker
 from .stub import Stub, create
 from .request import StuboRequest
-from stubo.testing import DummyModel
-from stubo.exceptions import exception_response 
+from stubo.exceptions import exception_response
+
+# this variable is overwritten during tests
+from stubo.service import DummyModel
 
 log = logging.getLogger(__name__)
 

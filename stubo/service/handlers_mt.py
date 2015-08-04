@@ -31,7 +31,8 @@ from stubo.utils import (
 )
 from stubo.utils.track import TrackRequest
 from stubo.utils.command_queue import InternalCommandQueue
-from stubo.testing import DummyModel
+# this variable is overwritten during tests
+from stubo.service import DummyModel
 
 log = logging.getLogger(__name__)
 

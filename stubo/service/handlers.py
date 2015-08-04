@@ -29,13 +29,12 @@ from stubo.service.handlers_mt import (
     end_sessions_request, list_scenarios_request
 )
 from stubo.utils.track import TrackRequest
-from stubo.utils import asbool
 from stubo import version
 from stubo.exceptions import StuboException, exception_response
-from stubo.testing import DummyModel
-
 from handlers_mt import rename_scenario
 
+# this variable is overwritten during tests
+from stubo.service import DummyModel
 
 log = logging.getLogger(__name__)
 
