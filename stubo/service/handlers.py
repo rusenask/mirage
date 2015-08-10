@@ -1105,10 +1105,6 @@ class CreateDelayPolicyHandler(BaseHandler):
     def compute_etag(self):
         return None
 
-    def get(self):
-        self.clear()
-        self.send_error(status_code=405, reason=NOT_ALLOWED_MSG)
-
     def put(self):
         """
 
@@ -1131,7 +1127,7 @@ class CreateDelayPolicyHandler(BaseHandler):
         # delay parameters are now stored in BaseHandler, passing them to update function
         response = api_v2_update_delay_policy(self)
         if "error" in response:
-            self.set_status(409)
+            self.set_status(400)
         else:
             self.set_status(201)
 
