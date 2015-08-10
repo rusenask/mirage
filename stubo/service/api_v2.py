@@ -134,6 +134,9 @@ def update_delay_policy(handler):
           “delay_type”: “normalvariate”,
           “mean”: “mean_val”,
           “stddev”: “val”}
+
+    :return: :response: <dict> with status code (400 - bad request, 409 - something is wrong, conflict of values,
+    200 - delay policy updated, 201 - delay policy created)
     """
     cache = Cache(get_hostname(handler.request))
     response = {
@@ -141,41 +144,58 @@ def update_delay_policy(handler):
     }
     doc = handler.request.arguments
     err = None
+    status_code = None
     if 'name' not in doc:
         err = "'name' param not found in request"
+        status_code = 400
     if 'delay_type' not in doc:
         err = "'delay_type' param not found in request"
+        status_code = 400
     if not err:
         # checking for fixed delays
         if doc['delay_type'] == 'fixed':
             if 'milliseconds' not in doc:
                 err = "'milliseconds' param is required for 'fixed' delays"
+                status_code = 409
 
         # checking for normalvariate delays
         elif doc['delay_type'] == 'normalvariate':
             if 'mean' not in doc or 'stddev' not in doc:
                 err = "'mean' and 'stddev' params are required for " \
                       "'normalvariate' delays"
+                status_code = 409
 
         # checking for weighted delays
         elif doc['delay_type'] == 'weighted':
             if 'delays' not in doc:
                 err = "'delays' are required for 'weighted' delays"
+                status_code = 409
             else:
                 try:
                     Delay.parse_args(doc)
                 except Exception, e:
                     err = 'Unable to parse weighted delay arguments: {0}'.format(str(e))
+                    status_code = 409
         # delay_type not known, creating error
         else:
             err = 'Unknown delay type: {0}'.format(doc['delay_type'])
+            status_code = 400
     # if errors are present - add key error
     if err:
         response['error'] = err
+        response['status_code'] = status_code
         return response
     # no errors were detected - updating cache and returning results
     result = cache.set_delay_policy(doc['name'], doc)
-    updated = 'new' if result else 'updated'
+
+    if result:
+        updated = 'new'
+        status_code = 201
+    else:
+        updated = 'updated'
+        status_code = 200
+
+    response['status_code'] = status_code
     response['data'] = {
         'message': 'Put Delay Policy Finished',
         'name': doc['name'],
