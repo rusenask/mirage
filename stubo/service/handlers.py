@@ -1131,10 +1131,11 @@ class CreateDelayPolicyHandler(BaseHandler):
         # delay parameters are now stored in BaseHandler, passing them to update function
         response = api_v2_update_delay_policy(self)
         if "error" in response:
-            self.send_error(status_code=415, reason=response["error"])
+            self.set_status(409)
         else:
             self.set_status(201)
-            self.write(response)
+
+        self.write(response)
 
 
 class GetAllDelayPoliciesHandler(RequestHandler):
