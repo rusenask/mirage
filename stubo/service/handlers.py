@@ -592,7 +592,7 @@ from stubo.cache import Cache
 from stubo.service.api_v2 import begin_session as api_v2_begin_session
 from stubo.service.api_v2 import update_delay_policy as api_v2_update_delay_policy
 
-from stubo.service.api import end_session, end_sessions
+from stubo.service.api import end_session, end_sessions, get_delay_policy
 from stubo.utils.track import BaseHandler
 
 NOT_ALLOWED_MSG = 'Method not allowed'
@@ -1149,12 +1149,27 @@ class GetAllDelayPoliciesHandler(RequestHandler):
 
         Returns a list with all delay policies (and URL paths to these resources),
         stub count
-        """
-        self.write("not implemented")
 
-    def post(self):
-        self.clear()
-        self.send_error(status_code=405, reason=NOT_ALLOWED_MSG)
+        Example output:
+        {"version": "0.6.4",
+        "data":
+            {"my_delay":
+                {"delay_type": "fixed",
+                "name": "my_delay",
+                 "milliseconds": 50},
+            "pcent_random_samples":
+                {"delay_type": "weighted",
+                "delays": "fixed,30000,5:normalvariate,5000,1000,15:normalvariate,1000,500,70",
+                "name": "pcent_random_samples"},
+            "delay_1":
+                 {"delay_type": "fixed",
+                  "name": "delay_1",
+                  "milliseconds": "0"}
+            }
+        }
+        """
+        response = get_delay_policy(self, None, "master")
+        self.write(response)
 
 
 class GetDelayPolicyDetailsHandler(RequestHandler):
