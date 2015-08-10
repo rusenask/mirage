@@ -307,6 +307,10 @@ class TestDelayOperations(Base):
     """
 
     def test_add_new_fixed_delay_policy(self):
+        """
+
+        Tests fixed delay policy creation and checks status, name, delay type
+        """
         name = "new_delay"
         response = self._add_fixed_delay_policy(name=name)
         self.assertEqual(response.code, 201, response.reason)
@@ -316,6 +320,12 @@ class TestDelayOperations(Base):
         self.assertEqual(json_body['data']['delay_type'], 'fixed')
 
     def _add_fixed_delay_policy(self, name="my_delay"):
+        """
+
+        Creates new fixed delay (or not, if something goes wrong, does not process response)
+        :param name:
+        :return:
+        """
         self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy'),
                                self.stop,
                                method="PUT",
@@ -324,6 +334,10 @@ class TestDelayOperations(Base):
         return response
 
     def test_add_new_normalvariate_delay_policy(self):
+        """
+
+        Tests normalvariate delay policy creation and checks status, name, delay type
+        """
         name = "normal_variate"
         response = self._add_normalvariate_delay_policy(name=name)
         self.assertEqual(response.code, 201, response.reason)
@@ -333,6 +347,12 @@ class TestDelayOperations(Base):
         self.assertEqual(json_body['data']['delay_type'], 'normalvariate')
 
     def _add_normalvariate_delay_policy(self, name="my_delay_normv"):
+        """
+
+        Creates new normalvariate delay (or not, if something goes wrong, does not process response)
+        :param name:
+        :return:
+        """
         self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy'),
                                self.stop,
                                method="PUT",
@@ -354,6 +374,9 @@ class TestDelayOperations(Base):
         self.assertEqual(response.code, 400, response.reason)
 
     def test_bad_delay_name_key(self):
+        """
+        Skipping delay name when creating
+        """
         self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy'),
                                self.stop,
                                method="PUT",
@@ -362,6 +385,9 @@ class TestDelayOperations(Base):
         self.assertEqual(response.code, 400, response.reason)
 
     def test_mixed_params_normalvariate(self):
+        """
+        Skipping mean and stddev when creating normalvariate delay
+        """
         self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy'),
                                self.stop,
                                method="PUT",
@@ -370,6 +396,10 @@ class TestDelayOperations(Base):
         self.assertEqual(response.code, 400, response.reason)
 
     def test_mixed_params_fixed_wo_milliseconds(self):
+        """
+
+        Supplying mean parameter instead of milliseconds when creating fixed delay
+        """
         self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy'),
                                self.stop,
                                method="PUT",
