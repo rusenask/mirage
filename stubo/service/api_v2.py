@@ -1,4 +1,5 @@
-"""  
+# coding=utf-8
+"""
     :copyright: (c) 2015 by OpenCredo.
     :license: GPLv3, see LICENSE for more details.
 """
@@ -6,7 +7,7 @@
 from stubo.model.db import (
     Scenario, get_mongo_client, session_last_used, Tracker
 )
-
+from stubo.service.delay import Delay
 from stubo.model.stub import Stub
 from stubo import version
 from stubo.service.api import get_response
@@ -118,4 +119,67 @@ def begin_session(handler, scenario_name, session_name, mode, system_date=None,
     else:
         raise exception_response(400,
                                  title='Mode of playback or record required')
+    return response
+
+
+def update_delay_policy(handler):
+    """Record delay policy in redis to be available globally to any
+    users for their sessions.
+    Creates a delay policy. Examples:
+        { “name”: “delay_name”,
+          “delay_type”: “fixed”,
+          “milliseconds”: 50}
+        or
+        { “name”: “delay_name”,
+          “delay_type”: “normalvariate”,
+          “mean”: “mean_val”,
+          “stddev”: “val”}
+    """
+    cache = Cache(get_hostname(handler.request))
+    response = {
+        'version': version
+    }
+    doc = handler.request.arguments
+    err = None
+    if 'name' not in doc:
+        err = "'name' param not found in request"
+    if 'delay_type' not in doc:
+        err = "'delay_type' param not found in request"
+
+    # checking for fixed delays
+    if doc['delay_type'] == 'fixed':
+        if 'milliseconds' not in doc:
+            err = "'milliseconds' param is required for 'fixed' delays"
+
+    # checking for normalvariate delays
+    elif doc['delay_type'] == 'normalvariate':
+        if 'mean' not in doc or 'stddev' not in doc:
+            err = "'mean' and 'stddev' params are required for " \
+                  "'normalvariate' delays"
+
+    # checking for weighted delays
+    elif doc['delay_type'] == 'weighted':
+        if 'delays' not in doc:
+            err = "'delays' are required for 'weighted' delays"
+        else:
+            try:
+                Delay.parse_args(doc)
+            except Exception, e:
+                err = 'Unable to parse weighted delay arguments: {0}'.format(str(e))
+    # delay_type not known, creating error
+    else:
+        err = 'Unknown delay type: {0}'.format(doc['delay_type'])
+    # if errors are present - add key error
+    if err:
+        response['error'] = err
+        return response
+    # no errors were detected - updating cache and returning results
+    result = cache.set_delay_policy(doc['name'], doc)
+    updated = 'new' if result else 'updated'
+    response['data'] = {
+        'message': 'Put Delay Policy Finished',
+        'name': doc['name'],
+        'delay_type': doc['delay_type'],
+        'status': updated
+    }
     return response
