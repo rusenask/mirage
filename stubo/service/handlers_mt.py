@@ -31,7 +31,10 @@ from stubo.utils import (
 )
 from stubo.utils.track import TrackRequest
 from stubo.utils.command_queue import InternalCommandQueue
-from stubo.testing import DummyModel
+from tornado.util import ObjectDict
+
+
+DummyModel = ObjectDict
 
 log = logging.getLogger(__name__)
 

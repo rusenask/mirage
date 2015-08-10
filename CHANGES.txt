@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.6.6 (2015-08-10)
+------------------
+
+- Fixed bug when due to variable imports from testing packages startup failed
+- Imports refactored, modules are now more independent
+
 0.6.5 (2015-07-24)
 ------------------
 

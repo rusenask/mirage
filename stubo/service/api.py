@@ -8,13 +8,10 @@ import tarfile
 import shutil
 import logging
 import random
-import time
-from json import loads
 import sys
 import copy
 import json
 from urlparse import urlparse
-from urllib import urlencode
 from StringIO import StringIO
 from contextlib import closing
 
@@ -31,16 +28,16 @@ from stubo.model.cmds import (
 )
 from stubo.model.stub import Stub, StubCache, parse_stub
 from stubo.exceptions import (
-    exception_response, StuboException, UserExitModuleNotFound
+    exception_response, StuboException
 )
 from stubo import version
 from stubo.cache import (
-    Cache, add_request, compute_hash, get_redis_server, get_keys
+    Cache, add_request, get_redis_server, get_keys
 )  
 
 from stubo.utils import (
     asbool, make_temp_dir, get_export_links, get_hostname,
-    human_size, pretty_format_python, as_date
+    pretty_format_python, as_date
 )
 from stubo.utils.track import TrackTrace
 from stubo.match import match
@@ -48,11 +45,14 @@ from stubo.model.request import StuboRequest
 from stubo.ext import today_str
 from stubo.ext.transformer import transform
 from stubo.ext.module import Module
-from stubo.testing import DummyModel
 from .delay import Delay
 from stubo.model.export_commands import export_stubs_to_commands_format
 
+from tornado.util import ObjectDict
+
+DummyModel = ObjectDict
 log = logging.getLogger(__name__)
+
 
 def get_dbenv(handler):
     dbenv = None
@@ -1103,7 +1103,8 @@ from collections import defaultdict
 
 def get_session_status(handler, all_hosts=True):
     scenario = Scenario()
-    host_scenarios = {}
+    host_scenarios = defaultdict()
+
     # getting a dictionary with sizes for all scenarios
     scenario_sizes = scenario.size()
     scenarios_recorded = scenario.recorded()

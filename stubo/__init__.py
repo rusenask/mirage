@@ -11,8 +11,7 @@
 import os
 import sys
 
-version = "0.6.4"
-
+version = "0.6.6"
 version_info = tuple(version.split('.'))
 
 def stubo_path():

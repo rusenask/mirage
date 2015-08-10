@@ -29,10 +29,13 @@ from stubo.service.handlers_mt import (
     end_sessions_request, list_scenarios_request
 )
 from stubo.utils.track import TrackRequest
-from stubo.utils import asbool
 from stubo import version
 from stubo.exceptions import StuboException, exception_response
-from stubo.testing import DummyModel
+from handlers_mt import rename_scenario
+from tornado.util import ObjectDict
+
+
+DummyModel = ObjectDict
 
 from handlers_mt import rename_scenario
 
