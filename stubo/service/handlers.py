@@ -591,8 +591,9 @@ from stubo.service.handlers_mt import stubo_async
 from stubo.cache import Cache
 from stubo.service.api_v2 import begin_session as api_v2_begin_session
 from stubo.service.api_v2 import update_delay_policy as api_v2_update_delay_policy
+from stubo.service.api_v2 import get_delay_policy as api_v2_get_delay_policy
 
-from stubo.service.api import end_session, end_sessions, get_delay_policy
+from stubo.service.api import end_session, end_sessions
 from stubo.utils.track import BaseHandler
 
 NOT_ALLOWED_MSG = 'Method not allowed'
@@ -1168,7 +1169,7 @@ class GetAllDelayPoliciesHandler(RequestHandler):
             }
         }
         """
-        response = get_delay_policy(self, None, "master")
+        response = api_v2_get_delay_policy(self, None, "master")
         self.write(response)
 
 
@@ -1187,7 +1188,8 @@ class GetDelayPolicyDetailsHandler(RequestHandler):
         Returns delay policy name and all details about his resource
         :param delay_policy_name: <string> delay policy name
         """
-        self.write("not implemented")
+        response = api_v2_get_delay_policy(self, delay_policy_name, "master")
+        self.write(response)
 
     def delete(self, delay_policy_name):
         """

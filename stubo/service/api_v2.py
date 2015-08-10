@@ -145,9 +145,15 @@ def update_delay_policy(handler):
     doc = handler.request.arguments
     err = None
     status_code = None
+    # checking name
     if 'name' not in doc:
-        err = "'name' param not found in request"
+        err = "'name' parameter not found in request"
         status_code = 400
+    else:
+        if " " in doc['name']:
+            err = "'name' parameter should not contain white space"
+            status_code = 400
+
     if 'delay_type' not in doc:
         err = "'delay_type' param not found in request"
         status_code = 400
@@ -202,4 +208,26 @@ def update_delay_policy(handler):
         'delay_type': doc['delay_type'],
         'status': updated
     }
+    return response
+
+
+def get_delay_policy(handler, name, cache_loc):
+    """
+    Gets specified or all delays, returns dictionary
+
+    :param handler: RequestHandler (or TrackRequest, BaseHandler, etc..)
+    :param name: Delay name, if None is passed - gets all delays
+    :param cache_loc: Cache location, usually just 'master'
+    :return: dictionary of dictionaries with scenario information and reference URI
+    """
+    cache = Cache(get_hostname(handler.request))
+    response = {
+        'version' : version
+    }
+    delays = cache.get_delay_policy(name, cache_loc)
+    # adding references
+    for k, v in delays.items():
+        v['delayPolicyRef'] = "/stubo/api/v2/delay-policy/objects/%s" % k
+
+    response['data'] = delays or {}
     return response
