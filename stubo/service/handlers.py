@@ -590,7 +590,10 @@ from stubo.model.db import motor_driver
 from stubo.service.handlers_mt import stubo_async
 from stubo.cache import Cache
 from stubo.service.api_v2 import begin_session as api_v2_begin_session
+from stubo.service.api_v2 import update_delay_policy as api_v2_update_delay_policy
+
 from stubo.service.api import end_session, end_sessions
+from stubo.utils.track import BaseHandler
 
 NOT_ALLOWED_MSG = 'Method not allowed'
 
@@ -1094,7 +1097,7 @@ class ScenarioActionHandler(TrackRequest):
                                                                                    self.scenario_name,
                                                                                    ex))
 
-class CreateDelayPolicyHandler(RequestHandler):
+class CreateDelayPolicyHandler(BaseHandler):
     """
     /stubo/api/v2/delay-policy
     """
@@ -1122,8 +1125,16 @@ class CreateDelayPolicyHandler(RequestHandler):
         Returns 201 status code if successful or 409 if request body options
         are wrong (type fixed provided with mean and stddev options)
         """
-        self._status_code(201)
-        self.write("not implemented")
+        # loading json arguments and making them available in self.request.arguments
+        self.load_json()
+
+        # delay parameters are now stored in BaseHandler, passing them to update function
+        response = api_v2_update_delay_policy(self)
+        if "error" in response:
+            self.send_error(status_code=415, reason=response["error"])
+        else:
+            self.set_status(201)
+            self.write(response)
 
 
 class GetAllDelayPoliciesHandler(RequestHandler):
