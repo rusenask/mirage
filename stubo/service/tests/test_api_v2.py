@@ -319,6 +319,15 @@ class TestDelayOperations(Base):
         self.assertEqual(json_body['data']['status'], 'new')
         self.assertEqual(json_body['data']['delay_type'], 'fixed')
 
+    def test_add_whitespace_to_name(self):
+        """
+
+        Tests adding whitespace to delay policy name - should result in bad request 400
+        """
+        name = "new delay"
+        response = self._add_fixed_delay_policy(name=name)
+        self.assertEqual(response.code, 400, response.reason)
+
     def test_update_fixed_delay_policy(self):
         """
 
@@ -442,7 +451,7 @@ class TestDelayOperations(Base):
         self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy'),
                                self.stop,
                                method="PUT",
-                               body='{ "name": "malformed delay", "delayyy_type": "fixed", "milliseconds": 50 }')
+                               body='{ "name": "malformed_delay", "delayyy_type": "fixed", "milliseconds": 50 }')
         response = self.wait()
         self.assertEqual(response.code, 400, response.reason)
 
@@ -453,7 +462,7 @@ class TestDelayOperations(Base):
         self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy'),
                                self.stop,
                                method="PUT",
-                               body='{ "foo": "malformed delay", "delay_type": "fixed", "milliseconds": 50 }')
+                               body='{ "foo": "malformed_delay", "delay_type": "fixed", "milliseconds": 50 }')
         response = self.wait()
         self.assertEqual(response.code, 400, response.reason)
 
@@ -464,7 +473,7 @@ class TestDelayOperations(Base):
         self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy'),
                                self.stop,
                                method="PUT",
-                               body='{ "name": "mixed params", "delay_type": "normalvariate", "milliseconds": 50 }')
+                               body='{ "name": "mixed_params", "delay_type": "normalvariate", "milliseconds": 50 }')
         response = self.wait()
         self.assertEqual(response.code, 409, response.reason)
 
@@ -476,7 +485,7 @@ class TestDelayOperations(Base):
         self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy'),
                                self.stop,
                                method="PUT",
-                               body='{ "name": "mixed params", "delay_type": "fixed", "mean": 50 }')
+                               body='{ "name": "mixed_params", "delay_type": "fixed", "mean": 50 }')
         response = self.wait()
         self.assertEqual(response.code, 409, response.reason)
 
@@ -498,3 +507,4 @@ class TestDelayOperations(Base):
         response = self.wait()
         bd = json.loads(response.body)
         self.assertEqual(len(bd['data']), count)
+
