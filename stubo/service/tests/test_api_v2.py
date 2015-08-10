@@ -322,3 +322,23 @@ class TestDelayOperations(Base):
         response = self.wait()
         return response
 
+    def test_bad_delay_type_key(self):
+        """
+
+        Passing malformed request body with bad keys to update delay policy handler
+        """
+        self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy'),
+                               self.stop,
+                               method="PUT",
+                               body='{ "name": "malformed delay", "delayyy_type": "fixed", "milliseconds": 50 }')
+        response = self.wait()
+        self.assertEqual(response.code, 400, response.reason)
+
+    def test_bad_delay_name_key(self):
+        self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy'),
+                               self.stop,
+                               method="PUT",
+                               body='{ "foo": "malformed delay", "delay_type": "fixed", "milliseconds": 50 }')
+        response = self.wait()
+        self.assertEqual(response.code, 400, response.reason)
+
