@@ -1157,14 +1157,17 @@ class GetAllDelayPoliciesHandler(RequestHandler):
             {"my_delay":
                 {"delay_type": "fixed",
                 "name": "my_delay",
-                 "milliseconds": 50},
+                "delayPolicyRef": "/stubo/api/v2/delay-policy/objects/my_delay",
+                "milliseconds": 50},
             "pcent_random_samples":
                 {"delay_type": "weighted",
                 "delays": "fixed,30000,5:normalvariate,5000,1000,15:normalvariate,1000,500,70",
-                "name": "pcent_random_samples"},
+                "name": "pcent_random_samples",
+                "delayPolicyRef": "/stubo/api/v2/delay-policy/objects/pcent_random_samples"},
             "delay_1":
                  {"delay_type": "fixed",
                   "name": "delay_1",
+                  "delayPolicyRef": "/stubo/api/v2/delay-policy/objects/delay_1",
                   "milliseconds": "0"}
             }
         }
