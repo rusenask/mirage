@@ -5,6 +5,7 @@
 import logging
 import socket
 import datetime
+import tornado
 from collections import OrderedDict
 import json
 
@@ -50,9 +51,45 @@ class TrackTrace(object):
                     details = str(details)
                 info = (level, summary, pretty_format(details)) 
             self.trace.append((str(datetime.datetime.utcnow()), info))  
-            
+
+
+class BaseHandler(RequestHandler):
+
+    def load_json(self):
+        """Load JSON from the request body and store them in
+        self.request.arguments, like Tornado does by default for POSTed form
+        parameters.
+        If JSON cannot be decoded, raises an HTTPError with status 400.
+        """
+        try:
+            self.request.arguments = json.loads(self.request.body)
+        except ValueError:
+            msg = "Could not decode JSON: %s" % self.request.body
+            log.debug(msg)
+            raise tornado.web.HTTPError(400, msg)
+
+    def get_json_argument(self, name, default=None):
+        """Find and return the argument with key 'name' from JSON request data.
+        Similar to Tornado's get_argument() method.
+        """
+        if default is None:
+            default = self._ARG_DEFAULT
+        if not self.request.arguments:
+            self.load_json()
+        if name not in self.request.arguments:
+            if default is self._ARG_DEFAULT:
+                msg = "Missing argument '%s'" % name
+                log.debug(msg)
+                raise tornado.web.HTTPError(400, msg)
+            log.debug("Returning default argument %s, as we couldn't find "
+                         "'%s' in %s" % (default, name, self.request.arguments))
+            return default
+        arg = self.request.arguments[name]
+        log.debug("Found '%s': %s in JSON arguments" % (name, arg))
+        return arg
+
         
-class TrackRequest(RequestHandler):
+class TrackRequest(BaseHandler):
     """Subclass this class to track requests.
     A track member is available to store additional state to the mongo tracker
     collection if required. This class can be initialized with a different Stats
