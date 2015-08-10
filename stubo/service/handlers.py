@@ -1117,6 +1117,10 @@ class CreateDelayPolicyHandler(BaseHandler):
           “delay_type”: “normalvariate”,
           “mean”: “mean_val”,
           “stddev”: “val”}
+        or
+        { "name": "weighted_delay_name",
+         "delay_type": "weighted",
+         "delays": "fixed,30000,5:normalvariate,5000,1000,15:normalvariate,1000,500,70"}
 
         Returns 201 status code if successful or 409 if request body options
         are wrong (type fixed provided with mean and stddev options)
