@@ -393,6 +393,47 @@ class TestDelayOperations(Base):
         response = self.wait()
         return response
 
+    def test_add_new_weighted_delay_policy(self):
+        name = "weighted_delay"
+        response = self._add_weighted_delay_policy(name=name)
+        self.assertEqual(response.code, 201, response.reason)
+        json_body = json.loads(response.body)
+        self.assertEqual(json_body['data']['name'], name)
+        self.assertEqual(json_body['data']['status'], 'new')
+        self.assertEqual(json_body['data']['delay_type'], 'weighted')
+
+    def test_update_weighted_delay_policy(self):
+        """
+
+        Checking update function's status code and status message (should be "updated")
+        """
+        name = "weighted_for_update"
+        # creating first delay policy
+        self._add_fixed_delay_policy(name=name)
+        # updating it and checking status
+        response = self._add_weighted_delay_policy(name=name)
+        self.assertEqual(response.code, 200, response.reason)
+        json_body = json.loads(response.body)
+        self.assertEqual(json_body['data']['name'], name)
+        self.assertEqual(json_body['data']['status'], 'updated')
+        self.assertEqual(json_body['data']['delay_type'], 'weighted')
+
+    def _add_weighted_delay_policy(self, name="my_delay_weighted"):
+        """
+
+        Creates new normalvariate delay (or not, if something goes wrong, does not process response)
+        :param name:
+        :return:
+        """
+        self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy'),
+                               self.stop,
+                               method="PUT",
+                               body='{ "name": "%s", "delay_type": "weighted", '
+                                    '"delays": "fixed,30000,5:normalvariate,5000,1000,15:normalvariate,1000,500,70" }'
+                                    % name)
+        response = self.wait()
+        return response
+
     def test_bad_delay_type_key(self):
         """
 
@@ -425,7 +466,7 @@ class TestDelayOperations(Base):
                                method="PUT",
                                body='{ "name": "mixed params", "delay_type": "normalvariate", "milliseconds": 50 }')
         response = self.wait()
-        self.assertEqual(response.code, 400, response.reason)
+        self.assertEqual(response.code, 409, response.reason)
 
     def test_mixed_params_fixed_wo_milliseconds(self):
         """
@@ -437,5 +478,5 @@ class TestDelayOperations(Base):
                                method="PUT",
                                body='{ "name": "mixed params", "delay_type": "fixed", "mean": 50 }')
         response = self.wait()
-        self.assertEqual(response.code, 400, response.reason)
+        self.assertEqual(response.code, 409, response.reason)
 
