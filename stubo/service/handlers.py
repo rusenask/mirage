@@ -29,12 +29,13 @@ from stubo.service.handlers_mt import (
     end_sessions_request, list_scenarios_request
 )
 from stubo.utils.track import TrackRequest
-from stubo.utils import asbool
 from stubo import version
 from stubo.exceptions import StuboException, exception_response
-from stubo.testing import DummyModel
-
 from handlers_mt import rename_scenario
+from tornado.util import ObjectDict
+
+DummyModel = ObjectDict
+
 
 log = logging.getLogger(__name__)
 
@@ -595,7 +596,7 @@ from stubo.service.api_v2 import get_delay_policy as api_v2_get_delay_policy
 
 from stubo.service.api import end_session, end_sessions
 from stubo.utils.track import BaseHandler
-
+from stubo.utils import asbool
 NOT_ALLOWED_MSG = 'Method not allowed'
 
 
