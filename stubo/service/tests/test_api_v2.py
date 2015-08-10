@@ -362,6 +362,22 @@ class TestDelayOperations(Base):
         self.assertEqual(json_body['data']['status'], 'new')
         self.assertEqual(json_body['data']['delay_type'], 'normalvariate')
 
+    def test_update_normalvariate_delay_policy(self):
+        """
+
+        Checking update function's status code and status message (should be "updated")
+        """
+        name = "normal_variate_for_update"
+        # creating first delay policy
+        self._add_normalvariate_delay_policy(name=name)
+        # updating it and checking status
+        response = self._add_normalvariate_delay_policy(name=name)
+        self.assertEqual(response.code, 200, response.reason)
+        json_body = json.loads(response.body)
+        self.assertEqual(json_body['data']['name'], name)
+        self.assertEqual(json_body['data']['status'], 'updated')
+        self.assertEqual(json_body['data']['delay_type'], 'normalvariate')
+
     def _add_normalvariate_delay_policy(self, name="my_delay_normv"):
         """
 
