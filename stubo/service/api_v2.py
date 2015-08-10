@@ -206,6 +206,7 @@ def update_delay_policy(handler):
         'message': 'Put Delay Policy Finished',
         'name': doc['name'],
         'delay_type': doc['delay_type'],
+        'delayPolicyRef': '/stubo/api/v2/delay-policy/objects/%s' % doc['name'],
         'status': updated
     }
     return response
