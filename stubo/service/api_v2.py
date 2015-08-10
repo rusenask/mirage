@@ -145,30 +145,30 @@ def update_delay_policy(handler):
         err = "'name' param not found in request"
     if 'delay_type' not in doc:
         err = "'delay_type' param not found in request"
+    if not err:
+        # checking for fixed delays
+        if doc['delay_type'] == 'fixed':
+            if 'milliseconds' not in doc:
+                err = "'milliseconds' param is required for 'fixed' delays"
 
-    # checking for fixed delays
-    if doc['delay_type'] == 'fixed':
-        if 'milliseconds' not in doc:
-            err = "'milliseconds' param is required for 'fixed' delays"
+        # checking for normalvariate delays
+        elif doc['delay_type'] == 'normalvariate':
+            if 'mean' not in doc or 'stddev' not in doc:
+                err = "'mean' and 'stddev' params are required for " \
+                      "'normalvariate' delays"
 
-    # checking for normalvariate delays
-    elif doc['delay_type'] == 'normalvariate':
-        if 'mean' not in doc or 'stddev' not in doc:
-            err = "'mean' and 'stddev' params are required for " \
-                  "'normalvariate' delays"
-
-    # checking for weighted delays
-    elif doc['delay_type'] == 'weighted':
-        if 'delays' not in doc:
-            err = "'delays' are required for 'weighted' delays"
+        # checking for weighted delays
+        elif doc['delay_type'] == 'weighted':
+            if 'delays' not in doc:
+                err = "'delays' are required for 'weighted' delays"
+            else:
+                try:
+                    Delay.parse_args(doc)
+                except Exception, e:
+                    err = 'Unable to parse weighted delay arguments: {0}'.format(str(e))
+        # delay_type not known, creating error
         else:
-            try:
-                Delay.parse_args(doc)
-            except Exception, e:
-                err = 'Unable to parse weighted delay arguments: {0}'.format(str(e))
-    # delay_type not known, creating error
-    else:
-        err = 'Unknown delay type: {0}'.format(doc['delay_type'])
+            err = 'Unknown delay type: {0}'.format(doc['delay_type'])
     # if errors are present - add key error
     if err:
         response['error'] = err
