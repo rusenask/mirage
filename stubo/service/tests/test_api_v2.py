@@ -480,3 +480,21 @@ class TestDelayOperations(Base):
         response = self.wait()
         self.assertEqual(response.code, 409, response.reason)
 
+    def test_get_all_delays(self):
+        """
+
+        Testing multiple delay policies creation and then getting them all, checking length
+        :return:
+        """
+        count = 10
+        for name_fix in xrange(count):
+            name = "new_delay_%s" % name_fix
+            self._add_fixed_delay_policy(name=name)
+
+        # getting delay list
+        self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy/detail'),
+                               self.stop,
+                               method="GET")
+        response = self.wait()
+        bd = json.loads(response.body)
+        self.assertEqual(len(bd['data']), count)
