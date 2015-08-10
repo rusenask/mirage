@@ -361,3 +361,19 @@ class TestDelayOperations(Base):
         response = self.wait()
         self.assertEqual(response.code, 400, response.reason)
 
+    def test_mixed_params_normalvariate(self):
+        self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy'),
+                               self.stop,
+                               method="PUT",
+                               body='{ "name": "mixed params", "delay_type": "normalvariate", "milliseconds": 50 }')
+        response = self.wait()
+        self.assertEqual(response.code, 400, response.reason)
+
+    def test_mixed_params_fixed_wo_milliseconds(self):
+        self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy'),
+                               self.stop,
+                               method="PUT",
+                               body='{ "name": "mixed params", "delay_type": "fixed", "mean": 50 }')
+        response = self.wait()
+        self.assertEqual(response.code, 400, response.reason)
+
