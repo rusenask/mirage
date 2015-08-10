@@ -306,19 +306,38 @@ class TestDelayOperations(Base):
     Test case for testing delay operations (add, update, delete)
     """
 
-    def test_add_new_delay_policy(self):
+    def test_add_new_fixed_delay_policy(self):
         name = "new_delay"
         response = self._add_fixed_delay_policy(name=name)
         self.assertEqual(response.code, 201, response.reason)
         json_body = json.loads(response.body)
         self.assertEqual(json_body['data']['name'], name)
         self.assertEqual(json_body['data']['status'], 'new')
+        self.assertEqual(json_body['data']['delay_type'], 'fixed')
 
     def _add_fixed_delay_policy(self, name="my_delay"):
         self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy'),
                                self.stop,
                                method="PUT",
                                body='{ "name": "%s", "delay_type": "fixed", "milliseconds": 50 }' % name)
+        response = self.wait()
+        return response
+
+    def test_add_new_normalvariate_delay_policy(self):
+        name = "normal_variate"
+        response = self._add_normalvariate_delay_policy(name=name)
+        self.assertEqual(response.code, 201, response.reason)
+        json_body = json.loads(response.body)
+        self.assertEqual(json_body['data']['name'], name)
+        self.assertEqual(json_body['data']['status'], 'new')
+        self.assertEqual(json_body['data']['delay_type'], 'normalvariate')
+
+    def _add_normalvariate_delay_policy(self, name="my_delay_normv"):
+        self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy'),
+                               self.stop,
+                               method="PUT",
+                               body='{ "name": "%s", "delay_type": "normalvariate", '
+                                    '"mean": 50, "stddev": 10 }' % name)
         response = self.wait()
         return response
 
