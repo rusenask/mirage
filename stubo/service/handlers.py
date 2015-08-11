@@ -910,18 +910,6 @@ class GetScenarioDetailsHandler(RequestHandler):
         else:
             self.send_error(412, reason="Precondition failed - scenario (%s) does not exist." % scenario_name)
 
-    def _get_full_name(self, name):
-        # check if hostname is supplied - if not, override scenario name with new value
-        """
-        Gets full name hostname:scenario_name
-        :param name:
-        :return:
-        """
-        if ":" not in name:
-            host = get_hostname(self.request)
-            name = '%s:%s' % (host, name)
-        return name
-
     def post(self):
         self.clear()
         self.send_error(status_code=405, reason=NOT_ALLOWED_MSG)
