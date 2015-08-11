@@ -536,3 +536,27 @@ class TestDelayOperations(Base):
         self.assertEqual(response.code, 404, response.reason)
         self.assertTrue(name in response.body)
 
+    def test_delete_delay_policy(self):
+        """
+
+        Test deleting specific delay policy
+        """
+        name = "specific_delay_for_deletion"
+        self._add_fixed_delay_policy(name=name)
+
+        self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy/objects/%s' % name),
+                               self.stop,
+                               method="GET")
+        response = self.wait()
+        # check whether it is already there
+        self.assertEqual(response.code, 200, response.reason)
+        self.assertTrue(name in response.body)
+
+        # delete delay policy
+        self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy/objects/%s' % name),
+                               self.stop,
+                               method="DELETE")
+        response = self.wait()
+        self.assertEqual(response.code, 200, response.reason)
+        self.assertTrue(name in response.body)
+        self.assertTrue("Deleted" in response.body)
