@@ -508,3 +508,17 @@ class TestDelayOperations(Base):
         bd = json.loads(response.body)
         self.assertEqual(len(bd['data']), count)
 
+    def test_get_specific_delay(self):
+        """
+
+        Tests getting specific delay details
+        """
+        name = "specific_delay"
+        self._add_fixed_delay_policy(name=name)
+
+        self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy/objects/%s' % name),
+                               self.stop,
+                               method="GET")
+        response = self.wait()
+        self.assertEqual(response.code, 200, response.reason)
+        self.assertTrue(name in response.body)
