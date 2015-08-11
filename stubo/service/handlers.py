@@ -1206,10 +1206,6 @@ class GetDelayPolicyDetailsHandler(RequestHandler):
         response = delete_delay_policy(self, [delay_policy_name])
         self.write(response)
 
-    def post(self):
-        self.clear()
-        self.send_error(status_code=405, reason=NOT_ALLOWED_MSG)
-
 
 class GetStuboAPIversion(RequestHandler):
     """
