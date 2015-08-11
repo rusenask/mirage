@@ -41,10 +41,14 @@ json_api = [
 
 # used for API v2
 rest_api = [
+    # scenario controls
     ("/stubo/api/v2/scenarios", "BaseScenarioHandler"),
     ("/stubo/api/v2/scenarios/detail", "GetAllScenariosHandler"),
     ("/stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/action", "ScenarioActionHandler"),
     ("/stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)", "GetScenarioDetailsHandler"),
+    # stub controls
+    ("/stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs", "StubHandler"),
+    # delay policy controls
     ("/stubo/api/v2/delay-policy", "CreateDelayPolicyHandler"),
     ("/stubo/api/v2/delay-policy/detail", "GetAllDelayPoliciesHandler"),
     ("/stubo/api/v2/delay-policy/objects/(?P<delay_policy_name>[^\/]+)", "GetDelayPolicyDetailsHandler"),
