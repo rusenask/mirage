@@ -219,19 +219,32 @@ def get_delay_policy(handler, name, cache_loc):
     :param handler: RequestHandler (or TrackRequest, BaseHandler, etc..)
     :param name: Delay name, if None is passed - gets all delays
     :param cache_loc: Cache location, usually just 'master'
-    :return: dictionary of dictionaries with scenario information and reference URI
+    :return: dictionary of dictionaries with scenario information and reference URI and status_code for response
     """
     cache = Cache(get_hostname(handler.request))
     response = {
-        'version' : version
+        'version': version
     }
+    status_code = 200
     delays = cache.get_delay_policy(name, cache_loc)
+
+    # if delay policy not found but name was specified, return error message
+    if delays is None and name is not None:
+        status_code = 404
+        response['error'] = "Delay policy '%s' not found" % name
+        return response, status_code
+
     # adding references
     if name is None:
-        for k, v in delays.items():
-            v['delayPolicyRef'] = "/stubo/api/v2/delay-policy/objects/%s" % k
+        if delays is not None:
+            # All stored delays should be returned
+            for k, v in delays.items():
+                v['delayPolicyRef'] = "/stubo/api/v2/delay-policy/objects/%s" % k
+        else:
+            # Returning empty dict
+            delays = {}
     else:
         delays['delayPolicyRef'] = "/stubo/api/v2/delay-policy/objects/%s" % name
 
-    response['data'] = delays or {}
-    return response
+    response['data'] = delays
+    return response, status_code
