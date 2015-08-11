@@ -1240,6 +1240,58 @@ class GetStuboAPIversion(RequestHandler):
     def get(self):
         self.write({'Stubo version': version,
                     'API version': 'v2'})
+
+
+class StubHandler(BaseHandler):
+    """
+    /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
+
+    """
+
+    def initialize(self):
+        """
+
+        Initializing database and setting header. Using global tornado settings that are generated
+        during startup to acquire database client
+        """
+        # setting header
+        self.set_header('x-stub-o-matic-version', version)
+        # get motor driver
+        self.db = motor_driver(self.settings)
+
+    def compute_etag(self):
+        return None
+
+    @gen.coroutine
+    def get(self, scenario_name):
+        """
+        Gets all stubs for specified scenario. Returns raw documents, although skips Mongo specific ObjectID fields
+        :param scenario_name:
+        """
+        stubs = []
+        response = {
+            'version': version
+        }
+        # checking for supplied headers
+        host = None
+        if 'target_host' in self.request.headers:
+            host = self.request.headers['target_host']
+        # getting full scenario database
+        scenario_name = _get_scenario_full_name(self, scenario_name, host)
+
+        # getting all stubs for selected scenario, skipping object ID field
+        cursor = self.db.scenario_stub.find({'scenario': scenario_name}, {'_id': False})
+
+        while (yield cursor.fetch_next):
+            document = cursor.next_object()
+            try:
+                stubs.append(document)
+            except KeyError:
+                log.warn('Stub could not be added to result list: %s' % document['_id'])
+        response['data'] = stubs
+        self.write(response)
+
+
 def _get_scenario_full_name(handler, name, host=None):
     """
     Gets full name hostname:scenario_name
