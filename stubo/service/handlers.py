@@ -660,7 +660,6 @@ class BaseScenarioHandler(RequestHandler):
                 except KeyError:
                     log.warn('Scenario name not found for object: %s' % document['_id'])
             result_dict['scenarios'] = scenarios
-            self.set_status(200)
             self.write(result_dict)
 
     def put(self):
