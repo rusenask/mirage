@@ -560,3 +560,17 @@ class TestDelayOperations(Base):
         self.assertEqual(response.code, 200, response.reason)
         self.assertTrue(name in response.body)
         self.assertTrue("Deleted" in response.body)
+
+class TestStubOperations(Base):
+    """
+    Test case for testing delay operations (add, update, delete)
+    """
+
+    def test_get_scenario_stubs(self):
+        # TODO: create an actual scenario and add stubs in it, count output
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/scenario_1/stubs'),
+                               self.stop,
+                               method="GET")
+        response = self.wait()
+        self.assertEqual(200, response.body, response.reason)
+        self.assertTrue('data' in response.body)
