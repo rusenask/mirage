@@ -21,7 +21,7 @@ from stubo.utils.command_queue import InternalCommandQueue
 from stubo.utils.stats import StatsdStats
 from stubo import version, static_path 
 from stubo.model.db import default_env, coerce_mongo_param
-
+from stubo.service.urls import url_patterns
 
 log = logging.getLogger(__name__)
 
@@ -132,75 +132,15 @@ class TornadoManager(object):
 
     def _make_route_list(self):
         """Make the links between the url called and the handler to use.
+        uses url_patterns imported from stubo.service.urls.py
         """
         static_bootstrap_route = (
             r"/static/bootstrap/(.*)",
             tornado.web.StaticFileHandler,
             dict(path=static_path('bootstrap')))
-        
-        json_api =  [                       
-            ("/stubo/api/get/status", "GetStatusHandler"),
-            ("/stubo/api/get/response", "GetResponseHandler"),
-            ("/stubo/api/get/response/.*", "GetResponseHandler"),
-            ("/stubo/api/begin/session", "BeginSessionHandler"),
-            ("/stubo/api/end/session", "EndSessionHandler"),
-            ("/stubo/api/end/sessions", "EndSessionsHandler"),
-            ("/stubo/api/put/stub", "PutStubHandler"),
-            ("/stubo/api/delete/stubs", "DeleteStubsHandler"),
-            ("/stubo/api/get/stubcount", "GetStubCountHandler"),
-            ("/stubo/api/get/stublist", "GetStubListHandler"),
-            ("/stubo/api/get/scenarios", "GetScenariosHandler"),
-            ("/stubo/api/put/scenarios/(?P<scenario_name>[^\/]+)", "PutScenarioHandler"),
-            ("/stubo/api/get/export", "GetStubExportHandler"),
-            ("/stubo/api/get/stats", "GetStatsHandler"),
-            ("/stubo/api/put/delay_policy", "PutDelayPolicyHandler"),
-            ("/stubo/api/get/delay_policy", "GetDelayPolicyHandler"),
-            ("/stubo/api/delete/delay_policy", "DeleteDelayPolicyHandler"),
-            ("/stubo/api/get/version", "GetVersionHandler"),
-            ("/stubo/api/put/module", "PutModuleHandler"),
-            ("/stubo/api/delete/module", "DeleteModuleHandler"),
-            ("/stubo/api/delete/modules", "DeleteModulesHandler"),
-            ("/stubo/api/get/modulelist", "GetModuleListHandler"),
-            ("/stubo/api/put/bookmark", "PutBookmarkHandler"),
-            ("/stubo/api/get/bookmarks", "GetBookmarksHandler"),
-            ("/stubo/api/put/setting", "PutSettingHandler"),
-            ("/stubo/api/get/setting", "GetSettingHandler"),
-            ("/stubo/api/jump/bookmark", "JumpBookmarkHandler"),
-            ("/stubo/api/delete/bookmark", "DeleteBookmarkHandler"),
-            ("/stubo/api/import/bookmarks", "ImportBookmarksHandler"),
-            ("/stubo/default/execCmds", "StuboCommandHandler"), 
-            ("/stubo/api/exec/cmds", "StuboCommandHandler"),
-            ]
 
-        rest_api = [
-            ("/stubo/api/v2/scenarios", "BaseScenarioHandler"),
-            ("/stubo/api/v2/scenarios/detail", "GetAllScenariosHandler"),
-            ("/stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/action", "ScenarioActionHandler"),
-            ("/stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)", "GetScenarioDetailsHandler"),
-            ("/stubo/api/v2/delay-policy", "CreateDelayPolicyHandler"),
-            ("/stubo/api/v2/delay-policy/detail", "GetAllDelayPoliciesHandler"),
-            ("/stubo/api/v2/delay-policy/objects/(?P<delay_policy_name>[^\/]+)", "GetDelayPolicyDetailsHandler"),
-
-        ]
-        
-        ui_pages = [
-            ("/tracker", "ViewTrackerHandler"),
-            ("/tracker/(.*)", "ViewATrackerHandler"),
-            ("/", "HomeHandler"),
-            ("/manage", "ManageHandler"),
-            ("/manage/exec_cmds", "StuboCommandHandlerHTML"),
-            ("/bookmarks", "BookmarkHandler"),
-            ("/docs", "DocsHandler"),
-            ("/stubs", "GetStubListHandlerHTML"), 
-            ("/analytics", "AnalyticsHandler"),
-            ('/_profile', 'ProfileHandler'),
-            ('/_profile2', 'PlopProfileHandler'),
-        ]       
-       
-        handler_routes = json_api + rest_api + ui_pages
-        
         config_route_list = [(uri, HandlerFactory.make(handler_name))
-                             for uri, handler_name in handler_routes]
+                             for uri, handler_name in url_patterns]
         static_route = (r"/exports/(.*)", tornado.web.StaticFileHandler, 
                         {"path": static_path('exports')})
         static_route2 = (r"/static/exports/(.*)", tornado.web.StaticFileHandler,
