@@ -1227,6 +1227,13 @@ class GetStuboAPIversion(RequestHandler):
 
     """
 
+    def initialize(self):
+        """
+        Setting version header
+        """
+        # setting header
+        self.set_header('x-stub-o-matic-version', version)
+
     def compute_etag(self):
         return None
 
