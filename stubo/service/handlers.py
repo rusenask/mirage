@@ -853,7 +853,7 @@ class GetScenarioDetailsHandler(RequestHandler):
         """
 
         # check if hostname is supplied - if not, override scenario name with new value
-        scenario_name = self._get_full_name(scenario_name)
+        scenario_name = _get_scenario_full_name(self, scenario_name)
         # query MongoDB
         document = yield self.db.scenario.find_one({'name': scenario_name})
 
@@ -888,7 +888,7 @@ class GetScenarioDetailsHandler(RequestHandler):
         in the database
         :param scenario_name: <string> scenario name
         """
-        scenario_name = self._get_full_name(scenario_name)
+        scenario_name = _get_scenario_full_name(self, scenario_name)
 
         query = {'name': scenario_name}
         # query MongoDB
@@ -1217,3 +1217,15 @@ class GetStuboAPIversion(RequestHandler):
     def get(self):
         self.write({'Stubo version': version,
                     'API version': 'v2'})
+def _get_scenario_full_name(handler, name, host=None):
+    """
+    Gets full name hostname:scenario_name
+    :param name:
+    :return:
+    """
+    # check if hostname is supplied - if not, override scenario name with new value
+    if ":" not in name:
+        if host is None:
+            host = get_hostname(handler.request)
+        name = '%s:%s' % (host, name)
+    return name
