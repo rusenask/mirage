@@ -227,8 +227,11 @@ def get_delay_policy(handler, name, cache_loc):
     }
     delays = cache.get_delay_policy(name, cache_loc)
     # adding references
-    for k, v in delays.items():
-        v['delayPolicyRef'] = "/stubo/api/v2/delay-policy/objects/%s" % k
+    if name is None:
+        for k, v in delays.items():
+            v['delayPolicyRef'] = "/stubo/api/v2/delay-policy/objects/%s" % k
+    else:
+        delays['delayPolicyRef'] = "/stubo/api/v2/delay-policy/objects/%s" % name
 
     response['data'] = delays or {}
     return response
