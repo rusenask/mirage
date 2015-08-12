@@ -1310,7 +1310,7 @@ class StubHandler(BaseHandler):
 
         host, scenario = scenario_name.split(':')
         cache = Cache(host)
-
+        # if force is False or absent - checking for active sessions and if there are any - aborting deletion
         if not force:
             active_sessions = cache.get_active_sessions(scenario,
                                                         local=False)
@@ -1321,8 +1321,9 @@ class StubHandler(BaseHandler):
                 response['error'] = error
                 self.write(response)
                 return
-
+        # asynchronous deletion of stubs, returns two params - "ok" and "n" (deleted items count)
         result = yield self.db.scenario_stub.remove({'scenario': scenario_name})
+        # deleting scenario from cache
         cache.delete_caches(scenario)
         response['data'] = "Deleted stubs count: %s" % result['n']
         self.write(response)
