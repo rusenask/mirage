@@ -1,10 +1,10 @@
 .. api
 
-************************
-Stub-O-Matic RESTful API
-************************
+*******************
+Stub-O-Matic API v1
+*******************
 
-The Stubo RESTful API returns JSON. The response always returns the version, and payload. The payload 
+The Stubo API v1 returns JSON. The response always returns the version, and payload. The payload
 is either contained under 'data' if the response is successful or 'error' for
 errors. Errors contain a descriptive message under 'message' and the http error code under 'code'.
 Successful responses depend on the call made and are described below.
