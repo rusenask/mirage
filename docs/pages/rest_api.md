@@ -81,3 +81,31 @@ Returns a list of scenarios with details.
    ]
 }
 ```
+
+# Get scenario details
+
+Returns specified scenario details. Scenario name can be provided with a host,
+for example stubo_c1.yourcorporateaddress.com:scenario_name_x
+
+* __URL__: /stubo/api/v2/scenarios/objects/<scenario_name>
+* __Method__: GET
+* __Response codes__:
+   + __200__ - specified scenario details
+   + __404__ - specified scenario not found
+* __Example output__:
+```javascript
+{
+  "space_used_kb": 697,
+  "name": "localhost:scenario_13",
+  "sessions": [
+    {"status": "playback",
+    "loaded": "2015-07-20",
+    "name": "playback_13",
+     "last_used": "2015-07-20 13:09:05"}
+   ],
+   "stubs": 26,
+   "recorded": "2015-07-20",
+   "scenarioRef": "/stubo/api/v2/scenarios/objects/localhost:scenario_13"
+ }
+```
+
