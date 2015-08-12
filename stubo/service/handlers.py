@@ -795,17 +795,27 @@ class GetAllScenariosHandler(RequestHandler):
         while (yield cursor.fetch_next):
             document = cursor.next_object()
             try:
+                # getting information about recorded, sizes and stub counts
                 scenario_recorded = scenarios_recorded.get(document['name'], '-')
                 scenario_size = int(scenarios_sizes.get(document['name'], 0))
                 scenario_stub_count = scenarios_stub_counts.get(document['name'], 0)
-                scenarios.append({'name': document['name'],
+                scenario_name = document['name']
+                host, scenario = scenario_name.split(':')
+                # getting session data
+                sessions = []
+                cache = Cache(host)
+                for session_info in cache.get_scenario_sessions_information(scenario):
+                    sessions.append(session_info)
+
+                scenarios.append({'name': scenario_name,
                                   'recorded': scenario_recorded,
                                   'space_used_kb': scenario_size,
                                   'stub_count': scenario_stub_count,
+                                  'sessions': sessions,
                                   'scenarioRef': '/stubo/api/v2/scenarios/objects/%s' % document['name']})
             except KeyError:
                 log.warn('Scenario name not found for object: %s' % document['_id'])
-        result_dict['scenarios'] = scenarios
+        result_dict['data'] = scenarios
         self.set_status(200)
         self.write(result_dict)
 
@@ -871,11 +881,11 @@ class GetScenarioDetailsHandler(RequestHandler):
             if recorded is None:
                 recorded = '-'
 
-            host, _ = scenario_name.split(':')
+            host, scenario = scenario_name.split(':')
             # getting session data
             sessions = []
             cache = Cache(host)
-            for session_info in cache.get_scenario_sessions_information(scenario_name):
+            for session_info in cache.get_scenario_sessions_information(scenario):
                 sessions.append(session_info)
 
             result_dict = {'name': scenario_name,
