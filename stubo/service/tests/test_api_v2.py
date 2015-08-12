@@ -572,7 +572,7 @@ class TestStubOperations(Base):
                                self.stop,
                                method="GET")
         response = self.wait()
-        self.assertEqual(200, response.body, response.reason)
+        self.assertEqual(200, response.code, response.reason)
         self.assertTrue('data' in response.body)
 
     def test_delete_scenario_stubs(self):
@@ -581,5 +581,5 @@ class TestStubOperations(Base):
                                self.stop,
                                method="DELETE")
         response = self.wait()
-        self.assertEqual(200, response.body, response.reason)
+        self.assertEqual(200, response.code, response.reason)
         self.assertTrue('data' in response.body)

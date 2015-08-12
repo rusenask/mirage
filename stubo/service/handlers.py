@@ -1293,6 +1293,12 @@ class StubHandler(BaseHandler):
 
     @gen.coroutine
     def delete(self, scenario_name):
+        """
+        Deletes specified scenario. If force is not supplied - checks for active sessions and if there are any - stops
+        deletion. If force is supplied or there are no active sessions - deletes all stubs for scenario
+        :param scenario_name:
+        :return:
+        """
         response = {
             'version': version
         }
