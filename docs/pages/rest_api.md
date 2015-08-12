@@ -44,3 +44,40 @@ instead of generating URL on client side.
      ]
 }
 ```
+## Get scenario list with details
+
+Returns a list of scenarios with details.
+
+* __URL__: /stubo/api/v2/scenarios/detail
+* __Method__: GET
+* __Response codes__:
+   + __200__ - scenario list with details returned
+* __Example output__:
+```javascript
+{
+  "data": [
+  {
+    "space_used_kb": 0,
+    "name": "localhost:scenario_1",
+    "sessions": [],
+    "scenarioRef": "/stubo/api/v2/scenarios/objects/localhost:scenario_1",
+    "recorded": "-",
+    "stub_count": 0},
+  {
+    "space_used_kb": 544,
+    "name": "localhost:scenario_10",
+    "sessions": [
+        {
+          "status": "playback",
+          "loaded": "2015-07-20",
+          "name": "playback_10",
+          "last_used": "2015-07-20 13:09:05"}
+        ],
+     "scenarioRef": "/stubo/api/v2/scenarios/objects/localhost:scenario_10",
+     "recorded": "2015-07-20",
+     "stub_count": 20},
+     ...,
+     ...,
+   ]
+}
+```
