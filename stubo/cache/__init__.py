@@ -177,7 +177,31 @@ class Cache(object):
         key = self.scenario_key_name(scenario_name)
         sessions = self.hash_cls()(get_redis_server(local)).get_all(key)
         for session_name, session_data in sessions.iteritems():
-            yield session_name, session_data   
+            yield session_name, session_data
+
+    def get_scenario_sessions_information(self, scenario_name, local=True):
+        """
+        Returns a generator for session information for specified scenario.
+        Example output:
+        {
+            status: "playback"
+            system_date: "2015-07-20"
+            name: "playback_100"
+            last_used: "2015-07-20 13:09:16"
+        }
+        :param scenario_name: <string>
+        :param local: <boolean>
+        """
+        key = self.scenario_key_name(scenario_name)
+        sessions = self.hash_cls()(get_redis_server(local)).get_all(key)
+        for session_name, session_data in sessions.iteritems():
+            session_info = {
+                'name': session_name,
+                'status': session_data['status'],
+                'system_date': session_data['system_date'],
+                'last_used': session_data['last_used']
+            }
+            yield session_info
     
     def get_all_saved_request_index_data(self):
         master = get_redis_master() 
