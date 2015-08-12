@@ -20,3 +20,27 @@ Creates scenario object. Client must specify scenario name in the request body.
    + __422__ - scenario with that name already exists
    + __400__ - something is missing (e.g. name)
 
+## Get scenario list
+
+Returns a list of scenarios with their name and scenarioRef attributes. This attribute
+can the be used to get scenario details (sessions, stubs, size, etc...). Your
+application can look for these keys and use them to directly access resource
+instead of generating URL on client side.
+
+* __URL__: /stubo/api/v2/scenarios
+* __Method__: GET
+* __Response codes__:
+   + __200__ - scenario list returned
+* __Example output__:
+```javascript
+{
+  "data": [
+    {"scenarioRef": "/stubo/api/v2/scenarios/objects/localhost:scenario_1",
+    "name": "localhost:scenario_1"},
+    {"scenarioRef": "/stubo/api/v2/scenarios/objects/localhost:scenario_10",
+     "name": "localhost:scenario_10"},
+     ...,
+     ...,
+     ]
+}
+```
