@@ -120,3 +120,31 @@ Returns a list of scenarios with details.
    + __412__ - precondition failed - specified scenario does not exist
 
 
+# Begin session and set mode
+
+Begins session for specified scenario. Client has to specify session name and
+mode in request body. Session mode can be either 'record' and 'playback'.
+
+* __URL__: /stubo/api/v2/scenarios/objects/<scenario_name>/action
+* __Method__: POST
+* __Response codes__:
+  + __200__ - begins session
+  + __400__ - something went wrong (e.g. session already exists)
+* __Example request body__:
+```javascript
+{
+  "begin": null,
+  "session": "session_name",
+  "mode": "record"
+}
+```
+* __Example output__:
+```javascript
+{
+  "version": "0.6.6",
+  "error":
+     {"message": "Scenario (localhost:scenario_10) has existing stubs, delete them before recording or create another scenario!",
+     "code": 400}
+}
+```
+
