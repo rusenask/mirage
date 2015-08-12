@@ -574,3 +574,12 @@ class TestStubOperations(Base):
         response = self.wait()
         self.assertEqual(200, response.body, response.reason)
         self.assertTrue('data' in response.body)
+
+    def test_delete_scenario_stubs(self):
+        # TODO: create an actual scenario and add stubs in it, count output, then delete them
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/scenario_1/stubs'),
+                               self.stop,
+                               method="DELETE")
+        response = self.wait()
+        self.assertEqual(200, response.body, response.reason)
+        self.assertTrue('data' in response.body)
