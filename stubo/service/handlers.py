@@ -871,7 +871,7 @@ class GetScenarioDetailsHandler(RequestHandler):
             if recorded is None:
                 recorded = '-'
 
-            host, scenario_name = scenario_name.split(':')
+            host, _ = scenario_name.split(':')
             # getting session data
             sessions = []
             cache = Cache(host)
