@@ -659,7 +659,7 @@ class BaseScenarioHandler(RequestHandler):
                                       'scenarioRef': '/stubo/api/v2/scenarios/objects/%s' % document['name']})
                 except KeyError:
                     log.warn('Scenario name not found for object: %s' % document['_id'])
-            result_dict['scenarios'] = scenarios
+            result_dict['data'] = scenarios
             self.write(result_dict)
 
     def put(self):
