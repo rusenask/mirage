@@ -148,3 +148,30 @@ mode in request body. Session mode can be either 'record' and 'playback'.
 }
 ```
 
+# End session
+
+Ends specified session. Client has to specify session name in request body.
+
+* __URL__: /stubo/api/v2/scenarios/objects/<scenario_name>/action
+* __Method__: POST
+* __Response codes__:
+  + __200__ - session ended.
+* __Example request body__:
+```javascript
+{
+  "end": null,
+  "session": "playback_28"
+}
+```
+
+* __Example output__:
+```javascript
+{
+  "version": "0.6.6",
+  "data": {
+     "message": "Session ended"}
+ }
+
+```
+
+
