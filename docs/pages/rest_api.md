@@ -109,3 +109,14 @@ for example stubo_c1.yourcorporateaddress.com:scenario_name_x
  }
 ```
 
+# Delete scenario
+
+Returns a list of scenarios with details.
+
+* __URL__: /stubo/api/v2/scenarios/objects/<scenario_name>
+* __Method__: DELETE
+* __Response codes__:
+   + __200__ - scenario deleted
+   + __412__ - precondition failed - specified scenario does not exist
+
+
