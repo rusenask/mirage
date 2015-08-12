@@ -1291,6 +1291,42 @@ class StubHandler(BaseHandler):
         response['data'] = stubs
         self.write(response)
 
+    @gen.coroutine
+    def delete(self, scenario_name):
+        response = {
+            'version': version
+        }
+        # checking for supplied headers
+        host = None
+        force = False
+        if 'target_host' in self.request.headers:
+            host = self.request.headers['target_host']
+
+        if 'force' in self.request.headers:
+            force = asbool(self.request.headers['force'])
+
+        # getting full scenario database
+        scenario_name = _get_scenario_full_name(self, scenario_name, host)
+
+        host, scenario = scenario_name.split(':')
+        cache = Cache(host)
+
+        if not force:
+            active_sessions = cache.get_active_sessions(scenario,
+                                                        local=False)
+            if active_sessions:
+                self.set_status(409)
+                error = 'Sessons in playback/record, can not delete. Found the ' \
+                        'following active sessions: {0} for scenario: {1}'.format(active_sessions, scenario_name)
+                response['error'] = error
+                self.write(response)
+                return
+
+        result = yield self.db.scenario_stub.remove({'scenario': scenario_name})
+        cache.delete_caches(scenario)
+        response['data'] = "Deleted stubs count: %s" % result['n']
+        self.write(response)
+
 
 def _get_scenario_full_name(handler, name, host=None):
     """
