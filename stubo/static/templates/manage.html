@@ -173,11 +173,11 @@
     {% for delay in delays %}
 
     {% if delays[delay]['delay_type'] == 'fixed' %}
-    {% set values = delays[delay]['milliseconds'] +  ' msecs' %}
+    {% set values = str(delays[delay]['milliseconds']) +  ' msecs' %}
 
     {% elif delays[delay]['delay_type'] == 'normalvariate' %}
-    {% set values = 'mean: ' + delays[delay]['mean'] %}
-    {% set values = values + ', stddev: ' + delays[delay]['stddev'] %}
+    {% set values = 'mean: ' + str(delays[delay]['mean']) %}
+    {% set values = values + ', stddev: ' + str(delays[delay]['stddev']) %}
 
     {% elif delays[delay]['delay_type'] == 'weighted' %}
     {% set values = delays[delay]['delays'] %}
