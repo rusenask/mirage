@@ -198,7 +198,7 @@ class Cache(object):
             session_info = {
                 'name': session_name,
                 'status': session_data['status'],
-                'system_date': session_data['system_date'],
+                'loaded': session_data['system_date'],
                 'last_used': session_data['last_used']
             }
             yield session_info

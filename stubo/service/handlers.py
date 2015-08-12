@@ -870,11 +870,20 @@ class GetScenarioDetailsHandler(RequestHandler):
             recorded = scenario_cl.recorded(scenario_name)
             if recorded is None:
                 recorded = '-'
+
+            host, scenario_name = scenario_name.split(':')
+            # getting session data
+            sessions = []
+            cache = Cache(host)
+            for session_info in cache.get_scenario_sessions_information(scenario_name):
+                sessions.append(session_info)
+
             result_dict = {'name': scenario_name,
                            'stubs': stub_count,
                            'recorded': recorded,
                            'space_used_kb': int(size),
-                           'scenarioRef': '/stubo/api/v2/scenarios/objects/{0}'.format(scenario_name)}
+                           'scenarioRef': '/stubo/api/v2/scenarios/objects/{0}'.format(scenario_name),
+                           'sessions': sessions}
             self.set_status(200)
             self.write(result_dict)
         else:
