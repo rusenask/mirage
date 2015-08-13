@@ -36,6 +36,7 @@ from tornado.util import ObjectDict
 
 
 DummyModel = ObjectDict
+from handlers_mt import rename_scenario
 
 log = logging.getLogger(__name__)
 
