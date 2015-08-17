@@ -121,8 +121,8 @@ class TestScenarioOperations(Base):
         response = self.wait()
         self.assertEqual(response.code, 200)
         payload = json.loads(response.body)
-        self.assertTrue('scenarios' in payload)
-        self.assertEqual(len(payload['scenarios']), 5)
+        self.assertTrue('data' in payload)
+        self.assertEqual(len(payload['data']), 5)
 
     def test_get_all_scenarios_with_details(self):
         """
@@ -138,12 +138,12 @@ class TestScenarioOperations(Base):
         response = self.wait()
         self.assertEqual(response.code, 200)
         payload = json.loads(response.body)
-        self.assertTrue('scenarios' in payload)
-        self.assertTrue('name' in payload['scenarios'][1])
-        self.assertTrue('recorded' in payload['scenarios'][1])
-        self.assertTrue('space_used_kb' in payload['scenarios'][1])
-        self.assertTrue('stub_count' in payload['scenarios'][1])
-        self.assertEqual(len(payload['scenarios']), 5)
+        self.assertTrue('data' in payload)
+        self.assertTrue('name' in payload['data'][1])
+        self.assertTrue('recorded' in payload['data'][1])
+        self.assertTrue('space_used_kb' in payload['data'][1])
+        self.assertTrue('stub_count' in payload['data'][1])
+        self.assertEqual(len(payload['data']), 5)
 
     def test_get_all_scenarios_with_post_method(self):
         """
