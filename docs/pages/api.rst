@@ -445,7 +445,7 @@ delete/delay_policy
 
     delete/delay_policy (GET, POST)  
        query args: 
-           name: delay name (optional lists all if not provided)
+           name: delay name (optional deletes all if not provided)
     
     stubo/api/delete/delay_policy?name=slow  
         
