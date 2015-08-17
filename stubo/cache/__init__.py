@@ -197,9 +197,9 @@ class Cache(object):
         for session_name, session_data in sessions.iteritems():
             session_info = {
                 'name': session_name,
-                'status': session_data['status'],
-                'loaded': session_data['system_date'],
-                'last_used': session_data['last_used']
+                'status': session_data.get('status', None),
+                'loaded': session_data.get('system_date', None),
+                'last_used': session_data.get('last_used', None)
             }
             yield session_info
     
