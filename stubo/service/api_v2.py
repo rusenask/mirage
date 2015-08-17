@@ -234,17 +234,21 @@ def get_delay_policy(handler, name, cache_loc):
         response['error'] = "Delay policy '%s' not found" % name
         return response, status_code
 
+    # list for storing delay objects since cache.get_delay_policy(name, cache_loc) returns a dict
+    delay_list = []
     # adding references
     if name is None:
         if delays is not None:
             # All stored delays should be returned
             for k, v in delays.items():
                 v['delayPolicyRef'] = "/stubo/api/v2/delay-policy/objects/%s" % k
+                delay_list.append(v)
         else:
             # Returning empty dict
             delays = {}
     else:
         delays['delayPolicyRef'] = "/stubo/api/v2/delay-policy/objects/%s" % name
+        delay_list.append(delays)
 
-    response['data'] = delays
+    response['data'] = delay_list
     return response, status_code
