@@ -142,7 +142,7 @@
                                             class="glyphicon glyphicon-trash"></span>&nbsp;Delete stubs</a></li>
                                     {% if active_sessions %}
                                     <li>
-                                        <a class="endSession" id="{{scenario_name}}" href="#"><span
+                                        <a class="scenarioAction" id="/stubo/api/end/sessions?scenario={{scenario_name}}" href="#"><span
                                                 class="glyphicon glyphicon-off"></span>&nbsp;End all active sessions</a>
                                     </li>
                                     <!--/manage?action=end_sessions&name={{scenario_name}}-->
@@ -432,9 +432,9 @@
 
     $(document).ready(function () {
 
-        $(".endSession").click(function (event) {
+        $(".scenarioAction").click(function (event) {
             var infoModal = $('#myModal');
-            href = "/stubo/api/end/sessions?scenario=" + event.target.id;
+            href = event.target.id;
             console.debug(href);
             $.ajax({
                 type: "GET",
