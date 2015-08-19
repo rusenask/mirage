@@ -131,8 +131,10 @@
                 <li><a href="../stubs?scenario={{scenario_name}}&host={{session_info[0][i].get('scenario').partition(':')[0]}}"><span class="glyphicon glyphicon-search"></span>&nbsp;List stubs</a></li>
                 <li><a href="/manage?action=delete&type=stubs&name={{scenario_name}}"><span class="glyphicon glyphicon-trash"></span>&nbsp;Delete stubs</a></li>
                 {% if active_sessions %}
-                <li><a href="/manage?action=end_sessions&name={{scenario_name}}"><span class="glyphicon glyphicon-off"></span>&nbsp;End all active sessions</a></li>           
-                {% end %} 
+                <li>
+                    <a class="endSession" id="{{scenario_name}}" href="#"><span class="glyphicon glyphicon-off"></span>&nbsp;End all active sessions</a></li>
+                  <!--/manage?action=end_sessions&name={{scenario_name}}-->
+                {% end %}
               </ul>
             </div>
                          
