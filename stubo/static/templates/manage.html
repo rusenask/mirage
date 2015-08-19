@@ -435,7 +435,15 @@
         $(".scenarioAction").click(function (event) {
             var infoModal = $('#myModal');
             href = event.target.id;
-            console.debug(href);
+            // checking whether this is a delete stubs call
+            if(href.indexOf("/stubo/api/delete/stubs") != -1){
+                // check whether user cookie 'all hosts' value is true
+                if($.cookie("stubo.all-hosts") == 'true'){
+                    // amending query argument to delete stubs in all hosts
+                    href = event.target.id + '&host=all'
+                }
+            }
+
             $.ajax({
                 type: "GET",
                 dataType: "json",
