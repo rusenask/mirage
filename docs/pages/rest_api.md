@@ -175,3 +175,26 @@ Ends specified session. Client has to specify session name in request body.
 ```
 
 
+
+# End all sessions for specific scenario
+
+Ends all sessions for specified scenario
+
+* __URL__: /stubo/api/v2/scenarios/objects/<scenario_name>/action
+* __Method__: POST
+* __Response codes__:
+   + __200__ - scenario list with details returned
+* __Example request body__:
+```javascript
+   { “end”: “sessions” }
+```
+* __Example output__:
+```javascript
+{
+  "version": "0.6.6", 
+  "data": {
+      "playback_20": {"message": "Session ended"}
+      }
+}
+
+```
