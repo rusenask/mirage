@@ -47,8 +47,8 @@ from stubo.ext.transformer import transform
 from stubo.ext.module import Module
 from .delay import Delay
 from stubo.model.export_commands import export_stubs_to_commands_format
-from tornado.util import ObjectDict
 
+from tornado.util import ObjectDict
 DummyModel = ObjectDict
 
 log = logging.getLogger(__name__)
