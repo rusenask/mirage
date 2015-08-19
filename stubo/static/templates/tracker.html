@@ -156,16 +156,19 @@ $(document).ready(function() {
       {% set scen = '' %}
    {% end %}
    <td>
+       <!-- Scenario Session column-->
             {% if len(scen) > 20 %}
                 <span data-toggle="tooltip" data-container="body" data-placement="top" title="{{scen}}">  
-                {{'{0} ...'.format(scen[:20])}}
+                {{'{0} ...'.format(scen[:20])}} </span>
             {% else %}
-                {{scen}}
+                    <span> {{ scen }} </span>
+
             {% end %}
+
    <br/>{{row.get('request_params',{}).get(
        'session', row.get('request_headers', {}).get('Stubo-Request-Session', '')) }}
    </td>
-   
+   <!-- Scenario response information -->
 
   {% if row.has_key('stubo_response') %}
      {% if func in ('get/response', '/manage/exec_cmds', 'get/export')  and row['return_code'] == 200   %}
@@ -177,6 +180,8 @@ $(document).ready(function() {
     <td>
     {% if len(response) > max_response %}
       {% set response = response[:max_response] %}
+    {% else %}
+        {% set response = row['stubo_response'] %}
     {% end %}   
     <span data-toggle="tooltip" data-placement="top" 
        title="{{row['stubo_response']}}">{% raw response %}</span> 
