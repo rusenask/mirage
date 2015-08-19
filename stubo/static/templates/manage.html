@@ -382,4 +382,34 @@ other code repository, or a location in the stubo host server itself.
 
 </div>
 </div>
+
+<script>
+
+
+    $(document).ready(function() {
+
+        $(".endSession").click(function(event) {
+            var infoModal = $('#myModal');
+            href = "/stubo/api/end/sessions?scenario=" + event.target.id;
+            console.debug(href);
+            $.ajax({
+                type: "GET",
+                dataType: "json",
+                url: href,
+                success: function(data){
+                    info_msg = JSON.stringify(data.data, null, 2);
+                    htmlData = '<ul><li>Stubo Version: '+data.version+'</li><li>Info: '+info_msg+'</li></ul>';
+                    infoModal.find('.modal-body').html(htmlData);
+                    infoModal.modal('show');
+                    return false;
+                }
+            });
+
+        });
+
+        $('#myModal').on('hidden.bs.modal', function () {
+            window.location.reload(true);
+        })
+    });
+</script>
 {% end %}
