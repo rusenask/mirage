@@ -985,9 +985,11 @@ class ScenarioActionHandler(TrackRequest):
         except ValueError as ex:
             log.debug(ex)
             self.send_error(status_code=415, reason="No JSON body found")
+            return
         except Exception as ex:
             log.debug(ex)
             self.send_error(status_code=415, reason="Failed to get JSON body: %s" % ex.message)
+            return
 
         if body_dict:
             self.scenario_name = scenario_name
