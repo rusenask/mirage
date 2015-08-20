@@ -595,7 +595,7 @@ from stubo.service.api_v2 import begin_session as api_v2_begin_session
 from stubo.service.api_v2 import update_delay_policy as api_v2_update_delay_policy
 from stubo.service.api_v2 import get_delay_policy as api_v2_get_delay_policy
 
-from stubo.service.api import end_session, end_sessions, delete_delay_policy
+from stubo.service.api import end_session, end_sessions, delete_delay_policy, put_stub
 from stubo.utils.track import BaseHandler
 from stubo.utils import asbool
 NOT_ALLOWED_MSG = 'Method not allowed'
@@ -1264,7 +1264,7 @@ class GetStuboAPIversion(RequestHandler):
                     'API version': 'v2'})
 
 
-class StubHandler(BaseHandler):
+class StubHandler(TrackRequest):
     """
     /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
 
@@ -1355,6 +1355,62 @@ class StubHandler(BaseHandler):
         cache.delete_caches(scenario)
         response['data'] = "Deleted stubs count: %s" % result['n']
         self.write(response)
+
+    @stubo_async
+    def put(self, scenario_name):
+        """
+        Inserts stub into selected scenario
+
+        Example request headers:
+        session: session_test
+
+        Example request JSON body:
+         {
+             "request": {
+                 "method": "POST",
+                 "bodyPatterns": [
+                     { "contains": ["<status>IS_OK2</status>"] }
+                 ]
+                 },
+             "response": {
+                 "status": 200,
+                 "body": "<response>YES</response>"
+             }
+         }
+         Example output:
+         {
+            version: "0.6.6"
+            data: {
+            message: "updated with stateful response"
+            }-
+         }
+         or:
+         {
+            version: "0.6.6"
+            data: {
+            message: "inserted scenario_stub: 55d5e7ebfc4562fb398dc697"
+         }-
+
+         After new stub insertion - it returns stub's ID in database
+        """
+        session = self.request.headers.get('session', None)
+        delay_policy = self.request.headers.get('delay_policy', None)
+        stateful = asbool(self.request.headers.get('stateful', True))
+        recorded = self.request.headers.get('stub_created_date', None)
+        module_name = self.request.headers.get('ext_module', None)
+        # if not module_name:
+        #     # legacy
+        #     module_name = handler.get_argument('stubbedSystem', None)
+
+        recorded_module_system_date = self.request.headers.get('stubbedSystemDate', None)
+        priority = int(self.request.headers.get('priority', -1))
+
+        response = put_stub(self, session, delay_policy=delay_policy,
+                            stateful=stateful, priority=priority, recorded=recorded,
+                            module_name=module_name,
+                            recorded_module_system_date=recorded_module_system_date)
+
+        return response
 
 
 def _get_scenario_full_name(handler, name, host=None):
