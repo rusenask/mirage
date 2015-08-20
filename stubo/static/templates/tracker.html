@@ -198,7 +198,7 @@
                 {% set response = row['stubo_response'] %}
                 {% end %}
     <span data-toggle="tooltip" data-placement="top"
-          title="{{row['stubo_response']}}">{% raw response %}</span>
+          title="{{row['stubo_response']}}">{{ response }}</span>
             </td>
 
             {% else %}
