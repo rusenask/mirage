@@ -308,7 +308,6 @@ def put_stub(handler, session_name, delay_policy, stateful, priority,
     scenario_key = cache.find_scenario_key(session_name)
     trace = TrackTrace(handler.track, 'put_stub')
     url_args = handler.track.request_params
-    payload = stubo_request.body_unicode
     err_msg = 'put/stub body format error - {0}, for session: {1}'
     try:
         stub = parse_stub(stubo_request.body_unicode, scenario_key, url_args)
@@ -359,8 +358,8 @@ def put_stub(handler, session_name, delay_policy, stateful, priority,
     scenario_col = Scenario()
     result = scenario_col.insert_stub(doc, stateful)
     response = {
-        'version' : version
-    } 
+        'version': version
+    }
     response['data'] = {'message' : result}
     return response
 
