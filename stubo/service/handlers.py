@@ -1409,7 +1409,18 @@ class StubHandler(TrackRequest):
                             stateful=stateful, priority=priority, recorded=recorded,
                             module_name=module_name,
                             recorded_module_system_date=recorded_module_system_date)
+        # adding status code based on response
+        status = response['data']['message']['status']
+        if status == 'created':
+            self.set_status(201)
 
+        elif status == 'updated':
+            self.set_status(200)
+
+        elif status == 'ignored':
+            # this status code could be changed
+            self.set_status(200)
+            
         return response
 
 

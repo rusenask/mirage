@@ -304,7 +304,10 @@ class Scenario(object):
 
         :param doc: Stub class with Stub that will be inserted
         :param stateful: <boolean> specify whether stub insertion should be stateful or not
-        :return: <string> message with insertion status
+        :return: <string> message with insertion status:
+           ignored - if not stateful and stub was already present
+           updated - if stateful and stub was already present
+           created - if stub was not present in database
         """
         # getting initial values - stub matchers, scenario name
         matchers = doc['stub'].contains_matchers()
@@ -324,7 +327,7 @@ class Scenario(object):
                 if not stateful and doc['stub'].response_body() == the_stub.response_body():
                     msg = 'duplicate stub found, not inserting.'
                     log.warn(msg)
-                    result = {'status': 'failed',
+                    result = {'status': 'ignored',
                               'msg': msg,
                               'key': str(matched_stub['_id'])}
                     return result
@@ -339,7 +342,7 @@ class Scenario(object):
                     {'_id': matched_stub['_id']},
                     {'$set': {'stub': the_stub.payload,
                               'space_used': len(unicode(the_stub.payload))}})
-                result = {'status': 'success',
+                result = {'status': 'updated',
                           'msg': 'Updated with stateful response',
                           'key': str(matched_stub['_id'])}
                 return result
@@ -368,7 +371,7 @@ class Scenario(object):
             # creating index for priority
             self._create_index("stub.priority")
 
-        result = {'status': 'success',
+        result = {'status': 'created',
                   'msg': 'Inserted scenario_stub',
                   'key': str(status)}
         return result
