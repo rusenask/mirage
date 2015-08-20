@@ -324,7 +324,10 @@ class Scenario(object):
                 if not stateful and doc['stub'].response_body() == the_stub.response_body():
                     msg = 'duplicate stub found, not inserting.'
                     log.warn(msg)
-                    return msg
+                    result = {'status': 'failed',
+                              'msg': msg,
+                              'key': str(matched_stub['_id'])}
+                    return result
                 # since stateful is true - updating stub body by extending the list
                 log.debug('In scenario: {0} found exact match for matchers:'
                           ' {1}. Perform stateful update of stub.'.format(scenario, matchers))
@@ -336,7 +339,10 @@ class Scenario(object):
                     {'_id': matched_stub['_id']},
                     {'$set': {'stub': the_stub.payload,
                               'space_used': len(unicode(the_stub.payload))}})
-                return 'updated with stateful response'
+                result = {'status': 'success',
+                          'msg': 'Updated with stateful response',
+                          'key': str(matched_stub['_id'])}
+                return result
 
         # Stub doesn't exist in DB - preparing new object
         doc['stub'] = doc['stub'].payload
@@ -362,7 +368,10 @@ class Scenario(object):
             # creating index for priority
             self._create_index("stub.priority")
 
-        return 'inserted scenario_stub: {0}'.format(status)
+        result = {'status': 'success',
+                  'msg': 'Inserted scenario_stub',
+                  'key': str(status)}
+        return result
 
     def _create_index(self, key=None, direction=ASCENDING):
         """
