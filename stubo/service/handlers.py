@@ -1429,6 +1429,34 @@ class StubHandler(TrackRequest):
         Gets response for specified "response contains" data. Equivalent to:
         http://stubo-app.readthedocs.org/en/latest/pages/api.html#get-response
 
+        Example:
+        Insert stub via PUT call:
+
+         {
+             "request": {
+                 "method": "POST",
+                 "bodyPatterns": [
+                     { "contains": ["<status>IS_OK</status>"] }
+                 ]
+                 },
+             "response": {
+                 "status": 200,
+                 "body": "<response>YES</response>"
+             }
+         }
+
+
+        after having your stub inserted just use POST calls:
+        header:
+            session: session_test
+        body:
+            data: <status>IS_OK</status>
+
+        Example response:
+            <response>YES</response>
+
+
+
         :param scenario_name: string - should be used to speed up stub search
         :return: :raise exception_response:
         """
