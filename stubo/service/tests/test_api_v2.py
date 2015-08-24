@@ -604,6 +604,41 @@ class TestStubOperations(Base):
         body_dict = json.loads(response.body)
         self.assertEqual(len(body_dict['data']), 1)
 
+    def test_update_stateful_stub(self):
+        """
+        Tests update stateful stub
+
+        """
+        scenario_name = "scenario_stub_stateful_test_x"
+        session_name = "session_stub_stateful_test_x"
+
+        # insert scenario
+        self._insert_scenario(scenario_name)
+        # begin recording
+        self._begin_session_(session_name, scenario_name)
+
+        # inserting stub
+        response = self._add_stub(session=session_name, scenario=scenario_name)
+        # after insertion there should be one stub and since it's a creation - response code should be 201
+        self.assertEqual(response.code, 201, response.reason)
+
+        # inserting stub second time, should result in update
+        response = self._add_stub(session=session_name, scenario=scenario_name)
+        # after insertion there should be one stub and since it's a creation - response code should be 201
+        self.assertEqual(response.code, 200, response.reason)
+
+        # getting stubs
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/%s/stubs' % scenario_name),
+                               self.stop,
+                               method="GET")
+        response = self.wait()
+        self.assertEqual(200, response.code, response.reason)
+        self.assertTrue('data' in response.body)
+
+        # checking whether there is one stub in response body, should be still 1
+        body_dict = json.loads(response.body)
+        self.assertEqual(len(body_dict['data']), 1)
+
     def test_delete_scenario_stubs(self):
         # TODO: create an actual scenario and add stubs in it, count output, then delete them
         self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/scenario_1/stubs'),
