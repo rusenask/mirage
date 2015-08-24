@@ -594,7 +594,20 @@ class TestStubOperations(Base):
                                method="DELETE")
         response = self.wait()
         self.assertEqual(200, response.code, response.reason)
-        self.assertTrue('data' in response.body)    def _add_stub(self, session, scenario):
+        self.assertTrue('data' in response.body)
+
+    def _test_insert_scenario(self, name="scenario_0001"):
+        """
+        Inserts test scenario
+        :return: response from future
+        """
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios'), self.stop,
+                               method="PUT", body='{"scenario": "%s"}' % name)
+
+        response = self.wait()
+        return response
+
+    def _add_stub(self, session, scenario):
         """
         Creates scenario, session and adds stub for specified scenario
         :param session: session name
