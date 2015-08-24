@@ -10,9 +10,21 @@ import logging
 
 log = logging.getLogger(__name__)
 
+stub_body = {
+    "request": {
+        "method": "POST",
+        "bodyPatterns": [
+            {"contains": ["<status>IS_OK</status>"]}
+        ]
+    },
+    "response": {
+        "status": 200,
+        "body": "<response>YES</response>"
+    }
+}
+
 
 class TestScenarioOperations(Base):
-
     def test_put_scenario(self):
         """
 
