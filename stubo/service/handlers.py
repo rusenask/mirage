@@ -595,7 +595,7 @@ from stubo.service.api_v2 import begin_session as api_v2_begin_session
 from stubo.service.api_v2 import update_delay_policy as api_v2_update_delay_policy
 from stubo.service.api_v2 import get_delay_policy as api_v2_get_delay_policy
 
-from stubo.service.api import end_session, end_sessions, delete_delay_policy, put_stub
+from stubo.service.api import end_session, end_sessions, delete_delay_policy, put_stub, get_response
 from stubo.utils.track import BaseHandler
 from stubo.utils import asbool
 NOT_ALLOWED_MSG = 'Method not allowed'
