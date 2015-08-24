@@ -652,6 +652,9 @@ class TestStubOperations(Base):
         body_dict = json.loads(response.body)
         self.assertEqual(len(body_dict['data']), 1)
 
+        # wiping stubs
+        self._delete_stubs(scenario_name)
+
     def test_update_stateful_stub(self):
         """
         Tests update stateful stub
@@ -687,6 +690,9 @@ class TestStubOperations(Base):
         body_dict = json.loads(response.body)
         self.assertEqual(len(body_dict['data']), 1)
 
+        # wiping stubs
+        self._delete_stubs(scenario_name)
+
     def test_insert_multiple_stubs(self):
 
         scenario_name = "scenario_stub_multi_test_x"
@@ -711,9 +717,12 @@ class TestStubOperations(Base):
         self.assertEqual(200, response.code, response.reason)
         self.assertTrue('data' in response.body)
 
-        # checking whether there is one stub in response body, should be still 1
+        # checking whether there is one stub in response body, should be 10
         body_dict = json.loads(response.body)
         self.assertEqual(len(body_dict['data']), 10)
+
+        # wiping stubs
+        self._delete_stubs(scenario_name)
 
     def test_delete_scenario_stubs(self):
         """
