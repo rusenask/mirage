@@ -757,7 +757,12 @@ class TestStubOperations(Base):
         self.assertEqual(len(body_dict['data']), 0)
 
     def test_get_responses(self):
+        """
+        Tests stubo responses. Firstly, inserts 10 stubs, then ends recording session, starts playback session
+        and then uses POST requests with "contains" to get responses from stubo. Each contains is different
+        so all 10 stubs are unique.
 
+        """
         # inserting 10 stubs into scenario
         self.test_insert_multiple_stubs()
 
