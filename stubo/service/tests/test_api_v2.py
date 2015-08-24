@@ -587,6 +587,11 @@ class TestStubOperations(Base):
         scenario_name = "scenario_stub_test_x"
         session_name = "session_stub_test_x"
 
+        # insert scenario
+        self._insert_scenario(scenario_name)
+        # begin recording
+        self._begin_session_(session_name, scenario_name)
+
         # inserting stub
         response = self._add_stub(session=session_name, scenario=scenario_name)
         # after insertion there should be one stub and since it's a creation - response code should be 201
@@ -648,7 +653,7 @@ class TestStubOperations(Base):
         self.assertEqual(200, response.code, response.reason)
         self.assertTrue('data' in response.body)
 
-    def _test_insert_scenario(self, name="scenario_0001"):
+    def _insert_scenario(self, name="scenario_0001"):
         """
         Inserts test scenario
         :return: response from future
@@ -659,16 +664,7 @@ class TestStubOperations(Base):
         response = self.wait()
         return response
 
-    def _add_stub(self, session, scenario):
-        """
-        Creates scenario, session and adds stub for specified scenario
-        :param session: session name
-        :param scenario: scenario name
-        :return: returns a response from Stubo
-        """
-        # inserting scenario with default name: scenario_0001
-        self._test_insert_scenario(scenario)
-
+    def _begin_session_(self, session, scenario):
         # starting record session
         self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/%s/action' % scenario),
                                self.stop,
@@ -677,6 +673,13 @@ class TestStubOperations(Base):
         response = self.wait()
         self.assertEqual(response.code, 200, response.reason)
 
+    def _add_stub(self, session, scenario):
+        """
+        Adds stub for specified scenario
+        :param session: session name
+        :param scenario: scenario name
+        :return: returns a response from Stubo
+        """
         headers = {'session': session}
         self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/%s/stubs' % scenario),
                                self.stop,
