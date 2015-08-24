@@ -23,6 +23,49 @@ stub_body = {
     }
 }
 
+stub_body_2 = {
+    "request": {
+        "method": "POST",
+        "bodyPatterns": [
+            {"contains": ["<status>IS_OK_2</status>"]}
+        ]
+    },
+    "response": {
+        "status": 200,
+        "body": "<response>YES</response>"
+    }
+}
+
+
+def get_stub(body_contains=None):
+    if body_contains is None:
+        response = {
+            "request": {
+                "method": "POST",
+                "bodyPatterns": [
+                    {"contains": ["<status>IS_OK</status>"]}
+                ]
+            },
+            "response": {
+                "status": 200,
+                "body": "<response>YES</response>"
+            }
+        }
+    else:
+        response = {
+            "request": {
+                "method": "POST",
+                "bodyPatterns": [
+                    {"contains": body_contains}
+                ]
+            },
+            "response": {
+                "status": 200,
+                "body": "<response>YES</response>"
+            }
+        }
+    return response
+
 
 class TestScenarioOperations(Base):
     def test_put_scenario(self):
@@ -593,7 +636,7 @@ class TestStubOperations(Base):
         self._begin_session_(session_name, scenario_name)
 
         # inserting stub
-        response = self._add_stub(session=session_name, scenario=scenario_name)
+        response = self._add_stub(session=session_name, scenario=scenario_name, body=get_stub())
         # after insertion there should be one stub and since it's a creation - response code should be 201
         self.assertEqual(response.code, 201, response.reason)
 
@@ -623,12 +666,12 @@ class TestStubOperations(Base):
         self._begin_session_(session_name, scenario_name)
 
         # inserting stub
-        response = self._add_stub(session=session_name, scenario=scenario_name)
+        response = self._add_stub(session=session_name, scenario=scenario_name, body=get_stub())
         # after insertion there should be one stub and since it's a creation - response code should be 201
         self.assertEqual(response.code, 201, response.reason)
 
         # inserting stub second time, should result in update
-        response = self._add_stub(session=session_name, scenario=scenario_name)
+        response = self._add_stub(session=session_name, scenario=scenario_name, body=get_stub())
         # after insertion there should be one stub and since it's a creation - response code should be 201
         self.assertEqual(response.code, 200, response.reason)
 
@@ -643,6 +686,7 @@ class TestStubOperations(Base):
         # checking whether there is one stub in response body, should be still 1
         body_dict = json.loads(response.body)
         self.assertEqual(len(body_dict['data']), 1)
+
 
     def test_delete_scenario_stubs(self):
         # TODO: create an actual scenario and add stubs in it, count output, then delete them
@@ -666,6 +710,11 @@ class TestStubOperations(Base):
 
     def _begin_session_(self, session, scenario):
         # starting record session
+        """
+        Begins session in record mode
+        :param session: session name
+        :param scenario: scenario name
+        """
         self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/%s/action' % scenario),
                                self.stop,
                                method="POST",
@@ -673,7 +722,7 @@ class TestStubOperations(Base):
         response = self.wait()
         self.assertEqual(response.code, 200, response.reason)
 
-    def _add_stub(self, session, scenario):
+    def _add_stub(self, session, scenario, body):
         """
         Adds stub for specified scenario
         :param session: session name
@@ -685,6 +734,6 @@ class TestStubOperations(Base):
                                self.stop,
                                method="PUT",
                                headers=headers,
-                               body=json.dumps(stub_body))
+                               body=json.dumps(body))
         response = self.wait()
         return response
