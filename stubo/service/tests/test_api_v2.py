@@ -756,6 +756,39 @@ class TestStubOperations(Base):
         body_dict = json.loads(response.body)
         self.assertEqual(len(body_dict['data']), 0)
 
+    def test_get_responses(self):
+
+        # inserting 10 stubs into scenario
+        self.test_insert_multiple_stubs()
+
+        # session name from test_insert_multiple_stubs test
+        headers = {'session': "session_stub_multi_test_x"}
+
+        # ending session before deletion
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/scenario_stub_multi_test_x/action'),
+                               self.stop,
+                               method="POST",
+                               body='{ "end": null, "session": "session_stub_multi_test_x" }')
+        response = self.wait()
+        self.assertEqual(200, response.code, response.reason)
+
+        # starting playback mode
+        self._begin_session_("session_stub_multi_test_x", "scenario_stub_multi_test_x", "playback")
+
+        # getting responses
+        for stub in xrange(10):
+            # ending session before deletion
+            self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/scenario_stub_multi_test_x/stubs'),
+                                   self.stop,
+                                   method="POST",
+                                   headers=headers,
+                                   body="<status>IS_OK%s</status>" % stub)
+            response = self.wait()
+            self.assertTrue("<response>YES</response>" in response.body)
+
+        # wiping stubs
+        self._delete_stubs("scenario_stub_multi_test_x")
+
     def _delete_stubs(self, name):
         """
         Deletes stubs for specified scenario
