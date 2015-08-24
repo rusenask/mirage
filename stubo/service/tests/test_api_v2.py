@@ -594,4 +594,29 @@ class TestStubOperations(Base):
                                method="DELETE")
         response = self.wait()
         self.assertEqual(200, response.code, response.reason)
-        self.assertTrue('data' in response.body)
+        self.assertTrue('data' in response.body)    def _add_stub(self, session, scenario):
+        """
+        Creates scenario, session and adds stub for specified scenario
+        :param session: session name
+        :param scenario: scenario name
+        :return: returns a response from Stubo
+        """
+        # inserting scenario with default name: scenario_0001
+        self._test_insert_scenario(scenario)
+
+        # starting record session
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/%s/action' % scenario),
+                               self.stop,
+                               method="POST",
+                               body='{ "begin": null, "session": "%s", "mode": "record" }' % session)
+        response = self.wait()
+        self.assertEqual(response.code, 200, response.reason)
+
+        headers = {'session': session}
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/%s/stubs' % scenario),
+                               self.stop,
+                               method="PUT",
+                               headers=headers,
+                               body=json.dumps(stub_body))
+        response = self.wait()
+        return response
