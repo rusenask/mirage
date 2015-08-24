@@ -633,7 +633,7 @@ class TestStubOperations(Base):
         # insert scenario
         self._insert_scenario(scenario_name)
         # begin recording
-        self._begin_session_(session_name, scenario_name)
+        self._begin_session_(session_name, scenario_name, "record")
 
         # inserting stub
         response = self._add_stub(session=session_name, scenario=scenario_name, body=get_stub())
@@ -666,7 +666,7 @@ class TestStubOperations(Base):
         # insert scenario
         self._insert_scenario(scenario_name)
         # begin recording
-        self._begin_session_(session_name, scenario_name)
+        self._begin_session_(session_name, scenario_name, "record")
 
         # inserting stub
         response = self._add_stub(session=session_name, scenario=scenario_name, body=get_stub())
@@ -704,7 +704,7 @@ class TestStubOperations(Base):
         # insert scenario
         self._insert_scenario(scenario_name)
         # begin recording
-        self._begin_session_(session_name, scenario_name)
+        self._begin_session_(session_name, scenario_name, "record")
 
         for stub in xrange(10):
             body = get_stub(["<status>IS_OK%s</status>" % stub])
@@ -813,7 +813,7 @@ class TestStubOperations(Base):
         response = self.wait()
         return response
 
-    def _begin_session_(self, session, scenario):
+    def _begin_session_(self, session, scenario, mode):
         # starting record session
         """
         Begins session in record mode
@@ -823,7 +823,7 @@ class TestStubOperations(Base):
         self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/%s/action' % scenario),
                                self.stop,
                                method="POST",
-                               body='{ "begin": null, "session": "%s", "mode": "record" }' % session)
+                               body='{ "begin": null, "session": "%s", "mode": "%s" }' % (session, mode))
         response = self.wait()
         self.assertEqual(response.code, 200, response.reason)
 
