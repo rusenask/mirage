@@ -694,7 +694,10 @@ class TestStubOperations(Base):
         self._delete_stubs(scenario_name)
 
     def test_insert_multiple_stubs(self):
+        """
+        Test for insert multiple stubs
 
+        """
         scenario_name = "scenario_stub_multi_test_x"
         session_name = "session_stub_multi_test_x"
 
@@ -726,7 +729,7 @@ class TestStubOperations(Base):
 
     def test_delete_scenario_stubs(self):
         """
-
+        Test for delete scenario stubs API call
         """
         # inserting 10 stubs into scenario
         self.test_insert_multiple_stubs()
