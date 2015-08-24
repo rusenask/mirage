@@ -1423,6 +1423,29 @@ class StubHandler(TrackRequest):
             
         return response
 
+    @stubo_async
+    def post(self, scenario_name):
+        """
+        Gets response for specified "response contains" data. Equivalent to:
+        http://stubo-app.readthedocs.org/en/latest/pages/api.html#get-response
+
+        :param scenario_name: string - should be used to speed up stub search
+        :return: :raise exception_response:
+        """
+        session_name = self.request.headers.get('session', None)
+        if session_name is None:
+            session_name = self.request.headers.get('Stubo-Request-Session', None)
+
+        if not session_name:
+            raise exception_response(400, title="Session name not found in headers.")
+
+        request = self.request
+        self.track.function = 'get/response'
+        log.debug('Found session: {0}, for route: {1}'.format(session_name,
+                                                              request.path))
+        return get_response(self, session_name)
+
+
 
 def _get_scenario_full_name(handler, name, host=None):
     """
