@@ -232,8 +232,8 @@ class TestScenarioOperations(Base):
         # expecting to get "precondition failed"
         self.assertEqual(response.code, 412, response.reason)
 
-class TestSessionOperations(Base):
 
+class TestSessionOperations(Base):
     def _test_insert_scenario(self, name="scenario_0001"):
         """
         Inserts test scenario
@@ -573,19 +573,36 @@ class TestDelayOperations(Base):
         self.assertTrue(name in response.body)
         self.assertTrue("Deleted" in response.body)
 
+
 class TestStubOperations(Base):
     """
     Test case for testing delay operations (add, update, delete)
     """
 
     def test_get_scenario_stubs(self):
-        # TODO: create an actual scenario and add stubs in it, count output
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/scenario_1/stubs'),
+        """
+        Tests scenario/stubs functionality (outputs all stubs for specified scenario
+
+        """
+        scenario_name = "scenario_stub_test_x"
+        session_name = "session_stub_test_x"
+
+        # inserting stub
+        response = self._add_stub(session=session_name, scenario=scenario_name)
+        # after insertion there should be one stub and since it's a creation - response code should be 201
+        self.assertEqual(response.code, 201, response.reason)
+
+        # getting stubs
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/%s/stubs' % scenario_name),
                                self.stop,
                                method="GET")
         response = self.wait()
         self.assertEqual(200, response.code, response.reason)
         self.assertTrue('data' in response.body)
+
+        # checking whether there is one stub in response body
+        body_dict = json.loads(response.body)
+        self.assertEqual(len(body_dict['data']), 1)
 
     def test_delete_scenario_stubs(self):
         # TODO: create an actual scenario and add stubs in it, count output, then delete them
