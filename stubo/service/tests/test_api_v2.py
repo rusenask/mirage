@@ -716,13 +716,46 @@ class TestStubOperations(Base):
         self.assertEqual(len(body_dict['data']), 10)
 
     def test_delete_scenario_stubs(self):
-        # TODO: create an actual scenario and add stubs in it, count output, then delete them
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/scenario_1/stubs'),
+        """
+
+        """
+        # inserting 10 stubs into scenario
+        self.test_insert_multiple_stubs()
+
+        # ending session before deletion
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/scenario_stub_multi_test_x/action'),
+                               self.stop,
+                               method="POST",
+                               body='{ "end": null, "session": "session_stub_multi_test_x" }')
+        response = self.wait()
+        self.assertEqual(200, response.code, response.reason)
+
+        # deleting stubs
+        response = self._delete_stubs("scenario_stub_multi_test_x")
+        self.assertEqual(200, response.code, response.reason)
+        self.assertTrue('data' in response.body)
+
+        # getting stubs
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/scenario_stub_multi_test_x/stubs'),
+                               self.stop,
+                               method="GET")
+        response = self.wait()
+        # checking whether there is one stub in response body, should be 10
+        body_dict = json.loads(response.body)
+        self.assertEqual(len(body_dict['data']), 0)
+
+    def _delete_stubs(self, name):
+        """
+        Deletes stubs for specified scenario
+        :param name:
+        :return:
+        """
+        # deleting stubs
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/%s/stubs' % name),
                                self.stop,
                                method="DELETE")
         response = self.wait()
-        self.assertEqual(200, response.code, response.reason)
-        self.assertTrue('data' in response.body)
+        return response
 
     def _insert_scenario(self, name="scenario_0001"):
         """
