@@ -890,7 +890,7 @@ class GetScenarioDetailsHandler(RequestHandler):
                 sessions.append(session_info)
 
             result_dict = {'name': scenario_name,
-                           'stubs': stub_count,
+                           'stub_count': stub_count,
                            'recorded': recorded,
                            'space_used_kb': int(size),
                            'scenarioRef': '/stubo/api/v2/scenarios/objects/{0}'.format(scenario_name),
