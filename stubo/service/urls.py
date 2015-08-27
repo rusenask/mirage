@@ -7,34 +7,44 @@
 # Legacy API
 json_api = [
     ("/stubo/api/get/status", "GetStatusHandler"),
-    ("/stubo/api/get/response", "GetResponseHandler"),
-    ("/stubo/api/get/response/.*", "GetResponseHandler"),
+    # sessions
     ("/stubo/api/begin/session", "BeginSessionHandler"),
     ("/stubo/api/end/session", "EndSessionHandler"),
     ("/stubo/api/end/sessions", "EndSessionsHandler"),
+    # stubs
+    ("/stubo/api/get/response", "GetResponseHandler"),
+    ("/stubo/api/get/response/.*", "GetResponseHandler"),
     ("/stubo/api/put/stub", "PutStubHandler"),
+    # scenarios
     ("/stubo/api/delete/stubs", "DeleteStubsHandler"),
     ("/stubo/api/get/stubcount", "GetStubCountHandler"),
     ("/stubo/api/get/stublist", "GetStubListHandler"),
     ("/stubo/api/get/scenarios", "GetScenariosHandler"),
     ("/stubo/api/put/scenarios/(?P<scenario_name>[^\/]+)", "PutScenarioHandler"),
+    # misc
     ("/stubo/api/get/export", "GetStubExportHandler"),
     ("/stubo/api/get/stats", "GetStatsHandler"),
+    # delay policies
     ("/stubo/api/put/delay_policy", "PutDelayPolicyHandler"),
     ("/stubo/api/get/delay_policy", "GetDelayPolicyHandler"),
     ("/stubo/api/delete/delay_policy", "DeleteDelayPolicyHandler"),
+    # api version
     ("/stubo/api/get/version", "GetVersionHandler"),
+    # modules
     ("/stubo/api/put/module", "PutModuleHandler"),
     ("/stubo/api/delete/module", "DeleteModuleHandler"),
     ("/stubo/api/delete/modules", "DeleteModulesHandler"),
     ("/stubo/api/get/modulelist", "GetModuleListHandler"),
-    ("/stubo/api/put/bookmark", "PutBookmarkHandler"),
-    ("/stubo/api/get/bookmarks", "GetBookmarksHandler"),
+    # settings
     ("/stubo/api/put/setting", "PutSettingHandler"),
     ("/stubo/api/get/setting", "GetSettingHandler"),
+    # bookmarks
+    ("/stubo/api/put/bookmark", "PutBookmarkHandler"),
+    ("/stubo/api/get/bookmarks", "GetBookmarksHandler"),
     ("/stubo/api/jump/bookmark", "JumpBookmarkHandler"),
     ("/stubo/api/delete/bookmark", "DeleteBookmarkHandler"),
     ("/stubo/api/import/bookmarks", "ImportBookmarksHandler"),
+    # exec commands
     ("/stubo/default/execCmds", "StuboCommandHandler"),
     ("/stubo/api/exec/cmds", "StuboCommandHandler"),
 ]
