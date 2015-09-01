@@ -82,7 +82,7 @@ Returns a list of scenarios with details.
 }
 ```
 
-# Get scenario details
+## Get scenario details
 
 Returns specified scenario details. Scenario name can be provided with a host,
 for example stubo_c1.yourcorporateaddress.com:scenario_name_x
@@ -109,7 +109,7 @@ for example stubo_c1.yourcorporateaddress.com:scenario_name_x
  }
 ```
 
-# Delete scenario
+## Delete scenario
 
 Deletes scenario object and removed it's stubs from cache.
 
@@ -120,7 +120,7 @@ Deletes scenario object and removed it's stubs from cache.
    + __412__ - precondition failed - specified scenario does not exist
 
 
-# Begin session and set mode
+## Begin session and set mode
 
 Begins session for specified scenario. Client has to specify session name and
 mode in request body. Session mode can be either 'record' and 'playback'.
@@ -148,7 +148,7 @@ mode in request body. Session mode can be either 'record' and 'playback'.
 }
 ```
 
-# End session
+## End session
 
 Ends specified session. Client has to specify session name in request body.
 
@@ -173,7 +173,7 @@ Ends specified session. Client has to specify session name in request body.
  }
 ```
 
-# End all sessions for specific scenario
+## End all sessions for specific scenario
 
 Ends all sessions for specified scenario
 
@@ -201,15 +201,15 @@ Ends all sessions for specified scenario
 
 ```
 
-# Get delay policy list
+## Get delay policy list
 
 Gets all defined delay policies
 
 * __URL__: /stubo/api/v2/delay-policy/detail
 * __Method__: GET
 * __Response codes__:
-   + __200__ - delay policy list returned
-* __Example request body__:
+   + __200__ - list with delay policies returned
+* __Example output__:
 
 ```javascript
 {
@@ -229,4 +229,27 @@ Gets all defined delay policies
     }
     ]
   }
+```
+
+## Get specific delay policy details
+
+* __URL__: /stubo/api/v2/delay-policy/detail
+* __Method__: GET
+* __Response codes__:
+   + __200__ - delay policy returned
+   + __404__ - delay policy not found
+* __Example output__:
+
+```javascript
+{
+  "version": "0.6.6",
+  "data": [
+    {
+      "delay_type": "fixed",
+      "delayPolicyRef": "/stubo/api/v2/delay-policy/objects/slow",
+      "name": "slow",
+      "milliseconds": "1000"
+    }
+  ]
+}
 ```
