@@ -13,12 +13,16 @@ Creates scenario object. Client must specify scenario name in the request body.
 
 * __URL__: /stubo/api/v2/scenarios
 * __Method__: PUT
-* __Body__:
-    { “scenario”: “scenario_name” }
 * __Response codes__:
    + __201__ - scenario created
    + __422__ - scenario with that name already exists
    + __400__ - something is missing (e.g. name)
+* __Example request body__:
+```javascript
+{
+  "scenario": "scenario_name"
+}
+```
 
 ## Get scenario list
 
@@ -185,7 +189,7 @@ Ends all sessions for specified scenario
 
 ```javascript
 {
-  “end”: “sessions”
+  "end": "sessions"
 }
 ```
 
