@@ -302,7 +302,7 @@ or:
   "version": "0.6.6",
   "data":
   {
-    "status": "new", 
+    "status": "new",
     "message": "Put Delay Policy Finished",
     "delay_type": "fixed",
     "delayPolicyRef": "/stubo/api/v2/delay-policy/objects/my_delay",
@@ -310,4 +310,22 @@ or:
   }
 }
 
+```
+
+## Delete delay policy
+
+* __URL__: /stubo/api/v2/delay-policy/objects/<name>
+* __Method__: DELETE
+* __Response codes__:
+   + __200__ - delay policy deleted
+* __Example output__:
+
+```javascript
+{
+  "version": "0.6.6",
+  "data":
+  {
+    "message": "Deleted 1 delay policies from [u'my_delay']"
+  }
+}
 ```
