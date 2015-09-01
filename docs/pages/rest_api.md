@@ -111,7 +111,7 @@ for example stubo_c1.yourcorporateaddress.com:scenario_name_x
 
 # Delete scenario
 
-Returns a list of scenarios with details.
+Deletes scenario object and removed it's stubs from cache.
 
 * __URL__: /stubo/api/v2/scenarios/objects/<scenario_name>
 * __Method__: DELETE
@@ -171,10 +171,7 @@ Ends specified session. Client has to specify session name in request body.
   "data": {
      "message": "Session ended"}
  }
-
 ```
-
-
 
 # End all sessions for specific scenario
 
@@ -185,13 +182,18 @@ Ends all sessions for specified scenario
 * __Response codes__:
    + __200__ - scenario list with details returned
 * __Example request body__:
+
 ```javascript
-   { “end”: “sessions” }
+   {
+     “end”: “sessions”
+   }
 ```
+
 * __Example output__:
+
 ```javascript
 {
-  "version": "0.6.6", 
+  "version": "0.6.6",
   "data": {
       "playback_20": {"message": "Session ended"}
       }
