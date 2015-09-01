@@ -184,9 +184,9 @@ Ends all sessions for specified scenario
 * __Example request body__:
 
 ```javascript
-   {
-     “end”: “sessions”
-   }
+{
+  “end”: “sessions”
+}
 ```
 
 * __Example output__:
@@ -199,4 +199,34 @@ Ends all sessions for specified scenario
       }
 }
 
+```
+
+# Get delay policy list
+
+Gets all defined delay policies
+
+* __URL__: /stubo/api/v2/delay-policy/detail
+* __Method__: GET
+* __Response codes__:
+   + __200__ - delay policy list returned
+* __Example request body__:
+
+```javascript
+{
+  "version": "0.6.6",
+  "data": [
+    {
+      "delay_type": "fixed",
+       "delayPolicyRef": "/stubo/api/v2/delay-policy/objects/slow",
+      "name": "slow",
+      "milliseconds": "1000"
+    },
+    {
+      "delay_type": "fixed_2",
+       "delayPolicyRef": "/stubo/api/v2/delay-policy/objects/slow",
+      "name": "slower",
+      "milliseconds": "5000"
+    }
+    ]
+  }
 ```
