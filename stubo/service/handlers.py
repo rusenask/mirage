@@ -919,10 +919,11 @@ class GetScenarioDetailsHandler(RequestHandler):
             yield self.db.scenario.remove(query)
             try:
                 # scenario name contains host, splitting it and using this value to clear cache
-                host = scenario_name.split(":")[0]
+                host, name = scenario_name.split(":")
+
                 cache = Cache(host)
                 # change cache
-                cache.delete_caches(scenario_name)
+                cache.delete_caches(name)
             except Exception as ex:
                 log.warn("Failed to delete caches for scenario: %s. Got error: %s" % (scenario_name, ex))
 
