@@ -979,7 +979,6 @@ class ScenarioActionHandler(TrackRequest):
 
 
         """
-        body_dict = None
         # get body
         try:
             # checking request body
