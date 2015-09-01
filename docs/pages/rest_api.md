@@ -233,7 +233,7 @@ Gets all defined delay policies
 
 ## Get specific delay policy details
 
-* __URL__: /stubo/api/v2/delay-policy/detail
+* __URL__: /stubo/api/v2/delay-policy/objects/<name>
 * __Method__: GET
 * __Response codes__:
    + __200__ - delay policy returned
@@ -252,4 +252,62 @@ Gets all defined delay policies
     }
   ]
 }
+```
+
+## Add delay policy
+
+Creates a delay policy. Returns 201 status code if successful or 409 if request body options
+are wrong (type fixed provided with mean and stddev options)
+
+* __URL__: /stubo/api/v2/delay-policy
+* __Method__: PUT
+* __Response codes__:
+   + __201__ - scenario list with details returned
+   + __400__ - bad request
+   + __409__ - wrong combination of options was used
+* __Example request body__:
+```javascript
+{
+  "name": "delay_name",
+  "delay_type": "fixed",
+  "milliseconds": 50
+}
+```
+
+or:
+```javascript
+{
+  "name": "delay_name",
+  "delay_type": "normalvariate",
+  "mean": "mean_value",
+  "stddev": "val"
+}
+```
+
+or:
+
+```javascript
+{
+  "name": "weighted_delay_name",
+  "delay_type": "weighted",
+ "delays": "fixed,30000,5:normalvariate,5000,1000,15:normalvariate,1000,500,70"}
+```
+
+
+* __Example output__:
+
+```javascript
+{
+  "status_code": 201,
+  "version": "0.6.6",
+  "data":
+  {
+    "status": "new", 
+    "message": "Put Delay Policy Finished",
+    "delay_type": "fixed",
+    "delayPolicyRef": "/stubo/api/v2/delay-policy/objects/my_delay",
+    "name": "my_delay"
+  }
+}
+
 ```
