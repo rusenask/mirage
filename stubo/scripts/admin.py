@@ -67,13 +67,13 @@ def create_tracker_collection():
     log.info('creating tracking indexes')
     
     db.tracker.create_index([('start_time', DESCENDING)], background=True)  
-    db.tracker.create_index([('host', ASCENDING), ('start_time', DESCENDING)], background=True) 
+    db.tracker.create_index([('host', DESCENDING), ('start_time', DESCENDING)], background=True)
     db.tracker.create_index([('return_code', ASCENDING)], background=True) 
-    db.tracker.create_index([('host', ASCENDING)], background=True) 
+    db.tracker.create_index([('host', DESCENDING)], background=True)
     db.tracker.create_index([('duration_ms', ASCENDING)], background=True) 
-    db.tracker.create_index([('session', ASCENDING)], background=True)
-    db.tracker.create_index([('scenario', ASCENDING)], background=True)
-    db.tracker.create_index([('function', ASCENDING)], background=True) 
+    db.tracker.create_index([('session', DESCENDING)], background=True)
+    db.tracker.create_index([('scenario', DESCENDING)], background=True)
+    db.tracker.create_index([('function', DESCENDING)], background=True)
     
     log.info('created indexes: {0}'.format(db.tracker.index_information()))    
     
