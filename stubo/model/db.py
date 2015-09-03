@@ -31,10 +31,12 @@ log = logging.getLogger(__name__)
 
 mongo_client = None
 
+
 def motor_driver(settings):
     # getting motor client
     client = motor.MotorClient(settings['mongo.host'], int(settings['mongo.port']))
     return client[settings['mongo.db']]
+
 
 def get_mongo_client():
     return mongo_client
@@ -65,8 +67,8 @@ class Scenario(object):
 
     def get_pre_stubs(self, name=None):
         if name:
-            filter = {'scenario': name}
-            return self.db.pre_scenario_stub.find(filter)
+            query = {'scenario': name}
+            return self.db.pre_scenario_stub.find(query)
         else:
             return self.db.scenario_pre_stub.find()
 
@@ -176,7 +178,7 @@ class Scenario(object):
 
         # finish time
         finish_time = time.time()
-        log.info("Recorded calculated in %s ms" % int((finish_time-start_time)*1000))
+        log.info("Recorded calculated in %s ms" % int((finish_time - start_time) * 1000))
         # if name is provided - return only single recorded date for specific scenario.
         if name:
             scenario_recorded = None
@@ -202,11 +204,12 @@ class Scenario(object):
         :return: <dict> - if name is not supplied, <int> - if scenario name supplied.
         """
         start_time = time.time()
-        pipeline = [{'$group': {
-            '_id': '$scenario',
-            'size': {'$sum': {'$divide': ['$space_used', 1024]}}
-                                }
-                    }]
+        pipeline = [{
+            '$group': {
+                '_id': '$scenario',
+                'size': {'$sum': {'$divide': ['$space_used', 1024]}}
+            }
+        }]
 
         # use the pipe to calculate scenario sizes
         try:
@@ -222,7 +225,7 @@ class Scenario(object):
 
         # finish time
         finish_time = time.time()
-        log.info("Sizes calculated in %s ms" % int((finish_time-start_time)*1000))
+        log.info("Sizes calculated in %s ms" % int((finish_time - start_time) * 1000))
         # if name is provided - return only single size for specific scenario.
         if name:
             scenario_size = None
@@ -268,7 +271,7 @@ class Scenario(object):
 
         # finish time
         finish_time = time.time()
-        log.info("Stub counts calculated in %s ms" % int((finish_time-start_time)*1000))
+        log.info("Stub counts calculated in %s ms" % int((finish_time - start_time) * 1000))
 
         return result_dict
 
@@ -288,7 +291,7 @@ class Scenario(object):
         """
         Gets matched stub for specific scenario. Relies on indexed "matchers" key in scenario_stub object
         :param name: <string> scenario name
-        :param matchers: <list> containing matchers
+        :param matchers_hash: <string> matcher hash
         :return: matched stub document or None if stub not found
         """
         if name:
