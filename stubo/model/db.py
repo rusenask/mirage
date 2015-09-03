@@ -9,6 +9,7 @@ from stubo.utils import asbool
 from stubo.model.stub import Stub
 import hashlib
 import time
+import motor
 
 default_env = {
     'port': 27017,
@@ -30,6 +31,10 @@ log = logging.getLogger(__name__)
 
 mongo_client = None
 
+def motor_driver(settings):
+    # getting motor client
+    client = motor.MotorClient(settings['mongo.host'], int(settings['mongo.port']))
+    return client[settings['mongo.db']]
 
 def get_mongo_client():
     return mongo_client
@@ -232,6 +237,41 @@ class Scenario(object):
             # returning full list (scenarios and sizes)
             return result_dict
 
+    def stub_counts(self):
+        """
+        Calculates stub counts:
+        { 'scenario_1': 100,
+          'scenario_2': 20}
+
+        Remember, that if the scenario doesn't have any stubs - it will not be in this list since it is not accessing
+        scenario collection to add scenarios with 0 stubs.
+        :return: <dict>
+        """
+        start_time = time.time()
+        pipeline = [{'$group': {
+            '_id': '$scenario',
+            'count': {'$sum': 1}
+        }
+        }]
+
+        # use the pipe to calculate scenario stub counts
+        try:
+            result = self.db.command('aggregate', 'scenario_stub', pipeline=pipeline)['result']
+        except KeyError as ex:
+            log.error(ex)
+            return None
+        except Exception as ex:
+            log.error("Got error when trying to use aggregation framework: %s" % ex)
+            return None
+        # using dict comprehension to form a new dict for fast access to elements
+        result_dict = {x['_id']: x['count'] for x in result}
+
+        # finish time
+        finish_time = time.time()
+        log.info("Stub counts calculated in %s ms" % int((finish_time-start_time)*1000))
+
+        return result_dict
+
     @staticmethod
     def _create_hash(matchers):
         """
@@ -264,7 +304,10 @@ class Scenario(object):
 
         :param doc: Stub class with Stub that will be inserted
         :param stateful: <boolean> specify whether stub insertion should be stateful or not
-        :return: <string> message with insertion status
+        :return: <string> message with insertion status:
+           ignored - if not stateful and stub was already present
+           updated - if stateful and stub was already present
+           created - if stub was not present in database
         """
         # getting initial values - stub matchers, scenario name
         matchers = doc['stub'].contains_matchers()
@@ -284,7 +327,10 @@ class Scenario(object):
                 if not stateful and doc['stub'].response_body() == the_stub.response_body():
                     msg = 'duplicate stub found, not inserting.'
                     log.warn(msg)
-                    return msg
+                    result = {'status': 'ignored',
+                              'msg': msg,
+                              'key': str(matched_stub['_id'])}
+                    return result
                 # since stateful is true - updating stub body by extending the list
                 log.debug('In scenario: {0} found exact match for matchers:'
                           ' {1}. Perform stateful update of stub.'.format(scenario, matchers))
@@ -296,7 +342,10 @@ class Scenario(object):
                     {'_id': matched_stub['_id']},
                     {'$set': {'stub': the_stub.payload,
                               'space_used': len(unicode(the_stub.payload))}})
-                return 'updated with stateful response'
+                result = {'status': 'updated',
+                          'msg': 'Updated with stateful response',
+                          'key': str(matched_stub['_id'])}
+                return result
 
         # Stub doesn't exist in DB - preparing new object
         doc['stub'] = doc['stub'].payload
@@ -322,7 +371,10 @@ class Scenario(object):
             # creating index for priority
             self._create_index("stub.priority")
 
-        return 'inserted scenario_stub: {0}'.format(status)
+        result = {'status': 'created',
+                  'msg': 'Inserted scenario_stub',
+                  'key': str(status)}
+        return result
 
     def _create_index(self, key=None, direction=ASCENDING):
         """

@@ -36,6 +36,10 @@ class Base(AsyncHTTPTestCase):
         cache_db = setup_redis(db=9 + 1)
         cache_db.flushdb()
         self.db.connection.drop_database(self.testdb)
+        # closing connections
+        self.db.connection.close()
+        self.mdb.connection.close()
+
         self.app.settings['process_executor'].shutdown()
         super(Base, self).tearDown()
 
@@ -43,6 +47,7 @@ class Base(AsyncHTTPTestCase):
         from tornado.ioloop import IOLoop
         from stubo.service.run_stubo import TornadoManager
         from stubo.utils import init_mongo, start_redis, init_ext_cache
+        import motor
 
         self.testdb = testdb_name()
 
@@ -63,6 +68,11 @@ class Base(AsyncHTTPTestCase):
         args = {'capped': True, 'size': 100000}
         self.db.create_collection("tracker", **args)
         self.db.tracker.create_index('start_time', -1)
+
+        # add motor driver
+        client = motor.MotorClient()
+        self.mdb = client[self.testdb]
+        self.cfg.update({'mdb': self.mdb})
 
         # install() asserts that its not been initialised so setting it directly
         # self.io_loop.install()

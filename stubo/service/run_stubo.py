@@ -21,9 +21,10 @@ from stubo.utils.command_queue import InternalCommandQueue
 from stubo.utils.stats import StatsdStats
 from stubo import version, static_path 
 from stubo.model.db import default_env, coerce_mongo_param
+from stubo.service.urls import url_patterns
 
 log = logging.getLogger(__name__)
-        
+
 class TornadoManager(object):
     """Set up and start Tornado ioloop.
     """
@@ -41,8 +42,8 @@ class TornadoManager(object):
             cfg['statsd_client'] = StatsClient(host=cfg.get('statsd.host', 
                 'localhost'), prefix=cfg.get('statsd.prefix', 'stubo')) 
             cfg['stats'] = StatsdStats()
-            log.info('statsd host addr={0}, prefix={1}'.format(
-                    cfg['statsd_client']._addr, cfg['statsd_client']._prefix))
+            log.info('statsd host addr={0}, prefix={1}'.format(cfg['statsd_client']._addr,
+                                                               cfg['statsd_client']._prefix))
         except socket.gaierror, e:
             log.warn("unable to connect to statsd: {0}".format(e))
                       
@@ -51,7 +52,7 @@ class TornadoManager(object):
         cfg['decompress_request'] = cfg.get('decompress_request', True)
         cfg['compress_response'] = cfg.get('compress_response', False)
         self.cfg = cfg
-        
+
     def get_cluster_name(self):
         name = 'unknown'
         try:
@@ -69,7 +70,7 @@ class TornadoManager(object):
             static_path=static_path(),
             template_path=static_path('templates'),
             xheaders=True,
-            **self.cfg)          
+            **self.cfg)
         tornado_app.add_handlers('.*$', self._make_route_list())
         return tornado_app
             
@@ -82,20 +83,21 @@ class TornadoManager(object):
         log.debug('mongo params: {0}'.format(dbenv))
         retry_count = int(self.cfg.get('retry_count', 10)) 
         retry_interval = int(self.cfg.get('retry_interval', 10))
+        # getting database
         mongo_client = None
         for i in range(retry_count):  
             try:         
                 mongo_client = init_mongo(dbenv)
                 break
-            except:
-                log.warn('mongo not available, try again in {0} '
-                         'secs'.format(retry_interval))
+            except Exception as ex:
+                log.warn('mongo not available, try again in {0} secs. Error: {1}'.format(retry_interval, ex))
                 time.sleep(retry_interval) 
         if not mongo_client:
             log.critical('Unable to connect to mongo, exiting ...')
             sys.exit(1)
         log.info('mongo server_info: {0}'.format(
-                            mongo_client.connection.server_info()))    
+                            mongo_client.connection.server_info()))
+
         slave, master = start_redis(self.cfg) 
         self.cfg['is_cluster'] = False
         if slave != master:
@@ -130,64 +132,15 @@ class TornadoManager(object):
 
     def _make_route_list(self):
         """Make the links between the url called and the handler to use.
+        uses url_patterns imported from stubo.service.urls.py
         """
         static_bootstrap_route = (
             r"/static/bootstrap/(.*)",
             tornado.web.StaticFileHandler,
             dict(path=static_path('bootstrap')))
-        
-        json_api =  [                       
-            ("/stubo/api/get/status", "GetStatusHandler"),
-            ("/stubo/api/get/response", "GetResponseHandler"),
-            ("/stubo/api/get/response/.*", "GetResponseHandler"),
-            ("/stubo/api/begin/session", "BeginSessionHandler"),
-            ("/stubo/api/end/session", "EndSessionHandler"),
-            ("/stubo/api/end/sessions", "EndSessionsHandler"),
-            ("/stubo/api/put/stub", "PutStubHandler"),
-            ("/stubo/api/delete/stubs", "DeleteStubsHandler"),
-            ("/stubo/api/get/stubcount", "GetStubCountHandler"),
-            ("/stubo/api/get/stublist", "GetStubListHandler"),
-            ("/stubo/api/get/scenarios", "GetScenariosHandler"),
-            ("/stubo/api/put/scenarios/(?P<scenario_name>[^\/]+)", "PutScenarioHandler"),
-            ("/stubo/api/get/export", "GetStubExportHandler"),
-            ("/stubo/api/get/stats", "GetStatsHandler"),
-            ("/stubo/api/put/delay_policy", "PutDelayPolicyHandler"),
-            ("/stubo/api/get/delay_policy", "GetDelayPolicyHandler"),
-            ("/stubo/api/delete/delay_policy", "DeleteDelayPolicyHandler"),
-            ("/stubo/api/get/version", "GetVersionHandler"),
-            ("/stubo/api/put/module", "PutModuleHandler"),
-            ("/stubo/api/delete/module", "DeleteModuleHandler"),
-            ("/stubo/api/delete/modules", "DeleteModulesHandler"),
-            ("/stubo/api/get/modulelist", "GetModuleListHandler"),
-            ("/stubo/api/put/bookmark", "PutBookmarkHandler"),
-            ("/stubo/api/get/bookmarks", "GetBookmarksHandler"),
-            ("/stubo/api/put/setting", "PutSettingHandler"),
-            ("/stubo/api/get/setting", "GetSettingHandler"),
-            ("/stubo/api/jump/bookmark", "JumpBookmarkHandler"),
-            ("/stubo/api/delete/bookmark", "DeleteBookmarkHandler"),
-            ("/stubo/api/import/bookmarks", "ImportBookmarksHandler"),
-            ("/stubo/default/execCmds", "StuboCommandHandler"), 
-            ("/stubo/api/exec/cmds", "StuboCommandHandler"),
-            ]
-        
-        ui_pages = [
-            ("/tracker", "ViewTrackerHandler"),
-            ("/tracker/(.*)", "ViewATrackerHandler"),
-            ("/", "HomeHandler"),
-            ("/manage", "ManageHandler"),
-            ("/manage/exec_cmds", "StuboCommandHandlerHTML"),
-            ("/bookmarks", "BookmarkHandler"),
-            ("/docs", "DocsHandler"),
-            ("/stubs", "GetStubListHandlerHTML"), 
-            ("/analytics", "AnalyticsHandler"),
-            ('/_profile', 'ProfileHandler'),
-            ('/_profile2', 'PlopProfileHandler'),
-        ]       
-       
-        handler_routes = json_api + ui_pages
-        
+
         config_route_list = [(uri, HandlerFactory.make(handler_name))
-                             for uri, handler_name in handler_routes]
+                             for uri, handler_name in url_patterns]
         static_route = (r"/exports/(.*)", tornado.web.StaticFileHandler, 
                         {"path": static_path('exports')})
         static_route2 = (r"/static/exports/(.*)", tornado.web.StaticFileHandler,
@@ -197,7 +150,8 @@ class TornadoManager(object):
         route_list = [static_route, static_route2, static_route3, 
                       static_bootstrap_route] + config_route_list 
         return route_list
-    
+
+
 def main():
     TornadoManager(sys.argv[1]).start_server()
  

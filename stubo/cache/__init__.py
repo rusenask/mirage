@@ -177,7 +177,31 @@ class Cache(object):
         key = self.scenario_key_name(scenario_name)
         sessions = self.hash_cls()(get_redis_server(local)).get_all(key)
         for session_name, session_data in sessions.iteritems():
-            yield session_name, session_data   
+            yield session_name, session_data
+
+    def get_scenario_sessions_information(self, scenario_name, local=True):
+        """
+        Returns a generator for session information for specified scenario.
+        Example output:
+        {
+            status: "playback"
+            system_date: "2015-07-20"
+            name: "playback_100"
+            last_used: "2015-07-20 13:09:16"
+        }
+        :param scenario_name: <string>
+        :param local: <boolean>
+        """
+        key = self.scenario_key_name(scenario_name)
+        sessions = self.hash_cls()(get_redis_server(local)).get_all(key)
+        for session_name, session_data in sessions.iteritems():
+            session_info = {
+                'name': session_name,
+                'status': session_data.get('status', None),
+                'loaded': session_data.get('system_date', None),
+                'last_used': session_data.get('last_used', None)
+            }
+            yield session_info
     
     def get_all_saved_request_index_data(self):
         master = get_redis_master() 
@@ -426,8 +450,9 @@ class Cache(object):
         stubs_cursor = scenario_col.get_stubs(scenario_key)
         stubs = list(stubs_cursor)
         if not stubs:
-            raise exception_response(500,
-                title="found no stubs in mongo for {0}".format(scenario_key))
+            raise exception_response(412,
+                                     title="Precondition failed: no stubs were"
+                                           " found in database for scenario: {0}".format(scenario_key))
         from stubo.ext.module import Module
         for scenario_stub in stubs:
             stub = Stub(scenario_stub['stub'], scenario_stub['scenario'])
