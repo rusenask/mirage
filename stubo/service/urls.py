@@ -38,12 +38,6 @@ json_api = [
     # settings
     ("/stubo/api/put/setting", "PutSettingHandler"),
     ("/stubo/api/get/setting", "GetSettingHandler"),
-    # bookmarks
-    ("/stubo/api/put/bookmark", "PutBookmarkHandler"),
-    ("/stubo/api/get/bookmarks", "GetBookmarksHandler"),
-    ("/stubo/api/jump/bookmark", "JumpBookmarkHandler"),
-    ("/stubo/api/delete/bookmark", "DeleteBookmarkHandler"),
-    ("/stubo/api/import/bookmarks", "ImportBookmarksHandler"),
     # exec commands
     ("/stubo/default/execCmds", "StuboCommandHandler"),
     ("/stubo/api/exec/cmds", "StuboCommandHandler"),
@@ -72,7 +66,6 @@ ui_pages = [
     ("/", "HomeHandler"),
     ("/manage", "ManageHandler"),
     ("/manage/exec_cmds", "StuboCommandHandlerHTML"),
-    ("/bookmarks", "BookmarkHandler"),
     ("/docs", "DocsHandler"),
     ("/stubs", "GetStubListHandlerHTML"),
     ("/analytics", "AnalyticsHandler"),
