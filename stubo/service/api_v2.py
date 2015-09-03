@@ -18,6 +18,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
+
 def begin_session(handler, scenario_name, session_name, mode, system_date=None,
                   warm_cache=False):
     """
@@ -32,7 +33,7 @@ def begin_session(handler, scenario_name, session_name, mode, system_date=None,
     """
     log.debug('begin_session')
     response = {
-        'version' : version
+        'version': version
     }
     scenario_manager = Scenario()
     cache = Cache(get_hostname(handler.request))
@@ -91,9 +92,9 @@ def begin_session(handler, scenario_name, session_name, mode, system_date=None,
                                                status='record',
                                                local=False)
         if recordings:
-            raise exception_response(400, title='Scenario recordings taking ' \
-                                                'place - {0}. Found the following record sessions: {1}'.format(
-                scenario_name_key, recordings))
+            raise exception_response(400, title='Scenario recordings taking '
+                                                'place - {0}. Found the '
+                                                'following record sessions: {1}'.format(scenario_name_key, recordings))
         cache.create_session_cache(scenario_name, session_name, system_date)
         if warm_cache:
             # iterate over stubs and call get/response for each stub matchers
@@ -246,6 +247,7 @@ def get_delay_policy(handler, name, cache_loc):
         else:
             # Returning empty dict
             delays = {}
+            delay_list.append(delays)
     else:
         delays['delayPolicyRef'] = "/stubo/api/v2/delay-policy/objects/%s" % name
         delay_list.append(delays)
