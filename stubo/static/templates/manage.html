@@ -107,15 +107,17 @@
                                         </thead>
                                         <tbody>
                                         {% for scenario_name, session_info in scenario.items() %}
+                                        <!--getting active sessions-->
                                         {% set active_sessions = [x for x in session_info[0] if x['status'] in ('record',
                                         'playback')] %}
+                                        <!--getting playback sessions-->
                                         {% set possible_playback_sessions = [x for x in session_info[0] if x['status'] in
                                         ('dormant',
                                         'playback')] %}
+
                                         {% for i in range(len(session_info[0])) %}
                                         <tr>
                                             <td>
-                                                {% if i == 0 %}
 
                                                 {% if len(scenario_name) > 20 %}
                                                     <span data-toggle="tooltip" data-container="body" data-placement="top"
@@ -125,7 +127,6 @@
                                                 <a href="../stubs?scenario={{scenario_name}}&host={{session_info[0][i].get('scenario').partition(':')[0]}}">{{scenario_name}}</a>
                                                 {% end %}
 
-                                                {% end %}
                                             </td>
                                             <!--session name-->
                                             {% set session_name = session_info[0][i].get('session') %}
@@ -154,7 +155,7 @@
                                             {% end %}
                                             <td>{{last_used}}</td>
                                             <td class="spaceCell">{{session_info[3]}}</td>
-                                            {% if i == 0 %}
+
                                             <td>
                                                 <!-- scenario actions btn -->
                                                 <div class="btn-group">
@@ -204,7 +205,7 @@
                                                 </div>
 
                                             </td>
-                                            {% end %}
+                                           
                                         </tr>
                                         {% end %}
 
