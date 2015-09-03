@@ -1232,7 +1232,7 @@ class TestDelayPolicy(unittest.TestCase):
         self.cache.set_delay_policy('slow', {u'delay_type': u'fixed',
                                              u'name': u'slow', u'milliseconds': u'200'})
         response = delete_delay_policy(self.make_request(), ['slow'])
-        response2 = self.cache.get_delay_policy('slow')
+        self.cache.get_delay_policy('slow')
         self.assertEqual(self.cache.get_delay_policy(self.make_request(),
                                                      'slow'), None)
         self.assertEqual(response['data'].get('message'),
