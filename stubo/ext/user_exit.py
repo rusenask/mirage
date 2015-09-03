@@ -2,12 +2,13 @@
     :copyright: (c) 2015 by OpenCredo.
     :license: GPLv3, see LICENSE for more details.
 """
-import logging   
+import logging
 
-log = logging.getLogger(__name__) 
-    
+log = logging.getLogger(__name__)
+
 USER_EXIT_ENTRY_POINT = 'exits'
-    
+
+
 class UserExit(object):
     """UserExit API
     
@@ -175,26 +176,26 @@ class UserExit(object):
                 return MangleGetResponse(request, context)
     
     """
-    
+
     def __init__(self, request, context, raise_on_error=True):
         self.request = request
         self.context = context
         self.template_processor = context['template_processor']
         self.raise_on_error = raise_on_error
-        
+
     def run_exit(self):
-        pass     
-    
+        pass
+
     def run(self):
         log.debug('user exit called for {0}'.format(self.context))
         self.run_exit()
         return ExitResponse(self.request, self.context['stub'])
-    
+
     def update(self, response):
         if response:
             self.request = response.request
             self.context['stub'] = response.stub
-            
+
     def trace_update(self, func):
         trace = self.context['trace']
         msg = '=> {0}'.format(func.__name__)
@@ -203,103 +204,103 @@ class UserExit(object):
             trace.info(msg)
             self.update(func())
         except Exception, e:
-            err_msg = '{0}, error: {1}'.format(msg, e) 
-            log.warn(err_msg, exc_info=True) 
+            err_msg = '{0}, error: {1}'.format(msg, e)
+            log.warn(err_msg, exc_info=True)
             trace.error(err_msg)
             if self.raise_on_error:
-                raise e          
-            
+                raise e
+
     def get_stub(self):
-        return self.context['stub'] 
+        return self.context['stub']
 
     def eval_text(self, templ, request, **kwargs):
-        return self.template_processor.eval_text(templ, request, **kwargs) 
-                   
-    
+        return self.template_processor.eval_text(templ, request, **kwargs)
+
+
 class ExitResponse(object):
     """Return type of exit interface calls"""
-    
+
     def __init__(self, request, stub):
         self.request = request
         self.stub = stub
-                       
+
+
 class PutStub(UserExit):
     """PutStub user exit. Called during put/stub processing.
     """
-    
+
     def __init__(self, request, context):
-        UserExit.__init__(self, request, context) 
-    
+        UserExit.__init__(self, request, context)
+
     def run_exit(self):
         self.trace_update(self.doMatcher)
         self.trace_update(self.doResponse)
-    
+
     def doMatcher(self):
         pass
-        
+
     def doResponse(self):
         pass
-    
+
+
 class GetResponse(UserExit):
     """GetResponse user exit. Called during get/response processing. 
-    """    
-    
+    """
+
     def __init__(self, request, context, raise_on_error=False):
-        UserExit.__init__(self, request, context, raise_on_error=raise_on_error)   
-        
+        UserExit.__init__(self, request, context, raise_on_error=raise_on_error)
+
     def apply_matcher_template(self):
         trace = self.context['trace']
         log.debug('=> apply_matcher_template')
-        trace.info('=> apply_matcher_template') 
-        try:  
+        trace.info('=> apply_matcher_template')
+        try:
             matchers = self.get_stub().contains_matchers()
-            evaluated_matchers = []                                                                                   
+            evaluated_matchers = []
             for i in xrange(len(matchers)):
-                matcher = matchers[i]                         
-                matcher = self.eval_text(matcher, self.request,  **self.context).decode('utf8')      
+                matcher = matchers[i]
+                matcher = self.eval_text(matcher, self.request, **self.context).decode('utf8')
                 evaluated_matchers.append(matcher)
             self.context['stub'].set_contains_matchers(evaluated_matchers)
         except Exception, e:
-            err_msg = 'apply_matcher_template error: {0}'.format(e) 
-            log.warn(err_msg) 
-            trace.error(err_msg) 
+            err_msg = 'apply_matcher_template error: {0}'.format(e)
+            log.warn(err_msg)
+            trace.error(err_msg)
             if self.raise_on_error:
                 raise e
-    
+
     def apply_response_template(self):
         trace = self.context['trace']
         msg = '=> apply_response_template'
-        log.debug(msg) 
-        trace.info(msg) 
+        log.debug(msg)
+        trace.info(msg)
         try:
-            response_body = self.eval_text(self.context['stub'].response_body()[0], 
-                                           self.request, **self.context).decode('utf8')                            
+            response_body = self.eval_text(self.context['stub'].response_body()[0],
+                                           self.request, **self.context).decode('utf8')
             self.context['stub'].set_response_body(response_body)
         except Exception, e:
-            err_msg = '{0}, error: {1}'.format(msg, e) 
-            log.warn(err_msg) 
-            trace.error(err_msg)      
-               
-    
+            err_msg = '{0}, error: {1}'.format(msg, e)
+            log.warn(err_msg)
+            trace.error(err_msg)
+
     def run_exit(self):
         stage = self.context.get('stage')
         trace = self.context['trace']
-        
+
         if stage == 'matcher':
-            self.trace_update(self.doMatcher)  
+            self.trace_update(self.doMatcher)
             self.apply_matcher_template()
             self.trace_update(self.doMatcherRequest)
-           
+
         elif stage == 'response':
-            self.trace_update(self.doResponse)           
+            self.trace_update(self.doResponse)
             self.apply_response_template()
-               
+
     def doMatcher(self):
         pass
-    
+
     def doMatcherRequest(self):
         pass
-        
+
     def doResponse(self):
         pass
-               
