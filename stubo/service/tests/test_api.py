@@ -6,7 +6,7 @@ from stubo.testing import (
 )
 
 
-class Test_functions(unittest.TestCase):
+class TestFunctions(unittest.TestCase):
 
     def test_get_dbenv(self):
         from stubo.service.api import get_dbenv
