@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 
 # raise exception if dateutil 2.0 install on 2.x platform
 if (sys.version_info[0] == 2 and
-        dateutil.__version__ == '2.0'):  # pragma: no cover
+            dateutil.__version__ == '2.0'):  # pragma: no cover
     raise Exception('dateutil 2.0 incompatible with Python 2.x, you must '
                     'install version 1.5 or 2.1+!')
 # otherwise a 2nd import won't show the message
@@ -111,7 +111,7 @@ def _guess_datetime_format(dt_str, parsed_datetime, dayfirst=True,
         if all(getattr(parsed_datetime, attr) is not None for attr in attrs):
             for i, token_format in enumerate(format_guess):
                 if (token_format is None and
-                        tokens[i] == parsed_datetime.strftime(attr_format)):
+                            tokens[i] == parsed_datetime.strftime(attr_format)):
                     format_guess[i] = attr_format
                     found_attrs.update(attrs)
                     break
@@ -120,8 +120,7 @@ def _guess_datetime_format(dt_str, parsed_datetime, dayfirst=True,
     # Only consider it a valid guess if we have a year, month and day
     if len(set(['year', 'month', 'day']) & found_attrs) != 3:
         return None
-  
-    
+
     output_format = []
     for i, guess in enumerate(format_guess):
         if guess is not None:
@@ -138,11 +137,12 @@ def _guess_datetime_format(dt_str, parsed_datetime, dayfirst=True,
                 pass
 
             output_format.append(tokens[i])
-    
+
     guessed_format = ''.join(output_format)
 
     if parsed_datetime.strftime(guessed_format) == dt_str:
         return guessed_format
+
 
 has_time = re.compile('(.+)([\s]|T)+(.+)')
 
@@ -162,7 +162,7 @@ def parse_date_string(date_str, dayfirst=True, yearfirst=True):
     datetime, datetime format string (for `strftime` or `strptime`)
     or None if unable parse date str
     """
-    
+
     if not isinstance(date_str, basestring):
         return None
 
@@ -173,13 +173,13 @@ def parse_date_string(date_str, dayfirst=True, yearfirst=True):
         mresult = _attempt_monthly(arg)
         log.debug('mresult={0}'.format(mresult))
         if mresult:
-            return mresult  
-    
+            return mresult
+
     parsed_datetime = DEFAULTPARSER.parse(StringIO(str(arg)), dayfirst=dayfirst,
                                           yearfirst=yearfirst, fuzzy=True)
     log.debug('parsed_datetime={0}'.format(parsed_datetime))
     if parsed_datetime:
-        date_format = _guess_datetime_format(date_str, parsed_datetime, 
+        date_format = _guess_datetime_format(date_str, parsed_datetime,
                                              dayfirst=dayfirst)
     return parsed_datetime, date_format
 
@@ -192,6 +192,3 @@ def _attempt_monthly(val):
             return ret, pat
         except Exception:
             pass
-
-
-
