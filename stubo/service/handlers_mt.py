@@ -14,10 +14,7 @@ from .api import (
     export_stubs, list_stubs, run_command_file, run_commands, 
     update_delay_policy, stub_count, begin_session, end_session, put_stub,
     get_response, delete_stubs, get_status, get_delay_policy, put_module,
-    delete_module, list_module, delete_delay_policy, 
-    put_bookmark, get_bookmark, jump_bookmark, get_bookmarks,
-    delete_bookmark, import_bookmarks, manage_request_api,
-    bookmarks_request_api, put_setting, get_setting, end_sessions,
+    delete_module, list_module, delete_delay_policy,  manage_request_api, put_setting, get_setting, end_sessions,
     list_scenarios
 )
 from .admin import get_tracks, get_track, get_stats
@@ -531,47 +528,7 @@ def tracker_detail_request(handler, tracker_id):
                                  pretty_format=pretty_format,
                                  client_data=convert_to_script(trace),
                                  human_size=human_size)
-  
-@stubo_async
-def put_bookmark_request(handler):
-    sessions = get_args(handler, 'session')
-    name = get_arg(handler, 'name')
-    return put_bookmark(handler, sessions, name)
-        
-@stubo_async
-def delete_bookmark_request(handler):
-    name = get_arg(handler, 'name')
-    scenario = get_arg(handler, 'scenario')
-    return delete_bookmark(handler, name, scenario)
-      
-@stubo_async
-def get_bookmark_request(handler):
-    name = handler.get_argument('name', None)
-    scenario_name = handler.get_argument('scenario', None)
-    if scenario_name and name:
-        response = get_bookmark(handler, scenario_name, name)
-    else:    
-        response = get_bookmarks(handler)
-    return response
-   
-    
-@stubo_async    
-def jump_bookmark_request(handler):
-    name = get_arg(handler, 'name')
-    index = handler.get_argument('index', None)
-    sessions = handler.get_arguments('session')
-    return jump_bookmark(handler, name, sessions, index)
-        
-@stubo_async     
-def import_bookmarks_request(handler):
-    return import_bookmarks(handler, get_arg(handler, 'location'))
-       
-@stubo_async    
-def get_bookmarks_request(handler):
-    response = bookmarks_request_api(handler)
-    return handler.render_string("bookmarks.html", page_title='Bookmarks',
-                                 **response)
-       
+
 @stubo_async
 def stats_request(handler):
     return get_stats(handler)
