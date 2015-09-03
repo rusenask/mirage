@@ -49,8 +49,8 @@ from .delay import Delay
 from stubo.model.export_commands import export_stubs_to_commands_format
 
 from tornado.util import ObjectDict
-
 DummyModel = ObjectDict
+
 log = logging.getLogger(__name__)
 
 
@@ -1045,13 +1045,8 @@ def manage_request_api(handler):
                     result = delete_module(handler.request, [name])
                 elif _type == 'delay_policy':
                     result = delete_delay_policy(handler, [name])
-                elif _type == 'stubs':
-                    result = delete_stubs(handler, scenario_name=name,
-                                          host=all_hosts)    
                 else:
                     result = 'error: unexpected action type={0}'.format(_type)
-            elif action == 'end_sessions':
-                result = end_sessions(handler, name)    
             else:
                 result = 'error: unexpected action={0}'.format(action)
                             

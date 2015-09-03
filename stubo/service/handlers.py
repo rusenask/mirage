@@ -31,14 +31,11 @@ from stubo.service.handlers_mt import (
 from stubo.utils.track import TrackRequest
 from stubo import version
 from stubo.exceptions import StuboException, exception_response
-from handlers_mt import rename_scenario
 from tornado.util import ObjectDict
 
 
 DummyModel = ObjectDict
-
 from handlers_mt import rename_scenario
-
 
 log = logging.getLogger(__name__)
 

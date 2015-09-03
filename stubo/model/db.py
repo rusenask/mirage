@@ -377,14 +377,7 @@ class Tracker(object):
         if forced_log_id:
             track['_id'] = int(forced_log_id)
 
-        result = self.db.tracker.insert(track, w=write_concern)
-        # creating indexes. Based on these indexes stubo will be searching/filtering tracker collection
-        self._create_index("host")
-        self._create_index("scenario")
-        self._create_index("request_params.session")
-        self._create_index("function")
-        self._create_index("start_time")
-        return result
+        return self.db.tracker.insert(track, w=write_concern)
 
     def _create_index(self, key=None, direction=DESCENDING):
         """
