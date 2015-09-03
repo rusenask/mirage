@@ -19,10 +19,11 @@ from stubo.scripts import get_default_config
 
 log = logging.getLogger(__name__)
 
+
 def delete_test_dbs():
     parser = ArgumentParser(
-          description="Delete test databases"
-        )  
+        description="Delete test databases"
+    )
     parser.add_argument('-l', '--list', action='store_const', const=True,
                         dest='list_only', help="Just list the test databases.")
     args = parser.parse_args()
@@ -36,94 +37,95 @@ def delete_test_dbs():
             print 'deleting databases: {0}'.format(", ".join(test_dbs))
             for dbname in test_dbs:
                 db_conn.drop_database(dbname)
-            print 'deleted databases'    
+            print 'deleted databases'
         else:
-            print 'no test databases to delete' 
+            print 'no test databases to delete'
+
 
 def create_tracker_collection():
     parser = ArgumentParser(
-          description="Create tracker collection"
-        )  
+        description="Create tracker collection"
+    )
     parser.add_argument('-s', '--size', default=1000000000,
                         dest='size', help="size of the collection in bytes, default is 1GB")
     parser.add_argument('-c', '--config', dest='config',
-        help='Path to configuration file (defaults to $CWD/etc/dev.ini)',
-        metavar='FILE')
-    
+                        help='Path to configuration file (defaults to $CWD/etc/dev.ini)',
+                        metavar='FILE')
+
     args = parser.parse_args()
     size = int(args.size)
     config = args.config or get_default_config()
-    logging.config.fileConfig(config) 
+    logging.config.fileConfig(config)
     db = init_mongo()
     log.info('creating tracker collection: size={0}b in db={1}'.format(size,
-                                                                       db.name)) 
-    args = {'capped': True, 'size' : size}
+                                                                       db.name))
+    args = {'capped': True, 'size': size}
     try:
         db.create_collection("tracker", **args)
     except CollectionInvalid, e:
         log.fatal(e)
         sys.exit(-1)
-    
+
     log.info('creating tracking indexes')
-    
-    db.tracker.create_index([('start_time', DESCENDING)], background=True)  
+
+    db.tracker.create_index([('start_time', DESCENDING)], background=True)
     db.tracker.create_index([('host', DESCENDING), ('start_time', DESCENDING)], background=True)
-    db.tracker.create_index([('return_code', ASCENDING)], background=True) 
+    db.tracker.create_index([('return_code', ASCENDING)], background=True)
     db.tracker.create_index([('host', DESCENDING)], background=True)
-    db.tracker.create_index([('duration_ms', ASCENDING)], background=True) 
+    db.tracker.create_index([('duration_ms', ASCENDING)], background=True)
     db.tracker.create_index([('session', DESCENDING)], background=True)
     db.tracker.create_index([('scenario', DESCENDING)], background=True)
     db.tracker.create_index([('function', DESCENDING)], background=True)
-    
-    log.info('created indexes: {0}'.format(db.tracker.index_information()))    
-    
+
+    log.info('created indexes: {0}'.format(db.tracker.index_information()))
+
 
 def purge_stubs():
     parser = ArgumentParser(
-          description="Purge stubs older than given expiry date."
-        )  
+        description="Purge stubs older than given expiry date."
+    )
     parser.add_argument('-l', '--list', action='store_const', const=True,
                         dest='list_only', help="Just list the stubs to delete.")
-    parser.add_argument('-e', '--expiry', default=14, dest='expiry', 
+    parser.add_argument('-e', '--expiry', default=14, dest='expiry',
                         help="expiry is number of days from now (default is 14).")
-    parser.add_argument('--host', default='all', dest='host', 
+    parser.add_argument('--host', default='all', dest='host',
                         help="specify the host uri to use (defaults to all)")
     parser.add_argument('-c', '--config', dest='config',
-        help='Path to configuration file (defaults to $CWD/etc/dev.ini)',
-        metavar='FILE')
-    
+                        help='Path to configuration file (defaults to $CWD/etc/dev.ini)',
+                        metavar='FILE')
+
     args = parser.parse_args()
     list_only = args.list_only or False
     expiry_days = args.expiry
     expiry = datetime.today().date() - timedelta(int(expiry_days))
     host = args.host
     config = args.config or get_default_config()
-    logging.config.fileConfig(config) 
-    
+    logging.config.fileConfig(config)
+
     settings = read_config(config)
     dbenv = default_env.copy()
     dbenv.update((k[6:], coerce_mongo_param(k[6:], v)) for k, v in \
                  settings.iteritems() if k.startswith('mongo.'))
-    log.debug('mongo params: {0}'.format(dbenv))  
-    
+    log.debug('mongo params: {0}'.format(dbenv))
+
     log.info('purge stubs whereby all sessions in the scenario were last used before {0}'.format(expiry))
-    
+
     db_conn = init_mongo(dbenv).connection
-    slave, master = start_redis(settings)   
+    slave, master = start_redis(settings)
     response = list_scenarios(host)
     if 'error' in response:
         print response['error']
         sys.exit(-1)
-        
-    handler = DummyRequestHandler()  
-    session_handler = DummyRequestHandler()    
-        
+
+    handler = DummyRequestHandler()
+    session_handler = DummyRequestHandler()
+
     for scenario_key in response['data']['scenarios']:
         log.debug("*** scenario '{0}' ***".format(scenario_key))
         hostname, scenario = scenario_key.split(':')
         if host != 'all' and host != hostname:
             continue
-        handler.host =  hostname
+        handler.host = hostname
         handler.request.host = '{0}:8001'.format(hostname)
         session_handler.host = hostname
         session_handler.request.host = '{0}:8001'.format(hostname)
@@ -140,23 +142,19 @@ def purge_stubs():
                 session_status = get_status(session_handler)
                 if 'error' in session_status:
                     log.warn('get_status error: {0}'.format(status['error']))
-                else:    
+                else:
                     last_used = session_status['data']['session'].get('last_used', '-')
-                    if last_used != '-':  
-                        scenario_last_used.append(as_date(last_used[0:10]))           
-                      
+                    if last_used != '-':
+                        scenario_last_used.append(as_date(last_used[0:10]))
+
             if scenario_last_used and (max(scenario_last_used) < expiry):
                 log.info("sessions in scenario '{0}' were last used '{1}' which"
-                         " is before expiry date '{2}'".format(scenario_key, 
-                                            max(scenario_last_used), expiry))
+                         " is before expiry date '{2}'".format(scenario_key,
+                                                               max(scenario_last_used), expiry))
                 if not list_only:
                     response = delete_stubs(handler, scenario_name=scenario,
-                                            force=True) 
+                                            force=True)
                     if 'error' in response:
-                        log.error('delete stubs error: {0}'.format(reponse['error']))
-                    else:      
-                        log.info('deleted stubs: {0}'.format(response['data']))            
-                        
-                
-        
-   
+                        log.error('delete stubs error: {0}'.format(response['error']))
+                    else:
+                        log.info('deleted stubs: {0}'.format(response['data']))
