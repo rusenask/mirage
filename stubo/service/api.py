@@ -10,12 +10,12 @@ import logging
 import random
 import sys
 import copy
-import json
 from urlparse import urlparse
 from StringIO import StringIO
 from contextlib import closing
 
 from tornado.web import MissingArgumentError
+from tornado.util import ObjectDict
 
 from stubo.model.db import (
     Scenario, get_mongo_client, session_last_used, Tracker
@@ -34,7 +34,6 @@ from stubo import version
 from stubo.cache import (
     Cache, add_request, get_redis_server, get_keys
 )
-
 from stubo.utils import (
     asbool, make_temp_dir, get_export_links, get_hostname,
     pretty_format_python, as_date
@@ -47,8 +46,6 @@ from stubo.ext.transformer import transform
 from stubo.ext.module import Module
 from .delay import Delay
 from stubo.model.export_commands import export_stubs_to_commands_format
-
-from tornado.util import ObjectDict
 
 DummyModel = ObjectDict
 
@@ -879,174 +876,6 @@ def get_status(handler):
         except:
             response['data']['database_server']['error'] = "mongo down"
     return response
-
-
-def put_bookmark(handler, session_name, name):
-    cache = Cache(get_hostname(handler.request))
-    response = dict(version=version, data={})
-    if not session_name:
-        raise exception_response(400, title="No session provided")
-
-    scenario_key = cache.find_scenario_key(session_name)
-    scenario_name = scenario_key.partition(':')[-1]
-
-    # retrieve the request index state for selected session
-    index_state = {}
-    request_index_data = cache.get_request_index_data(scenario_name)
-    if request_index_data:
-        for k, v in request_index_data.iteritems():
-            indexed_session_name, _, stub_key = k.partition(':')
-            if indexed_session_name == session_name:
-                index_state[stub_key] = v
-
-    if not index_state:
-        raise exception_response(400,
-                                 title="No indexes found for session '{0}'. Is the session in "
-                                       'playback mode and have state?'.format(session_name))
-    log.debug("save request index state '{0}' = {1}".format(name, index_state))
-    cache.set_saved_request_index_data(scenario_name, name, index_state)
-    response['data'][name] = index_state
-    return response
-
-
-def get_bookmark(handler, scenario_name, name):
-    cache = Cache(get_hostname(handler.request))
-    response = dict(version=version, data={})
-    index_state = cache.get_saved_request_index_data(scenario_name, name)
-    response['data'][name] = index_state
-    return response
-
-
-def get_bookmarks(handler):
-    cache = Cache(get_hostname(handler.request))
-    response = dict(version=version, data={})
-    all_index_state = cache.get_all_saved_request_index_data()
-    response['data'] = all_index_state
-    return response
-
-
-def delete_bookmark(handler, name, scenario):
-    cache = Cache(get_hostname(handler.request))
-    response = dict(version=version, data={})
-    result = cache.delete_saved_request_index(scenario, name)
-    response['data'] = {'bookmark': name, 'deleted': result}
-    return response
-
-
-def check_bookmark(host, bookmark_name, bookmark):
-    if not bookmark:
-        raise exception_response(400,
-                                 title='No bookmarks have been saved {0}'.format(
-                                     self.get_saved_request_index_key()))
-
-
-def jump_bookmark(handler, name, sessions, index=None):
-    request = handler.request
-    cache = Cache(get_hostname(request))
-    response = dict(version=version, data={})
-    scenario_key = cache.find_scenario_key(host, sessions[0])
-    scenario_name = scenario_key.partition(':')[-1]
-    if not all(cache.find_scenario_key(host, x) == scenario_key for x in sessions):
-        raise exception_response(400,
-                                 title="All sessions must belong to the same scenario")
-
-    index_state = cache.get_saved_request_index_data(scenario_name, name)
-    check_bookmark(host, name, index_state)
-    results = []
-    for session in sessions:
-        for k, v in index_state.iteritems():
-            v = v if index is None else index
-            session_key = '{0}:{1}'.format(session, k)
-            result = set_request_index_item(scenario_name, session_key, v)
-            results.append((k, v, result))
-    response['data']['results'] = results
-    return response
-
-
-def import_bookmarks(handler, location):
-    request = handler.request
-    cache = Cache(get_hostname(request))
-    response = dict(version=version, data={})
-    uri, bookmarks_name = UriLocation(request)(location)
-    log.info('uri={0}, bookmarks_name={1}'.format(uri, bookmarks_name))
-    payload, _, status_code = UrlFetch().get(uri)
-    payload = json.loads(payload)
-    # e.g payload
-    # {"converse":  {"first": {"8981c0dda19403f5cc054aea758689e65db2": "2"}}}
-    imported = {}
-    for scenario, bookmarks in payload.iteritems():
-        for bookmark_name, bookmark in bookmarks.iteritems():
-            is_new = cache.set_saved_request_index_data(scenario, bookmark_name,
-                                                        bookmark)
-            scenario_book = '{0}:{1}'.format(scenario, bookmark_name)
-            imported[scenario_book] = ('new' if is_new else 'updated', bookmark)
-    response['data']['imported'] = imported
-    return response
-
-
-def bookmarks_request_api(handler):
-    hostname = get_hostname(handler.request)
-    message = error_message = ""
-    name = handler.get_argument('name', None)
-    if name is not None:
-        try:
-            action = handler.get_argument('action', None)
-            scenario = handler.get_argument('scenario', None)
-            if action == 'delete':
-                result = delete_bookmark(handler, name, scenario)
-                if result['data']['deleted']:
-                    message = "deleted {0}".format(name)
-                else:
-                    error_message = "Unable to delete bookmark '{0}', does " \
-                                    "it still exist?".format(name)
-            elif action == 'jump':
-                index = handler.get_argument('index', None)
-                sessions = handler.get_arguments('session')
-                if sessions:
-                    result = jump_bookmark(handler, name, sessions, index)
-                    if index:
-                        message = 'jumped to start'
-                    else:
-                        message = 'jumped to bookmark {0}'.format(name)
-                    message += ' for sessions "{0}"'.format(", ".join(sessions))
-                else:
-                    error_message = "You must pick a session"
-            else:
-                # form POST to create a new bookmark
-                if name:
-                    session = handler.get_argument('session', None)
-                    result = put_bookmark(handler, session, name)
-                    message = "created {0} bookmark".format(name)
-                else:
-                    message = "You must supply a Name to create a new bookmark"
-        except StuboException, e:
-            error_message = "Error: {0}".format(e.title)
-
-    response = get_bookmarks(handler)
-    status = get_session_status(handler, all_hosts=False).get(hostname)
-    active = {}
-    if status:
-        for scenario_name, session_info in status.iteritems():
-            sessions = session_info[0]
-            for session in sessions:
-                session_name = session['session']
-                if session['status'] == 'playback':
-                    stateful_stubs = [x for x in session['stubs'] if len(
-                        StubCache(x, scenario_name, session).response_ids()) > 1]
-                    if stateful_stubs:
-                        if scenario_name not in active:
-                            active[scenario_name] = [session_name]
-                        else:
-                            active[scenario_name].append(session_name)
-    if not active:
-        message = '{0} does not have any active playback sessions'.format(
-            hostname)
-
-    return dict(bookmarks=response['data'],
-                active=active,
-                message=message,
-                error_message=error_message,
-                page_name='Bookmarks')
 
 
 def manage_request_api(handler):
