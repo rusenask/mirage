@@ -132,15 +132,6 @@ def export_stubs_to_commands_format(handler, scenario_name):
                                                        request_file_name))
         cmds.append('end/session?session={0}'.format(session))
 
-    try:
-        bookmarks = cache.get_all_saved_request_index_data()
-        if bookmarks:
-            cmds.append('import/bookmarks?location=bookmarks')
-            files.append(('bookmarks', json.dumps(bookmarks)))
-    except Exception as ex:
-        log.warn("failed to export bookmarks, error: %s" % ex)
-        pass
-
     files.append(('{0}.commands'.format(scenario_name),
                   b"\r\n".join(cmds)))
 
