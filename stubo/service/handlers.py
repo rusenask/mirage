@@ -9,10 +9,12 @@ import datetime
 import csv
 from StringIO import StringIO
 import re
+
 from tornado.web import RequestHandler, asynchronous, gen
 import tornado.ioloop
 from plop.collector import Collector
 import yappi
+from tornado.util import ObjectDict
 
 from stubo.service.handlers_mt import (
     export_stubs_request, list_stubs_request,
@@ -29,11 +31,9 @@ from stubo.service.handlers_mt import (
 from stubo.utils.track import TrackRequest
 from stubo import version
 from stubo.exceptions import StuboException, exception_response
-from tornado.util import ObjectDict
 
 DummyModel = ObjectDict
 from handlers_mt import rename_scenario
-
 
 log = logging.getLogger(__name__)
 
@@ -519,6 +519,7 @@ from stubo.service.api_v2 import get_delay_policy as api_v2_get_delay_policy
 from stubo.service.api import end_session, end_sessions, delete_delay_policy, put_stub, get_response
 from stubo.utils.track import BaseHandler
 from stubo.utils import asbool
+
 NOT_ALLOWED_MSG = 'Method not allowed'
 
 
@@ -526,6 +527,7 @@ class BaseScenarioHandler(RequestHandler):
     """
     /stubo/api/v2/scenarios
     """
+
     def initialize(self):
         """
 
@@ -1036,6 +1038,7 @@ class ScenarioActionHandler(TrackRequest):
                                                                                    self.scenario_name,
                                                                                    ex))
 
+
 class CreateDelayPolicyHandler(BaseHandler):
     """
     /stubo/api/v2/delay-policy
@@ -1341,7 +1344,7 @@ class StubHandler(TrackRequest):
         elif status == 'ignored':
             # this status code could be changed
             self.set_status(200)
-            
+
         return response
 
     @stubo_async
@@ -1393,7 +1396,6 @@ class StubHandler(TrackRequest):
         log.debug('Found session: {0}, for route: {1}'.format(session_name,
                                                               request.path))
         return get_response(self, session_name)
-
 
 
 def _get_scenario_full_name(handler, name, host=None):
