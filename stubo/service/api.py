@@ -15,6 +15,7 @@ from StringIO import StringIO
 from contextlib import closing
 
 from tornado.web import MissingArgumentError
+
 from tornado.util import ObjectDict
 
 from stubo.model.db import (
