@@ -10,6 +10,7 @@
 import os
 import sys
 
+
 def get_default_config():
     """Get the default configuration file name.
 

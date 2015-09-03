@@ -3,6 +3,7 @@
     :license: GPLv3, see LICENSE for more details.
 """
 
+
 class TemplateProcessor(object):
     """ Derive from TemplateProcessor to provide an alternative template processor
         during transformations. See :class:`~stubo.ext.transformer.TransformerBase`
@@ -17,7 +18,7 @@ class TemplateProcessor(object):
                  stub - see :class:`~stubo.model.stub.Stub`
         """
         pass
-    
+
 
 class Hooks(object):
     """ Derive from Hooks class to provide alternative transformer.
@@ -26,7 +27,7 @@ class Hooks(object):
         
         hooks_cls = stubo.ext.transformer.StuboDefaultHooks
     """
-    
+
     def make_transformer(self, stub):
         """ Factory method to create an instance of :class:`~stubo.ext.transformer.TransformerBase`
         
@@ -34,8 +35,3 @@ class Hooks(object):
           - `stub`: stub to transform, see :class:`~stubo.model.stub.Stub`
         """
         pass
-    
-    
-
-        
-        

@@ -6,7 +6,7 @@ from stubo.testing import (
 )
 
 
-class Test_functions(unittest.TestCase):
+class TestFunctions(unittest.TestCase):
 
     def test_get_dbenv(self):
         from stubo.service.api import get_dbenv
@@ -1232,7 +1232,7 @@ class TestDelayPolicy(unittest.TestCase):
         self.cache.set_delay_policy('slow', {u'delay_type': u'fixed',
                                              u'name': u'slow', u'milliseconds': u'200'})
         response = delete_delay_policy(self.make_request(), ['slow'])
-        response2 = self.cache.get_delay_policy('slow')
+        self.cache.get_delay_policy('slow')
         self.assertEqual(self.cache.get_delay_policy(self.make_request(),
                                                      'slow'), None)
         self.assertEqual(response['data'].get('message'),
@@ -1340,44 +1340,6 @@ class TestDelayPolicy(unittest.TestCase):
         }
         with self.assertRaises(HTTPClientError):
             update_delay_policy(self.make_request(), args)
-
-
-class TestBookmarks(unittest.TestCase):
-    def setUp(self):
-        self.cache = DummyCache('localhost')
-        self.patch = mock.patch('stubo.service.api.Cache', self.cache)
-        self.patch.start()
-        self.scenario = DummyScenario()
-        self.db_patch = mock.patch('stubo.service.api.Scenario', self.scenario)
-        self.db_patch.start()
-        self.db_patch2 = mock.patch('stubo.cache.Scenario', self.scenario)
-        self.db_patch2.start()
-
-    def tearDown(self):
-        self.patch.stop()
-        self.db_patch.stop()
-        self.db_patch2.stop()
-
-    def make_request(self, **settings):
-        return DummyRequestHandler(**settings)
-
-    def _make_scenario(self, name, **kwargs):
-        doc = dict(name=name, **kwargs)
-        self.scenario.insert(**doc)
-
-    def test_put_no_request_index(self):
-        from stubo.service.api import put_bookmark
-        from stubo.exceptions import HTTPClientError
-
-        with self.assertRaises(HTTPClientError):
-            put_bookmark(self.make_request(), 'paul', 'save_paul')
-
-    def test_put_no_session(self):
-        from stubo.service.api import put_bookmark
-        from stubo.exceptions import HTTPClientError
-
-        with self.assertRaises(HTTPClientError):
-            put_bookmark(self.make_request(), 'bogus', 'xxx')
 
 
 class TestGetStatus(unittest.TestCase):

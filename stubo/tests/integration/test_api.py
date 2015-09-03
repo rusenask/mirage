@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import json
-from stubo.testing import Base
 import logging
+
+from stubo.testing import Base
 
 log = logging.getLogger(__name__)
 
@@ -63,7 +64,7 @@ class TestPutDelay(Base):
         self.http_client.fetch(self.get_url('/stubo/api/put/delay_policy?'
                                             'name=rtz_1&delay_type=fixed&milliseconds=700'),
                                self.stop)
-        response = self.wait()
+        self.wait()
         self.http_client.fetch(self.get_url('/stubo/api/get/delay_policy?'
                                             'name=rtz_1'), self.stop)
         response = self.wait()
@@ -81,11 +82,11 @@ class TestPutDelay(Base):
         self.http_client.fetch(self.get_url('/stubo/api/put/delay_policy?'
                                             'name=rtz_1&delay_type=fixed&milliseconds=700'),
                                self.stop)
-        response = self.wait()
+        self.wait()
         self.http_client.fetch(self.get_url('/stubo/api/put/delay_policy?'
                                             'name=rtz_2&delay_type=normalvariate&mean=100&stddev=50'),
                                self.stop)
-        response = self.wait()
+        self.wait()
         self.http_client.fetch(self.get_url('/stubo/api/get/delay_policy'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
@@ -227,7 +228,7 @@ class TestDelays(Base):
         payload = json.loads(response.body)
         self.assertEqual(payload['data'], {})
 
-    def test_mulitiple_delete_by_name(self):
+    def test_multiple_delete_by_name(self):
         self.http_client.fetch(self.get_url('/stubo/api/put/delay_policy?name='
                                             'delay_1&delay_type=fixed&milliseconds=500'), self.stop)
         response = self.wait()
@@ -310,7 +311,6 @@ class TestExport(Base):
         payload = json.loads(response.body)
         import os
 
-        export_lines = []
         export_dir = payload['data']['export_dir_path']
 
         with open(os.path.join(export_dir, 'order.yaml')) as f:
@@ -936,8 +936,7 @@ class TestTextState(Base):
             sr.append(resp['stubo_response'])
         self.assertEqual(6, len(sr))
         self.assertTrue('PNR 12345 with standard meal' in sr[0])
-        self.assertTrue('PNR 12345 has been updated (meal type change)' \
-                        in sr[1])
+        self.assertTrue('PNR 12345 has been updated (meal type change)' in sr[1])
         self.assertTrue('PNR 12345 with veggy meal' in sr[2])
         self.assertTrue('response d' in sr[3])
         self.assertTrue('response e' in sr[4])
@@ -991,8 +990,10 @@ class TestTextState(Base):
 
 class TestSmartCommands(Base):
     def test_smart_commands(self):
-        '''Demonstrate that command files can be Tornado templates with
-           embedded code snippets. See the command file used in the next line.'''
+        """
+        Demonstrate that command files can be Tornado templates with
+        embedded code snippets. See the command file used in the next line.
+        """
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
                                             '/static/cmds/tests/accept/smart.commands'), self.stop)
         response = self.wait()
@@ -1031,6 +1032,7 @@ class TestSmartCommands(Base):
         found_oracle = False
         found_matcher_text = False
         text_response = False
+        found_google = False
         from stubo.model.stub import Stub
 
         tracker_stubs = self.db.scenario_stub.find()
@@ -1052,6 +1054,7 @@ class TestSmartCommands(Base):
         self.assertTrue(found_matcher_text)
         self.assertTrue(text_response)
         self.assertTrue(found_bbc)
+        self.assertTrue(found_google)
 
         found_text = False
         tracker_responses = self.db.tracker.find({'function': 'get/response'})
@@ -1062,7 +1065,9 @@ class TestSmartCommands(Base):
         self.assertTrue(found_text)
 
     def test_smart_commands_with_params(self):
-        '''send arguments into a command file for its use.'''
+        """
+        send arguments into a command file for its use.
+        """
         self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
                                             '/static/cmds/tests/accept/smart_arg.commands&scen=bob&session='
                                             'smart_1'), self.stop)
@@ -1365,7 +1370,6 @@ class TestSession(Base):
         self.assertEqual(response.code, 400)
         self.assertTrue('Illegal characters supplied' in response.error.message)
 
-
     def test_end_session(self):
         self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario='
                                             'first&session=first_1&mode=record'), self.stop)
@@ -1433,14 +1437,14 @@ class TestSession(Base):
     def test_warm_cache(self):
         self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario='
                                             'first&session=first_1&mode=record'), self.stop)
-        response = self.wait()
+        self.wait()
         self.http_client.fetch(self.get_url(
             '/stubo/api/put/stub?session=first_1'), callback=self.stop,
             method="POST", body="||textMatcher||abcdef||response||a response")
-        response = self.wait()
+        self.wait()
         self.http_client.fetch(self.get_url(
             '/stubo/api/end/session?session=first_1'), callback=self.stop)
-        response = self.wait()
+        self.wait()
         self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario='
                                             'first&session=first_1&mode=playback&warm_cache=true'),
                                callback=self.stop)
@@ -1453,18 +1457,18 @@ class TestSession(Base):
     def test_stateful_warm_cache(self):
         self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario='
                                             'first&session=first_1&mode=record'), self.stop)
-        response = self.wait()
+        self.wait()
         self.http_client.fetch(self.get_url(
             '/stubo/api/put/stub?session=first_1'), callback=self.stop,
             method="POST", body="||textMatcher||abcdef||response||response1")
-        response = self.wait()
+        self.wait()
         self.http_client.fetch(self.get_url(
             '/stubo/api/put/stub?session=first_1'), callback=self.stop,
             method="POST", body="||textMatcher||abcdef||response||response2")
-        response = self.wait()
+        self.wait()
         self.http_client.fetch(self.get_url(
             '/stubo/api/end/session?session=first_1'), callback=self.stop)
-        response = self.wait()
+        self.wait()
         self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario='
                                             'first&session=first_1&mode=playback&warm_cache=true'),
                                callback=self.stop)
@@ -1718,7 +1722,7 @@ class TestSetting(Base):
     def test_modify(self):
         self.http_client.fetch(self.get_url(
             '/stubo/api/put/setting?setting=foo&value=bar'), self.stop)
-        response = self.wait()
+        self.wait()
         self.http_client.fetch(self.get_url(
             '/stubo/api/put/setting?setting=foo&value=bar2'), self.stop)
         response = self.wait()
@@ -1794,7 +1798,7 @@ class TestSetting(Base):
     def test_global_modify(self):
         self.http_client.fetch(self.get_url(
             '/stubo/api/put/setting?host=all&setting=foo&value=bar'), self.stop)
-        response = self.wait()
+        self.wait()
         self.http_client.fetch(self.get_url(
             '/stubo/api/put/setting?host=all&setting=foo&value=bar2'),
             self.stop)
@@ -2100,20 +2104,21 @@ class TestHTTPCompression(Base):
                                self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
-        import StringIO, gzip
+        import StringIO
+        import gzip
 
         stringio = StringIO.StringIO()
         gzip_file = gzip.GzipFile(fileobj=stringio, mode='w')
         gzip_file.write("get my stub")
         gzip_file.close()
 
-        response = self.http_client.fetch(self.get_url('/stubo/api/get/response?session=first_1'),
-                                          self.stop,
-                                          use_gzip=False,
-                                          headers={"Content-Encoding": "gzip",
-                                                   "Accept-Encoding": "gzip"},
-                                          method="POST",
-                                          body=stringio.getvalue())
+        self.http_client.fetch(self.get_url('/stubo/api/get/response?session=first_1'),
+                               self.stop,
+                               use_gzip=False,
+                               headers={"Content-Encoding": "gzip",
+                                        "Accept-Encoding": "gzip"},
+                               method="POST",
+                               body=stringio.getvalue())
         response = self.wait()
         self.assertEqual(response.code, 200)
         self.assertEqual(response.body[:-1], b"Hello 2 World")
@@ -2124,10 +2129,10 @@ class TestHTTPCompression(Base):
         response = self.wait()
         self.assertEqual(response.code, 200)
 
-        response = self.http_client.fetch(self.get_url('/stubo/api/get/response?session=first_1'), self.stop,
-                                          use_gzip=False,
-                                          headers={"Accept-Encoding": "gzip"},
-                                          method="POST", body="get my stub")
+        self.http_client.fetch(self.get_url('/stubo/api/get/response?session=first_1'), self.stop,
+                               use_gzip=False,
+                               headers={"Accept-Encoding": "gzip"},
+                               method="POST", body="get my stub")
         response = self.wait()
         self.assertEqual(response.code, 200)
         self.assertNotEqual(response.headers.get("Content-Encoding"), "gzip")
@@ -2144,10 +2149,10 @@ class TestHTTPResponseCompressionEnabled(Base):
                                self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
-        response = self.http_client.fetch(self.get_url('/stubo/api/get/response?session=first_1'), self.stop,
-                                          use_gzip=False,
-                                          headers={"Accept-Encoding": "gzip"},
-                                          method="POST", body="get my stub")
+        self.http_client.fetch(self.get_url('/stubo/api/get/response?session=first_1'), self.stop,
+                               use_gzip=False,
+                               headers={"Accept-Encoding": "gzip"},
+                               method="POST", body="get my stub")
         response = self.wait()
         self.assertEqual(response.code, 200)
         self.assertEqual(response.headers.get("Content-Encoding"), "gzip")
@@ -2164,10 +2169,10 @@ class TestHTTPResponseCompressionEnabled(Base):
         response = self.wait()
         self.assertEqual(response.code, 200)
 
-        response = self.http_client.fetch(self.get_url('/stubo/api/get/response?session=first_1'), self.stop,
-                                          use_gzip=False,
-                                          headers={"Accept-Encoding": "identity"},
-                                          method="POST", body="get my stub")
+        self.http_client.fetch(self.get_url('/stubo/api/get/response?session=first_1'), self.stop,
+                               use_gzip=False,
+                               headers={"Accept-Encoding": "identity"},
+                               method="POST", body="get my stub")
         response = self.wait()
         self.assertEqual(response.code, 200)
         self.assertNotEqual(response.headers.get("Content-Encoding"), "gzip")

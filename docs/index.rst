@@ -18,8 +18,8 @@ Stub-O-Matic Documentation |version|
    pages/test_tools.rst
    pages/advanced.rst
    pages/stub_sharing.rst
-   pages/bookmarks.rst
    pages/communicating.rst
+   pages/rest_api.md
    pages/api.rst
    pages/examples.rst
    pages/clients.rst
