@@ -1342,44 +1342,6 @@ class TestDelayPolicy(unittest.TestCase):
             update_delay_policy(self.make_request(), args)
 
 
-class TestBookmarks(unittest.TestCase):
-    def setUp(self):
-        self.cache = DummyCache('localhost')
-        self.patch = mock.patch('stubo.service.api.Cache', self.cache)
-        self.patch.start()
-        self.scenario = DummyScenario()
-        self.db_patch = mock.patch('stubo.service.api.Scenario', self.scenario)
-        self.db_patch.start()
-        self.db_patch2 = mock.patch('stubo.cache.Scenario', self.scenario)
-        self.db_patch2.start()
-
-    def tearDown(self):
-        self.patch.stop()
-        self.db_patch.stop()
-        self.db_patch2.stop()
-
-    def make_request(self, **settings):
-        return DummyRequestHandler(**settings)
-
-    def _make_scenario(self, name, **kwargs):
-        doc = dict(name=name, **kwargs)
-        self.scenario.insert(**doc)
-
-    def test_put_no_request_index(self):
-        from stubo.service.api import put_bookmark
-        from stubo.exceptions import HTTPClientError
-
-        with self.assertRaises(HTTPClientError):
-            put_bookmark(self.make_request(), 'paul', 'save_paul')
-
-    def test_put_no_session(self):
-        from stubo.service.api import put_bookmark
-        from stubo.exceptions import HTTPClientError
-
-        with self.assertRaises(HTTPClientError):
-            put_bookmark(self.make_request(), 'bogus', 'xxx')
-
-
 class TestGetStatus(unittest.TestCase):
     def test_call(self):
         from stubo.service.api import get_status
