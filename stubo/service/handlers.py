@@ -23,8 +23,6 @@ from stubo.service.handlers_mt import (
     tracker_detail_request, get_delay_policy_request,
     delete_delay_policy_request, put_module_request,
     delete_module_request, list_module_request, delete_modules_request,
-    put_bookmark_request, get_bookmark_request, jump_bookmark_request,
-    get_bookmarks_request, delete_bookmark_request, import_bookmarks_request,
     stats_request, analytics_request, put_setting_request, get_setting_request,
     end_sessions_request, list_scenarios_request
 )
@@ -145,82 +143,6 @@ class GetModuleListHandler(TrackRequest):
 
     def post(self):
         list_module_request(self)
-
-
-class PutBookmarkHandler(TrackRequest):
-    '''/api/put/bookmark?session=joe&session=mary&name=mary_and_joe_fri_2pm
-    Note the sessions need to be in playback mode.
-    The only state saved is the request_index for the sessions supplied
-    which can belong to different scenarios. The request_index is formed of
-    session_name:{hash of request text} so a later reset of this state using
-    /api/get/bookmark?name=mary_and_joe_fri_2pm assumes the stubs have not been
-    changed as the request hash needs to exist in "{host}:{scenario}:request"
-    and the response index needs to be consistent with the value of that
-    key which is a list of response hashs as shown below
-
- redis 127.0.0.1:6379> hgetall "localhost:conv:request"    
- 1) "joe:8daae6e2f064b50c80e5d91720043364219e0453cfc3630f2b21a5c5"
- 2) "[[\"78f09c29288b74bc9986e34574e45f596df96c1abd1b2c0247166b12\", \"d68f0e02d042a2e6118a06cf20b56450d37b97ca9c4a6e9135d99fb2\", \"e121cfd777bfc56585ec86a04af60b8e5433dc3d5a8192ac981a9cd2\"], \"\", \"2013-10-25\", \"2013-10-25\", {}]"
- 3) "joe:2cf00b76334fb16c640bb11a99adad49beafd2edf67c34a52218d9c0"
- 4) "[[\"9f50aad95323947a75a330e2115854bade723ca424f60f2089710da1\", \"d3ae99681978575e40a94881f5fe66079d7ab862ff2e0de51046c0cf\", \"4a8ccf33d16d45f98ad9152063b0d38bca449aeaa2c178c27c3fbca0\"], \"\", \"2013-10-25\", \"2013-10-25\", {}]"
- 5) "joe:f2022a5438c084278ec23c400b2a0551203b8d0320e071ff981f9ec4"
- 6) "[[\"8a63cd9b720c32b82835c0a30e8d8799626ba3768ebf6136f4b1e1b8\", \"4cff130013f4833e81613b3a44d669040b33c9030e312f339e0b5661\", \"c8c48e8fcc8d1784cfa92745895595415d35b51725e8b8ead796cd4d\"], \"\", \"2013-10-25\", \"2013-10-25\", {}]"
- 7) "mary:8daae6e2f064b50c80e5d91720043364219e0453cfc3630f2b21a5c5"
- 8) "[[\"78f09c29288b74bc9986e34574e45f596df96c1abd1b2c0247166b12\", \"d68f0e02d042a2e6118a06cf20b56450d37b97ca9c4a6e9135d99fb2\", \"e121cfd777bfc56585ec86a04af60b8e5433dc3d5a8192ac981a9cd2\"], \"\", \"2013-10-25\", \"2013-10-25\", {}]"
- 9) "mary:2cf00b76334fb16c640bb11a99adad49beafd2edf67c34a52218d9c0"
-10) "[[\"9f50aad95323947a75a330e2115854bade723ca424f60f2089710da1\", \"d3ae99681978575e40a94881f5fe66079d7ab862ff2e0de51046c0cf\", \"4a8ccf33d16d45f98ad9152063b0d38bca449aeaa2c178c27c3fbca0\"], \"\", \"2013-10-25\", \"2013-10-25\", {}]"
-11) "mary:f2022a5438c084278ec23c400b2a0551203b8d0320e071ff981f9ec4"
-12) "[[\"8a63cd9b720c32b82835c0a30e8d8799626ba3768ebf6136f4b1e1b8\", \"4cff130013f4833e81613b3a44d669040b33c9030e312f339e0b5661\", \"c8c48e8fcc8d1784cfa92745895595415d35b51725e8b8ead796cd4d\"], \"\", \"2013-10-25\", \"2013-10-25\", {}]"   
-    '''
-
-    def get(self):
-        self.post()
-
-    def post(self):
-        put_bookmark_request(self)
-
-
-class GetBookmarksHandler(TrackRequest):
-    def get(self):
-        self.post()
-
-    def post(self):
-        get_bookmark_request(self)
-
-
-class JumpBookmarkHandler(TrackRequest):
-    def get(self):
-        self.post()
-
-    def post(self):
-        jump_bookmark_request(self)
-
-
-class DeleteBookmarkHandler(TrackRequest):
-    def get(self):
-        self.post()
-
-    def post(self):
-        delete_bookmark_request(self)
-
-
-class ImportBookmarksHandler(TrackRequest):
-    def get(self):
-        self.post()
-
-    def post(self):
-        import_bookmarks_request(self)
-
-
-class BookmarkHandler(RequestHandler):
-    def compute_etag(self):
-        return None
-
-    def get(self):
-        get_bookmarks_request(self)
-
-    def post(self):
-        self.get()
 
 
 class ViewTrackerHandler(RequestHandler):
