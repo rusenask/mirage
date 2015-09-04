@@ -29,18 +29,87 @@
                         <th>Scenario</th>
                         <th>Sessions</th>
                         <th>Status</th>
-                        <th>Stubs</th>
                         <th>Loaded</th>
                         <th>Last Used</th>
+                        <th>Stubs</th>
                         <th class="spaceHead">Space used (KB)</th>
                         <th></th>
                     </tr>
 
                     </thead>
                     <tbody>
-                    <tr>
-                        <td> </td>
-                    </tr>
+
+                    {% for scenario in data["scenarios"] %}
+
+                        <tr>
+                            <!--scenario name-->
+                           <td>
+                               {{ scenario["name"] }}
+                           </td>
+
+                            <!--session name-->
+                           <td>
+                               <ul class="list-unstyled">
+                               {% for ses in scenario["sessions"] %}
+
+                                   <li> {{ses["name"] }}</li>
+
+                               {% end %} <!-- end for sessions -->
+                               </ul>
+                           </td>
+
+                           <!--session status -->
+                            <td>
+                                <ul class="list-unstyled">
+                                    {% for ses in scenario["sessions"] %}
+
+                                    <li> {{ses["status"] }}</li>
+
+                                    {% end %} <!-- end for sessions -->
+                                </ul>
+                            </td>
+
+                           <!--session loaded -->
+
+                            <td>
+                                <ul class="list-unstyled">
+                                    {% for ses in scenario["sessions"] %}
+
+                                    <li> {{ses["loaded"] }}</li>
+
+                                    {% end %} <!-- end for sessions -->
+                                </ul>
+                            </td>
+
+                           <!--session last used-->
+
+                            <td>
+                                <ul class="list-unstyled">
+                                    {% for ses in scenario["sessions"] %}
+
+                                    <li> {{ses["last_used"] }}</li>
+
+                                    {% end %} <!-- end for sessions -->
+                                </ul>
+                            </td>
+
+                            <!--stub count-->
+                           <td>
+                                {{ scenario["stub_count"] }}
+                           </td>
+
+                           <!--scenario size-->
+                            <td>
+                                {{ scenario["space_used_kb"] }}
+                           </td>
+
+                           <!--action button -->
+                            <td>
+                                <btn class="btn btn-success"></btn>
+                            </td>
+                        </tr>
+
+                    {% end %}  <!-- end for scenarios -->
 
                     </tbody>
                 </table>
