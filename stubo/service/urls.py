@@ -64,13 +64,17 @@ ui_pages = [
     ("/tracker", "ViewTrackerHandler"),
     ("/tracker/(.*)", "ViewATrackerHandler"),
     ("/", "HomeHandler"),
-    ("/manage", "ManageHandler"),
     ("/manage/exec_cmds", "StuboCommandHandlerHTML"),
     ("/docs", "DocsHandler"),
     ("/stubs", "GetStubListHandlerHTML"),
     ("/analytics", "AnalyticsHandler"),
     ('/_profile', 'ProfileHandler'),
     ('/_profile2', 'PlopProfileHandler'),
+    # management
+    ("/manage/scenarios", "ManageScenariosHandler"),
+    ("/manage", "ManageHandler"),
+
+
 ]
 
 url_patterns = json_api + rest_api + ui_pages
