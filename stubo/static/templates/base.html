@@ -76,35 +76,7 @@ desired effect
             <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
                 <span class="sr-only">Toggle navigation</span>
             </a>
-            <!-- Navbar Right Menu -->
-            <div class="navbar-custom-menu">
-                <ul class="nav navbar-nav">
 
-
-                    <!-- User Account Menu -->
-                    <li class="dropdown user user-menu">
-                        <!-- Menu Toggle Button -->
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <!-- hidden-xs hides the username on small devices so only the image appears. -->
-                            <span class="hidden-xs">User placeholder</span>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <!-- Menu Footer-->
-                            <li class="user-footer">
-                                <div class="pull-left">
-                                    <a href="#" class="btn btn-default btn-flat">Profile</a>
-                                </div>
-                                <div class="pull-left">
-                                    <a href="/admin/" class="btn btn-default btn-flat">Admin</a>
-                                </div>
-                                <div class="pull-right">
-                                    <a href="/logout" class="btn btn-default btn-flat">Logout</a>
-                                </div>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
         </nav>
     </header>
     <!-- Left side column. contains the logo and sidebar -->
@@ -145,13 +117,36 @@ desired effect
 
             <!-- Sidebar Menu -->
             <ul class="sidebar-menu">
+
+                <li class="header">Control</li>
                 <!-- Optionally, you can add icons to the links -->
-                <li id="tracker" class="{{'active' if 'tracker' in request.path else 'not-active'}}"><a href="/tracker">Tracker</a>
+                <li id="tracker" class="{{'active' if 'tracker' in request.path else 'not-active'}}"><a href="/tracker"><i class="fa fa-fw fa-database"></i> Tracker Collection</a>
                 </li>
-                <li id="manage" class="{{'active' if 'manage' in request.path else 'not-active'}}"><a
-                        href="/manage">Manage</a></li>
+                <!--<li id="manage" class="{{'active' if 'manage' in request.path else 'not-active'}}"><a-->
+                        <!--href="/manage">Manage</a></li>-->
+
+                <!--manage section-->
+                <li class="treeview {{'active' if 'manage' in request.path else 'not-active'}}">
+                    <a href="#">
+                        <i class="fa fa-pie-chart"></i>
+                        <span>Management</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li><a href="/manage/scenarios"><i class="fa fa-circle-o"></i> Scenarios</a></li>
+                        <li><a href="/manage/delaypolicies"><i class="fa fa-circle-o"></i> Delay Policies</a></li>
+                        <li><a href="/manage/commands"><i class="fa fa-circle-o"></i> Command Execution</a></li>
+                        <li><a href="/manage/modules"><i class="fa fa-circle-o"></i> External modules</a></li>
+                    </ul>
+                </li>
+
+                <!--examples/docs-->
+                <li class="header">More...</li>
                 <li class="{{'active' if 'docs' in request.path else 'not-active'}}"><a
-                        href="http://stubo-app.readthedocs.org/en/latest/" target="_blank">Documentation</a></li>
+                        href="http://stubo-app.readthedocs.org/en/latest/" target="_blank"><i class="fa fa-fw fa-question"></i>Documentation</a></li>
+
+
+
             </ul>
             <!-- /.sidebar-menu -->
         </section>
