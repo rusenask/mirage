@@ -503,12 +503,68 @@ Manage Handlers
 """
 
 class ManageScenariosHandler(RequestHandler):
+    """
+    /manage/scenarios
+
+    """
+
+    def initialize(self):
+        """
+
+        Initializing database and setting header. Using global tornado settings that are generated
+        during startup to acquire database client
+        """
+        # setting header
+        self.set_header('x-stub-o-matic-version', version)
+        # get motor driver
+        self.db = motor_driver(self.settings)
 
     @gen.coroutine
     def get(self):
 
-        data = {'scenarios': []}
-        return self.render('manageScenarios.html', data=data)
+        all_hosts = asbool(self.get_cookie("stubo.all-hosts", False))
+        import pdb
+        # pdb.set_trace()
+        print(all_hosts)
+        # getting all scenarios
+        cursor = self.db.scenario.find()
+        # sorting based on name
+        cursor.sort([('name', pymongo.ASCENDING)])
+
+        # get size
+        scenario_cl = Scenario()
+        scenarios_sizes = scenario_cl.size()
+        scenarios_recorded = scenario_cl.recorded()
+        scenarios_stub_counts = scenario_cl.stub_counts()
+
+        # start mapping data
+        scenarios = []
+        while (yield cursor.fetch_next):
+            document = cursor.next_object()
+            try:
+                # getting information about recorded, sizes and stub counts
+                scenario_recorded = scenarios_recorded.get(document['name'], '-')
+                scenario_size = int(scenarios_sizes.get(document['name'], 0))
+                scenario_stub_count = scenarios_stub_counts.get(document['name'], 0)
+                scenario_name = document['name']
+                host, scenario = scenario_name.split(':')
+                # getting session data
+                sessions = []
+                cache = Cache(host)
+                for session_info in cache.get_scenario_sessions_information(scenario):
+                    sessions.append(session_info)
+
+                scenarios.append({'name': scenario_name,
+                                  'recorded': scenario_recorded,
+                                  'space_used_kb': scenario_size,
+                                  'stub_count': scenario_stub_count,
+                                  'sessions': sessions,
+                                  'scenarioRef': '/stubo/api/v2/scenarios/objects/%s' % document['name']})
+            except KeyError:
+                log.warn('Scenario name not found for object: %s' % document['_id'])
+
+        data = {'scenarios': scenarios}
+        self.render('manageScenarios.html', data=data)
 
 
 
