@@ -154,6 +154,20 @@ desired effect
     <div class="content-wrapper">
         {% block body %}
 
+            <!-- Hidden Modal  -->
+            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                            <h4 class="modal-title" id="myModalLabel">Operation information</h4>
+                        </div>
+                        <div class="modal-body">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {% if 'message' in globals() and message %}
             <div class="alert alert-info alert-block">
                 <button type="button" class="close" data-dismiss="alert">&times;</button>
@@ -178,7 +192,7 @@ desired effect
             Stub-O-Matic
         </div>
         <!-- Default to the left -->
-        <strong>Copyright &copy; 2015 <a href="http://specto.io/">SpectoLabs</a>.</strong> All rights reserved.
+        <strong>Copyright &copy; 2015 <a href="http://specto.io/" target="_blank">SpectoLabs</a>.</strong> All rights reserved.
     </footer>
 
 </div>
