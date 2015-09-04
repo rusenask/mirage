@@ -499,6 +499,20 @@ class PlopProfileHandler(RequestHandler):
 
 
 """
+Manage Handlers
+"""
+
+class ManageScenariosHandler(RequestHandler):
+
+    @gen.coroutine
+    def get(self):
+
+        data = {'scenarios': []}
+        return self.render('manageScenarios.html', data=data)
+
+
+
+"""
 -------------------------------------------------------------------
 ------------------ below are handlers for API v2 ------------------
 -------------------------------------------------------------------
