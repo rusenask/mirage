@@ -523,11 +523,15 @@ class ManageScenariosHandler(RequestHandler):
     def get(self):
 
         all_hosts = asbool(self.get_cookie("stubo.all-hosts", False))
-        import pdb
-        # pdb.set_trace()
-        print(all_hosts)
-        # getting all scenarios
-        cursor = self.db.scenario.find()
+
+        # getting scenarios for the current host
+        if not all_hosts:
+            current_host = get_hostname(self.request)
+            query = {'name': {'$regex': current_host+'.*'}}
+            cursor = self.db.scenario.find(query)
+        else:
+            # getting all scenarios
+            cursor = self.db.scenario.find()
         # sorting based on name
         cursor.sort([('name', pymongo.ASCENDING)])
 
