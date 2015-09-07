@@ -570,7 +570,10 @@ class ManageScenariosHandler(RequestHandler):
         data = {'scenarios': scenarios}
         self.render('manageScenarios.html', data=data)
 
+class ManageDelayPoliciesHandler(RequestHandler):
 
+    def get(self):
+        self.render('manageDelayPolicies.html')
 
 """
 -------------------------------------------------------------------
