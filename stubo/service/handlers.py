@@ -575,6 +575,14 @@ class ManageDelayPoliciesHandler(RequestHandler):
     def get(self):
         self.render('manageDelayPolicies.html')
 
+class ManageCommandsHandler(RequestHandler):
+
+    def get(self):
+        response = {}
+        cmd_file = self.get_argument('cmdFile', '')
+        response['cmdFile'] = cmd_file
+        self.render('manageCommands.html', **response)
+
 """
 -------------------------------------------------------------------
 ------------------ below are handlers for API v2 ------------------
