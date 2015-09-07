@@ -570,6 +570,11 @@ class ManageScenariosHandler(RequestHandler):
         data = {'scenarios': scenarios}
         self.render('manageScenarios.html', data=data)
 
+class ManageSnHandler(RequestHandler):
+
+    def get(self):
+        self.render('manageScenariosRESTful.html')
+
 class ManageDelayPoliciesHandler(RequestHandler):
 
     def get(self):
@@ -792,8 +797,19 @@ class GetAllScenariosHandler(RequestHandler):
         Returns a list with all scenarios (and URL paths to these resources),
         stub count
         """
-        # getting all scenarios
-        cursor = self.db.scenario.find()
+        all_hosts = asbool(self.get_argument("all-hosts", True))
+
+        # getting scenarios for the current host
+        if not all_hosts:
+            current_host = get_hostname(self.request)
+            query = {'name': {'$regex': current_host+'.*'}}
+            cursor = self.db.scenario.find(query)
+        else:
+            # getting all scenarios
+            cursor = self.db.scenario.find()
+
+        # # getting all scenarios
+        # cursor = self.db.scenario.find()
         # sorting based on name
         cursor.sort([('name', pymongo.ASCENDING)])
 
