@@ -73,6 +73,7 @@ ui_pages = [
     # management
     ("/manage/scenarios", "ManageScenariosHandler"),
     ("/manage/delaypolicies", "ManageDelayPoliciesHandler"),
+    ("/manage/modules", "ManageModulesHandler"),
     ("/manage/commands", "ManageCommandsHandler"),
 
     ("/manage", "ManageHandler"),

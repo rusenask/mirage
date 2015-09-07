@@ -583,6 +583,11 @@ class ManageCommandsHandler(RequestHandler):
         response['cmdFile'] = cmd_file
         self.render('manageCommands.html', **response)
 
+class ManageModulesHandler(RequestHandler):
+
+    def get(self):
+        self.render('manageModules.html')
+
 """
 -------------------------------------------------------------------
 ------------------ below are handlers for API v2 ------------------
