@@ -85,9 +85,8 @@
             url: href,
             data: JSON.stringify(body),
             success: function (data) {
-                info_msg = JSON.stringify(data.data, null, 2);
-                console.log(data);
-                htmlData = '<ul><li>Message: ' + info_msg + '</li></ul>';
+                var info_msg = JSON.stringify(data.data, null, 2);
+                var htmlData = '<ul><li>Message: ' + info_msg + '</li></ul>';
                 infoModal.find('.modal-body').html(htmlData);
                 infoModal.modal('show');
                 return false;
@@ -95,7 +94,7 @@
         }).fail(function($xhr) {
             var data = $xhr.responseJSON;
             console.log(data);
-            htmlData = '<ul><li>Error: ' + data.error.message + '</li></ul>';
+            var htmlData = '<ul><li>Error: ' + data.error.message + '</li></ul>';
             infoModal.find('.modal-body').html(htmlData);
             infoModal.modal('show');
             return false;
@@ -180,19 +179,27 @@
         },
         handleClick: function (event) {
             console.log("End Session!!");
-            console.log(this.state.ref);
-            // TODO replace with ajax call to delete scenario
             this.setState({status: !this.state.status});
+
+            var href = this.state.ref + "/action";
+
+            var body = {
+                end: 'sessions'
+                    };
+            SessionExecute(href, body)
+
         },
         render: function () {
-            if (this.state.sessionCount > 0) {
+            // checking whether scenario has a session and whether it is dormant or not
+            if (this.state.sessionCount > 0 && this.props.data.status[0] != 'dormant') {
             return (
                     <button onClick={this.handleClick} className="btn btn-sm btn-warning">
                         <span
                                 className="glyphicon glyphicon-stop"></span>
                     </button>
             );}
-            else{
+            // session status is either dormant or there are no sessions, disabling button
+            else {
                 return (
                         <button onClick={this.handleClick} className="btn btn-sm btn-warning disabled">
                             <span
@@ -286,10 +293,8 @@
             }
 
             $.get(href, function (result) {
-                console.log(result);
                 var newList = reformatJSON(result.data);
                 if (this.isMounted()) {
-                    console.log("setting state version");
                     this.setState({
                         results: newList
                     });
@@ -327,5 +332,7 @@
             <ExternalScenarios source="/stubo/api/v2/scenarios/detail"/>,
             document.getElementById("app"))
 </script>
+
+
 
 {% end endjs %}
