@@ -117,8 +117,30 @@
         }
     });
 
+    // end session placeholder
+    var EndSessionsButton = React.createClass({
+        getInitialState: function() {
+            var hostname_scenario = this.props.data.split(":");
+            return {name: hostname_scenario[1],
+                hostname: hostname_scenario[0],
+                status: false};
+        },
+        handleClick: function(event) {
+            console.log("End Session!!");
+            console.log(this.state.name);
+            // TODO replace with ajax call to delete scenario
+            this.setState({status: !this.state.status});
+        },
+        render: function() {
 
+            return (
+                    <button onClick={this.handleClick} className="btn btn-sm btn-warning"><span
+                            className="glyphicon glyphicon-stop"></span></button>
+            );
+        }
+    });
 
+    // remove scenario action button
     var RemoveButton = React.createClass({
         getInitialState: function() {
             var hostname_scenario = this.props.data.split(":");
