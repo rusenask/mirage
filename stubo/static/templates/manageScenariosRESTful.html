@@ -155,22 +155,26 @@
 
     // remove scenario action button
     var RemoveButton = React.createClass({
-        getInitialState: function() {
-            var hostname_scenario = this.props.data.split(":");
-            return {name: hostname_scenario[1],
-                    hostname: hostname_scenario[0],
-                    removed: false};
+        getInitialState: function () {
+            // getting scenario name and hostname
+            return {
+                ref: this.props.data.ref,
+                removed: false
+            };
         },
-        handleClick: function(event) {
+        handleClick: function (event) {
             console.log("Deleting!!");
-            console.log(this.state.name);
+            console.log(this.state.ref);
+            // TODO replace with ajax call to delete scenario
             this.setState({removed: !this.state.removed});
         },
-        render: function() {
+        render: function () {
 
             return (
-            <button onClick={this.handleClick} className="btn btn-sm btn-danger"><span
-                    className="glyphicon glyphicon-remove-sign"></span></button>
+                    <button onClick={this.handleClick} className="btn btn-sm btn-danger">
+                        <span
+                                className="glyphicon glyphicon-remove-sign"></span>
+                    </button>
             );
         }
     });
