@@ -36,7 +36,8 @@
                     <div id="app1">
 
                     </div>
-                </div> <!-- end box body -->
+                </div>
+                <!-- end box body -->
             </div>
 
         </div>
@@ -78,7 +79,7 @@
                 var sessionLoaded = [];
                 var sessionUsed = [];
 
-                initialData[key].sessions.forEach(function(entry) {
+                initialData[key].sessions.forEach(function (entry) {
                     sessionNames.push(entry.name);
                     sessionStatus.push(entry.status);
                     sessionLoaded.push(entry.loaded);
@@ -182,12 +183,12 @@
     var ActionComponent = React.createClass({
         displayNam: "LinkComponent",
 
-        render: function(){
+        render: function () {
             // rendering action buttons
             return (<div className="btn-group">
-                      <DownloadButton data={this.props.rowData.name} />
-                      <RemoveButton data={this.props.rowData.name} />
-                      <EndSessionsButton data={this.props.rowData.name} />
+                        <DownloadButton data={this.props.rowData.name}/>
+                        <RemoveButton data={this.props.rowData}/>
+                        <EndSessionsButton data={this.props.rowData}/>
                     </div>
             )
         }
@@ -214,27 +215,28 @@
 
 
     var ExternalScenarios = React.createClass({
-        getInitialState: function(){
-            var initial = { "results": [],
+        getInitialState: function () {
+            var initial = {
+                "results": [],
                 "resultsPerPage": 100
             };
 
             return initial;
         },
         //general lifecycle methods
-        componentWillMount: function(){
+        componentWillMount: function () {
         },
-        componentDidMount: function(){
+        componentDidMount: function () {
             // getting scenarios
             var href = '';
-            if($.cookie("stubo.all-hosts") == 'true'){
+            if ($.cookie("stubo.all-hosts") == 'true') {
                 // amending query argument to get all hosts
                 href = this.props.source + '?all-hosts=true'
             } else {
                 href = this.props.source + '?all-hosts=false'
             }
 
-            $.get(href, function(result) {
+            $.get(href, function (result) {
                 console.log(result);
                 var newList = reformatJSON(result.data);
                 if (this.isMounted()) {
@@ -246,23 +248,23 @@
             }.bind(this));
         },
         //what page is currently viewed
-        setPage: function(index){
+        setPage: function (index) {
         },
         //this will handle how the data is sorted
-        sortData: function(sort, sortAscending, data){
+        sortData: function (sort, sortAscending, data) {
         },
         //this changes whether data is sorted in ascending or descending order
-        changeSort: function(sort, sortAscending){
+        changeSort: function (sort, sortAscending) {
         },
         //this method handles the filtering of the data
-        setFilter: function(filter){
+        setFilter: function (filter) {
         },
         //this method handles determining the page size
-        setPageSize: function(size){
+        setPageSize: function (size) {
         },
 
 
-        render: function(){
+        render: function () {
             return <Griddle results={this.state.results}
                             useGriddleStyles={true}
                             showFilter={true} showSettings={true}
@@ -273,8 +275,8 @@
     });
 
     React.render(
-            <ExternalScenarios source="/stubo/api/v2/scenarios/detail" />,
-            document.getElementById("app") )
+            <ExternalScenarios source="/stubo/api/v2/scenarios/detail"/>,
+            document.getElementById("app"))
 </script>
 
 {% end endjs %}
