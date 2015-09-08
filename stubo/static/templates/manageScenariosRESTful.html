@@ -106,6 +106,17 @@
         }
     });
 
+    var DownloadButton = React.createClass({
+        render: function() {
+            var hostname_scenario = this.props.data.split(":");
+            var url ="/stubo/api/get/export?scenario=" + hostname_scenario[1] +  "&html=true";
+            return (
+                    <a href={url} className="btn btn-sm btn-info"><span
+                            className="glyphicon glyphicon-cloud-download"></span></a>
+            );
+        }
+    });
+
     var ActionComponent = React.createClass({
         displayNam: "LinkComponent",
 
