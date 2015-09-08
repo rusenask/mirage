@@ -74,6 +74,39 @@
 
 <script type="text/jsx">
 
+
+    function SessionExecute(href, body) {
+        var infoModal = $('#myModal');
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: href,
+            data: JSON.stringify(body),
+            success: function (data) {
+                info_msg = JSON.stringify(data.data, null, 2);
+                console.log(data);
+                htmlData = '<ul><li>Message: ' + info_msg + '</li></ul>';
+                infoModal.find('.modal-body').html(htmlData);
+                infoModal.modal('show');
+                return false;
+            }
+        }).fail(function($xhr) {
+            var data = $xhr.responseJSON;
+            console.log(data);
+            htmlData = '<ul><li>Error: ' + data.error.message + '</li></ul>';
+            infoModal.find('.modal-body').html(htmlData);
+            infoModal.modal('show');
+            return false;
+        });
+
+    }
+
+    $('#myModal').on('hidden.bs.modal', function () {
+        window.location.reload(true);
+    });
+
+
     // we are getting session data nested in the array, so we bring it forward
     function reformatJSON(initialData) {
 
