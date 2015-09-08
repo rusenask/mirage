@@ -146,11 +146,9 @@
         render: function(){
             url ="/manage/scenarios/details?scenario=" + this.props.rowData.ref;
             return (<div className="btn-group">
-                    <button className="btn btn-xs btn-info"><span
-                            className="glyphicon glyphicon-cloud-download"></span></button>
+                      <DownloadButton data={this.props.rowData.name} />
 
-                    <button className="btn btn-xs btn-danger"><span
-                            className="glyphicon glyphicon-remove-sign"></span></button>
+                      <RemoveButton data={this.props.rowData.name} />
                     </div>
             )
 
