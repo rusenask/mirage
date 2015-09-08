@@ -100,19 +100,21 @@
     var LinkComponent = React.createClass({
         displayNam: "LinkComponent",
 
-        render: function(){
-            url ="/manage/scenarios/details?scenario=" + this.props.rowData.ref;
+        render: function () {
+            url = "/manage/scenarios/details?scenario=" + this.props.rowData.ref;
             return <a href={url}>{this.props.data}</a>
         }
     });
 
     var DownloadButton = React.createClass({
-        render: function() {
+        render: function () {
             var hostname_scenario = this.props.data.split(":");
-            var url ="/stubo/api/get/export?scenario=" + hostname_scenario[1] +  "&html=true";
+            var url = "/stubo/api/get/export?scenario=" + hostname_scenario[1] + "&html=true";
             return (
-                    <a href={url} className="btn btn-sm btn-info"><span
-                            className="glyphicon glyphicon-cloud-download"></span></a>
+                    <a href={url} className="btn btn-sm btn-info">
+                        <span
+                                className="glyphicon glyphicon-cloud-download"></span>
+                    </a>
             );
         }
     });
