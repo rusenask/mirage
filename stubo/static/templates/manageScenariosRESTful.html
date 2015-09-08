@@ -166,15 +166,13 @@
         displayNam: "LinkComponent",
 
         render: function(){
-            url ="/manage/scenarios/details?scenario=" + this.props.rowData.ref;
+            // rendering action buttons
             return (<div className="btn-group">
                       <DownloadButton data={this.props.rowData.name} />
-
                       <RemoveButton data={this.props.rowData.name} />
+                      <EndSessionsButton data={this.props.rowData.name} />
                     </div>
             )
-
-
         }
     });
 
