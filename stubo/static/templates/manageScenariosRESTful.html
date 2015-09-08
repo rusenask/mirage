@@ -117,6 +117,29 @@
         }
     });
 
+
+
+    var RemoveButton = React.createClass({
+        getInitialState: function() {
+            var hostname_scenario = this.props.data.split(":");
+            return {name: hostname_scenario[1],
+                    hostname: hostname_scenario[0],
+                    removed: false};
+        },
+        handleClick: function(event) {
+            console.log("Deleting!!");
+            console.log(this.state.name);
+            this.setState({removed: !this.state.removed});
+        },
+        render: function() {
+
+            return (
+            <button onClick={this.handleClick} className="btn btn-sm btn-danger"><span
+                    className="glyphicon glyphicon-remove-sign"></span></button>
+            );
+        }
+    });
+
     var ActionComponent = React.createClass({
         displayNam: "LinkComponent",
 
