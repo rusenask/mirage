@@ -121,15 +121,16 @@
 
     // end session placeholder
     var EndSessionsButton = React.createClass({
-        getInitialState: function() {
-            var hostname_scenario = this.props.data.split(":");
-            return {name: hostname_scenario[1],
-                hostname: hostname_scenario[0],
-                status: false};
+        getInitialState: function () {
+            return {
+                ref: this.props.data.ref,
+                sessionCount: this.props.data.sessions.length,
+                status: false
+            };
         },
-        handleClick: function(event) {
+        handleClick: function (event) {
             console.log("End Session!!");
-            console.log(this.state.name);
+            console.log(this.state.ref);
             // TODO replace with ajax call to delete scenario
             this.setState({status: !this.state.status});
         },
