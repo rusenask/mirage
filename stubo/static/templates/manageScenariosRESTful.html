@@ -56,8 +56,6 @@
 <script src="{{static_url('react/build/JSXTransformer.js')}}" type="text/javascript"></script>
 <script src="{{static_url('node_modules/griddle-react/build/griddle.js')}}" type="text/javascript"></script>
 
-
-
 <script type="text/jsx">
 
     // we are getting session data nested in the array, so we bring it forward
@@ -201,7 +199,7 @@
                             showFilter={true} showSettings={true}
                             resultsPerPage={this.state.resultsPerPage}
                             columnMetadata={columnMeta}
-                            columns={["name", "sessions", "status", "loaded", "last_used", "space_used_kb", "stub_count", "recorded"]}/>
+                            columns={["name", "sessions", "status", "loaded", "last_used", "space_used_kb", "stub_count", "recorded", "actions"]}/>
         }
     });
 
