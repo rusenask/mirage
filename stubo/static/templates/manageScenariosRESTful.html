@@ -69,6 +69,7 @@
                 // console.log(key + " -> " + initialData[key].name);
                 var singleObj = {};
                 singleObj['name'] = initialData[key].name;
+                singleObj['ref'] = initialData[key].scenarioRef;
                 singleObj['space_used_kb'] = initialData[key].space_used_kb;
                 singleObj['stub_count'] = initialData[key].stub_count;
                 singleObj['recorded'] = initialData[key].recorded;
@@ -97,6 +98,26 @@
         }
         return newScenariosList
     }
+
+    var LinkComponent = React.createClass({
+        displayNam: "LinkComponent",
+
+        render: function(){
+            url ="/manage/scenarios/details?scenario=" + this.props.rowData.ref;
+            return <a href={url}>{this.props.data}</a>
+        }
+    });
+
+    var columnMeta = [
+        {
+            "columnName": "name",
+            "displayName": "Scenario",
+            "order": 1,
+            "locked": false,
+            "visible": true,
+            "customComponent": LinkComponent
+        }
+    ];
 
 
     var ExternalScenarios = React.createClass({
@@ -146,11 +167,14 @@
         //this method handles determining the page size
         setPageSize: function(size){
         },
+
+
         render: function(){
             return <Griddle results={this.state.results}
                             useGriddleStyles={true}
                             showFilter={true} showSettings={true}
                             resultsPerPage={this.state.resultsPerPage}
+                            columnMetadata={columnMeta}
                             columns={["name", "sessions", "status", "loaded", "last_used", "space_used_kb", "stub_count", "recorded"]}/>
         }
     });
