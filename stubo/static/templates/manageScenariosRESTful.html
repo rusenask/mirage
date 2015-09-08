@@ -131,12 +131,22 @@
             // TODO replace with ajax call to delete scenario
             this.setState({status: !this.state.status});
         },
-        render: function() {
-
+        render: function () {
+            if (this.state.sessionCount > 0) {
             return (
-                    <button onClick={this.handleClick} className="btn btn-sm btn-warning"><span
-                            className="glyphicon glyphicon-stop"></span></button>
-            );
+                    <button onClick={this.handleClick} className="btn btn-sm btn-warning">
+                        <span
+                                className="glyphicon glyphicon-stop"></span>
+                    </button>
+            );}
+            else{
+                return (
+                        <button onClick={this.handleClick} className="btn btn-sm btn-warning disabled">
+                            <span
+                                    className="glyphicon glyphicon-stop"></span>
+                        </button>
+                );
+            }
         }
     });
 
