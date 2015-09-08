@@ -238,7 +238,7 @@
     });
 
     var ActionComponent = React.createClass({
-        displayNam: "LinkComponent",
+        displayName: "ActionComponent",
 
         render: function () {
             // rendering action buttons
@@ -303,7 +303,15 @@
             "locked": false,
             "visible": true,
             "customComponent": ActionComponent
+        },
+        {
+            "columnName": "status",
+            "displayName": "Status",
+            "locked": false,
+            "visible": true,
+            "customComponent": StatusLabelComponent
         }
+
     ];
 
 
@@ -369,7 +377,6 @@
             <ExternalScenarios source="/stubo/api/v2/scenarios/detail"/>,
             document.getElementById("app"))
 </script>
-
 
 
 {% end endjs %}
