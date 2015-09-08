@@ -250,6 +250,42 @@
         }
     });
 
+    var StatusLabelComponent = React.createClass({
+        displayName: "StatusLabelComponent",
+
+        getInitialState: function () {
+            // getting scenario name and hostname
+            return {
+                labelClass: 'label label-default'
+            };
+        },
+
+        componentDidMount: function () {
+
+        },
+
+        render: function () {
+            console.log(this.props.rowData.status[0]);
+            switch(this.props.rowData.status[0]){
+                case undefined:
+                    this.state.labelClass = '';
+                    break;
+                case 'dormant':
+                    break;
+                case 'playback':
+                    this.state.labelClass = 'label label-success';
+                    break;
+                case 'record':
+                    this.state.labelClass = 'label label-warning';
+                    break;
+            }
+
+
+            return <span className={this.state.labelClass}> {this.props.rowData.status}</span>
+
+        }
+    });
+
     var columnMeta = [
         {
             "columnName": "name",
