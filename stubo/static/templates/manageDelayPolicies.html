@@ -126,6 +126,18 @@
             );
         }
     });
+
+    var ActionComponent = React.createClass({
+        displayName: "ActionComponent",
+
+        render: function () {
+            // rendering action buttons
+            return (
+                        <RemoveButton data={this.props.rowData}/>
+            )
+        }
+    });
+
     var columnMeta = [
         {
             "columnName": "name",
