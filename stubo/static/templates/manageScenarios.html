@@ -32,10 +32,6 @@
                     <div id="app">
                         <!--app renders here-->
                     </div>
-
-                    <div id="app1">
-
-                    </div>
                 </div>
                 <!-- end box body -->
             </div>
@@ -67,6 +63,7 @@
 
     var Tooltip = ReactBootstrap.Tooltip;
     var OverlayTrigger = ReactBootstrap.OverlayTrigger;
+    var Button = ReactBootstrap.Button;
 
 
     function SessionExecute(href, body) {
@@ -135,7 +132,7 @@
     }
 
     var LinkComponent = React.createClass({
-        displayNam: "LinkComponent",
+        displayName: "LinkComponent",
 
         render: function () {
             url = "/manage/scenarios/details?scenario=" + this.props.rowData.ref;
@@ -143,16 +140,17 @@
         }
     });
 
-    var DownloadButton = React.createClass({
+    var ExportButton = React.createClass({
+        displayName: "ExportButton",
         render: function () {
-            const DownloadTooltip = (
+            const tooltip = (
                     <Tooltip>Export scenario.</Tooltip>
             );
 
             var hostname_scenario = this.props.data.split(":");
             var url = "/stubo/api/get/export?scenario=" + hostname_scenario[1] + "&html=true";
             return (
-                    <OverlayTrigger placement='left' overlay={DownloadTooltip}>
+                    <OverlayTrigger placement='left' overlay={tooltip}>
                         <a href={url} className="btn btn-sm btn-info">
                             <span
                                     className="glyphicon glyphicon-cloud-download"></span>
@@ -164,6 +162,8 @@
 
     // end session placeholder
     var EndSessionsButton = React.createClass({
+        displayName: "EndSessionsButton",
+
         getInitialState: function () {
             return {
                 ref: this.props.data.ref,
@@ -193,20 +193,20 @@
             if (this.state.sessionCount > 0 && this.props.data.status[0] != 'dormant') {
                 return (
                         <OverlayTrigger placement='left' overlay={EndSessionsTooltip}>
-                            <button onClick={this.handleClick} className="btn btn-sm btn-warning">
-                                <span
-                                        className="glyphicon glyphicon-stop"></span>
-                            </button>
+
+                            <Button onClick={this.handleClick} bsStyle='warning' bsSize='small'>
+                                <span className="glyphicon glyphicon-stop"></span>
+                            </Button>
                         </OverlayTrigger>
                 );
             }
             // session status is either dormant or there are no sessions, disabling button
             else {
                 return (
-                        <button onClick={this.handleClick} className="btn btn-sm btn-warning disabled">
-                            <span
-                                    className="glyphicon glyphicon-stop"></span>
-                        </button>
+                        <Button onClick={this.handleClick} bsStyle='warning' bsSize='small' disabled>
+                            <span className="glyphicon glyphicon-stop"></span>
+                        </Button>
+
                 );
             }
         }
@@ -249,14 +249,11 @@
             const RemoveTooltip = (
                     <Tooltip>Remove scenario.</Tooltip>
             );
-
-
             return (
                     <OverlayTrigger placement='left' overlay={RemoveTooltip}>
-                        <button onClick={this.handleClick} className="btn btn-sm btn-danger">
-                            <span
-                                    className="glyphicon glyphicon-remove-sign"></span>
-                        </button>
+                        <Button onClick={this.handleClick} bsStyle='danger' bsSize='small'>
+                            <span className="glyphicon glyphicon-remove-sign"></span>
+                        </Button>
                     </OverlayTrigger>
             );
         }
@@ -270,7 +267,7 @@
 
             // rendering action buttons
             return (<div className="btn-group">
-                        <DownloadButton data={this.props.rowData.name}/>
+                        <ExportButton data={this.props.rowData.name}/>
                         <RemoveButton data={this.props.rowData}/>
                         <EndSessionsButton data={this.props.rowData}/>
                     </div>
