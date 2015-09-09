@@ -90,6 +90,37 @@
                            <div><pre>{JSON.stringify(this.state.policies, null, 2) }</pre></div>
                     </div>
             );
+    var columnMeta = [
+        {
+            "columnName": "name",
+            "displayName": "Delay Name",
+            "order": 1,
+            "locked": false,
+            "visible": true
+        },
+        {
+            "columnName": "delay_type",
+            "displayName": "Type",
+            "order": 2,
+            "locked": false,
+            "visible": true
+        },
+        {
+            "columnName": "details",
+            "displayName": "Details",
+            "locked": false,
+            "visible": true,
+            "customComponent": DelayDetailsComponent
+        },
+        {
+            "columnName": "actions",
+            "displayName": "Actions",
+            "locked": false,
+            "visible": true,
+            "customComponent": ActionComponent
+        }
+
+    ];
     var ExternalDelayPolicies = React.createClass({
         getInitialState: function () {
             var initial = {
