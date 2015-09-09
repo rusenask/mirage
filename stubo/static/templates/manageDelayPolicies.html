@@ -169,6 +169,19 @@
         }
 
     ];
+
+    function updateTable(component, href) {
+        $.get(href, function (result) {
+            if (component.isMounted()) {
+                console.log(result);
+                component.setState({
+
+                    results: result.data
+                });
+            }
+        });
+    }
+
     var ExternalDelayPolicies = React.createClass({
         getInitialState: function () {
             var initial = {
