@@ -90,7 +90,60 @@
                            <div><pre>{JSON.stringify(this.state.policies, null, 2) }</pre></div>
                     </div>
             );
+    var ExternalDelayPolicies = React.createClass({
+        getInitialState: function () {
+            var initial = {
+                "results": [],
+                "resultsPerPage": 10
+            };
 
+            return initial;
+        },
+        //general lifecycle methods
+        componentWillMount: function () {
+        },
+        componentDidMount: function () {
+            // getting delay policies
+            var href = '';
+            if ($.cookie("stubo.all-hosts") == 'true') {
+                // amending query argument to get all hosts
+                href = this.props.source + '?all-hosts=true'
+            } else {
+                href = this.props.source + '?all-hosts=false'
+            }
+
+            updateTable(this, href);
+
+            // subscribing to modal close event
+            $('#myModal').on('hidden.bs.modal', function () {
+                updateTable(this, href);
+            }.bind(this));
+        },
+
+        //what page is currently viewed
+        setPage: function (index) {
+        },
+        //this will handle how the data is sorted
+        sortData: function (sort, sortAscending, data) {
+        },
+        //this changes whether data is sorted in ascending or descending order
+        changeSort: function (sort, sortAscending) {
+        },
+        //this method handles the filtering of the data
+        setFilter: function (filter) {
+        },
+        //this method handles determining the page size
+        setPageSize: function (size) {
+        },
+
+
+        render: function () {
+            return <Griddle results={this.state.results}
+                            useGriddleStyles={true}
+                            showFilter={true} showSettings={true}
+                            resultsPerPage={this.state.resultsPerPage}
+                            columnMetadata={columnMeta}
+                            columns={["delay_type", "name", "details", "actions"]}/>
         }
     });
 
