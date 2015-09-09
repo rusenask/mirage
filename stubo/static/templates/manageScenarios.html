@@ -48,8 +48,6 @@
 </section>
 
 
-
-
 {% end body %}
 {% block endjs %}
 
@@ -147,13 +145,19 @@
 
     var DownloadButton = React.createClass({
         render: function () {
+            const DownloadTooltip = (
+                    <Tooltip>Export scenario.</Tooltip>
+            );
+
             var hostname_scenario = this.props.data.split(":");
             var url = "/stubo/api/get/export?scenario=" + hostname_scenario[1] + "&html=true";
             return (
-                    <a href={url} className="btn btn-sm btn-info">
-                        <span
-                                className="glyphicon glyphicon-cloud-download"></span>
-                    </a>
+                    <OverlayTrigger placement='left' overlay={DownloadTooltip}>
+                        <a href={url} className="btn btn-sm btn-info">
+                            <span
+                                    className="glyphicon glyphicon-cloud-download"></span>
+                        </a>
+                    </OverlayTrigger>
             );
         }
     });
@@ -180,13 +184,20 @@
 
         },
         render: function () {
+
+
+            const EndSessionsTooltip = (
+                    <Tooltip>End all active sessions for this scenario.</Tooltip>
+            );
             // checking whether scenario has a session and whether it is dormant or not
             if (this.state.sessionCount > 0 && this.props.data.status[0] != 'dormant') {
                 return (
-                        <button onClick={this.handleClick} className="btn btn-sm btn-warning">
-                            <span
-                                    className="glyphicon glyphicon-stop"></span>
-                        </button>
+                        <OverlayTrigger placement='left' overlay={EndSessionsTooltip}>
+                            <button onClick={this.handleClick} className="btn btn-sm btn-warning">
+                                <span
+                                        className="glyphicon glyphicon-stop"></span>
+                            </button>
+                        </OverlayTrigger>
                 );
             }
             // session status is either dormant or there are no sessions, disabling button
@@ -235,12 +246,18 @@
 
         },
         render: function () {
+            const RemoveTooltip = (
+                    <Tooltip>Remove scenario.</Tooltip>
+            );
+
 
             return (
-                    <button onClick={this.handleClick} className="btn btn-sm btn-danger">
-                        <span
-                                className="glyphicon glyphicon-remove-sign"></span>
-                    </button>
+                    <OverlayTrigger placement='left' overlay={RemoveTooltip}>
+                        <button onClick={this.handleClick} className="btn btn-sm btn-danger">
+                            <span
+                                    className="glyphicon glyphicon-remove-sign"></span>
+                        </button>
+                    </OverlayTrigger>
             );
         }
     });
@@ -249,6 +266,8 @@
         displayName: "ActionComponent",
 
         render: function () {
+
+
             // rendering action buttons
             return (<div className="btn-group">
                         <DownloadButton data={this.props.rowData.name}/>
@@ -274,7 +293,7 @@
         },
 
         render: function () {
-            switch(this.props.rowData.status[0]){
+            switch (this.props.rowData.status[0]) {
                 case undefined:
                     this.state.labelClass = '';
                     break;
