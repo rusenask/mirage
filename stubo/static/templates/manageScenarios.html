@@ -181,7 +181,7 @@
             var body = {
                 end: 'sessions'
             };
-            SessionExecute(href, body)
+            SessionExecute(href, body);
 
         },
         render: function () {
@@ -309,6 +309,16 @@
 
     ];
 
+    function updateTable(component, href) {
+        $.get(href, function (result) {
+            var newList = reformatJSON(result.data);
+            if (component.isMounted()) {
+                component.setState({
+                    results: newList
+                });
+            }
+        });
+    }
 
     var ExternalScenarios = React.createClass({
         getInitialState: function () {
@@ -332,15 +342,15 @@
                 href = this.props.source + '?all-hosts=false'
             }
 
-            $.get(href, function (result) {
-                var newList = reformatJSON(result.data);
-                if (this.isMounted()) {
-                    this.setState({
-                        results: newList
-                    });
-                }
+            updateTable(this, href);
+
+            // subscribing to modal close event
+            $('#myModal').on('hidden.bs.modal', function () {
+                console.log("downloading new scenario list");
+                updateTable(this, href);
             }.bind(this));
         },
+
         //what page is currently viewed
         setPage: function (index) {
         },
