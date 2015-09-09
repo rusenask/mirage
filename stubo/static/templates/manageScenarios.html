@@ -209,17 +209,35 @@
     // remove scenario action button
     var RemoveButton = React.createClass({
         getInitialState: function () {
-            // getting scenario name and hostname
+            // getting scenario ref
             return {
                 ref: this.props.data.ref,
-                removed: false
+                name: this.props.data.name
             };
         },
         handleClick: function (event) {
-            console.log("Deleting!!");
-            console.log(this.state.ref);
-            // TODO replace with ajax call to delete scenario
-            this.setState({removed: !this.state.removed});
+
+            var infoModal = $('#myModal');
+            var scenarioName = this.state.name;
+
+            $.ajax({
+                type: "DELETE",
+                url: this.state.ref,
+                success: function () {
+                    var htmlData = '<ul><li> Scenario (' + scenarioName + ') removed successfuly. </li></ul>';
+                    infoModal.find('.modal-body').html(htmlData);
+                    infoModal.modal('show');
+                    return false;
+                }
+            }).fail(function ($xhr) {
+                var response = $xhr;
+                console.log(response);
+                var htmlData = '<ul><li> Status code: ' + response.status + '. Error: ' + response.responseText + '</li></ul>';
+                infoModal.find('.modal-body').html(htmlData);
+                infoModal.modal('show');
+                return false;
+            });
+
         },
         render: function () {
 
