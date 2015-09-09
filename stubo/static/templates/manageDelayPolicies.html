@@ -103,7 +103,7 @@
         getInitialState: function () {
             // getting ref
             return {
-                ref: this.props.data.ref,
+                ref: this.props.data.delayPolicyRef,
                 name: this.props.data.name
             };
         },
@@ -111,7 +111,6 @@
 
             var infoModal = $('#myModal');
             var name = this.state.name;
-
             $.ajax({
                 type: "DELETE",
                 url: this.state.ref,
@@ -123,7 +122,6 @@
                 }
             }).fail(function ($xhr) {
                 var response = $xhr;
-                console.log(response);
                 var htmlData = '<ul><li> Status code: ' + response.status + '. Error: ' + response.responseText + '</li></ul>';
                 infoModal.find('.modal-body').html(htmlData);
                 infoModal.modal('show');
@@ -136,7 +134,7 @@
             var Button = ReactBootstrap.Button;
             return (
                     <Button onClick={this.handleClick} bsStyle='danger' bsSize='small'>
-                        <span className="glyphicon glyphicon-remove-sign">Remove</span>
+                        <span>Remove</span>
                     </Button>
             );
         }
@@ -188,7 +186,6 @@
     function updateTable(component, href) {
         $.get(href, function (result) {
             if (component.isMounted()) {
-                console.log(result);
                 component.setState({
 
                     results: result.data
