@@ -83,13 +83,49 @@
         },
 
         render: function() {
+    // remove delay policy action button
+    var RemoveButton = React.createClass({
+        getInitialState: function () {
+            // getting ref
+            return {
+                ref: this.props.data.ref,
+                name: this.props.data.name
+            };
+        },
+        handleClick: function (event) {
+
+            var infoModal = $('#myModal');
+            var name = this.state.name;
+
+            $.ajax({
+                type: "DELETE",
+                url: this.state.ref,
+                success: function () {
+                    var htmlData = '<ul><li> Delay policy (' + name + ') removed successfuly. </li></ul>';
+                    infoModal.find('.modal-body').html(htmlData);
+                    infoModal.modal('show');
+                    return false;
+                }
+            }).fail(function ($xhr) {
+                var response = $xhr;
+                console.log(response);
+                var htmlData = '<ul><li> Status code: ' + response.status + '. Error: ' + response.responseText + '</li></ul>';
+                infoModal.find('.modal-body').html(htmlData);
+                infoModal.modal('show');
+                return false;
+            });
+
+        },
+        render: function () {
+            // using react-bootstrap
+            var Button = ReactBootstrap.Button;
             return (
-                    <div>
-                        Version: {this.state.stuboVersion}
-                        delay policies:
-                           <div><pre>{JSON.stringify(this.state.policies, null, 2) }</pre></div>
-                    </div>
+                    <Button onClick={this.handleClick} bsStyle='danger' bsSize='small'>
+                        <span className="glyphicon glyphicon-remove-sign"> Remove</span>
+                    </Button>
             );
+        }
+    });
     var columnMeta = [
         {
             "columnName": "name",
