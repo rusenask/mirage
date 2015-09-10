@@ -83,8 +83,13 @@
                     return <span> {this.props.rowData.milliseconds} milliseconds</span>;
                     break;
 
-                case 'playback':
-                    this.state.labelClass = 'label label-success';
+                case 'normalvariate':
+                    return (
+                            <ul className="list-unstyled">
+                                <ListItemWrapper kvalue='stddev' item={this.props.rowData.stddev}></ListItemWrapper>
+                                <ListItemWrapper kvalue='mean' item={this.props.rowData.mean}></ListItemWrapper>
+                            </ul>
+                    );
                     break;
 
                 case 'weighted':
