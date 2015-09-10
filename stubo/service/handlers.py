@@ -1397,6 +1397,28 @@ class StubHandler(TrackRequest):
                                                               request.path))
         return get_response(self, session_name)
 
+class TrackerRecordsHandler(BaseHandler):
+
+    def initialize(self):
+        """
+
+        Initializing database and setting header. Using global tornado settings that are generated
+        during startup to acquire database client
+        """
+        # setting header
+        self.set_header('x-stub-o-matic-version', version)
+        # get motor driver
+        self.db = motor_driver(self.settings)
+
+    def compute_etag(self):
+        return None
+
+    @gen.coroutine
+    def get(self):
+        self.write({'data': []})
+
+
+
 
 def _get_scenario_full_name(handler, name, host=None):
     """
