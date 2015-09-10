@@ -58,6 +58,25 @@
 
 <script type="text/jsx">
 
+    var Button = ReactBootstrap.Button;
+
+    // wrapper for list items
+    var ListItemWrapper = React.createClass({
+        displayName: "ListItemWrapper",
+
+        getInitialState: function () {
+            return {
+                item: this.props.item,
+                kvalue: this.props.kvalue
+            };
+        },
+
+        render: function () {
+            return <li><strong>{this.state.kvalue}: </strong> {this.state.item}</li>
+        }
+
+    });
+
     var DelayDetailsComponent = React.createClass({
         displayName: "DelayDetailsComponent",
 
