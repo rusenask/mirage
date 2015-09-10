@@ -127,7 +127,6 @@
                         childrenObj['space_used_kb'] = initialData[key].space_used_kb;
                         childrenObj['stub_count'] = initialData[key].stub_count;
                         childrenObj['recorded'] = initialData[key].recorded;
-                        childrenObj['children'] = [];
                         children.push(childrenObj)
                     }
                 });
@@ -312,21 +311,30 @@
                     break;
             }
 
-            var children = this.props.rowData.children.length;
-            if (children > 1) {
-                return (
-                        <div>
-                            <span className={this.state.labelClass}> {this.props.rowData.status}</span>&nbsp;
+            // checking whether row has children object, removing children objects from children because they cause
+            // to create a whole separate grid inside a row
+            if(this.props.rowData.children != undefined) {
+                var children = this.props.rowData.children.length;
+                if (children > 1) {
+                    // adding session count number to the label
+                    return (
+                            <div>
+                                <span className={this.state.labelClass}> {this.props.rowData.status}</span>&nbsp;
 
-                            <span className="label label-primary">{children}</span>
-                        </div>
+                                <span className="label label-primary">{children}</span>
+                            </div>
 
-                )
+                    )
 
-
+                } else {
+                    // standard row output for each scenario
+                    return <span className={this.state.labelClass}> {this.props.rowData.status}</span>
+                }
             } else {
+                // children session status label
                 return <span className={this.state.labelClass}> {this.props.rowData.status}</span>
             }
+
 
 
         }
