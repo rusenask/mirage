@@ -507,6 +507,8 @@ class PlopProfileHandler(RequestHandler):
 import json
 from stubo.utils import get_hostname
 from pymongo.errors import DuplicateKeyError
+from stubo.model.db import Tracker
+from bson import ObjectId
 import pymongo
 from stubo.model.db import Scenario
 from stubo.model.db import motor_driver
@@ -1398,6 +1400,9 @@ class StubHandler(TrackRequest):
         return get_response(self, session_name)
 
 class TrackerRecordsHandler(BaseHandler):
+    """
+    /stubo/api/v2/tracker/records
+    """
 
     def initialize(self):
         """
@@ -1415,7 +1420,39 @@ class TrackerRecordsHandler(BaseHandler):
 
     @gen.coroutine
     def get(self):
-        self.write({'data': []})
+        # getting pagination info
+        skip = int(self.get_argument('skip', 0))
+        limit = int(self.get_argument('limit', 100))
+
+        tracker = Tracker(self.db)
+
+        tracker_filter = {}
+        cursor = tracker.find_tracker_data(tracker_filter, skip, limit)
+
+        tracker_objects = []
+        while (yield cursor.fetch_next):
+            try:
+                document = cursor.next_object()
+                # converting datetime object to string
+                document['start_time'] = document['start_time'].strftime('%Y-%m-%d %H:%M:%S')
+                # converting document ID to string
+                document['_id'] = str(ObjectId(document['_id']))
+                tracker_objects.append(document)
+            except Exception as ex:
+                log.warn('Failed to fetch document: %s' % ex)
+        # skip forward
+        if limit > skip:
+            skip += limit
+        else:
+            skip += 100
+
+        result = {'data': tracker_objects,
+                  'paging': {
+                      'previous': "/stubo/api/v2/tracker/records?skip=" + str(skip) + "&limit=" + str(limit),
+                      'next': "/stubo/api/v2/tracker/records?skip=" + str(skip) + "&limit=" + str(limit)
+                  }}
+
+        self.write(result)
 
 
 
