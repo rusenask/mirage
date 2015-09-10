@@ -83,7 +83,6 @@
             }
         }).fail(function ($xhr) {
             var data = $xhr.responseJSON;
-            console.log(data);
             var htmlData = '<ul><li>Error: ' + data.error.message + '</li></ul>';
             infoModal.find('.modal-body').html(htmlData);
             infoModal.modal('show');
@@ -105,26 +104,38 @@
                 singleObj['space_used_kb'] = initialData[key].space_used_kb;
                 singleObj['stub_count'] = initialData[key].stub_count;
                 singleObj['recorded'] = initialData[key].recorded;
+                // creating children array
 
-                // separating session data across different keys
-                var sessionNames = [];
-                var sessionStatus = [];
-                var sessionLoaded = [];
-                var sessionUsed = [];
+                var children = [];
 
-                initialData[key].sessions.forEach(function (entry) {
-                    sessionNames.push(entry.name);
-                    sessionStatus.push(entry.status);
-                    sessionLoaded.push(entry.loaded);
-                    sessionUsed.push(entry.last_used);
+                initialData[key].sessions.forEach(function (entry, index) {
+                    // adding session information to parent object
+                    if (index == 0) {
+                        singleObj['session'] = entry.name;
+                        singleObj['status'] = entry.status;
+                        singleObj['loaded'] = entry.loaded;
+                        singleObj['last_used'] = entry.last_used;
+
+                    } else {
+                        var childrenObj = {};
+                        childrenObj['name'] = initialData[key].name;
+                        childrenObj['session'] = entry.name;
+                        childrenObj['status'] = entry.status;
+                        childrenObj['loaded'] = entry.loaded;
+                        childrenObj['last_used'] = entry.last_used;
+                        childrenObj['ref'] = initialData[key].scenarioRef;
+                        childrenObj['space_used_kb'] = initialData[key].space_used_kb;
+                        childrenObj['stub_count'] = initialData[key].stub_count;
+                        childrenObj['recorded'] = initialData[key].recorded;
+                        childrenObj['children'] = [];
+                        children.push(childrenObj)
+                    }
                 });
 
-                singleObj['sessions'] = sessionNames;
-                singleObj['status'] = sessionStatus;
-                singleObj['loaded'] = sessionLoaded;
-                singleObj['last_used'] = sessionUsed;
+                singleObj['children'] = children;
 
                 newScenariosList.push(singleObj);
+
 
             }
         }
@@ -167,12 +178,10 @@
         getInitialState: function () {
             return {
                 ref: this.props.data.ref,
-                sessionCount: this.props.data.sessions.length,
                 status: false
             };
         },
         handleClick: function (event) {
-            console.log("End Session!!");
             this.setState({status: !this.state.status});
 
             var href = this.state.ref + "/action";
@@ -190,7 +199,7 @@
                     <Tooltip>End all active sessions for this scenario.</Tooltip>
             );
             // checking whether scenario has a session and whether it is dormant or not
-            if (this.state.sessionCount > 0 && this.props.data.status[0] != 'dormant') {
+            if (this.props.data.session != null && this.props.data.status != 'dormant') {
                 return (
                         <OverlayTrigger placement='left' overlay={EndSessionsTooltip}>
 
@@ -237,7 +246,6 @@
                 }
             }).fail(function ($xhr) {
                 var response = $xhr;
-                console.log(response);
                 var htmlData = '<ul><li> Status code: ' + response.status + '. Error: ' + response.responseText + '</li></ul>';
                 infoModal.find('.modal-body').html(htmlData);
                 infoModal.modal('show');
@@ -290,7 +298,7 @@
         },
 
         render: function () {
-            switch (this.props.rowData.status[0]) {
+            switch (this.props.rowData.status) {
                 case undefined:
                     this.state.labelClass = '';
                     break;
@@ -304,8 +312,22 @@
                     break;
             }
 
+            var children = this.props.rowData.children.length;
+            if (children > 1) {
+                return (
+                        <div>
+                            <span className={this.state.labelClass}> {this.props.rowData.status}</span>&nbsp;
 
-            return <span className={this.state.labelClass}> {this.props.rowData.status}</span>
+                            <span className="label label-primary">{children}</span>
+                        </div>
+
+                )
+
+
+            } else {
+                return <span className={this.state.labelClass}> {this.props.rowData.status}</span>
+            }
+
 
         }
     });
