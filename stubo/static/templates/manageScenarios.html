@@ -146,7 +146,13 @@
 
         render: function () {
             url = "/manage/scenarios/details?scenario=" + this.props.rowData.ref;
-            return <a href={url}>{this.props.data}</a>
+            if(this.props.rowData.children != undefined && this.props.rowData.children.length > 1){
+                return (<div>
+                    <span>▶ </span> <a href={url}>{this.props.data}</a>
+                </div>)
+            } else {
+                return <a href={url}>{this.props.data}</a>
+            }
         }
     });
 
