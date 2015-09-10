@@ -87,8 +87,21 @@
                     this.state.labelClass = 'label label-success';
                     break;
 
-                case 'record':
-                    this.state.labelClass = 'label label-warning';
+                case 'weighted':
+                    //delay list array
+                    var delayList = this.props.rowData.delays.split(":");
+                    return (
+                            <ul className="list-unstyled">
+                                {delayList.map(function(d) {
+                                    var delay = d.split(",");
+                                    var kvalue = delay[0];
+                                    var item = delay.slice(1).join(', ');
+                                    console.log(item);
+                                    return  <ListItemWrapper kvalue={kvalue} item={item}></ListItemWrapper>;
+                                })}
+                            </ul>
+                    );
+
                     break;
             }
 
