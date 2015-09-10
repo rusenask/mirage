@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>
-        Stub-O-Matic
+        Mirage
         {% if 'page_name' in globals() and page_name %}
         {{page_name}}
         {% end %}
@@ -67,7 +67,7 @@ desired effect
     <header class="main-header">
 
         <!-- Logo -->
-        <a href="/" class="logo">Stub-<b>O</b>-Matic</a>
+        <a href="/" class="logo"><b>Mirage</b></a>
 
         <!-- Header Navbar -->
         <nav class="navbar navbar-static-top" role="navigation">
@@ -153,36 +153,40 @@ desired effect
 
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
-        {% block body %}
-
-            <!-- Hidden Modal  -->
-            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                            <h4 class="modal-title" id="myModalLabel">Operation information</h4>
-                        </div>
-                        <div class="modal-body">
-                        </div>
+        <!-- Hidden Modal  -->
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title" id="myModalLabel">Operation information</h4>
+                    </div>
+                    <div class="modal-body">
                     </div>
                 </div>
             </div>
+        </div>
 
-            {% if 'message' in globals() and message %}
-            <div class="alert alert-info alert-block">
-                <button type="button" class="close" data-dismiss="alert">&times;</button>
-                <h4>{{message}}</h4>
-            </div>
-            {% elif 'error_message' in globals() and error_message %}
-            <div class="alert alert-danger fade in">
-                <button type="button" class="close" data-dismiss="alert">&times;</button>
-                <h4>{{error_message}}</h4>
-            </div>
-            {% end %}
-            <div id="alert_placeholder"></div>
+        {% if 'message' in globals() and message %}
+        <div class="alert alert-info alert-block">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <h4>{{message}}</h4>
+        </div>
+        {% elif 'error_message' in globals() and error_message %}
+        <div class="alert alert-danger fade in">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <h4>{{error_message}}</h4>
+        </div>
+        {% end %}
+        <div id="alert_placeholder"></div>
+
+        {% block body %}
+
+
+
 
         {% end body %}
+
     </div>
     <!-- /.content-wrapper -->
 
@@ -190,7 +194,7 @@ desired effect
     <footer class="main-footer">
         <!-- To the right -->
         <div class="pull-right hidden-xs">
-            Stub-O-Matic
+            Mirage
         </div>
         <!-- Default to the left -->
         <strong>Copyright &copy; 2015 <a href="http://specto.io/" target="_blank">SpectoLabs</a>.</strong> All rights reserved.
