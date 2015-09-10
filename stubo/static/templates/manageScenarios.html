@@ -106,7 +106,7 @@
                 singleObj['recorded'] = initialData[key].recorded;
                 // creating children array
 
-                var children = [];
+                var sessions = [];
 
                 initialData[key].sessions.forEach(function (entry, index) {
                     // adding session information to parent object
@@ -127,11 +127,12 @@
                         childrenObj['space_used_kb'] = initialData[key].space_used_kb;
                         childrenObj['stub_count'] = initialData[key].stub_count;
                         childrenObj['recorded'] = initialData[key].recorded;
-                        children.push(childrenObj)
+                        // adding object to children array
+                        sessions.push(childrenObj)
                     }
                 });
+                singleObj['sessions'] = sessions;
 
-                singleObj['children'] = children;
 
                 newScenariosList.push(singleObj);
 
@@ -145,14 +146,9 @@
         displayName: "LinkComponent",
 
         render: function () {
-            url = "/manage/scenarios/details?scenario=" + this.props.rowData.ref;
-            if(this.props.rowData.children != undefined && this.props.rowData.children.length > 1){
-                return (<div>
-                    <span>▶ </span> <a href={url}>{this.props.data}</a>
-                </div>)
-            } else {
-                return <a href={url}>{this.props.data}</a>
-            }
+            var url = "/manage/scenarios/details?scenario=" + this.props.rowData.ref;
+            return <a href={url}>{this.props.data}</a>
+
         }
     });
 
@@ -317,30 +313,48 @@
                     break;
             }
 
+            var sessionStatusTooltip = (
+                    <Tooltip>Current session mode is {this.props.rowData.status}. Check out documentation for more
+                        information.</Tooltip>
+            );
+
             // checking whether row has children object, removing children objects from children because they cause
             // to create a whole separate grid inside a row
-            if(this.props.rowData.children != undefined) {
-                var children = this.props.rowData.children.length;
-                if (children > 1) {
+            if (this.props.rowData.sessions != undefined) {
+                var sessions = this.props.rowData.sessions.length;
+                if (sessions > 1) {
                     // adding session count number to the label
+                    var sessionCounterTooltip = (
+                            <Tooltip>There are {sessions} sessions in this scenario. Access scenario details to get
+                                more information.</Tooltip>
+                    );
                     return (
-                            <div>
-                                <span className={this.state.labelClass}> {this.props.rowData.status}</span>&nbsp;
 
-                                <span className="label label-primary">{children}</span>
+                            <div>
+                                <OverlayTrigger placement='left' overlay={sessionStatusTooltip}>
+                                    <span className={this.state.labelClass}> {this.props.rowData.status}</span>
+                                </OverlayTrigger>
+                                &nbsp;
+                                <OverlayTrigger placement='left' overlay={sessionCounterTooltip}>
+                                    <span className="label label-primary">{sessions}</span>
+                                </OverlayTrigger>
                             </div>
 
                     )
 
                 } else {
                     // standard row output for each scenario
-                    return <span className={this.state.labelClass}> {this.props.rowData.status}</span>
+                    return ( <OverlayTrigger placement='left' overlay={sessionStatusTooltip}>
+                                <span className={this.state.labelClass}> {this.props.rowData.status}</span>
+                            </OverlayTrigger>
+                    )
                 }
             } else {
                 // children session status label
-                return <span className={this.state.labelClass}> {this.props.rowData.status}</span>
+                return (<OverlayTrigger placement='left' overlay={sessionStatusTooltip}>
+                    <span className={this.state.labelClass}> {this.props.rowData.status}</span>
+                </OverlayTrigger>)
             }
-
 
 
         }
@@ -433,11 +447,11 @@
 
         render: function () {
             return <Griddle results={this.state.results}
-                            useGriddleStyles={true}
+                            useGriddleStyles={false}
                             showFilter={true} showSettings={true}
                             resultsPerPage={this.state.resultsPerPage}
                             columnMetadata={columnMeta}
-                            columns={["name", "sessions", "status", "loaded", "last_used", "space_used_kb", "stub_count", "recorded", "actions"]}/>
+                            columns={["name", "session", "status", "loaded", "last_used", "space_used_kb", "stub_count", "recorded", "actions"]}/>
         }
     });
 
