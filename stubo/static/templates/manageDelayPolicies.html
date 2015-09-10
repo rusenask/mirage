@@ -21,7 +21,7 @@
 <!-- Main content -->
 <section class="content">
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-8">
 
             <!-- Small boxes (Stat box) -->
             <div class="box">
@@ -49,6 +49,7 @@
 <!--<link href="css/griddle.css" rel="stylesheet" />-->
 <script src="{{static_url('node_modules/underscore/underscore-min.js')}}" type="text/javascript"></script>
 <script src="{{static_url('react/build/react.js')}}" type="text/javascript"></script>
+<!--react bootstrap-->
 <script src="{{static_url('react/build/react-bootstrap.js')}}" type="text/javascript"></script>
 
 <script src="{{static_url('react/build/JSXTransformer.js')}}" type="text/javascript"></script>
@@ -167,8 +168,7 @@
 
         },
         render: function () {
-            // using react-bootstrap
-            var Button = ReactBootstrap.Button;
+
             return (
                     <Button onClick={this.handleClick} bsStyle='danger' bsSize='small'>
                         <span>Remove</span>
