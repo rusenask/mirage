@@ -13,7 +13,7 @@ WORKDIR /app
 
 # Set the default command to execute
 # when creating a new container
-CMD python run.py
+CMD ["python", "run.py", "-c", "dev_container.ini"]
 
 # Expose ports
 EXPOSE 8001
