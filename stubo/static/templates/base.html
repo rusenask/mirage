@@ -25,17 +25,18 @@
           page. However, you can choose any other skin. Make sure you
           apply the skin class to the body tag so the changes take effect.
     -->
-    <link href="{{static_url('theme/dist/css/skins/skin-purple.min.css')}}" rel="stylesheet" type="text/css"/>
+    <link href="{{static_url('style.css')}}" rel="stylesheet" type="text/css"/>
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
     <![endif]-->
     <!-- jQuery 2.1.3 -->
     <script src="{{static_url('theme/plugins/jQuery/jQuery-2.1.4.min.js')}}"></script>
 
+    <link rel="shortcut icon" href="{{static_url('micon.jpg')}}">
 
     {% block head %}
     {% end head %}
@@ -60,14 +61,19 @@ desired effect
 |---------------------------------------------------------|
 
 -->
-<body class="skin-purple">
+<body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
 
     <!-- Main Header -->
     <header class="main-header">
 
         <!-- Logo -->
-        <a href="/" class="logo"><b>Mirage</b></a>
+        <a href="/" class="logo">
+            <!-- mini logo for sidebar mini 50x50 pixels -->
+            <span class="logo-mini"><img src="{{static_url('micon.png')}}"></span>
+            <!-- logo for regular state and mobile devices -->
+            <span class="logo-lg"><img src="{{static_url('mirage.png')}}"></span>
+        </a>
 
         <!-- Header Navbar -->
         <nav class="navbar navbar-static-top" role="navigation">
@@ -88,7 +94,8 @@ desired effect
 
                 <li>
                     <a href="#" id="all_hosts_label">
-                        <i class="fa fa-th"></i> <span>Track all hosts</span> <input id="all_hosts" type="checkbox" class="pull-right" value="true">
+                        <i class="fa fa-th"></i> <span>Track all hosts</span> <input id="all_hosts" type="checkbox"
+                                                                                     class="pull-right" value="true">
                     </a>
                 </li>
 
@@ -98,7 +105,8 @@ desired effect
                 <div class="input-group">
                     <input type="text" name="q" class="form-control" placeholder="Search tracker...">
               <span class="input-group-btn">
-                <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i></button>
+                <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i>
+                </button>
               </span>
                 </div>
             </form>
@@ -108,10 +116,12 @@ desired effect
 
                 <li class="header">Control</li>
                 <!-- Optionally, you can add icons to the links -->
-                <li id="tracker" class="{{'active' if 'tracker' in request.path else 'not-active'}}"><a href="/tracker"><i class="fa fa-fw fa-database"></i> Tracker Collection</a>
+                <li id="tracker" class="{{'active' if 'tracker' in request.path else 'not-active'}}">
+                    <a href="/tracker"><i class="fa fa-fw fa-database"></i>
+                        <span>Tracker Collection</span></a>
                 </li>
                 <!--<li id="manage" class="{{'active' if 'manage' in request.path else 'not-active'}}"><a-->
-                        <!--href="/manage">Manage</a></li>-->
+                <!--href="/manage">Manage</a></li>-->
 
                 <!--manage section-->
                 <li class="treeview {{'active' if 'manage' in request.path else 'not-active'}}">
@@ -121,7 +131,7 @@ desired effect
                         <i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <ul class="treeview-menu">
-                        <li class="{{'active' if '/manage/scenarios' in request.path else 'not-active'}}" >
+                        <li class="{{'active' if '/manage/scenarios' in request.path else 'not-active'}}">
                             <a href="/manage/scenarios"><i class="fa fa-circle-o"></i> Scenarios</a></li>
 
                         <li class="{{'active' if '/manage/delaypolicies' in request.path else 'not-active'}}"
@@ -138,11 +148,15 @@ desired effect
                 <!--examples/docs-->
                 <li class="header">More...</li>
                 <li class="{{'active' if 'docs' in request.path else 'not-active'}}"><a
-                        href="http://stubo-app.readthedocs.org/en/latest/" target="_blank"><i class="fa fa-fw fa-question"></i>Documentation</a></li>
+                        href="http://stubo-app.readthedocs.org/en/latest/" target="_blank"><i
+                        class="fa fa-fw fa-question"></i>
+                    <span>Documentation</span></a></li>
 
                 <li class="{{'active' if 'examples' in request.path else 'not-active'}}"><a
-                        href="/examples" target="_blank"><i class="fa fa-fw fa-life-bouy"></i>Examples</a></li>
-
+                        href="/examples" target="_blank"><i class="fa fa-fw fa-life-bouy"></i>
+                    <span>Examples</span>
+                </a>
+                </li>
 
 
             </ul>
@@ -154,7 +168,8 @@ desired effect
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
         <!-- Hidden Modal  -->
-        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+             aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -183,8 +198,6 @@ desired effect
         {% block body %}
 
 
-
-
         {% end body %}
 
     </div>
@@ -197,7 +210,8 @@ desired effect
             Mirage
         </div>
         <!-- Default to the left -->
-        <strong>Copyright &copy; 2015 <a href="http://specto.io/" target="_blank">SpectoLabs</a>.</strong> All rights reserved.
+        <strong>Copyright &copy; 2015 <a href="http://specto.io/" target="_blank">SpectoLabs</a>.</strong> All rights
+        reserved.
     </footer>
 
 </div>
