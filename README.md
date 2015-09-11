@@ -14,7 +14,16 @@ See the The documentation [readthedocs](<http://stubo-app.readthedocs.org/en/lat
 user documentation.
 
 
-## Install
+## Install and run (Docker + Docker Compose)
+
+Install Docker and Docker Compose.
+
+* cd to project root
+* docker-compose up
+* [http://localhost:8001] or if you are using boot2docker (Mac OSX) - check VM's IP address with command:
+  $ boot2docker ip
+
+## Install (Manual)
 
 (Linux Red Hat Enterprise, CentOS, Fedora, or Amazon Linux). It's easier when using python virtualenv wrapper, get more 
 information about installing and using it here: [https://virtualenvwrapper.readthedocs.org/en/latest/]
@@ -70,7 +79,7 @@ Download application:
 > or following if installing globally
 > sudo pip install lxml
 
-## RUN
+### RUN
 
 Perform the following::
 
@@ -92,8 +101,7 @@ Alternatively you can run from another location:
     (env) $ python run.py -c path_to_config
 
 
-FUNCTIONAL TESTING
-==================
+## FUNCTIONAL TESTING
 
 You can run the test suite by running the following command 
 (in the project root: stubo-app)::
@@ -122,8 +130,7 @@ and code analysis
 
         (env) $ pylint stubo
         
-DEBUGGING
-=========
+## DEBUGGING
 
 If you want to call functions to debug in a python shell and they have a 
 dependency on redis or mongo you must initialise them first
@@ -168,8 +175,8 @@ Now you can make calls that use redis
     [{u'function': u'get/response', u'scenario': u'conv', u'start_time': datetime.datetime(2013, 10, 29, 10, 38, 16, 534000, tzinfo=<bson.tz_util.FixedOffset object at 0x1015b6910>), u'return_code': 200, u'session': u'mary', u'duration_ms': 5, u'stubo_response': u'a2 response\n', u'_id': ObjectId('526f90180cfb4403fc27c0fa')}]
        
         
-PERFORMANCE TESTING
-===================
+## PERFORMANCE TESTING
+
 Load performance test data (over 10,000 stubs in 100 scenarios) with 
 
         stubo/api/exec/cmds?cmdfile=/static/cmds/perf/perf_setup.commands 
@@ -182,8 +189,7 @@ Load performance test data (over 10,000 stubs in 100 scenarios) with
         When finished end sessions and delete stubs with:
         stubo/api/exec/cmds?cmdfile=/static/cmds/perf/perf_teardown.commands
 
-ANALYTICS
-=========
+## ANALYTICS
  
 Certain Metrics are extracted from the track record and sent via UDP to a 
 statsd server which aggregates the stats every 10 seconds before sending to 
@@ -203,8 +209,7 @@ details are specified in the stubo ini file::
     graphite.user = <user>
     graphite.password = <passwd>     
 
-DOCUMENTATION
-=============
+## DOCUMENTATION
 
 Documentation is generated with Sphinx. The doc sources are located under /docs.
 
@@ -222,8 +227,7 @@ To generate PDF
        $ make latexpdf
        $ cp _build/latex/Stub-O-Matic.pdf ../stubo/static/docs
 
-PROFILING
-=========
+## PROFILING
 
 Stubo profiling is available via two different profilers yappi and plop. 
 
@@ -253,12 +257,11 @@ To view plop results in a bubble graph:
 
 View via the plop app at http://localhost:8888
 
-Authors
-=======
+### Authors
 
 Stub-O-Matic is made available by [OpenCredo](http://opencredo.com)
 and a team of contributors.
 
-## License
+### License
 
 Stub-O-Matic is offered under GPLv3, see LICENSE for more details.
