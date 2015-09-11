@@ -1,0 +1,15 @@
+app:
+  build: .
+  volumes:
+  - .:/app:rw
+  links:
+  - redis:redis
+  - mongo:mongo
+  ports:
+   - "8001:8001"
+
+redis:
+  image: redis
+
+mongo:
+  image: mongo
