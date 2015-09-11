@@ -7,28 +7,17 @@ Stub-O-Matic
 Enable automated testing by mastering system dependencies.
 Use when reality is simply not good enough.
 
-Documentation
-=============
+## Documentation
 
-See the The documentation [website](<http://stubo-app.readthedocs.org/en/latest/>) to view
+
+See the The documentation [readthedocs](<http://stubo-app.readthedocs.org/en/latest/>) to view
 user documentation.
 
-License
-=======
 
-Stub-O-Matic is offered under GPLv3, see LICENSE for more details.
+## Install
 
-Authors
-=======
-
-Stub-O-Matic is made available by [OpenCredo](http://opencredo.com)
-and a team of contributors.
-
-
-Install
-=======
-
-(Linux Red Hat Enterprise, CentOS, Fedora, or Amazon Linux)
+(Linux Red Hat Enterprise, CentOS, Fedora, or Amazon Linux). It's easier when using python virtualenv wrapper, get more 
+information about installing and using it here: [https://virtualenvwrapper.readthedocs.org/en/latest/]
 
 Redis Server Installation::
 
@@ -61,54 +50,46 @@ dependencies::
 
     $ sudo apt-get install -y python-dev python-pip wget python2.7-dev libxml2 libxml2-dev libxslt1-dev
     
-Stubo::
+Download application:
 
-    $ virtualenv --no-site-packages env
-    $ source ./env/bin/activate
        
     (env) $ git clone https://github.com/Stub-O-Matic/stubo-app.git
     
     (env) $ cd stubo-app
     
+    (env) $ mkv
+    
     (env) $ pip install -r requirements/development.txt  (in production environment use pip install -r requirements.txt)
     
-    (env) $ python setup.py develop
 
-RUN
-===
+> Installing lxml library on OSX:
+> export CFLAGS=-Qunused-arguments
+> export CPPFLAGS=-Qunused-arguments
+>
+> pip install lxml
+> or following if installing globally
+> sudo pip install lxml
+
+## RUN
 
 Perform the following::
 
     $ sudo service mongod start
     $ sudo service redis-server start
-    
-You can start Stubo from your env root dir: 
-
-    $ cd ../env    
-
-You can start Stubo from your env root dir: 
-
-    $ cd ../env    
 
 Active your virtual python env:
 
-    $ source ./bin/activate
+    $ workon env
     
+Launch run.py in project root:
+   
+    $ python run.py
     
-Note you need to create log & etc dirs under the dir you call stubo from:
-    
-    (first run only)
-    $ mkdir log etc
-    $ cp ../stubo-app/*.ini etc 
-    $ create_tracker_collection
-    
-    $ stubo
-    
-Logging is in env/log/stubo.log
-Default config is picked up from ./etc/dev.ini     
+Logs are in _PROJECT_ROOT_/log/stubo.log
+Default config is picked up from _PROJECT_ROOT_/dev.ini     
 Alternatively you can run from another location:
 
-    (env) $ stubo -c path_to_config
+    (env) $ python run.py -c path_to_config
 
 
 FUNCTIONAL TESTING
@@ -271,3 +252,13 @@ To view plop results in a bubble graph:
     (env) $ python -m plop.viewer --datadir=/tmp
 
 View via the plop app at http://localhost:8888
+
+Authors
+=======
+
+Stub-O-Matic is made available by [OpenCredo](http://opencredo.com)
+and a team of contributors.
+
+## License
+
+Stub-O-Matic is offered under GPLv3, see LICENSE for more details.
