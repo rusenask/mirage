@@ -1444,6 +1444,9 @@ class TrackerRecordsHandler(BaseHandler):
                 tracker_objects.append(document)
             except Exception as ex:
                 log.warn('Failed to fetch document: %s' % ex)
+
+        # --- Pagination ---
+
         # skip forward
         skip_forward = skip
         skip_forward += limit
@@ -1453,10 +1456,22 @@ class TrackerRecordsHandler(BaseHandler):
         if skip_backwards < 0:
             skip_backwards = 0
 
+        # previous, removing link if there are no pages
+        if skip != 0:
+            previous_page = "/stubo/api/v2/tracker/records?skip=" + str(skip_backwards) + "&limit=" + str(limit)
+        else:
+            previous_page = None
+
+        # next page, removing link if there are no records ahead
+        if skip_forward + limit >= total_items:
+            next_page = None
+        else:
+            next_page = "/stubo/api/v2/tracker/records?skip=" + str(skip_forward) + "&limit=" + str(limit)
+
         result = {'data': tracker_objects,
                   'paging': {
-                      'previous': "/stubo/api/v2/tracker/records?skip=" + str(skip_backwards) + "&limit=" + str(limit),
-                      'next': "/stubo/api/v2/tracker/records?skip=" + str(skip_forward) + "&limit=" + str(limit),
+                      'previous': previous_page,
+                      'next': next_page,
                       'first': "/stubo/api/v2/tracker/records?skip=" + str(0) + "&limit=" + str(limit),
                       'last': "/stubo/api/v2/tracker/records?skip=" + str(total_items-limit) + "&limit=" + str(limit),
                       'currentLimit': limit,
