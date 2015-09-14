@@ -1428,6 +1428,7 @@ class TrackerRecordsHandler(BaseHandler):
         # getting total items
         total_items = yield tracker.item_count()
 
+        # TODO: add filtering
         tracker_filter = {}
         cursor = tracker.find_tracker_data(tracker_filter, skip, limit)
 
