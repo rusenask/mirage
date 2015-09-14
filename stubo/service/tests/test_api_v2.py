@@ -907,6 +907,26 @@ class TestRecords(Base):
         self.assertIsNone(json_body['paging']['next'], 'Should be none')
         self.assertIsNone(json_body['paging']['previous'], 'Should be none')
 
+    def test_pagination(self):
+
+        self._insert_items_to_tracker()
+
+        self.http_client.fetch(self.get_url('/stubo/api/v2/tracker/records'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        json_body = json.loads(response.body)
+
+        # checking body dict keys
+        self.assertTrue('data' in json_body)
+        self.assertTrue('paging' in json_body)
+
+        # there should be "next" page since we have 200 records and only 100 is currently being displayed
+        self.assertTrue('next' in json_body['paging'])
+
+        # there shouldn't be previous page
+        self.assertIsNone(json_body['paging']['previous'])
+        self.assertEqual(json_body['paging']['totalItems'], 200)
+
     def _insert_items_to_tracker(self):
         import datetime
         mongo_driver = self.db
