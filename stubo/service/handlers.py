@@ -1439,7 +1439,10 @@ class TrackerRecordsHandler(BaseHandler):
                 # converting datetime object to string
                 document['start_time'] = document['start_time'].strftime('%Y-%m-%d %H:%M:%S')
                 # converting document ID to string
-                document['id'] = str(ObjectId(document['_id']))
+                obj_id = str(ObjectId(document['_id']))
+                document['id'] = obj_id
+                # adding object ref ID
+                document['href'] = "/stubo/api/v2/tracker/records/objects/%s" % obj_id
                 # removing BSON object
                 document.pop('_id')
                 tracker_objects.append(document)
@@ -1480,8 +1483,6 @@ class TrackerRecordsHandler(BaseHandler):
                   }}
 
         self.write(result)
-
-
 
 
 def _get_scenario_full_name(handler, name, host=None):
