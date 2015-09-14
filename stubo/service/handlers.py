@@ -1484,6 +1484,47 @@ class TrackerRecordsHandler(BaseHandler):
 
         self.write(result)
 
+class TrackerRecordDetailsHandler(BaseHandler):
+    """
+    /stubo/api/v2/tracker/records/objects
+    """
+
+    def initialize(self):
+        """
+
+        Initializing database and setting header. Using global tornado settings that are generated
+        during startup to acquire database client
+        """
+        # setting header
+        self.set_header('x-stub-o-matic-version', version)
+        # get motor driver
+        self.db = motor_driver(self.settings)
+
+    def compute_etag(self):
+        return None
+
+    @gen.coroutine
+    def get(self, record_id):
+        tracker = Tracker(self.db)
+
+        # getting tracker obj
+        obj = yield tracker.find_tracker_data_full(record_id)
+        if obj is not None:
+            obj['start_time'] = obj['start_time'].strftime('%Y-%m-%d %H:%M:%S')
+            # converting document ID to string
+            obj_id = str(ObjectId(obj['_id']))
+            obj['id'] = obj_id
+            # removing BSON object
+            obj.pop('_id')
+
+            result = {
+                'data': obj
+            }
+            self.write(result)
+        else:
+            self.set_status(404)
+            self.write("Record with ID: %s not found." % record_id)
+
 
 def _get_scenario_full_name(handler, name, host=None):
     """
