@@ -1486,7 +1486,8 @@ class TrackerRecordsHandler(BaseHandler):
 
 class TrackerRecordDetailsHandler(BaseHandler):
     """
-    /stubo/api/v2/tracker/records/objects
+    /stubo/api/v2/tracker/records/objects/<record_id>
+    Gets tracker record details
     """
 
     def initialize(self):
