@@ -874,3 +874,36 @@ class TestStubOperations(Base):
         response = self.wait()
         return response
 
+
+class TestRecords(Base):
+
+    def test_all_records(self):
+        """
+
+        Tests all tracker records API handler, inserts some testing stubs, checks whether information appears in tracker
+        API call
+        """
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
+                                            '/static/cmds/tests/encoding/text/1.commands'),
+                               self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+
+        self.http_client.fetch(self.get_url('/stubo/api/v2/tracker/records'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        json_body = json.loads(response.body)
+
+        # checking body dict keys
+        self.assertTrue('data' in json_body)
+        self.assertTrue('paging' in json_body)
+
+        # checking whether tracker collection works
+        total_items = json_body['paging']['totalItems']
+        record_list = len(json_body['data'])
+        self.assertEqual(total_items, record_list)
+
+        # checking pagination
+        self.assertIsNone(json_body['paging']['next'], 'Should be none')
+        self.assertIsNone(json_body['paging']['previous'], 'Should be none')
+
