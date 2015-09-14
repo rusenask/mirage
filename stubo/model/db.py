@@ -457,8 +457,17 @@ class Tracker(object):
         return self.db.tracker.find(tracker_filter, projection).sort('start_time',
                                                                      -1).limit(limit).skip(skip)
 
-    def item_count(self):
-        return self.db.tracker.count()
+    def item_count(self, query=None):
+        """
+
+        Total item counter for tracker collection.
+        :param query: query dict, example : { return_code: { $ne: 200 } }
+        :return:
+        """
+        if query is not None:
+            return self.db.tracker.find(query).count()
+        else:
+            return self.db.tracker.count()
 
     def find_tracker_data_full(self, _id):
         return self.db.tracker.find_one({'_id': ObjectId(_id)})
