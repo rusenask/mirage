@@ -1425,6 +1425,8 @@ class TrackerRecordsHandler(BaseHandler):
         limit = int(self.get_argument('limit', 100))
 
         tracker = Tracker(self.db)
+        # getting total items
+        total_items = yield tracker.item_count()
 
         tracker_filter = {}
         cursor = tracker.find_tracker_data(tracker_filter, skip, limit)
@@ -1436,20 +1438,29 @@ class TrackerRecordsHandler(BaseHandler):
                 # converting datetime object to string
                 document['start_time'] = document['start_time'].strftime('%Y-%m-%d %H:%M:%S')
                 # converting document ID to string
-                document['_id'] = str(ObjectId(document['_id']))
+                document['id'] = str(ObjectId(document['_id']))
+                # removing BSON object
+                document.pop('_id')
                 tracker_objects.append(document)
             except Exception as ex:
                 log.warn('Failed to fetch document: %s' % ex)
         # skip forward
-        if limit > skip:
-            skip += limit
-        else:
-            skip += 100
+        skip_forward = skip
+        skip_forward += limit
+
+        # skip backwards
+        skip_backwards = skip - limit
+        if skip_backwards < 0:
+            skip_backwards = 0
 
         result = {'data': tracker_objects,
                   'paging': {
-                      'previous': "/stubo/api/v2/tracker/records?skip=" + str(skip) + "&limit=" + str(limit),
-                      'next': "/stubo/api/v2/tracker/records?skip=" + str(skip) + "&limit=" + str(limit)
+                      'previous': "/stubo/api/v2/tracker/records?skip=" + str(skip_backwards) + "&limit=" + str(limit),
+                      'next': "/stubo/api/v2/tracker/records?skip=" + str(skip_forward) + "&limit=" + str(limit),
+                      'first': "/stubo/api/v2/tracker/records?skip=" + str(0) + "&limit=" + str(limit),
+                      'last': "/stubo/api/v2/tracker/records?skip=" + str(total_items-limit) + "&limit=" + str(limit),
+                      'currentLimit': limit,
+                      'totalItems': total_items
                   }}
 
         self.write(result)
