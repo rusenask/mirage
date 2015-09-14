@@ -347,14 +347,6 @@ class TestSessionOperations(Base):
         # checking whether 10 sessions were affected
         self.assertEqual(len(json.loads(response.body)['data']), 10)
 
-    def test_setting_playback(self):
-        """
-
-        Test playback
-        """
-        # TODO: implement this test after stub creation through API v2 is available
-        pass
-
 
 class TestDelayOperations(Base):
     """
@@ -881,3 +873,4 @@ class TestStubOperations(Base):
                                body=json.dumps(body))
         response = self.wait()
         return response
+
