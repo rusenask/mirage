@@ -907,3 +907,11 @@ class TestRecords(Base):
         self.assertIsNone(json_body['paging']['next'], 'Should be none')
         self.assertIsNone(json_body['paging']['previous'], 'Should be none')
 
+    def _insert_items_to_tracker(self):
+        import datetime
+        mongo_driver = self.db
+        tm = datetime.datetime.now()
+        # inserting some data
+        for i in xrange(200):
+            mongo_driver.tracker.insert({"record": i,
+                                         "start_time": tm})
