@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}External Module Management{% end %}
+
+{% block head %}
+
+<link rel="stylesheet" href="{{static_url('node_modules/griddle-react/build/griddle.css')}}"/>
+
+{% end head %}
+
+{% block body %}
+
+<section class="content-header">
+    <h1>
+        Tracker Collection
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-fw fa-database"></i> Tracker Collection</a></li>
+        <li class="active">All records</li>
+    </ol>
+</section>
+<!-- Main content -->
+<section class="content">
+    <div class="row">
+        <div class="col-md-12">
+
+            <!-- Small boxes (Stat box) -->
+            <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title"> All Records</h3>
+                </div>
+
+                <div class="box-body pad">
+                    <div id="app">
+                        APIv2 for modules not implemented yet
+                        <!--app renders here-->
+                    </div>
+                </div> <!-- end box body -->
+            </div>
+        </div>
+
+
+    </div>
+
+</section>
+
+{% end body %}
+{% block endjs %}
+
+<!--<link href="css/griddle.css" rel="stylesheet" />-->
+<script src="{{static_url('node_modules/underscore/underscore-min.js')}}" type="text/javascript"></script>
+<script src="{{static_url('react/build/react.js')}}" type="text/javascript"></script>
+<script src="{{static_url('react/build/JSXTransformer.js')}}" type="text/javascript"></script>
+<script src="{{static_url('node_modules/griddle-react/build/griddle.js')}}" type="text/javascript"></script>
+
+<!--<script src="{{static_url('node_modules/griddle-callback/modules/griddleWithCallback.jsx.js')}}" type="text/javascript"></script>-->
+
+<script  type="text/jsx">
+
+    var Loading = React.createClass({
+        getDefaultProps: function(){
+            return {
+                loadingText: "Loading"
+            }
+        },
+        render: function(){
+            return <div className="loading">{this.props.loadingText}</div>;
+        }
+    });
+
+    var RecordsComponent = React.createClass({
+        getInitialState: function(){
+            var initial = {
+                "currentPage": 0,
+                "isLoading": false,
+                "maxPages": 0,
+                "externalResultsPerPage": 100,
+                "externalSortColumn":null,
+                "externalSortAscending":true,
+                "results": []
+            };
+
+            return initial;
+        },
+        componentWillMount: function(){
+        },
+        componentDidMount: function(){
+            this.getExternalData();
+        },
+        getExternalData: function(page){
+            var that = this;
+            page = page||1;
+
+            this.setState({
+                isLoading: true
+            });
+
+            var skip = (page - 1) * 100;
+
+            if (skip > 0) {
+                var query = '?skip=' + skip
+            } else {
+                var query = '?skip=0'
+            }
+
+            var href = '/stubo/api/v2/tracker/records' + query + '&limit=100';
+
+            $.get(href, function (data) {
+
+                console.log('getting tracker collection');
+                console.log(data);
+
+                that.setState({
+                    results: data.data,
+                    currentPage: page-1,
+                    maxPages: Math.round(data.paging.totalItems/100),
+                    isLoading: false
+                });
+
+            });
+
+        },
+        setPage: function(index){
+            //This should interact with the data source to get the page at the given index
+            index = index > this.state.maxPages ? this.state.maxPages : index < 1 ? 1 : index + 1;
+            this.getExternalData(index);
+        },
+        setPageSize: function(size){
+        },
+        render: function(){
+            //columns={["name", "city", "state", "country"]}
+            return <Griddle useExternal={true} externalSetPage={this.setPage} enableSort={false} columns={["start_time", "function", "scenario", "return_code", "duration_ms"]}
+                            externalSetPageSize={this.setPageSize} externalMaxPage={this.state.maxPages}
+                            externalChangeSort={function(){}} externalSetFilter={function(){}}
+                            externalCurrentPage={this.state.currentPage} results={this.state.results} tableClassName="table" resultsPerPage={this.state.externalResultsPerPage}
+                            externalSortColumn={this.state.externalSortColumn} externalSortAscending={this.state.externalSortAscending} externalLoadingComponent={Loading} externalIsLoading={this.state.isLoading}/>
+        }
+    });
+
+
+    React.render(<RecordsComponent />, document.getElementById("app"));
+
+</script>
+{% end endjs %}
