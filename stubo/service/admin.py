@@ -13,7 +13,7 @@ from stubo import version
 
 log = logging.getLogger(__name__)
 
-
+# TODO: remove this function when handlers_mt.tracker_request is removed
 def get_tracks(handler, scenario_filter, session_filter, show_only_errors, skip,
                limit, start_time, latency, all_hosts, function):
     tracker = Tracker()

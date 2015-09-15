@@ -56,7 +56,9 @@ rest_api = [
     ("/stubo/api/v2/delay-policy", "CreateDelayPolicyHandler"),
     ("/stubo/api/v2/delay-policy/detail", "GetAllDelayPoliciesHandler"),
     ("/stubo/api/v2/delay-policy/objects/(?P<delay_policy_name>[^\/]+)", "GetDelayPolicyDetailsHandler"),
-
+    # tracker records
+    ("/stubo/api/v2/tracker/records", "TrackerRecordsHandler"),
+    ("/stubo/api/v2/tracker/records/objects/(?P<record_id>[^\/]+)", "TrackerRecordDetailsHandler"),
 ]
 
 # UI pages

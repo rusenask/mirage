@@ -507,6 +507,8 @@ class PlopProfileHandler(RequestHandler):
 import json
 from stubo.utils import get_hostname
 from pymongo.errors import DuplicateKeyError
+from stubo.model.db import Tracker
+from bson import ObjectId
 import pymongo
 from stubo.model.db import Scenario
 from stubo.model.db import motor_driver
@@ -1396,6 +1398,133 @@ class StubHandler(TrackRequest):
         log.debug('Found session: {0}, for route: {1}'.format(session_name,
                                                               request.path))
         return get_response(self, session_name)
+
+class TrackerRecordsHandler(BaseHandler):
+    """
+    /stubo/api/v2/tracker/records
+    """
+
+    def initialize(self):
+        """
+
+        Initializing database and setting header. Using global tornado settings that are generated
+        during startup to acquire database client
+        """
+        # setting header
+        self.set_header('x-stub-o-matic-version', version)
+        # get motor driver
+        self.db = motor_driver(self.settings)
+
+    def compute_etag(self):
+        return None
+
+    @gen.coroutine
+    def get(self):
+        # getting pagination info
+        skip = int(self.get_argument('skip', 0))
+        limit = int(self.get_argument('limit', 100))
+
+        tracker = Tracker(self.db)
+        # getting total items
+        total_items = yield tracker.item_count()
+
+        # TODO: add filtering
+        tracker_filter = {}
+        cursor = tracker.find_tracker_data(tracker_filter, skip, limit)
+
+        tracker_objects = []
+        while (yield cursor.fetch_next):
+            try:
+                document = cursor.next_object()
+                # converting datetime object to string
+                document['start_time'] = document['start_time'].strftime('%Y-%m-%d %H:%M:%S')
+                # converting document ID to string
+                obj_id = str(ObjectId(document['_id']))
+                document['id'] = obj_id
+                # adding object ref ID
+                document['href'] = "/stubo/api/v2/tracker/records/objects/%s" % obj_id
+                # removing BSON object
+                document.pop('_id')
+                tracker_objects.append(document)
+            except Exception as ex:
+                log.warn('Failed to fetch document: %s' % ex)
+
+        # --- Pagination ---
+
+        # skip forward
+        skip_forward = skip
+        skip_forward += limit
+
+        # skip backwards
+        skip_backwards = skip - limit
+        if skip_backwards < 0:
+            skip_backwards = 0
+
+        # previous, removing link if there are no pages
+        if skip != 0:
+            previous_page = "/stubo/api/v2/tracker/records?skip=" + str(skip_backwards) + "&limit=" + str(limit)
+        else:
+            previous_page = None
+
+        # next page, removing link if there are no records ahead
+        if skip_forward + limit >= total_items:
+            next_page = None
+        else:
+            next_page = "/stubo/api/v2/tracker/records?skip=" + str(skip_forward) + "&limit=" + str(limit)
+
+        result = {'data': tracker_objects,
+                  'paging': {
+                      'previous': previous_page,
+                      'next': next_page,
+                      'first': "/stubo/api/v2/tracker/records?skip=" + str(0) + "&limit=" + str(limit),
+                      'last': "/stubo/api/v2/tracker/records?skip=" + str(total_items-limit) + "&limit=" + str(limit),
+                      'currentLimit': limit,
+                      'totalItems': total_items
+                  }}
+
+        self.write(result)
+
+class TrackerRecordDetailsHandler(BaseHandler):
+    """
+    /stubo/api/v2/tracker/records/objects/<record_id>
+    Gets tracker record details
+    """
+
+    def initialize(self):
+        """
+
+        Initializing database and setting header. Using global tornado settings that are generated
+        during startup to acquire database client
+        """
+        # setting header
+        self.set_header('x-stub-o-matic-version', version)
+        # get motor driver
+        self.db = motor_driver(self.settings)
+
+    def compute_etag(self):
+        return None
+
+    @gen.coroutine
+    def get(self, record_id):
+        tracker = Tracker(self.db)
+
+        # getting tracker obj
+        obj = yield tracker.find_tracker_data_full(record_id)
+        if obj is not None:
+            obj['start_time'] = obj['start_time'].strftime('%Y-%m-%d %H:%M:%S')
+            # converting document ID to string
+            obj_id = str(ObjectId(obj['_id']))
+            obj['id'] = obj_id
+            # removing BSON object
+            obj.pop('_id')
+
+            result = {
+                'data': obj
+            }
+            self.write(result)
+        else:
+            self.set_status(404)
+            self.write("Record with ID: %s not found." % record_id)
 
 
 def _get_scenario_full_name(handler, name, host=None):
