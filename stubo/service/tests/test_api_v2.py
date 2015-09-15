@@ -952,6 +952,27 @@ class TestRecords(Base):
         self.assertIsNone(json_body['paging']['next'])
         self.assertEqual(json_body['paging']['totalItems'], 200)
 
+    def test_last_page(self):
+        """
+
+        Testing last page
+        """
+        self._insert_items_to_tracker(500)
+
+        self.http_client.fetch(self.get_url('/stubo/api/v2/tracker/records'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        json_body = json.loads(response.body)
+
+        # checking body dict keys
+        self.assertTrue('data' in json_body)
+        self.assertTrue('paging' in json_body)
+        self.assertTrue('last' in json_body['paging'])
+
+        last_page = json_body['paging']['last']
+        # in the last page we should be skipping 400 items and limiting results to 100
+        self.assertTrue('skip=400' in last_page)
+        self.assertTrue('limit=100' in last_page)
         mongo_driver = self.db
         tm = datetime.datetime.now()
         # inserting some data
