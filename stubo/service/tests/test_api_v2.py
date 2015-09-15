@@ -7,6 +7,7 @@
 import json
 from stubo.testing import Base
 import logging
+import datetime
 
 log = logging.getLogger(__name__)
 
@@ -346,14 +347,6 @@ class TestSessionOperations(Base):
         self.assertEqual(response.code, 200, response.reason)
         # checking whether 10 sessions were affected
         self.assertEqual(len(json.loads(response.body)['data']), 10)
-
-    def test_setting_playback(self):
-        """
-
-        Test playback
-        """
-        # TODO: implement this test after stub creation through API v2 is available
-        pass
 
 
 class TestDelayOperations(Base):
@@ -881,3 +874,114 @@ class TestStubOperations(Base):
                                body=json.dumps(body))
         response = self.wait()
         return response
+
+
+class TestRecords(Base):
+
+    def test_all_records(self):
+        """
+
+        Tests all tracker records API handler, inserts some testing stubs, checks whether information appears in tracker
+        API call
+        """
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
+                                            '/static/cmds/tests/encoding/text/1.commands'),
+                               self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+
+        self.http_client.fetch(self.get_url('/stubo/api/v2/tracker/records'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        json_body = json.loads(response.body)
+
+        # checking body dict keys
+        self.assertTrue('data' in json_body)
+        self.assertTrue('paging' in json_body)
+
+        # checking whether tracker collection works
+        total_items = json_body['paging']['totalItems']
+        record_list = len(json_body['data'])
+        self.assertEqual(total_items, record_list)
+
+        # checking pagination
+        self.assertIsNone(json_body['paging']['next'], 'Should be none')
+        self.assertIsNone(json_body['paging']['previous'], 'Should be none')
+
+    def test_pagination(self):
+        """
+
+        testing forward pagination
+        """
+        self._insert_items_to_tracker()
+
+        self.http_client.fetch(self.get_url('/stubo/api/v2/tracker/records'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        json_body = json.loads(response.body)
+
+        # checking body dict keys
+        self.assertTrue('data' in json_body)
+        self.assertTrue('paging' in json_body)
+
+        # there should be "next" page since we have 200 records and only 100 is currently being displayed
+        self.assertTrue('next' in json_body['paging'])
+
+        # there shouldn't be previous page
+        self.assertIsNone(json_body['paging']['previous'])
+        self.assertEqual(json_body['paging']['totalItems'], 200)
+
+    def test_pagination_backwards(self):
+        """
+
+        testing backwards pagination
+        """
+        self._insert_items_to_tracker()
+
+        self.http_client.fetch(self.get_url('/stubo/api/v2/tracker/records?skip=100&limit=100'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        json_body = json.loads(response.body)
+
+        # checking body dict keys
+        self.assertTrue('data' in json_body)
+        self.assertTrue('paging' in json_body)
+
+        # there should be "previous" page since we have 200 records and we are skipping 100
+        self.assertTrue('previous' in json_body['paging'])
+
+        # there shouldn't be next page
+        self.assertIsNone(json_body['paging']['next'])
+        self.assertEqual(json_body['paging']['totalItems'], 200)
+
+    def test_last_page(self):
+        """
+
+        Testing last page
+        """
+        self._insert_items_to_tracker(500)
+
+        self.http_client.fetch(self.get_url('/stubo/api/v2/tracker/records'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        json_body = json.loads(response.body)
+
+        # checking body dict keys
+        self.assertTrue('data' in json_body)
+        self.assertTrue('paging' in json_body)
+        self.assertTrue('last' in json_body['paging'])
+
+        last_page = json_body['paging']['last']
+        # in the last page we should be skipping 400 items and limiting results to 100
+        self.assertTrue('skip=400' in last_page)
+        self.assertTrue('limit=100' in last_page)
+
+    def _insert_items_to_tracker(self, items=200):
+        mongo_driver = self.db
+        tm = datetime.datetime.now()
+        # inserting some data
+        for i in xrange(items):
+            mongo_driver.tracker.insert({"record": i,
+                                         "start_time": tm})
+
+
