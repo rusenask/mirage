@@ -530,6 +530,15 @@ class ManageModulesHandler(RequestHandler):
         self.render('manageModules.html')
 
 """
+Tracker Handlers
+"""
+
+class TrackerHandler(RequestHandler):
+
+    def get(self):
+        self.render('trackerRecords.html')
+
+"""
 -------------------------------------------------------------------
 ------------------ below are handlers for API v2 ------------------
 -------------------------------------------------------------------
