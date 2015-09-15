@@ -7,6 +7,7 @@
 import json
 from stubo.testing import Base
 import logging
+import datetime
 
 log = logging.getLogger(__name__)
 
@@ -908,7 +909,10 @@ class TestRecords(Base):
         self.assertIsNone(json_body['paging']['previous'], 'Should be none')
 
     def test_pagination(self):
+        """
 
+        testing forward pagination
+        """
         self._insert_items_to_tracker()
 
         self.http_client.fetch(self.get_url('/stubo/api/v2/tracker/records'), self.stop)
@@ -927,8 +931,6 @@ class TestRecords(Base):
         self.assertIsNone(json_body['paging']['previous'])
         self.assertEqual(json_body['paging']['totalItems'], 200)
 
-    def _insert_items_to_tracker(self):
-        import datetime
     def test_pagination_backwards(self):
         """
 
@@ -973,9 +975,13 @@ class TestRecords(Base):
         # in the last page we should be skipping 400 items and limiting results to 100
         self.assertTrue('skip=400' in last_page)
         self.assertTrue('limit=100' in last_page)
+
+    def _insert_items_to_tracker(self, items=200):
         mongo_driver = self.db
         tm = datetime.datetime.now()
         # inserting some data
-        for i in xrange(200):
+        for i in xrange(items):
             mongo_driver.tracker.insert({"record": i,
                                          "start_time": tm})
+
+
