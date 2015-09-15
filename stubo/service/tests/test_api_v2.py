@@ -929,6 +929,29 @@ class TestRecords(Base):
 
     def _insert_items_to_tracker(self):
         import datetime
+    def test_pagination_backwards(self):
+        """
+
+        testing backwards pagination
+        """
+        self._insert_items_to_tracker()
+
+        self.http_client.fetch(self.get_url('/stubo/api/v2/tracker/records?skip=100&limit=100'), self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        json_body = json.loads(response.body)
+
+        # checking body dict keys
+        self.assertTrue('data' in json_body)
+        self.assertTrue('paging' in json_body)
+
+        # there should be "previous" page since we have 200 records and we are skipping 100
+        self.assertTrue('previous' in json_body['paging'])
+
+        # there shouldn't be next page
+        self.assertIsNone(json_body['paging']['next'])
+        self.assertEqual(json_body['paging']['totalItems'], 200)
+
         mongo_driver = self.db
         tm = datetime.datetime.now()
         # inserting some data
