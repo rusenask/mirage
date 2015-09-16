@@ -1475,12 +1475,24 @@ class TrackerRecordsHandler(BaseHandler):
         skip = int(self.get_argument('skip', 0))
         limit = int(self.get_argument('limit', 100))
 
+        query = self.get_argument('q', None)
+
         tracker = Tracker(self.db)
-        # getting total items
-        total_items = yield tracker.item_count()
 
         # TODO: add filtering
-        tracker_filter = {}
+        if query:
+            tracker_filter = {'$or': [
+                {'scenario': {'$regex': query, '$options': 'i'}},
+                {'function': {'$regex': query, '$options': 'i'}}
+                ]
+
+            }
+        else:
+            tracker_filter = {}
+
+        # getting total items
+        total_items = yield tracker.item_count(tracker_filter)
+
         cursor = tracker.find_tracker_data(tracker_filter, skip, limit)
 
         tracker_objects = []
