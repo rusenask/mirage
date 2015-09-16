@@ -562,6 +562,7 @@ from stubo.service.api import end_session, end_sessions, delete_delay_policy, pu
 from stubo.utils.track import BaseHandler
 from stubo.utils import asbool
 
+
 NOT_ALLOWED_MSG = 'Method not allowed'
 
 
@@ -1556,6 +1557,109 @@ class TrackerRecordsHandler(BaseHandler):
                   }}
 
         self.write(result)
+
+from tornado import websocket
+
+class TrackerWebSocket(websocket.WebSocketHandler):
+
+    def open(self):
+        print("WebSocket opened")
+
+    @gen.coroutine
+    def on_message(self, query_json):
+        query_dict = json.loads(query_json)
+        self.db = motor_driver(self.settings)
+        # getting pagination info
+        skip = query_dict.get('skip', 0)
+        limit = query_dict.get('limit', 25)
+        query = query_dict.get('q', None)
+
+        # query = self.get_argument('q', None)
+
+        all_hosts = asbool(self.get_argument("all-hosts", True))
+
+        # getting scenarios for the current host
+        if not all_hosts:
+            current_host = get_hostname(self.request)
+            hostname = current_host
+        else:
+            # getting all scenarios
+            hostname = '.*'
+
+        tracker = Tracker(self.db)
+
+        # TODO: add filtering
+        if query:
+            tracker_filter = {'$and': [{'host': {'$regex': hostname}},
+                                       {'$or': [
+                                           {'scenario': {'$regex': query, '$options': 'i'}},
+                                           {'function': {'$regex': query, '$options': 'i'}}
+                                       ]
+                                       }]}
+        else:
+            tracker_filter = {}
+
+        # getting total items
+        total_items = yield tracker.item_count(tracker_filter)
+
+        cursor = tracker.find_tracker_data(tracker_filter, skip, limit)
+
+        tracker_objects = []
+        while (yield cursor.fetch_next):
+            try:
+                document = cursor.next_object()
+                # converting datetime object to string
+                document['start_time'] = document['start_time'].strftime('%Y-%m-%d %H:%M:%S')
+                # converting document ID to string
+                obj_id = str(ObjectId(document['_id']))
+                document['id'] = obj_id
+                # adding object ref ID
+                document['href'] = "/stubo/api/v2/tracker/records/objects/%s" % obj_id
+                # removing BSON object
+                document.pop('_id')
+                tracker_objects.append(document)
+            except Exception as ex:
+                log.warn('Failed to fetch document: %s' % ex)
+
+        # --- Pagination ---
+
+        # skip forward
+        skip_forward = skip
+        skip_forward += limit
+
+        # skip backwards
+        skip_backwards = skip - limit
+        if skip_backwards < 0:
+            skip_backwards = 0
+
+        # previous, removing link if there are no pages
+        if skip != 0:
+            previous_page = "/stubo/api/v2/tracker/records?skip=" + str(skip_backwards) + "&limit=" + str(limit)
+        else:
+            previous_page = None
+
+        # next page, removing link if there are no records ahead
+        if skip_forward + limit >= total_items:
+            next_page = None
+        else:
+            next_page = "/stubo/api/v2/tracker/records?skip=" + str(skip_forward) + "&limit=" + str(limit)
+
+        result = {'data': tracker_objects,
+                  'paging': {
+                      'previous': previous_page,
+                      'next': next_page,
+                      'first': "/stubo/api/v2/tracker/records?skip=" + str(0) + "&limit=" + str(limit),
+                      'last': "/stubo/api/v2/tracker/records?skip=" + str(total_items-limit) + "&limit=" + str(limit),
+                      'currentLimit': limit,
+                      'totalItems': total_items
+                  }}
+
+        #self.write(result)
+        self.write_message(result)
+
+    def on_close(self):
+        print("WebSocket closed")
+
 
 class TrackerRecordDetailsHandler(BaseHandler):
     """
