@@ -53,9 +53,16 @@
 <script src="{{static_url('react/build/JSXTransformer.js')}}" type="text/javascript"></script>
 <script src="{{static_url('node_modules/griddle-react/build/griddle.js')}}" type="text/javascript"></script>
 
+<!--react bootstrap-->
+<script src="{{static_url('react/build/react-bootstrap.js')}}" type="text/javascript"></script>
+
 <!--<script src="{{static_url('node_modules/griddle-callback/modules/griddleWithCallback.jsx.js')}}" type="text/javascript"></script>-->
 
 <script  type="text/jsx">
+
+    var Tooltip = ReactBootstrap.Tooltip;
+    var OverlayTrigger = ReactBootstrap.OverlayTrigger;
+    var Button = ReactBootstrap.Button;
 
     // currently not used, need more testing, but it should be fast enough so loading message is not required
     var Loading = React.createClass({
