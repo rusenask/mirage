@@ -1477,16 +1477,26 @@ class TrackerRecordsHandler(BaseHandler):
 
         query = self.get_argument('q', None)
 
+        all_hosts = asbool(self.get_argument("all-hosts", True))
+
+        # getting scenarios for the current host
+        if not all_hosts:
+            current_host = get_hostname(self.request)
+            hostname = current_host
+        else:
+            # getting all scenarios
+            hostname = '.*'
+
         tracker = Tracker(self.db)
 
         # TODO: add filtering
         if query:
-            tracker_filter = {'$or': [
+            tracker_filter = {'$and': [{'host': {'$regex': hostname}},
+                {'$or': [
                 {'scenario': {'$regex': query, '$options': 'i'}},
                 {'function': {'$regex': query, '$options': 'i'}}
                 ]
-
-            }
+            }]}
         else:
             tracker_filter = {}
 
