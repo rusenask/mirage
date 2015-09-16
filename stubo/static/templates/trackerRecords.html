@@ -226,10 +226,26 @@
                             enableSort={false}
                             columns={["start_time", "function", "scenario", "return_code", "duration_ms"]}
                             columnMetadata={columnMeta}
-                            externalSetPageSize={this.setPageSize} externalMaxPage={this.state.maxPages}
-                            externalChangeSort={function(){}} externalSetFilter={function(){}}
-                            externalCurrentPage={this.state.currentPage} results={this.state.results} tableClassName="table" resultsPerPage={this.state.externalResultsPerPage}
-                            externalSortColumn={this.state.externalSortColumn} externalSortAscending={this.state.externalSortAscending} externalLoadingComponent={Loading} externalIsLoading={this.state.isLoading}/>
+
+                            externalSetPageSize={this.setPageSize}
+                            externalMaxPage={this.state.maxPages}
+                            externalChangeSort={function(){}}
+
+                            externalSetFilter={this.setFilter}
+                            showFilter={true}
+
+                            externalCurrentPage={this.state.currentPage}
+
+                            results={this.state.results}
+                            tableClassName="table"
+
+                            resultsPerPage={this.state.externalResultsPerPage}
+
+                            externalSortColumn={this.state.externalSortColumn}
+                            externalSortAscending={this.state.externalSortAscending}
+
+                            externalLoadingComponent={Loading}
+                            externalIsLoading={this.state.isLoading}/>
         }
     });
 
