@@ -76,6 +76,48 @@
         }
     });
 
+    var StatusLabelComponent = React.createClass({
+        displayName: "StatusLabelComponent",
+
+        getInitialState: function () {
+            return {
+                labelClass: 'label label-default'
+            };
+        },
+
+        componentDidMount: function () {
+
+        },
+
+        render: function () {
+
+            var code = this.props.rowData.return_code;
+
+            if (code >= 500) {
+                this.state.labelClass = 'label label-danger';
+            } else if (code >= 400) {
+                this.state.labelClass = 'label label-warning';
+            } else if (code >= 300){
+                this.state.labelClass = 'label label-primary';
+            } else {
+                this.state.labelClass = 'label label-success'
+            }
+
+            var StatusCodeTooltip = (
+                    <Tooltip>Stubo response to client was {this.props.rowData.return_code}. Check out documentation for more
+                        information.</Tooltip>
+            );
+
+            {
+                // children status code label
+                return (<OverlayTrigger placement='left' overlay={StatusCodeTooltip}>
+                    <span className={this.state.labelClass}> {this.props.rowData.return_code}</span>
+                </OverlayTrigger>)
+            }
+
+
+        }
+    });
     var RecordsComponent = React.createClass({
         getInitialState: function(){
             var initial = {
