@@ -57,6 +57,7 @@
 
 <script  type="text/jsx">
 
+    // currently not used, need more testing, but it should be fast enough so loading message is not required
     var Loading = React.createClass({
         getDefaultProps: function(){
             return {
@@ -74,7 +75,7 @@
                 "currentPage": 0,
                 "isLoading": false,
                 "maxPages": 0,
-                "externalResultsPerPage": 100,
+                "externalResultsPerPage": 25,
                 "externalSortColumn":null,
                 "externalSortAscending":true,
                 "results": []
@@ -91,11 +92,12 @@
             var that = this;
             page = page||1;
 
-            this.setState({
-                isLoading: true
-            });
+            // show loading state
+//            this.setState({
+//                isLoading: true
+//            });
 
-            var skip = (page - 1) * 100;
+            var skip = (page - 1) * 25;
 
             if (skip > 0) {
                 var query = '?skip=' + skip
@@ -103,7 +105,7 @@
                 var query = '?skip=0'
             }
 
-            var href = '/stubo/api/v2/tracker/records' + query + '&limit=100';
+            var href = '/stubo/api/v2/tracker/records' + query + '&limit=25';
 
             $.get(href, function (data) {
 
@@ -113,7 +115,7 @@
                 that.setState({
                     results: data.data,
                     currentPage: page-1,
-                    maxPages: Math.round(data.paging.totalItems/100),
+                    maxPages: Math.round(data.paging.totalItems/25),
                     isLoading: false
                 });
 
