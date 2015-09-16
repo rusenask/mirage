@@ -221,7 +221,11 @@
         },
         render: function(){
             //columns={["name", "city", "state", "country"]}
-            return <Griddle useExternal={true} externalSetPage={this.setPage} enableSort={false} columns={["start_time", "function", "scenario", "return_code", "duration_ms"]}
+            return <Griddle useExternal={true}
+                            externalSetPage={this.setPage}
+                            enableSort={false}
+                            columns={["start_time", "function", "scenario", "return_code", "duration_ms"]}
+                            columnMetadata={columnMeta}
                             externalSetPageSize={this.setPageSize} externalMaxPage={this.state.maxPages}
                             externalChangeSort={function(){}} externalSetFilter={function(){}}
                             externalCurrentPage={this.state.currentPage} results={this.state.results} tableClassName="table" resultsPerPage={this.state.externalResultsPerPage}
