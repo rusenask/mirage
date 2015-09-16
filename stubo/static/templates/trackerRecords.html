@@ -118,6 +118,47 @@
 
         }
     });
+
+    var columnMeta = [
+        {
+            "columnName": "start_time",
+            "displayName": "Time",
+            "order": 1,
+            "locked": false,
+            "visible": true
+        },
+        {
+            "columnName": "function",
+            "displayName": "API call",
+            "order": 2,
+            "locked": false,
+            "visible": true
+        },
+        {
+            "columnName": "scenario",
+            "displayName": "Scenario",
+            "order": 3,
+            "locked": false,
+            "visible": true
+        },
+        {
+            "columnName": "return_code",
+            "displayName": "HTTP status code",
+            "order": 4,
+            "locked": false,
+            "visible": true,
+            "customComponent": StatusLabelComponent
+        },
+        {
+            "columnName": "duration_ms",
+            "displayName": "Response time (ms)",
+            "order": 5,
+            "locked": false,
+            "visible": true
+        }
+
+    ];
+
     var RecordsComponent = React.createClass({
         getInitialState: function(){
             var initial = {
