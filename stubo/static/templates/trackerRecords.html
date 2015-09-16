@@ -219,6 +219,25 @@
         },
         setPageSize: function(size){
         },
+
+        setFilter: function(filter){
+            var that = this;
+            console.log(filter);
+
+            var href = '/stubo/api/v2/tracker/records?skip=0&limit=25' + '&q=' + filter;
+
+            $.get(href, function (data) {
+                that.setState({
+                    results: data.data,
+                    currentPage: 1,
+                    maxPages: Math.round(data.paging.totalItems/25),
+                    isLoading: false,
+                    currentQuery: filter
+                });
+
+            });
+        },
+
         render: function(){
             //columns={["name", "city", "state", "country"]}
             return <Griddle useExternal={true}
