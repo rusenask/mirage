@@ -59,6 +59,8 @@ rest_api = [
     # tracker records
     ("/stubo/api/v2/tracker/records", "TrackerRecordsHandler"),
     ("/stubo/api/v2/tracker/records/objects/(?P<record_id>[^\/]+)", "TrackerRecordDetailsHandler"),
+    # websocket tracker api
+    ("/stubo/api/ws/tracker", "TrackerWebSocket")
 ]
 
 # UI pages
@@ -81,6 +83,7 @@ ui_pages = [
 
     # tracker
     ("/tracker", "TrackerHandler"),
+
 
 ]
 
