@@ -168,7 +168,8 @@
                 "externalResultsPerPage": 25,
                 "externalSortColumn":null,
                 "externalSortAscending":true,
-                "results": []
+                "results": [],
+                "currentQuery": ""
             };
 
             return initial;
@@ -195,7 +196,7 @@
                 var query = '?skip=0'
             }
 
-            var href = '/stubo/api/v2/tracker/records' + query + '&limit=25';
+            var href = '/stubo/api/v2/tracker/records' + query + '&limit=25' + '&q=' + this.state.currentQuery;
 
             $.get(href, function (data) {
 
