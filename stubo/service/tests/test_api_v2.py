@@ -1125,3 +1125,19 @@ class MagicFilterTest(unittest.TestCase):
             tracker_filter = mf.get_filter()
             self.assertTrue({'return_code': {mongo_operator: 50}} in tracker_filter['$and'], tracker_filter)
 
+    def test_status_code_wo_code(self):
+        """
+
+        'sc:' should not be treated as status code search since there is no status code. Use it as keyword search
+        instead
+        """
+        query = 'sc:'
+        mf = MagicFiltering(query, 'localhost')
+
+        tracker_filter = mf.get_filter()
+        self.assertTrue({'host': {'$regex': 'localhost'}} in tracker_filter['$and'])
+        self.assertFalse({'return_code': ''} in tracker_filter['$and'])
+
+        self.assertTrue({'$or': [
+            {'scenario': {'$options': 'i', '$regex': 'sc:'}},
+            {'function': {'$options': 'i', '$regex': 'sc:'}}]} in tracker_filter['$and'])
