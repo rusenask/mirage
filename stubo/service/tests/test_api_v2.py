@@ -985,3 +985,18 @@ class TestRecords(Base):
                                          "start_time": tm})
 
 
+import unittest
+from stubo.service.api_v2 import MagicFiltering
+
+class MagicFilterTest(unittest.TestCase):
+
+    def test_keyword_only(self):
+        query = 'scenario1'
+        mf = MagicFiltering(query, 'localhost')
+
+        tracker_filter = mf.get_filter()
+        self.assertTrue({'host': {'$regex': 'localhost'}} in tracker_filter['$and'])
+        self.assertTrue({'$or': [
+            {'scenario': {'$options': 'i', '$regex': 'scenario1'}},
+            {'function': {'$options': 'i', '$regex': 'scenario1'}}]} in tracker_filter['$and'])
+
