@@ -119,6 +119,39 @@
         }
     });
 
+    var DetailsButton = React.createClass({
+        displayName: "DetailsButton",
+        render: function () {
+            const tooltip = (
+                    <Tooltip>Show details for this tracker record.</Tooltip>
+            );
+
+            var url = this.props.data
+            return (
+                    <OverlayTrigger placement='left' overlay={tooltip}>
+                        <a href={url} className="btn btn-xs btn-info">
+                            <span
+                                    className="glyphicon glyphicon-cloud-download"> </span> Details
+                        </a>
+                    </OverlayTrigger>
+            );
+        }
+    });
+
+    var ActionComponent = React.createClass({
+        displayName: "ActionComponent",
+
+        render: function () {
+
+
+            // rendering action buttons
+            return (<div className="btn-group">
+                        <DetailsButton data={this.props.rowData.href}/>
+                    </div>
+            )
+        }
+    });
+
     var columnMeta = [
         {
             "columnName": "start_time",
@@ -155,6 +188,14 @@
             "order": 5,
             "locked": false,
             "visible": true
+        },
+        {
+            "columnName": "actions",
+            "displayName": "Actions",
+            "order": 6,
+            "locked": false,
+            "visible": true,
+            "customComponent": ActionComponent
         }
 
     ];
@@ -283,11 +324,10 @@
         },
 
         render: function(){
-            //columns={["name", "city", "state", "country"]}
             return <Griddle useExternal={true}
                             externalSetPage={this.setPage}
                             enableSort={false}
-                            columns={["start_time", "function", "scenario", "return_code", "duration_ms"]}
+                            columns={["start_time", "function", "scenario", "return_code", "duration_ms", "actions"]}
                             columnMetadata={columnMeta}
 
                             externalSetPageSize={this.setPageSize}
