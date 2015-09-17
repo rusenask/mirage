@@ -1559,6 +1559,7 @@ class TrackerRecordsHandler(BaseHandler):
         self.write(result)
 
 from tornado import websocket
+from stubo.service.api_v2 import MagicFiltering
 
 class TrackerWebSocket(websocket.WebSocketHandler):
 
@@ -1574,8 +1575,6 @@ class TrackerWebSocket(websocket.WebSocketHandler):
         limit = query_dict.get('limit', 25)
         query = query_dict.get('q', None)
 
-        # query = self.get_argument('q', None)
-
         all_hosts = asbool(self.get_argument("all-hosts", True))
 
         # getting scenarios for the current host
@@ -1589,15 +1588,8 @@ class TrackerWebSocket(websocket.WebSocketHandler):
         tracker = Tracker(self.db)
 
         # TODO: add filtering
-        if query:
-            tracker_filter = {'$and': [{'host': {'$regex': hostname}},
-                                       {'$or': [
-                                           {'scenario': {'$regex': query, '$options': 'i'}},
-                                           {'function': {'$regex': query, '$options': 'i'}}
-                                       ]
-                                       }]}
-        else:
-            tracker_filter = {}
+        mf = MagicFiltering(query=query, hostname=hostname)
+        tracker_filter = mf.get_filter()
 
         # getting total items
         total_items = yield tracker.item_count(tracker_filter)
