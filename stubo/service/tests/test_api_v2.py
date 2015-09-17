@@ -1023,3 +1023,16 @@ class MagicFilterTest(unittest.TestCase):
         tracker_filter = mf.get_filter()
         self.assertTrue({'host': {'$regex': 'localhost'}} in tracker_filter['$and'])
         self.assertTrue({'duration_ms': 10} in tracker_filter['$and'])
+
+    def test_multiple_response_times(self):
+        """
+
+        Test range for response times
+        """
+        query = 'rt:>10 rt:<15'
+        mf = MagicFiltering(query, 'localhost')
+
+        tracker_filter = mf.get_filter()
+        self.assertTrue({'host': {'$regex': 'localhost'}} in tracker_filter['$and'], tracker_filter)
+        self.assertTrue({'duration_ms': {'$gt': 10}} in tracker_filter['$and'], tracker_filter)
+        self.assertTrue({'duration_ms': {'$lt': 15}} in tracker_filter['$and'], tracker_filter)
