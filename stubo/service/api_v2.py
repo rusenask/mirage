@@ -297,7 +297,6 @@ class MagicFiltering:
         :param item:
         """
         if 'sc:' in item and len(item) > 3:
-            print(len(item))
             # looking for status codes in requests
             self._find_status_code_conditions(item)
         elif 'rt:' in item and len(item) > 3:
@@ -318,7 +317,6 @@ class MagicFiltering:
             value = self._get_item_query_value(code)
             self.conditions.append({'return_code': value})
         except Exception as ex:
-            print(ex)
             log.debug("Got error during status code search: %s" % ex)
 
     def _find_response_time_conditions(self, response_time):
@@ -332,7 +330,6 @@ class MagicFiltering:
             # searching for <, <=, >, >= operators
             value = self._get_item_query_value(tm)
             self.conditions.append({'duration_ms': value})
-
         except Exception as ex:
             log.debug("Got error during status code search: %s" % ex)
 

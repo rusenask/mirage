@@ -546,6 +546,7 @@ class TrackerHandler(RequestHandler):
 """
 import json
 from stubo.utils import get_hostname
+from tornado import websocket
 from pymongo.errors import DuplicateKeyError
 from stubo.model.db import Tracker
 from bson import ObjectId
@@ -557,6 +558,7 @@ from stubo.cache import Cache
 from stubo.service.api_v2 import begin_session as api_v2_begin_session
 from stubo.service.api_v2 import update_delay_policy as api_v2_update_delay_policy
 from stubo.service.api_v2 import get_delay_policy as api_v2_get_delay_policy
+from stubo.service.api_v2 import MagicFiltering
 
 from stubo.service.api import end_session, end_sessions, delete_delay_policy, put_stub, get_response
 from stubo.utils.track import BaseHandler
@@ -1490,7 +1492,6 @@ class TrackerRecordsHandler(BaseHandler):
 
         tracker = Tracker(self.db)
 
-        # TODO: add filtering
         if query:
             tracker_filter = {'$and': [{'host': {'$regex': hostname}},
                 {'$or': [
@@ -1558,8 +1559,6 @@ class TrackerRecordsHandler(BaseHandler):
 
         self.write(result)
 
-from tornado import websocket
-from stubo.service.api_v2 import MagicFiltering
 
 class TrackerWebSocket(websocket.WebSocketHandler):
 
@@ -1646,7 +1645,6 @@ class TrackerWebSocket(websocket.WebSocketHandler):
                       'totalItems': total_items
                   }}
 
-        #self.write(result)
         self.write_message(result)
 
     def on_close(self):

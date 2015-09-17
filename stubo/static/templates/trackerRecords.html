@@ -185,9 +185,7 @@
             // establishing websocket connection
 
             if ("WebSocket" in window) {
-                console.log("WebSocket is supported by your browser.");
-
-                this.state.ws = new WebSocket("ws://localhost:8001/stubo/api/ws/tracker");
+                this.state.ws = new WebSocket("ws:/" + window.location.host + "/stubo/api/ws/tracker");
 
                 this.state.ws.onclose = function() {
                     console.log("Connection is closed ...");
@@ -200,21 +198,17 @@
         getExternalData: function(page){
             var that = this;
             page = page||1;
-            console.log('page now is:' + page);
 
             var skip = (page - 1) * 25;
 
             if(this.state.ws != null){
-                console.log("using sockets");
                 that.state.wsQuery['skip'] = skip;
                 // websockets supported, communicating through them
                 that.state.ws.send(JSON.stringify(that.state.wsQuery));
 
                 // getting response with data
                 this.state.ws.onmessage = function (e) {
-                    console.log("got tracker collection through ws");
                     var data = JSON.parse(e.data);
-                    console.log(data);
                     that.setState({
                         results: data.data,
                         currentPage: page - 1,
@@ -224,16 +218,11 @@
 
                 };
             } else {
-                console.log("using rest requests");
-
                 var query = '?skip=' + skip;
 
                 var href = '/stubo/api/v2/tracker/records' + query + '&limit=25' + '&q=' + this.state.currentQuery;
 
                 $.get(href, function (data) {
-
-                    console.log('getting tracker collection');
-                    console.log(data);
 
                     that.setState({
                         results: data.data,
@@ -256,7 +245,6 @@
 
         setFilter: function(filter){
             var that = this;
-            console.log(filter);
 
             if(this.state.ws != null){
                 that.state.wsQuery['q'] = filter;
@@ -266,7 +254,6 @@
                 // getting response with data
                 this.state.ws.onmessage = function (e) {
                     var data = JSON.parse(e.data);
-                    console.log(data);
                     that.setState({
                         results: data.data,
                         currentPage: 0,
