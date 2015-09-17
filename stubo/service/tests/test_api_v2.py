@@ -1175,3 +1175,20 @@ class MagicFilterTest(unittest.TestCase):
         self.assertTrue({'$or': [
             {'scenario': {'$options': 'i', '$regex': 'rt:'}},
             {'function': {'$options': 'i', '$regex': 'rt:'}}]} in tracker_filter['$and'])
+
+    def test_response_time_w_bad_time(self):
+        """
+
+        'rt:aaa' shouldn't be a keyword search, although it can't be used for status code search either since it is not
+        integer
+        """
+        query = 'rt:aaa'
+        mf = MagicFiltering(query, 'localhost')
+
+        tracker_filter = mf.get_filter()
+        self.assertTrue({'host': {'$regex': 'localhost'}} in tracker_filter['$and'])
+        self.assertFalse({'duration_ms': 'aaa'} in tracker_filter['$and'])
+
+        self.assertFalse({'$or': [
+            {'scenario': {'$options': 'i', '$regex': 'rt:aaa'}},
+            {'function': {'$options': 'i', '$regex': 'rt:aaa'}}]} in tracker_filter['$and'])
