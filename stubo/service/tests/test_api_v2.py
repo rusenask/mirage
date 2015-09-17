@@ -1012,3 +1012,14 @@ class MagicFilterTest(unittest.TestCase):
         self.assertTrue({'host': {'$regex': 'localhost'}} in tracker_filter['$and'])
         self.assertTrue({'return_code': 200} in tracker_filter['$and'])
 
+    def test_response_time_only(self):
+        """
+
+        Testing response time query creation
+        """
+        query = 'rt:10'
+        mf = MagicFiltering(query, 'localhost')
+
+        tracker_filter = mf.get_filter()
+        self.assertTrue({'host': {'$regex': 'localhost'}} in tracker_filter['$and'])
+        self.assertTrue({'duration_ms': 10} in tracker_filter['$and'])
