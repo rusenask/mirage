@@ -254,3 +254,75 @@ def get_delay_policy(handler, name, cache_loc):
 
     response['data'] = delay_list
     return response, status_code
+
+
+class MagicFiltering:
+    def __init__(self, query, hostname):
+        self.query = query
+        self.hostname = hostname
+        self.conditions = []
+        # adding hostname regex
+        self.conditions.append({'host': {'$regex': hostname}})
+
+    def get_filter(self):
+        query_list = self.query.split(' ')
+        map(self._assign_function, query_list)
+
+        print(self.conditions)
+        return {'$and': self.conditions}
+
+    def _find_api_scenario_conditions(self, keyword):
+        """
+
+        Searching for keywords in scenario or api call name ('function' in MongoDB document)
+        :param keyword:
+        """
+        fl = {'$or': [
+            {'scenario': {'$regex': keyword, '$options': 'i'}},
+            {'function': {'$regex': keyword, '$options': 'i'}}
+        ]
+        }
+        self.conditions.append(fl)
+
+    def _assign_function(self, item):
+        """
+
+        Assigns function based on keyword
+        :param item:
+        """
+        print(item)
+        if 'sc' in item and len(item) > 3:
+            # looking for status codes in requests
+            self._find_status_code_conditions(item)
+        elif 'rt' in item and len(item) > 3:
+            # looking for response time conditions
+            self._find_response_time_conditions(item)
+        elif 'sc' not in item and 'rt' not in item:
+            # looking for any keywords in scenarios or API calls
+            self._find_api_scenario_conditions(item)
+
+    def _find_status_code_conditions(self, status_code):
+        try:
+            _, code = status_code.split(":")
+            self.conditions.append({'return_code': int(code)})
+        except Exception as ex:
+            log.debug("Got error during status code search: %s" % ex)
+
+    def _find_response_time_conditions(self, response_time):
+        try:
+            _, tm = response_time.split(":")
+            # searching for <, <=, >, >= operators
+            if '<=' in tm:
+                value = {'$lte': int(tm[1:])}
+            elif '<' in tm:
+                value = {'$lt': int(tm[1:])}
+            elif '>=' in tm:
+                value = {'$gte': int(tm[1:])}
+            elif '>' in tm:
+                value = {'$gt': int(tm[1:])}
+            else:
+                value = int(tm)
+            self.conditions.append({'duration_ms': value})
+
+        except Exception as ex:
+            log.debug("Got error during status code search: %s" % ex)
