@@ -990,6 +990,15 @@ from stubo.service.api_v2 import MagicFiltering
 
 class MagicFilterTest(unittest.TestCase):
 
+    op_list = ['<', '<=', '>', '>=']
+
+    op_map = {
+        '<': '$lt',
+        '<=': '$lte',
+        '>': '$gt',
+        '>=': '$gte'
+    }
+
     def test_keyword_only(self):
         query = 'scenario1'
         mf = MagicFiltering(query, 'localhost')
