@@ -265,10 +265,17 @@ class MagicFiltering:
         self.conditions.append({'host': {'$regex': hostname}})
 
     def get_filter(self):
-        query_list = self.query.split(' ')
-        map(self._assign_function, query_list)
-        print(self.conditions)
-        return {'$and': self.conditions}
+        """
+
+        Main method, returns query for MongoDB with condition list
+        :return:
+        """
+        if self.query:
+            query_list = self.query.split(' ')
+            map(self._assign_function, query_list)
+            return {'$and': self.conditions}
+        else:
+            return {}
 
     def _find_api_scenario_conditions(self, keyword):
         """
@@ -300,29 +307,52 @@ class MagicFiltering:
             self._find_api_scenario_conditions(item)
 
     def _find_status_code_conditions(self, status_code):
+        """
+
+       Looks for status code query inside string. Finds comparison operators and amends query to condition list
+       :param status_code:
+       """
         try:
             _, code = status_code.split(":")
-            code = int(code)
-            if code > 99:
-                self.conditions.append({'return_code': code})
+            value = self._get_item_query_value(code)
+            self.conditions.append({'return_code': value})
         except Exception as ex:
+            print(ex)
             log.debug("Got error during status code search: %s" % ex)
 
     def _find_response_time_conditions(self, response_time):
+        """
+
+        Looks for response time query inside string. Finds comparison operators and amends query to condition list
+        :param response_time:
+        """
         try:
             _, tm = response_time.split(":")
             # searching for <, <=, >, >= operators
-            if '<=' in tm:
-                value = {'$lte': int(tm[2:])}
-            elif '<' in tm:
-                value = {'$lt': int(tm[1:])}
-            elif '>=' in tm:
-                value = {'$gte': int(tm[2:])}
-            elif '>' in tm:
-                value = {'$gt': int(tm[1:])}
-            else:
-                value = int(tm)
+            value = self._get_item_query_value(tm)
             self.conditions.append({'duration_ms': value})
 
         except Exception as ex:
             log.debug("Got error during status code search: %s" % ex)
+
+    @staticmethod
+    def _get_item_query_value(tm):
+        """
+
+        Searching for operators and creates queries for database based on them
+        :param tm:
+        :return:
+        """
+        # searching for <, <=, >, >= operators
+        if '<=' in tm:
+            value = {'$lte': int(tm[2:])}
+        elif '<' in tm:
+            value = {'$lt': int(tm[1:])}
+        elif '>=' in tm:
+            value = {'$gte': int(tm[2:])}
+        elif '>' in tm:
+            value = {'$gt': int(tm[1:])}
+        else:
+            value = int(tm)
+
+        return value
