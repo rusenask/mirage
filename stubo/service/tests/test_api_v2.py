@@ -1109,3 +1109,19 @@ class MagicFilterTest(unittest.TestCase):
             tracker_filter = mf.get_filter()
             self.assertTrue({'duration_ms': {mongo_operator: 50}} in tracker_filter['$and'], tracker_filter)
 
+    def test_sc_comparison_operators(self):
+        """
+
+        Test status code comparison
+        """
+        for op in self.op_list:
+            # creating query from the list
+            query = 'sc:' + op + str(50)
+            # finding relevant symbol
+            mongo_operator = self.op_map[op]
+
+            mf = MagicFiltering(query, 'localhost')
+
+            tracker_filter = mf.get_filter()
+            self.assertTrue({'return_code': {mongo_operator: 50}} in tracker_filter['$and'], tracker_filter)
+
