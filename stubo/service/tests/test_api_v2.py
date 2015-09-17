@@ -1000,3 +1000,15 @@ class MagicFilterTest(unittest.TestCase):
             {'scenario': {'$options': 'i', '$regex': 'scenario1'}},
             {'function': {'$options': 'i', '$regex': 'scenario1'}}]} in tracker_filter['$and'])
 
+    def test_status_code_only(self):
+        """
+
+        Testing status code query creation
+        """
+        query = 'sc:200'
+        mf = MagicFiltering(query, 'localhost')
+
+        tracker_filter = mf.get_filter()
+        self.assertTrue({'host': {'$regex': 'localhost'}} in tracker_filter['$and'])
+        self.assertTrue({'return_code': 200} in tracker_filter['$and'])
+
