@@ -1074,3 +1074,22 @@ class MagicFilterTest(unittest.TestCase):
         self.assertTrue({'return_code': {'$gt': 200}} in tracker_filter['$and'], tracker_filter)
         self.assertTrue({'return_code': {'$lt': 500}} in tracker_filter['$and'], tracker_filter)
 
+    def test_rt_sc_keyword_mix(self):
+        """
+
+        Test a mix of ranges and keyword
+        :return:
+        """
+        query = 'rt:>10 rt:<15 sc:>200 sc:<500 scenario1'
+        mf = MagicFiltering(query, 'localhost')
+
+        tracker_filter = mf.get_filter()
+        self.assertTrue({'host': {'$regex': 'localhost'}} in tracker_filter['$and'], tracker_filter)
+        self.assertTrue({'duration_ms': {'$gt': 10}} in tracker_filter['$and'], tracker_filter)
+        self.assertTrue({'duration_ms': {'$lt': 15}} in tracker_filter['$and'], tracker_filter)
+        self.assertTrue({'return_code': {'$gt': 200}} in tracker_filter['$and'], tracker_filter)
+        self.assertTrue({'return_code': {'$lt': 500}} in tracker_filter['$and'], tracker_filter)
+        self.assertTrue({'$or': [
+            {'scenario': {'$options': 'i', '$regex': 'scenario1'}},
+            {'function': {'$options': 'i', '$regex': 'scenario1'}}]} in tracker_filter['$and'])
+
