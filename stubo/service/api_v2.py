@@ -296,10 +296,11 @@ class MagicFiltering:
         Assigns function based on keyword
         :param item:
         """
-        if 'sc' in item and ":" in item and len(item) > 3:
+        if 'sc:' in item and len(item) > 3:
+            print(len(item))
             # looking for status codes in requests
             self._find_status_code_conditions(item)
-        elif 'rt' in item and ":" in item and len(item) > 3:
+        elif 'rt:' in item and len(item) > 3:
             # looking for response time conditions
             self._find_response_time_conditions(item)
         else:
