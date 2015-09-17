@@ -267,7 +267,6 @@ class MagicFiltering:
     def get_filter(self):
         query_list = self.query.split(' ')
         map(self._assign_function, query_list)
-
         print(self.conditions)
         return {'$and': self.conditions}
 
@@ -290,21 +289,22 @@ class MagicFiltering:
         Assigns function based on keyword
         :param item:
         """
-        print(item)
-        if 'sc' in item and len(item) > 3:
+        if 'sc' in item and ":" in item and len(item) > 3:
             # looking for status codes in requests
             self._find_status_code_conditions(item)
-        elif 'rt' in item and len(item) > 3:
+        elif 'rt' in item and ":" in item and len(item) > 3:
             # looking for response time conditions
             self._find_response_time_conditions(item)
-        elif 'sc' not in item and 'rt' not in item:
+        else:
             # looking for any keywords in scenarios or API calls
             self._find_api_scenario_conditions(item)
 
     def _find_status_code_conditions(self, status_code):
         try:
             _, code = status_code.split(":")
-            self.conditions.append({'return_code': int(code)})
+            code = int(code)
+            if code > 99:
+                self.conditions.append({'return_code': code})
         except Exception as ex:
             log.debug("Got error during status code search: %s" % ex)
 
@@ -313,11 +313,11 @@ class MagicFiltering:
             _, tm = response_time.split(":")
             # searching for <, <=, >, >= operators
             if '<=' in tm:
-                value = {'$lte': int(tm[1:])}
+                value = {'$lte': int(tm[2:])}
             elif '<' in tm:
                 value = {'$lt': int(tm[1:])}
             elif '>=' in tm:
-                value = {'$gte': int(tm[1:])}
+                value = {'$gte': int(tm[2:])}
             elif '>' in tm:
                 value = {'$gt': int(tm[1:])}
             else:
