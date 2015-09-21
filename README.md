@@ -3,6 +3,7 @@ Mirage
 
 [![Build Status](https://travis-ci.org/SpectoLabs/mirage.png?branch=master)](https://travis-ci.org/SpectoLabs/mirage)
 [![Documentation Status](https://readthedocs.org/projects/mirage/badge/?version=latest)](http://mirage.readthedocs.org/en/latest/?badge=latest)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/SpectoLabs/mirage?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge)
 
 Enable automated testing by mastering system dependencies.
 Use when reality is simply not good enough.
