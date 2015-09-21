@@ -1,11 +1,11 @@
-.. Stub-O-Matic documentation master file, created by
+.. Mirage documentation master file, created by
    sphinx-quickstart on Thu Sep 12 10:41:00 2013.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-====================================
-Stub-O-Matic Documentation |version|
-====================================
+==============================
+Mirage Documentation |version|
+==============================
 
 .. toctree::
    :maxdepth: 2

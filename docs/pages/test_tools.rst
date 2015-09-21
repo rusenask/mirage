@@ -4,7 +4,7 @@
 Integration with Test Tools
 ***************************
 
-Stub-O-Matic works with all major software test execution tools. Stubo, of course,
+Mirage works with all major software test execution tools. Mirage, of course,
 does not run tests or evaluate results, it emulates back-end systems needed by
 tests.
 
@@ -14,11 +14,11 @@ Data dependent software tests typically consist of 3 steps.
 2. Test execution
 3. Data teardown
 
-Working with Stubo to provide back-end data is no different.
+Working with Mirage to provide back-end data is no different.
 
-Stubo's API can be used to setup or teardown data directly. Stubo command files
+Mirage's API can be used to setup or teardown data directly. Mirage command files
 offer a shorthand for using the API and are much more compact. Any test tool that
-can make HTTP calls can use Stubo.
+can make HTTP calls can use Mirage.
 
 Test steps example
 ==================

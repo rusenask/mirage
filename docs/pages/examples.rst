@@ -2,7 +2,7 @@
 
 Examples
 ********
-Lots of example usage of Stubo can be found under /static/cmds/tests. The folders
+Lots of example usage of Mirage can be found under /static/cmds/tests. The folders
 under here contain various cmd scripts and their associated files (requests, matchers, responses)
 and user exit code examples. 
 
