@@ -4,7 +4,7 @@
 
 {% block head %}
 
-<link rel="stylesheet" href="{{static_url('node_modules/griddle-react/build/griddle.css')}}"/>
+<link rel="stylesheet" href="{{static_url('griddle-react/griddle.css')}}"/>
 
 {% end head %}
 
@@ -32,7 +32,6 @@
 
                 <div class="box-body pad">
                     <div id="app">
-                        APIv2 for modules not implemented yet
                         <!--app renders here-->
                     </div>
                 </div> <!-- end box body -->
@@ -48,10 +47,10 @@
 {% block endjs %}
 
 <!--<link href="css/griddle.css" rel="stylesheet" />-->
-<script src="{{static_url('node_modules/underscore/underscore-min.js')}}" type="text/javascript"></script>
+<script src="{{static_url('underscore/underscore-min.js')}}" type="text/javascript"></script>
 <script src="{{static_url('react/build/react.js')}}" type="text/javascript"></script>
 <script src="{{static_url('react/build/JSXTransformer.js')}}" type="text/javascript"></script>
-<script src="{{static_url('node_modules/griddle-react/build/griddle.js')}}" type="text/javascript"></script>
+<script src="{{static_url('griddle-react/griddle.js')}}" type="text/javascript"></script>
 
 <!--react bootstrap-->
 <script src="{{static_url('react/build/react-bootstrap.js')}}" type="text/javascript"></script>
