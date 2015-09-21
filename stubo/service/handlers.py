@@ -538,6 +538,12 @@ class TrackerHandler(RequestHandler):
     def get(self):
         self.render('trackerRecords.html')
 
+
+class TrackerRecordDetailsHandler(RequestHandler):
+
+    def get(self):
+        self.render('trackerRecords.html')
+
 """
 -------------------------------------------------------------------
 ------------------ below are handlers for API v2 ------------------
