@@ -815,7 +815,7 @@ To stop a virtual stubo host being used perform the following:
    {
        "version": "1.2.3", 
        "error": {
-           "message": "Sorry the host URL 'roguehost' has been blacklisted. Please contact Stub-O-Matic support.", 
+           "message": "Sorry the host URL 'roguehost' has been blacklisted. Please contact Mirage support.", 
            "code": 400
        }
    }

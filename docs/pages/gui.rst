@@ -1,13 +1,13 @@
 .. gui
 
-***********
+***
 GUI
-***********
+***
 
 Tracker
-=======================
+=======
 
-The Stubo 'Tracker' page shows details of all requests submitted to Stub-O-Matic 
+The Stubo 'Tracker' page shows details of all requests submitted to Mirage 
 and the received response. Click on the link in the function column to show a 
 detailed view. Debug level tracking can be added to a get/response call if 
 'tracking_level=full' is added to the call. Matching errors will also trigger 
@@ -29,7 +29,7 @@ tracker page shows only data sent to the Stubo URL, shown at the top of the brow
 To see tracker items from other URLs on the same hardware, tick the 'All Hosts' box.
 
 Manage 
-=======================
+======
 
 The manage page allows users to execute command files and view system state.
 
@@ -50,7 +50,7 @@ All the above commands would then be executed. See the results on the tracker pa
 The manage page also shows stubs, delay policies and any external modules loaded.
 
 Analytics
-=======================
+=========
 The 'Analytics' tab takes you to a dashboard showing statistics about the Stubo server. The orange bar along the top allows you to select different Stubo
 servers and time periods. The first of the 4 squares on the right turns on a legend.
 

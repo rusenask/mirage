@@ -4,7 +4,7 @@
 Sharing Stubs
 *************
 
-Stub-O-Matic allows stubs to be organised and shared in ways to suit a project's
+Mirage allows stubs to be organised and shared in ways to suit a project's
 test data needs. Stubo is about emulating back-end system behaviour and as such,
 stubs can be organised around individual services provided by a given back-end 
 service. These stubs can be assembled and re-used as required by individual tests.

@@ -4,7 +4,7 @@
 Integration with Test Tools
 ***************************
 
-Stub-O-Matic works with all major software test execution tools. Stubo, of course,
+Mirage works with all major software test execution tools. Stubo, of course,
 does not run tests or evaluate results, it emulates back-end systems needed by
 tests.
 

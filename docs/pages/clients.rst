@@ -5,7 +5,7 @@ Clients (Stubo Integrator)
 **************************
 
 A Stubo integrator is responsible for diverting requests destined for real back-end
-services to Stub-O-Matic. As such a Stubo integrator can take many forms depending 
+services to Mirage. As such a Stubo integrator can take many forms depending 
 on the needs, language and architecture of the System Under Test (SUT).
 
 Regardless of the SUT architecture calls to Stubo are REST-ful (ish) HTTP.

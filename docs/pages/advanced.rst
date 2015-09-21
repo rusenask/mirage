@@ -34,14 +34,14 @@ The next step is to use the delay policy when loading stubs, eg.: ::
 Matching
 ========
 
-Stub-O-Matic currently supports various types of matchers.
+Mirage currently supports various types of matchers.
 
 Body contains matching
 ======================
 
 One or more matchers can be defined whereby all matchers must be contained in the request to return a specified response. 
 A typical difficulty with system requests is that they often contain superfluous information such as session IDs 
-or time stamps that get in the way of matching a request to the desired response. One way Stub-O-Matic can solve this problem is 
+or time stamps that get in the way of matching a request to the desired response. One way Mirage can solve this problem is 
 by the use of 'matchers'. Matchers are parts of the request that matter to you, only what is needed to find the correct
 response file.
 
@@ -55,17 +55,17 @@ For example, a request may include: ::
 Of these 4 lines only the last 2 matter, the first 2 lines will differ from one request to the next and be set by the
 system making the request. This request then will be different each time it is made. How can one easily match a
 request like this to a canned response file without writing code for each request/response pair ?
-The solution used by Stub-O-Matic is to not store request/response file pairs, but rather store matchers and the
+The solution used by Mirage is to not store request/response file pairs, but rather store matchers and the
 response. In the case above the matchers would be: ::
 
                 <departurestartdatetime>2009-10-24T00:00:00+00:00</departurestartdatetime>
                   <flightnumber>0455</flightnumber>
 
-Stub-O-Matic contains code which will take a request as input, search for the response with the best matchers. Every 
+Mirage contains code which will take a request as input, search for the response with the best matchers. Every 
 matcher must be contained in the request to be a match. When a match is found the corresponding response is served
 back.
 
-*All matchers must be present in the request to make a match.* Stub-O-Matic will return the response from the first match if there is more than one possible match. Note that whitespace and carriage returns are ignored when
+*All matchers must be present in the request to make a match.* Mirage will return the response from the first match if there is more than one possible match. Note that whitespace and carriage returns are ignored when
 matching.
 
 Alternatives to removing parts of the request you don't want to match on are 
@@ -194,7 +194,7 @@ Stubo will allow multiple check-ins.
 User Exits
 ==========
 
-Stub-O-Matic provides hooks into the runtime to execute custom user code. Stubo can execute your custom code 
+Mirage provides hooks into the runtime to execute custom user code. Stubo can execute your custom code 
 to transform stub matchers, requests and/or responses. This is a powerful mechanism when your stubs contain 
 dynamic data or need to change over time. This can be useful to perform 'intelligent
 stubbing' for example to roll dates. The user exit API is contained in the stubo.ext.user_exit module.  
@@ -254,7 +254,7 @@ This example dynamically imports a test mangler from the Stubo server. Typically
 that hook into the Stubo runtime would be sourced from source control system using a URL.
 
 Note:  user exit processing is only enabled if the 'ext_module' variable is set to a pre-loaded module during the
-put/stub call. Each Stub-O-Matic host URL has its own copy of any loaded modules. Such
+put/stub call. Each Mirage host URL has its own copy of any loaded modules. Such
 modules are available to any test and, as such, should typically be loaded once per
 test suite.
 

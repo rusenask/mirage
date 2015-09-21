@@ -19,7 +19,7 @@ human friendly version use the 'back' button on your browser and navigate to the
 'Tracker' page. There you will see the most recent Stubo commands and their 
 details. The commands you just ran from first.yaml are: ::
 
-   # First use of Stub-O-Matic
+   # First use of Mirage
    # run this from a browser with uri:
    #   http://<stubo server>/stubo/default/exec/cmds?cmdfile=/static/cmds/demo/first.yaml
    
@@ -58,7 +58,7 @@ details. The commands you just ran from first.yaml are: ::
                }
 
 These will be listed on the Tracker page.
-What just happened? The command you made executed a Stub-O-Matic command file (demo/first.yaml). That file loaded a stub into Stubo's database, then simulated a request returning the expected response. These actions were logged and displayed on the Tracker page.
+What just happened? The command you made executed a Mirage command file (demo/first.yaml). That file loaded a stub into Stubo's database, then simulated a request returning the expected response. These actions were logged and displayed on the Tracker page.
 
 There are a few key concepts that will make stubbing work.
 
@@ -96,7 +96,7 @@ This is done from what we call a 'Stubo integrator or Stubo client service'. A S
 custom library that intercepts real system calls and 're-plays' them into a 
 Stubo 'recording' via put/stub commands. Java and Python Stubo client libraries are provided 
 to help integrate Stubo into your applications. These clients are maintained in github at
-https://github.com/Stub-O-Matic/python-client & https://github.com/Stub-O-Matic/java-client.   
+https://github.com/Mirage/python-client & https://github.com/Mirage/java-client.   
 
 If the real system changes its interface, a recording can be repeated to capture the changes.
 Of course this requires that the test back-end systems have the correct data in them

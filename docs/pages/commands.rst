@@ -5,9 +5,9 @@ Stubo Command File
 
 Command files are used to load stub files and add behaviour to them (state, dates, etc.).
 
-Stubs can also be loaded and tested using individual calls to the Stub-O-Matic server
+Stubs can also be loaded and tested using individual calls to the Mirage server
 using the Stubo HTTP API. Command files are a shorthand for the API, making it simpler 
-to enable repeatable, automated interactions with Stub-O-Matic by grouping a set of commands together required for a particular test.
+to enable repeatable, automated interactions with Mirage by grouping a set of commands together required for a particular test.
 
 
 Command file (YAML)
