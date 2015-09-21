@@ -1,2 +1,0 @@
-include *.txt *.ini *.cfg *.rst
-recursive-include stubo *.ico *.svg *.png *.css *.gif *.jpg *.pt *.txt *.mak *.mako *.js *.html *.xml *.json *.yaml *.commands *.request *.response *.textMatcher *.template *.pdf *.py *.otf *.ttf *.woff *.eot

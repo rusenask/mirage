@@ -1,7 +1,7 @@
-Stub-O-Matic
-============
+Mirage
+======
 
-[![Build Status](https://travis-ci.org/Stub-O-Matic/stubo-app.png?branch=master)](https://travis-ci.org/Stub-O-Matic/stubo-app)
+[![Build Status](https://travis-ci.org/SpectoLabs/mirage.png?branch=master)](https://travis-ci.org/SpectoLabs/mirage)
 [![Documentation Status](https://readthedocs.org/projects/stubo-app/badge/?version=latest)](https://readthedocs.org/projects/stubo-app/?badge=latest)
 
 Enable automated testing by mastering system dependencies.
@@ -189,31 +189,11 @@ Load performance test data (over 10,000 stubs in 100 scenarios) with
         When finished end sessions and delete stubs with:
         stubo/api/exec/cmds?cmdfile=/static/cmds/perf/perf_teardown.commands
 
-## ANALYTICS
- 
-Certain Metrics are extracted from the track record and sent via UDP to a 
-statsd server which aggregates the stats every 10 seconds before sending to 
-a graphite carbon server via TCP. 
-
-The location of the statsd server and metrics prefix to use
-is specified in the stubo ini file
-
-    statsd.host = localhost
-    statsd.prefix = stubo
-    
-An analytics dashboard is provided to see that stats. Graphite connection 
-details are specified in the stubo ini file::
-
-    graphite.host = http://your-stubo-graphite.com/
-    # auth to connect to graphite server if required 
-    graphite.user = <user>
-    graphite.password = <passwd>     
-
 ## DOCUMENTATION
 
 Documentation is generated with Sphinx. The doc sources are located under /docs.
 
-prereq for generating PDF:
+prerequisites for generating PDF:
 
     $ yum install texlive
 
@@ -229,7 +209,7 @@ To generate PDF
 
 ## PROFILING
 
-Stubo profiling is available via two different profilers yappi and plop. 
+Mirage profiling is available via two different profilers yappi and plop. 
 
 yappi function stats
 
@@ -259,9 +239,9 @@ View via the plop app at http://localhost:8888
 
 ### Authors
 
-Stub-O-Matic is made available by [OpenCredo](http://opencredo.com)
+Mirage is made available by [OpenCredo](http://opencredo.com)
 and a team of contributors.
 
 ### License
 
-Stub-O-Matic is offered under GPLv3, see LICENSE for more details.
+Mirage is offered under GPLv3, see LICENSE for more details.
