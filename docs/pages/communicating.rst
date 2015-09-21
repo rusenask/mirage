@@ -1,15 +1,15 @@
 .. communicating
 
-********************************
+*******************************
 Communicating with Stub-O-Matic
-********************************
+*******************************
 
 Although Stub-O-Matic has a GUI, it is best used for automated, repeatable interactions
 with systems and test tools. Loading, calling and deleting of stubs should all 
 be automated. Ideally your tests should be able to run overnight without human interaction.
 
 Get/Response URLs
-=======================
+=================
 Generally, Stubo uses URL arguments such as POST ::
 
     http://server/stubo/api/get/response?session=123. 
@@ -24,7 +24,7 @@ In both cases the request text is in the HTTP body.
 This allows request to be sent directly to Stubo from some systems without going through a Stubo integrator.
 
 Virtual Stub-O-Matic
-=======================
+====================
 One Stubo server or cluster can support many tests, test environments and teams.
 To help teams and users view only the stubs and sessions they are interested in,
 a single physical Stubo server can be addressed by different URLs. 
