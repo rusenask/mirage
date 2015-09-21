@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Stub-O-Matic documentation build configuration file, created by
+# Mirage documentation build configuration file, created by
 # sphinx-quickstart on Thu Sep 12 10:41:00 2013.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -43,7 +43,7 @@ source_suffix = ['.rst', '.md']
 master_doc = 'index'
 
 # General information about the project.
-project = u'Stub-O-Matic'
+project = u'Mirage'
 thisyear = datetime.datetime.now().year
 copyright = '2012-%s, OpenCredo GPL2' % thisyear
 
@@ -228,7 +228,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'stub-o-matic', u'Stub-O-Matic Documentation',
+    ('index', 'mirage', u'Mirage Documentation',
      [u'OpenCredo'], 1)
 ]
 
