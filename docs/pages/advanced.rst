@@ -9,7 +9,7 @@ Add Delay to a Response
 
 To emulate response times of systems being stubbed, one can set a delay on stubs. Delays are set on the stub response, not on the request to stubo. This is because one request into the system being tested can result in several back-end/stubo calls, each of which might need different delay settings.
 
-Stubo provides reusable delay_policy objects which can be used across many stubs and across sessions. The delay_policy can be altered on the fly, during a load/performance test if desired. There are currently two delay_policy types to choose from. (1) fixed, and (2)random with mean and standard deviation.
+Mirage provides reusable delay_policy objects which can be used across many stubs and across sessions. The delay_policy can be altered on the fly, during a load/performance test if desired. There are currently two delay_policy types to choose from. (1) fixed, and (2)random with mean and standard deviation.
 
 A fixed delay policy can be created or modified with a commnand such as: ::
 
@@ -89,7 +89,7 @@ The xmltree object is an lxml parsed root element passed into the template. ::
 
 Templated Responses
 ===================
-A hand crafted Stubo response may contain variables which are substituted in. For example, a response may contain: ::
+A hand crafted Mirage response may contain variables which are substituted in. For example, a response may contain: ::
 
     {% set flight_nbr='XX1234' %}
     The flight number is: {{flight_nbr}}
@@ -112,7 +112,7 @@ To put today's date in a response include the following: ::
 
     {{today_str.format('%d%m%y')}}
 
-Stubo responses are run through a Tornado template and any logic or commands allowed in these templates can be used.
+Mirage responses are run through a Tornado template and any logic or commands allowed in these templates can be used.
 See http://www.tornadoweb.org/en/stable/template.html for details.
 
 Request Data in Responses
@@ -182,19 +182,19 @@ Stateful Stubs
 ==============
 State is important in simulating back-end systems. For example, if one was to check-in passenger Bob on a particular
 flight the back-end would allow this request to succeed only one time and subsequent attempts to check-in the same
-passenger on the same flight would be rejected. Stubo can emulate this functionality, or if desired for repeatable
-tests, Stubo can allow Bob to be checked in multiple times on the same flight.
+passenger on the same flight would be rejected. Mirage can emulate this functionality, or if desired for repeatable
+tests, Mirage can allow Bob to be checked in multiple times on the same flight.
 
 Stateful stubbing is enabled automatically. If stubs are recorded or loaded in which the same request returns
-different responses Stubo will remember this and internally keep track of which response should come next.
+different responses Mirage will remember this and internally keep track of which response should come next.
 
 If your test is to check-in Bob multiple times, simply do not load the stubs representing the check-in rejection and
-Stubo will allow multiple check-ins.
+Mirage will allow multiple check-ins.
 
 User Exits
 ==========
 
-Mirage provides hooks into the runtime to execute custom user code. Stubo can execute your custom code 
+Mirage provides hooks into the runtime to execute custom user code. Mirage can execute your custom code 
 to transform stub matchers, requests and/or responses. This is a powerful mechanism when your stubs contain 
 dynamic data or need to change over time. This can be useful to perform 'intelligent
 stubbing' for example to roll dates. The user exit API is contained in the stubo.ext.user_exit module.  
@@ -250,8 +250,8 @@ For example: ::
    put/stub?session=mangler_xslt1&ext_module=mangler, first.request, first.response
    end/session?session=mangler_xslt1
 
-This example dynamically imports a test mangler from the Stubo server. Typically these external python modules
-that hook into the Stubo runtime would be sourced from source control system using a URL.
+This example dynamically imports a test mangler from the Mirage server. Typically these external python modules
+that hook into the Mirage runtime would be sourced from source control system using a URL.
 
 Note:  user exit processing is only enabled if the 'ext_module' variable is set to a pre-loaded module during the
 put/stub call. Each Mirage host URL has its own copy of any loaded modules. Such
@@ -292,7 +292,7 @@ Multiple matchers excluding random request elements can be created manually and 
 Caching Values
 ==============
 If emulating back-end behaviour means writing some code for a particularly tricky behaviour,
-Stubo exposes a simple key-value cache API to matchers and responses.
+Mirage exposes a simple key-value cache API to matchers and responses.
 
 For example, if a response needs to increment a count each time it is used, you can 
 define a module like this ::

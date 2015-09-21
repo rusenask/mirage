@@ -4,7 +4,7 @@
 Mirage API v1
 *************
 
-The Stubo API v1 returns JSON. The response always returns the version, and payload. The payload
+The Mirage API v1 returns JSON. The response always returns the version, and payload. The payload
 is either contained under 'data' if the response is successful or 'error' for
 errors. Errors contain a descriptive message under 'message' and the http error code under 'code'.
 Successful responses depend on the call made and are described below.
@@ -46,7 +46,7 @@ exec/cmds
            session_id: session name to substitute within the cmdfile template, best to prefix this with scenario name if provided (optional) 
        response: shows the list of commands (url, return_code) executed, see the Tracker page for responses      
 
-   Typically command files are used to load stubs into the Stubo db, but you can run any supported commands from a file. 
+   Typically command files are used to load stubs into the Mirage db, but you can run any supported commands from a file. 
    
    stubo/api/exec/cmds?cmdfile=/static/cmds/demo/first.commands
    
@@ -469,7 +469,7 @@ get/response
            tracking_level: full or normal (optional, overrides host or global setting) 
        POST data: request payload
        HTTP headers:
-         Stubo-Request-Session=123 Optional, can be used in place of session on the URL.
+         Mirage-Request-Session=123 Optional, can be used in place of session on the URL.
        returns stub response payload in HTTP body if ok
        on error returns stubo json error response  
            
@@ -484,7 +484,7 @@ get/response
 delete/stubs
 ============
 
-Stubs should be mastered in a code repository such as SVN. Delete/stubs will remove stubs from the Stubo database. This should be run at the end of each test run.
+Stubs should be mastered in a code repository such as SVN. Delete/stubs will remove stubs from the Mirage database. This should be run at the end of each test run.
 
 .. code-block:: javascript
 
@@ -643,7 +643,7 @@ get/stubcount
 put/module
 ==========
 
-User exits can be applied to perform custom manipulation of Stubo matchers and responses.
+User exits can be applied to perform custom manipulation of Mirage matchers and responses.
 The user exits are python code defined with the UserExit API. The code is input 
 into stubo with the following API call.
 
@@ -737,7 +737,7 @@ Delete all modules from this host URL.
            
 Set Tracking Level
 ==================
-All API calls to Stubo will result in a tracking record being created. Default level tracking includes:
+All API calls to Mirage will result in a tracking record being created. Default level tracking includes:
 
 * start time
 * duration
@@ -746,7 +746,7 @@ All API calls to Stubo will result in a tracking record being created. Default l
 * return code and data
 * session and scenario names
 * response size
-* server (Stubo server that handled the request)
+* server (Mirage server that handled the request)
 * host (DNS of stubo used on the request)
 * remote_ip (IP address of the client)
 
@@ -892,7 +892,7 @@ Obtain the percent of get/response calls that are above a given latency value.
            percent_above_value = threshold value in millisecs
            from=start time of metrics 
        
-    e.g. to find the percent of Stubo responses that take more than 40ms (during the past 30min)  
+    e.g. to find the percent of Mirage responses that take more than 40ms (during the past 30min)  
 
     /stubo/api/get/stats?percent_above_value=40&from=-30mins 
     

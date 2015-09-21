@@ -6,10 +6,10 @@ The target of the Mirage software is to enable automated testing by mastering sy
 
 Background
 ==========
-Mirage (sometimes called Stubo) is a service which provides data stubs for software testing. 
+Mirage (sometimes called Mirage) is a service which provides data stubs for software testing. 
 Stubs enable the software being tested to be isolated from the rest of the environment 
 and 3rd party back-end systems enabling repeated, automated testing. 
-Stubo is capable of supporting functional, load and performance testing.
+Mirage is capable of supporting functional, load and performance testing.
 
 Stubbing enables development to progress when the actual dependencies are not available.
 
@@ -31,5 +31,5 @@ a request that would normally go to back-end systems. How this is best done
 depends on the architecture of the system under test. Implementations to date 
 have used JAVA AOP, Python, and Actional/Progress Stub Itineraries.
 
-Stubo supports unicode. It has not been designed for requests or responses 
+Mirage supports unicode. It has not been designed for requests or responses 
 containing bit maps, or other non-standard characters.

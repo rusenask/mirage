@@ -1,7 +1,7 @@
 .. text_commands
 
-Stubo Command File (text format)
-********************************
+Mirage Command File (text format)
+*********************************
 
 The line orientated text version of the command file is an old format. It does
 not support the matching required for REST. For example, you can't match on the 
