@@ -1,7 +1,7 @@
 .. text_commands
 
-Stubo Command File (text format)
-********************************
+Mirage Command File (text format)
+*********************************
 
 The line orientated text version of the command file is an old format. It does
 not support the matching required for REST. For example, you can't match on the 
@@ -17,7 +17,7 @@ Text Command file
 =================
 
 * Lines beginning with a '#' are treated as comments
-* Commands follow the Stub-O-Matic REST API, for example: begin/session?scenario=abc&session=12345&mode=record
+* Commands follow the Mirage REST API, for example: begin/session?scenario=abc&session=12345&mode=record
 * When the API requires something in the HTTP body, input can be sourced by listing files after the command (separated by commas). Files are assumed to be in the same directory as the command file. Alternatively a full URI can be provided to source the input (matcher, request or response).
 * Blank lines are ignored.
 * An example command is: put/stub?session=12345',feng_001.textMatcher, feng_002.textMatcher, feng_001.response. A put/stub command must have at least one matcher file and one response file. This example has two matchers.
@@ -33,7 +33,7 @@ What goes in the command files?
 
 Command Scripting
 =================
-Stub-O-Matic supports the ability to load stubs from various and multiple sources. This means people can organise all the stubs that support a particular service or 
+Mirage supports the ability to load stubs from various and multiple sources. This means people can organise all the stubs that support a particular service or 
 use case together, and any test that needs those stubs could pull them in from common stub libraries maximising stub reuse. ::
 
     {% set foreign_url = 'http://www.google.co.uk' %}

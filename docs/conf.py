@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Stub-O-Matic documentation build configuration file, created by
+# Mirage documentation build configuration file, created by
 # sphinx-quickstart on Thu Sep 12 10:41:00 2013.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -43,7 +43,7 @@ source_suffix = ['.rst', '.md']
 master_doc = 'index'
 
 # General information about the project.
-project = u'Stub-O-Matic'
+project = u'Mirage'
 thisyear = datetime.datetime.now().year
 copyright = '2012-%s, OpenCredo GPL2' % thisyear
 
@@ -118,7 +118,7 @@ html_theme = 'default'
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-html_title = 'The Stub-O-Matic application v%s' % release
+html_title = 'Mirage application v%s' % release
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #html_short_title = None
@@ -179,7 +179,7 @@ html_last_updated_fmt = '%b %d, %Y'
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Stub-O-Maticdoc'
+htmlhelp_basename = 'Miragedoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -198,7 +198,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'Stub-O-Matic.tex', u'Stub-O-Matic Documentation',
+  ('index', 'Mirage.tex', u'Mirage Documentation',
    u'OpenCredo', 'manual'),
 ]
 
@@ -228,7 +228,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'stub-o-matic', u'Stub-O-Matic Documentation',
+    ('index', 'mirage', u'Mirage Documentation',
      [u'OpenCredo'], 1)
 ]
 
@@ -242,8 +242,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'Stub-O-Matic', u'Stub-O-Matic Documentation',
-   u'OpenCredo', 'Stub-O-Matic', 'Use when reality is just not good enough.',
+  ('index', 'Mirage', u'Mirage Documentation',
+   u'OpenCredo', 'Mirage', 'Open source service virtualization',
    'Miscellaneous'),
 ]
 
@@ -263,7 +263,7 @@ texinfo_documents = [
 # -- Options for Epub output ---------------------------------------------------
 
 # Bibliographic Dublin Core info.
-epub_title = u'Stub-O-Matic'
+epub_title = u'Mirage'
 epub_author = u'OpenCredo'
 epub_publisher = u'OpenCredo'
 epub_copyright = u'2014, OpenCredo GPL2'

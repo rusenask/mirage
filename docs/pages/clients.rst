@@ -1,14 +1,14 @@
 .. clients
 
-**************************
-Clients (Stubo Integrator)
-**************************
+***************************
+Clients (Mirage Integrator)
+***************************
 
-A Stubo integrator is responsible for diverting requests destined for real back-end
-services to Stub-O-Matic. As such a Stubo integrator can take many forms depending 
+A Mirage integrator is responsible for diverting requests destined for real back-end
+services to Mirage. As such a Mirage integrator can take many forms depending 
 on the needs, language and architecture of the System Under Test (SUT).
 
-Regardless of the SUT architecture calls to Stubo are REST-ful (ish) HTTP.
+Regardless of the SUT architecture calls to Mirage are REST-ful (ish) HTTP.
 
 Test data Setup and Teardown
 ============================
@@ -21,9 +21,9 @@ The basic flow for tests which require test data is:
 
 .. image:: ../TestDataBasics.png
 
-This process can easily be automated using Stubo and your favourite test tool.
-Any test tool capable of making HTTP calls can use Stubo commands directly or via.
-Stubo command files, to setup and teardown test data.
+This process can easily be automated using Mirage and your favourite test tool.
+Any test tool capable of making HTTP calls can use Mirage commands directly or via.
+Mirage command files, to setup and teardown test data.
 
 Loading stubs is typically accomplished by triggering a command file. ::
 
@@ -32,51 +32,51 @@ Loading stubs is typically accomplished by triggering a command file. ::
 A clever touch is to add a begin/session?mode=playback... command to the end of 
 the command file making the stubs ready to be used.
 
-*Data setup and teardown need not involve the Stubo Integrator.*
+*Data setup and teardown need not involve the Mirage Integrator.*
 
 To Stub or not to Stub
 ======================
 
-The first decision of an integrator is to send a data request to Stubo or a Live
+The first decision of an integrator is to send a data request to Mirage or a Live
 back-end. This choice can be made at run time or when deploying your system. Making
 the choice at run time for each test message is the most powerful and flexible choice.
 
 Use:
 
-'xx_stb_useStub=stubo' to send data requests to Stubo, any other value will use a
+'xx_stb_useStub=stubo' to send data requests to Mirage, any other value will use a
 live back-end.
 
 Playback of Stubs
 =================
 
-When an integrator has taken the Stubo path it should create a get/response call
-to Stubo. The request data must be put in the body of the HTTP POST. See the Stubo API documention for detail.
+When an integrator has taken the Mirage path it should create a get/response call
+to Mirage. The request data must be put in the body of the HTTP POST. See the Mirage API documention for detail.
 
 The integrator code should accept arguments along with the text of the actual 
-request. The one mandatory argument is the Stubo 'session'. A good design is to 
-pass through to Stubo any arguments with an agreed prefix (making sure to strip off the prefix before passing them through).
+request. The one mandatory argument is the Mirage 'session'. A good design is to 
+pass through to Mirage any arguments with an agreed prefix (making sure to strip off the prefix before passing them through).
 
 For example: ::
 
 * 'xx_stb_session' becomes 'session'
 * 'xx_stb_ext_module becomes 'ext_module'
 
-Other arguments are listed in the Stubo API documention for get/response and put/stub.
+Other arguments are listed in the Mirage API documention for get/response and put/stub.
 
 .. image:: ../stuboPlayback.png
 
 Record Stubs
 ============
 
-If a get/response is attempted, but the session is in record mode, Stubo will respond
+If a get/response is attempted, but the session is in record mode, Mirage will respond
 stating that one should be recording. The integrator should then create and send
 a put/stub call.
 
 .. image:: ../stuboRecord.png
 
 Using get/response as the default call and falling back to put/stub should the session
-be in record mode the test system requests need only contain the Stubo session name.
-The mode of the session in Stubo will drive whether a record or playback takes place.
+be in record mode the test system requests need only contain the Mirage session name.
+The mode of the session in Mirage will drive whether a record or playback takes place.
 
 Performance Requirements
 ========================
