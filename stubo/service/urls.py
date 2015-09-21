@@ -76,6 +76,8 @@ ui_pages = [
     ('/_profile2', 'PlopProfileHandler'),
     # management
     ("/manage/scenarios", "ManageScenariosHandler"),
+    ("/manage/scenarios/details", "ManageScenariosHandler"),
+
     ("/manage/delaypolicies", "ManageDelayPoliciesHandler"),
     ("/manage/modules", "ManageModulesHandler"),
     ("/manage/commands", "ManageCommandsHandler"),

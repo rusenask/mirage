@@ -511,6 +511,15 @@ class ManageScenariosHandler(RequestHandler):
     def get(self):
         self.render('manageScenarios.html')
 
+class ManageScenarioDetailsHandler(RequestHandler):
+    """
+    /manage/scenarios/details?scenario=<href to scenario>
+
+    """
+
+    def get(self):
+        self.render('manageScenarioDetails.html')
+
 class ManageDelayPoliciesHandler(RequestHandler):
 
     def get(self):
