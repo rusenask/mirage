@@ -2,7 +2,7 @@ Mirage
 ======
 
 [![Build Status](https://travis-ci.org/SpectoLabs/mirage.png?branch=master)](https://travis-ci.org/SpectoLabs/mirage)
-[![Documentation Status](https://readthedocs.org/projects/stubo-app/badge/?version=latest)](https://readthedocs.org/projects/stubo-app/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/mirage/badge/?version=latest)](http://mirage.readthedocs.org/en/latest/?badge=latest)
 
 Enable automated testing by mastering system dependencies.
 Use when reality is simply not good enough.
@@ -10,7 +10,7 @@ Use when reality is simply not good enough.
 ## Documentation
 
 
-See the The documentation [readthedocs](<http://stubo-app.readthedocs.org/en/latest/>) to view
+See the The documentation [readthedocs](<http://mirage.readthedocs.org/en/latest/?badge=latest/>) to view
 user documentation.
 
 
