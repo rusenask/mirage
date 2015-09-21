@@ -83,7 +83,7 @@ ui_pages = [
 
     # tracker
     ("/tracker", "TrackerHandler"),
-
+    ("/tracker/objects/(?P<record_id>[^\/]+)", "TrackerRecordDetailsHandler"),
 
 ]
 
