@@ -1,4 +1,4 @@
-# http://travis-ci.org/#!/Stub-O-Matic/stubo-app
+# http://travis-ci.org/#!/SpectoLabs/mirage
 language: python
 
 cache: pip

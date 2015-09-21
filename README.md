@@ -1,5 +1,5 @@
-Stub-O-Matic
-============
+Mirage
+======
 
 [![Build Status](https://travis-ci.org/Stub-O-Matic/stubo-app.png?branch=master)](https://travis-ci.org/Stub-O-Matic/stubo-app)
 [![Documentation Status](https://readthedocs.org/projects/stubo-app/badge/?version=latest)](https://readthedocs.org/projects/stubo-app/?badge=latest)
