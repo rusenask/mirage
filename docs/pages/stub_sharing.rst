@@ -4,8 +4,8 @@
 Sharing Stubs
 *************
 
-Stub-O-Matic allows stubs to be organised and shared in ways to suit a project's
-test data needs. Stubo is about emulating back-end system behaviour and as such,
+Mirage allows stubs to be organised and shared in ways to suit a project's
+test data needs. Mirage is about emulating back-end system behaviour and as such,
 stubs can be organised around individual services provided by a given back-end 
 service. These stubs can be assembled and re-used as required by individual tests.
 
@@ -33,7 +33,7 @@ This test uses both the increment_score service and the view_leader service.
 Many stubs from the other tests can be reused and will be by creating a new command
 file.
 
-Stubo command files can use stubs from folders relative to the command file location
+Mirage command files can use stubs from folders relative to the command file location
 or by URL. Refer to the 'Commands' section of this documentation for details.
 
 change_setup.commands: ::
@@ -114,5 +114,5 @@ leader_is_sue.response: ::
     {% end %}
   </leader>
 
-These stubs and command files show how Stubo can mingle stubs provided at a service 
+These stubs and command files show how Mirage can mingle stubs provided at a service 
 function level with stubs specific to a given test.

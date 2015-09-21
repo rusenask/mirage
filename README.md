@@ -1,34 +1,33 @@
-Stub-O-Matic
-============
+Mirage
+======
 
-[![Build Status](https://travis-ci.org/Stub-O-Matic/stubo-app.png?branch=master)](https://travis-ci.org/Stub-O-Matic/stubo-app)
-[![Documentation Status](https://readthedocs.org/projects/stubo-app/badge/?version=latest)](https://readthedocs.org/projects/stubo-app/?badge=latest)
+[![Build Status](https://travis-ci.org/SpectoLabs/mirage.png?branch=master)](https://travis-ci.org/SpectoLabs/mirage)
+[![Documentation Status](https://readthedocs.org/projects/mirage/badge/?version=latest)](http://mirage.readthedocs.org/en/latest/?badge=latest)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/SpectoLabs/mirage?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge)
 
 Enable automated testing by mastering system dependencies.
 Use when reality is simply not good enough.
 
-Documentation
-=============
+## Documentation
 
-See the The documentation [website](<http://stubo-app.readthedocs.org/en/latest/>) to view
+
+See the The documentation [readthedocs](<http://mirage.readthedocs.org/en/latest/?badge=latest/>) to view
 user documentation.
 
-License
-=======
 
-Stub-O-Matic is offered under GPLv3, see LICENSE for more details.
+## Install and run (Docker + Docker Compose)
 
-Authors
-=======
+Install Docker and Docker Compose.
 
-Stub-O-Matic is made available by [OpenCredo](http://opencredo.com)
-and a team of contributors.
+* cd to project root
+* docker-compose up
+* [http://localhost:8001] or if you are using boot2docker (Mac OSX) - check VM's IP address with command:
+  $ boot2docker ip
 
+## Install (Manual)
 
-Install
-=======
-
-(Linux Red Hat Enterprise, CentOS, Fedora, or Amazon Linux)
+(Linux Red Hat Enterprise, CentOS, Fedora, or Amazon Linux). It's easier when using python virtualenv wrapper, get more 
+information about installing and using it here: [https://virtualenvwrapper.readthedocs.org/en/latest/]
 
 Redis Server Installation::
 
@@ -61,58 +60,49 @@ dependencies::
 
     $ sudo apt-get install -y python-dev python-pip wget python2.7-dev libxml2 libxml2-dev libxslt1-dev
     
-Stubo::
+Download application:
 
-    $ virtualenv --no-site-packages env
-    $ source ./env/bin/activate
        
     (env) $ git clone https://github.com/Stub-O-Matic/stubo-app.git
     
     (env) $ cd stubo-app
     
+    (env) $ mkv
+    
     (env) $ pip install -r requirements/development.txt  (in production environment use pip install -r requirements.txt)
     
-    (env) $ python setup.py develop
 
-RUN
-===
+> Installing lxml library on OSX:
+> export CFLAGS=-Qunused-arguments
+> export CPPFLAGS=-Qunused-arguments
+>
+> pip install lxml
+> or following if installing globally
+> sudo pip install lxml
+
+### RUN
 
 Perform the following::
 
     $ sudo service mongod start
     $ sudo service redis-server start
-    
-You can start Stubo from your env root dir: 
-
-    $ cd ../env    
-
-You can start Stubo from your env root dir: 
-
-    $ cd ../env    
 
 Active your virtual python env:
 
-    $ source ./bin/activate
+    $ workon env
     
+Launch run.py in project root:
+   
+    $ python run.py
     
-Note you need to create log & etc dirs under the dir you call stubo from:
-    
-    (first run only)
-    $ mkdir log etc
-    $ cp ../stubo-app/*.ini etc 
-    $ create_tracker_collection
-    
-    $ stubo
-    
-Logging is in env/log/stubo.log
-Default config is picked up from ./etc/dev.ini     
+Logs are in _PROJECT_ROOT_/log/stubo.log
+Default config is picked up from _PROJECT_ROOT_/dev.ini     
 Alternatively you can run from another location:
 
-    (env) $ stubo -c path_to_config
+    (env) $ python run.py -c path_to_config
 
 
-FUNCTIONAL TESTING
-==================
+## FUNCTIONAL TESTING
 
 You can run the test suite by running the following command 
 (in the project root: stubo-app)::
@@ -141,8 +131,7 @@ and code analysis
 
         (env) $ pylint stubo
         
-DEBUGGING
-=========
+## DEBUGGING
 
 If you want to call functions to debug in a python shell and they have a 
 dependency on redis or mongo you must initialise them first
@@ -187,8 +176,8 @@ Now you can make calls that use redis
     [{u'function': u'get/response', u'scenario': u'conv', u'start_time': datetime.datetime(2013, 10, 29, 10, 38, 16, 534000, tzinfo=<bson.tz_util.FixedOffset object at 0x1015b6910>), u'return_code': 200, u'session': u'mary', u'duration_ms': 5, u'stubo_response': u'a2 response\n', u'_id': ObjectId('526f90180cfb4403fc27c0fa')}]
        
         
-PERFORMANCE TESTING
-===================
+## PERFORMANCE TESTING
+
 Load performance test data (over 10,000 stubs in 100 scenarios) with 
 
         stubo/api/exec/cmds?cmdfile=/static/cmds/perf/perf_setup.commands 
@@ -201,33 +190,11 @@ Load performance test data (over 10,000 stubs in 100 scenarios) with
         When finished end sessions and delete stubs with:
         stubo/api/exec/cmds?cmdfile=/static/cmds/perf/perf_teardown.commands
 
-ANALYTICS
-=========
- 
-Certain Metrics are extracted from the track record and sent via UDP to a 
-statsd server which aggregates the stats every 10 seconds before sending to 
-a graphite carbon server via TCP. 
-
-The location of the statsd server and metrics prefix to use
-is specified in the stubo ini file
-
-    statsd.host = localhost
-    statsd.prefix = stubo
-    
-An analytics dashboard is provided to see that stats. Graphite connection 
-details are specified in the stubo ini file::
-
-    graphite.host = http://your-stubo-graphite.com/
-    # auth to connect to graphite server if required 
-    graphite.user = <user>
-    graphite.password = <passwd>     
-
-DOCUMENTATION
-=============
+## DOCUMENTATION
 
 Documentation is generated with Sphinx. The doc sources are located under /docs.
 
-prereq for generating PDF:
+prerequisites for generating PDF:
 
     $ yum install texlive
 
@@ -241,10 +208,9 @@ To generate PDF
        $ make latexpdf
        $ cp _build/latex/Stub-O-Matic.pdf ../stubo/static/docs
 
-PROFILING
-=========
+## PROFILING
 
-Stubo profiling is available via two different profilers yappi and plop. 
+Mirage profiling is available via two different profilers yappi and plop. 
 
 yappi function stats
 
@@ -271,3 +237,12 @@ To view plop results in a bubble graph:
     (env) $ python -m plop.viewer --datadir=/tmp
 
 View via the plop app at http://localhost:8888
+
+### Authors
+
+Mirage is made available by [OpenCredo](http://opencredo.com)
+and a team of contributors.
+
+### License
+
+Mirage is offered under GPLv3, see LICENSE for more details.

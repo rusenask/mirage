@@ -448,14 +448,26 @@ class Tracker(object):
                 log.debug("Could not create index (tracker collection) for key %s, got error: %s" % (key, ex))
 
     def find_tracker_data(self, tracker_filter, skip, limit):
-        project = {'start_time': 1, 'function': 1, 'return_code': 1, 'scenario': 1,
+        projection = {'start_time': 1, 'function': 1, 'return_code': 1, 'scenario': 1,
                    'stubo_response': 1, 'duration_ms': 1, 'request_params.session': 1,
                    'delay': 1}
         if skip < 0:
             skip = 0
         # sorted on start_time descending    
-        return self.db.tracker.find(tracker_filter, project).sort('start_time',
-                                                                  -1).limit(limit).skip(skip)
+        return self.db.tracker.find(tracker_filter, projection).sort('start_time',
+                                                                     -1).limit(limit).skip(skip)
+
+    def item_count(self, query=None):
+        """
+
+        Total item counter for tracker collection.
+        :param query: query dict, example : { return_code: { $ne: 200 } }
+        :return:
+        """
+        if query is not None:
+            return self.db.tracker.find(query).count()
+        else:
+            return self.db.tracker.count()
 
     def find_tracker_data_full(self, _id):
         return self.db.tracker.find_one({'_id': ObjectId(_id)})

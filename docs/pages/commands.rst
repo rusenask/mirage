@@ -1,13 +1,13 @@
 .. commands
 
-Stubo Command File
+Mirage Command File
 ******************
 
 Command files are used to load stub files and add behaviour to them (state, dates, etc.).
 
-Stubs can also be loaded and tested using individual calls to the Stub-O-Matic server
-using the Stubo HTTP API. Command files are a shorthand for the API, making it simpler 
-to enable repeatable, automated interactions with Stub-O-Matic by grouping a set of commands together required for a particular test.
+Stubs can also be loaded and tested using individual calls to the Mirage server
+using the Mirage HTTP API. Command files are a shorthand for the API, making it simpler 
+to enable repeatable, automated interactions with Mirage by grouping a set of commands together required for a particular test.
 
 
 Command file (YAML)
@@ -15,7 +15,7 @@ Command file (YAML)
 
 An example ::
 
-   # Stubo YAML
+   # Mirage YAML
    # Execution ordering is 1) commands, 2) recording 3) playback
    
    # Commands go here 
@@ -144,13 +144,13 @@ request1.json ::
           }
    }   
 
-Note that these json payloads for the request and response are defined as strings. Stubo also excepts the definition as dictionaries.
+Note that these json payloads for the request and response are defined as strings. Mirage also excepts the definition as dictionaries.
             
          
 Command Scripting
 =================
 
-The YAML file is run through a template processor before being parsed and executed by Stubo. Any variables defined such
+The YAML file is run through a template processor before being parsed and executed by Mirage. Any variables defined such
 as 'played_at' will evaluated and appropriate subsitutions made.
 
 A roll date example 

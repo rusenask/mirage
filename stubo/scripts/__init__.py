@@ -18,8 +18,5 @@ def get_default_config():
     console script lives in the 'bin' dir of a sandbox or buildout, and
     that the dev.ini file lives in the 'etc' directory of the sandbox.
     """
-    me = sys.argv[0]
-    me = os.path.abspath(me)
-    sandbox = os.path.dirname(os.path.dirname(me))
-    config = os.path.join(sandbox, 'etc', 'dev.ini')
-    return os.path.abspath(os.path.normpath(config))
+    config_path = os.path.join(os.getcwd(), 'dev.ini')
+    return os.path.abspath(os.path.normpath(config_path))
