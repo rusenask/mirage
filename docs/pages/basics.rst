@@ -21,7 +21,7 @@ details. The commands you just ran from first.yaml are: ::
 
    # First use of Mirage
    # run this from a browser with uri:
-   #   http://<stubo server>/stubo/default/exec/cmds?cmdfile=/static/cmds/demo/first.yaml
+   #   http://<mirage server>/stubo/default/exec/cmds?cmdfile=/static/cmds/demo/first.yaml
    
    
    # Describe your stubs here       

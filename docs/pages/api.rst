@@ -41,7 +41,7 @@ exec/cmds
 
     exec/cmds  (GET, POST)
        query args: 
-           cmdfile: URL or a file under /static on the stubo server 
+           cmdfile: URL or a file under /static on the mirage server 
             + any user args will be made avaliable to the cmd file template
            session_id: session name to substitute within the cmdfile template, best to prefix this with scenario name if provided (optional) 
        response: shows the list of commands (url, return_code) executed, see the Tracker page for responses      
@@ -202,7 +202,7 @@ begin/session
    
    Note on duplicate scenarios and sessions:
 
-   * A scenario name prefixed with the stubo host name must be unique. One cannot record a new scenario with a duplicate host + scenario name.
+   * A scenario name prefixed with the mirage host name must be unique. One cannot record a new scenario with a duplicate host + scenario name.
    * Sessions are instances of scenario's stubs and must be unique within a host.
    * Sessions can not be deleted if in playback or record mode
    * Scenarios can not be deleted if any session based on it is in playback or record mode.
@@ -471,7 +471,7 @@ get/response
        HTTP headers:
          Mirage-Request-Session=123 Optional, can be used in place of session on the URL.
        returns stub response payload in HTTP body if ok
-       on error returns stubo json error response  
+       on error returns mirage json error response  
            
     stubo/api/get/response?session=first_1 
     POST data: get my stub
@@ -645,7 +645,7 @@ put/module
 
 User exits can be applied to perform custom manipulation of Mirage matchers and responses.
 The user exits are python code defined with the UserExit API. The code is input 
-into stubo with the following API call.
+into mirage with the following API call.
 
 
 .. code-block:: javascript
@@ -666,7 +666,7 @@ into stubo with the following API call.
 Notes:
 
 If the module code has not changed an error is returned indicating that the source has not changed otherwise 
-a new version of the module is added to stubo dynamically.
+a new version of the module is added to mirage dynamically.
 
 get/modulelist
 ==============
@@ -742,12 +742,12 @@ All API calls to Mirage will result in a tracking record being created. Default 
 * start time
 * duration
 * any user configured delay
-* stubo function
+* mirage function
 * return code and data
 * session and scenario names
 * response size
 * server (Mirage server that handled the request)
-* host (DNS of stubo used on the request)
+* host (DNS of mirage used on the request)
 * remote_ip (IP address of the client)
 
 In addition, get/response calls can optionally force other items to be tracked including:
@@ -781,7 +781,7 @@ Click on a get/response item in the Tracker page to see the full tracking data.
 Blacklist a host URL
 ====================
 
-To stop a virtual stubo host being used perform the following:
+To stop a virtual mirage host being used perform the following:
 
 .. code-block:: javascript
 

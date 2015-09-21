@@ -62,7 +62,7 @@ chart title                description
 stubs/second response rate number of stubs requested per second
 delay added                user defined delays to stubs, these can be specified   to emulate response times of the system being stubbed
 latency                    average time taken to return a stub, excluding network and user defined delays
-request/response size      size in kb of the requests to stubo and responses delivered
+request/response size      size in kb of the requests to mirage and responses delivered
 host response latency      where Mirage is deployed across    multiple servers this chart compares the different servers against each other
 failure rate %             percent of failed requests (HTTP response >= 400)
 health checks              Mirage has a regular health check ping to demonstrate that all systems are working properly
