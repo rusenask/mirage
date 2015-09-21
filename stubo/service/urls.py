@@ -66,7 +66,7 @@ rest_api = [
 # UI pages
 ui_pages = [
     ("/tracker_old", "ViewTrackerHandler"),
-    ("/tracker/(.*)", "ViewATrackerHandler"),
+    ("/tracker_old/(.*)", "ViewATrackerHandler"),
     ("/", "HomeHandler"),
     ("/manage/exec_cmds", "StuboCommandHandlerHTML"),
     ("/docs", "DocsHandler"),
