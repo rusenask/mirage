@@ -23,6 +23,7 @@ from stubo.utils.stats import StatsdStats
 from stubo import version, static_path, stubo_path
 from stubo.model.db import default_env, coerce_mongo_param
 from stubo.service.urls import url_patterns
+from stubo.scripts.admin import create_tracker_collection
 
 log = logging.getLogger(__name__)
 
@@ -125,6 +126,9 @@ class TornadoManager(object):
             max_process_workers = int(max_process_workers)
         tornado_app.settings['process_executor'] = ProcessPoolExecutor(max_process_workers)
         log.info('started with {0} worker processes'.format(tornado_app.settings['process_executor']._max_workers))
+
+        # ensure tracker collection indexing
+        create_tracker_collection()
 
         cmd_queue = InternalCommandQueue()
         cmd_queue_poll_interval = self.cfg.get('cmd_queue_poll_interval',
