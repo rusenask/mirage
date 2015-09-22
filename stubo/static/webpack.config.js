@@ -6,7 +6,7 @@ module.exports = {
         //account: "./static/src/js/Account.js"
     },
     output: {
-        path: "./dist",
+        path: "./src",
         filename: "[name]-bundle.js"
     },
     module: {
