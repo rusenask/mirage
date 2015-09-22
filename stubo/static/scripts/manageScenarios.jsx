@@ -343,7 +343,7 @@ var ExternalScenarios = React.createClass({
     getInitialState: function () {
         var initial = {
             "results": [],
-            "resultsPerPage": 100
+            "resultsPerPage": 50
         };
 
         return initial;
@@ -399,4 +399,5 @@ var ExternalScenarios = React.createClass({
 
 React.render(
     <ExternalScenarios source="/stubo/api/v2/scenarios/detail"/>,
-    document.getElementById("app"))
+    document.getElementById("app")
+);

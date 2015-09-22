@@ -14,6 +14,9 @@
     text-align:left;
     color:#222;
     min-height:1px;
+    margin-bottom: 15px;
+    border: 1px;
+    border-radius: 10px;
 }
 
 .griddle .griddle-settings-toggle{
