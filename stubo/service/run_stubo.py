@@ -6,6 +6,7 @@
 import logging
 import time
 import sys
+import os
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 import socket
 
@@ -19,7 +20,7 @@ from stubo.utils import (
 )
 from stubo.utils.command_queue import InternalCommandQueue
 from stubo.utils.stats import StatsdStats
-from stubo import version, static_path
+from stubo import version, static_path, stubo_path
 from stubo.model.db import default_env, coerce_mongo_param
 from stubo.service.urls import url_patterns
 
@@ -70,7 +71,7 @@ class TornadoManager(object):
         self.cfg['hooks'] = resolve_class(hooks_cls)
         tornado_app = tornado.web.Application(
             static_path=static_path(),
-            template_path=static_path('templates'),
+            template_path=os.path.join(stubo_path(), 'templates'),
             xheaders=True,
             **self.cfg)
         tornado_app.add_handlers('.*$', self._make_route_list())
