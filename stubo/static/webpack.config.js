@@ -2,8 +2,8 @@ var CommonsChunkPlugin = require("./node_modules/webpack/lib/optimize/CommonsChu
 
 module.exports = {
     entry: {
-        scenarioDetails: "./scripts/scenarioDetails.jsx"
-        //account: "./static/src/js/Account.js"
+        scenarioDetails: "./scripts/scenarioDetails.jsx",
+        manageScenarios: "./scripts/manageScenarios.jsx"
     },
     output: {
         path: "./src",
