@@ -4,7 +4,8 @@ module.exports = {
     entry: {
         scenarioDetails: "./scripts/scenarioDetails.jsx",
         manageScenarios: "./scripts/manageScenarios.jsx",
-        manageDelayPolicies: "./scripts/manageDelayPolicies.jsx"
+        manageDelayPolicies: "./scripts/manageDelayPolicies.jsx",
+        manageTracker: "./scripts/manageTracker.jsx"
     },
     output: {
         path: "./src",
