@@ -1,4 +1,4 @@
-webpackJsonp([1],[
+webpackJsonp([2],[
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -6,208 +6,96 @@ webpackJsonp([1],[
 	var React = __webpack_require__(1);
 	var Griddle = __webpack_require__(157);
 
-	//var Tooltip = ReactBootstrap.Tooltip;
 	var Tooltip = __webpack_require__(172).Tooltip;
 	var OverlayTrigger = __webpack_require__(172).OverlayTrigger;
 	var Button = __webpack_require__(172).Button;
 
-	//var OverlayTrigger = ReactBootstrap.OverlayTrigger;
-	//var Button = ReactBootstrap.Button;
-
-
-	function SessionExecute(href, body) {
-	    var infoModal = $('#myModal');
-
-	    $.ajax({
-	        type: "POST",
-	        dataType: "json",
-	        url: href,
-	        data: JSON.stringify(body),
-	        success: function (data) {
-	            var info_msg = JSON.stringify(data.data, null, 2);
-	            var htmlData = '<ul><li>Message: ' + info_msg + '</li></ul>';
-	            infoModal.find('.modal-body').html(htmlData);
-	            infoModal.modal('show');
-	            return false;
+	// currently not used, need more testing, but it should be fast enough so loading message is not required
+	var Loading = React.createClass({displayName: "Loading",
+	    getDefaultProps: function () {
+	        return {
+	            loadingText: "Loading"
 	        }
-	    }).fail(function ($xhr) {
-	        var data = $xhr.responseJSON;
-	        var htmlData = '<ul><li>Error: ' + data.error.message + '</li></ul>';
-	        infoModal.find('.modal-body').html(htmlData);
-	        infoModal.modal('show');
-	        return false;
-	    });
-
-	}
-
-	// we are getting session data nested in the array, so we bring it forward
-	function reformatJSON(initialData) {
-
-	    var newScenariosList = [];
-	    for (var key in initialData) {
-	        if (initialData.hasOwnProperty(key)) {
-	            // console.log(key + " -> " + initialData[key].name);
-	            var singleObj = {};
-	            singleObj['name'] = initialData[key].name;
-	            singleObj['ref'] = initialData[key].scenarioRef;
-	            singleObj['space_used_kb'] = initialData[key].space_used_kb;
-	            singleObj['stub_count'] = initialData[key].stub_count;
-	            singleObj['recorded'] = initialData[key].recorded;
-	            // creating children array
-
-	            var sessions = [];
-
-	            initialData[key].sessions.forEach(function (entry, index) {
-	                // adding session information to parent object
-	                if (index == 0) {
-	                    singleObj['session'] = entry.name;
-	                    singleObj['status'] = entry.status;
-	                    singleObj['loaded'] = entry.loaded;
-	                    singleObj['last_used'] = entry.last_used;
-
-	                } else {
-	                    var childrenObj = {};
-	                    childrenObj['name'] = initialData[key].name;
-	                    childrenObj['session'] = entry.name;
-	                    childrenObj['status'] = entry.status;
-	                    childrenObj['loaded'] = entry.loaded;
-	                    childrenObj['last_used'] = entry.last_used;
-	                    childrenObj['ref'] = initialData[key].scenarioRef;
-	                    childrenObj['space_used_kb'] = initialData[key].space_used_kb;
-	                    childrenObj['stub_count'] = initialData[key].stub_count;
-	                    childrenObj['recorded'] = initialData[key].recorded;
-	                    // adding object to children array
-	                    sessions.push(childrenObj)
-	                }
-	            });
-	            singleObj['sessions'] = sessions;
-
-	            newScenariosList.push(singleObj);
-	        }
+	    },
+	    render: function () {
+	        return React.createElement("div", {className: "loading"}, this.props.loadingText);
 	    }
-	    return newScenariosList
-	}
+	});
 
-	var LinkComponent = React.createClass({
-	    displayName: "LinkComponent",
+	var ApiCallWrapper = React.createClass({
+	    displayName: "ApiCallWrapper",
+	    getInitialState: function () {
+	        return {};
+	    },
 
 	    render: function () {
-	        var url = "/manage/scenarios/details?scenario=" + this.props.rowData.ref;
-	        return React.createElement("a", {href: url}, React.createElement("span", {style: {overflow: 'hidden', textOverflow: 'ellipsis'}}, " ", this.props.data))
+	        var apiCall = this.props.rowData.function;
+	        return (
+	            React.createElement("div", {style: {overflow: 'hidden', textOverflow: 'ellipsis'}}, " ", apiCall, " ")
+	        )
+	    }
+
+	});
+
+
+	var StatusLabelComponent = React.createClass({
+	    displayName: "StatusLabelComponent",
+
+	    getInitialState: function () {
+	        return {
+	            labelClass: 'label label-default'
+	        };
+	    },
+
+	    componentDidMount: function () {
+
+	    },
+
+	    render: function () {
+
+	        var code = this.props.rowData.return_code;
+
+	        if (code >= 500) {
+	            this.state.labelClass = 'label label-danger';
+	        } else if (code >= 400) {
+	            this.state.labelClass = 'label label-warning';
+	        } else if (code >= 300) {
+	            this.state.labelClass = 'label label-primary';
+	        } else {
+	            this.state.labelClass = 'label label-success'
+	        }
+
+	        var StatusCodeTooltip = (
+	            React.createElement(Tooltip, null, "Stubo response to client was ", this.props.rowData.return_code, ". Check out documentation for" + " " +
+	                "more" + " " +
+	                "information.")
+	        );
+
+	        {
+	            // children status code label
+	            return (React.createElement(OverlayTrigger, {placement: "left", overlay: StatusCodeTooltip}, 
+	                React.createElement("span", {className: this.state.labelClass}, " ", this.props.rowData.return_code)
+	            ))
+	        }
+
 
 	    }
 	});
 
-	var ExportButton = React.createClass({
-	    displayName: "ExportButton",
+	var DetailsButton = React.createClass({
+	    displayName: "DetailsButton",
 	    render: function () {
 	        const tooltip = (
-	            React.createElement(Tooltip, null, "Export scenario.")
+	            React.createElement(Tooltip, null, "Show details for this tracker record.")
 	        );
 
-	        var hostname_scenario = this.props.data.split(":");
-	        var url = "/stubo/api/get/export?scenario=" + hostname_scenario[1] + "&html=true";
+	        var url = this.props.data
 	        return (
 	            React.createElement(OverlayTrigger, {placement: "left", overlay: tooltip}, 
-	                React.createElement("a", {href: url, className: "btn btn-sm btn-info"}, 
+	                React.createElement("a", {href: url, className: "btn btn-xs btn-info"}, 
 	                            React.createElement("span", {
-	                                className: "glyphicon glyphicon-cloud-download"})
-	                )
-	            )
-	        );
-	    }
-	});
-
-	// end session placeholder
-	var EndSessionsButton = React.createClass({
-	    displayName: "EndSessionsButton",
-
-	    getInitialState: function () {
-	        return {
-	            ref: this.props.data.ref,
-	            status: false
-	        };
-	    },
-	    handleClick: function (event) {
-	        this.setState({status: !this.state.status});
-
-	        var href = this.state.ref + "/action";
-
-	        var body = {
-	            end: 'sessions'
-	        };
-	        SessionExecute(href, body);
-
-	    },
-	    render: function () {
-
-
-	        const EndSessionsTooltip = (
-	            React.createElement(Tooltip, null, "End all active sessions for this scenario.")
-	        );
-	        // checking whether scenario has a session and whether it is dormant or not
-	        if (this.props.data.session != null && this.props.data.status != 'dormant') {
-	            return (
-	                React.createElement(OverlayTrigger, {placement: "left", overlay: EndSessionsTooltip}, 
-
-	                    React.createElement(Button, {onClick: this.handleClick, bsStyle: "warning", bsSize: "small"}, 
-	                        React.createElement("span", {className: "glyphicon glyphicon-stop"})
-	                    )
-	                )
-	            );
-	        }
-	        // session status is either dormant or there are no sessions, disabling button
-	        else {
-	            return (
-	                React.createElement(Button, {onClick: this.handleClick, bsStyle: "warning", bsSize: "small", disabled: true}, 
-	                    React.createElement("span", {className: "glyphicon glyphicon-stop"})
-	                )
-
-	            );
-	        }
-	    }
-	});
-
-	// remove scenario action button
-	var RemoveButton = React.createClass({displayName: "RemoveButton",
-	    getInitialState: function () {
-	        // getting scenario ref
-	        return {
-	            ref: this.props.data.ref,
-	            name: this.props.data.name
-	        };
-	    },
-	    handleClick: function (event) {
-
-	        var infoModal = $('#myModal');
-	        var scenarioName = this.state.name;
-
-	        $.ajax({
-	            type: "DELETE",
-	            url: this.state.ref,
-	            success: function () {
-	                var htmlData = '<ul><li> Scenario (' + scenarioName + ') removed successfuly. </li></ul>';
-	                infoModal.find('.modal-body').html(htmlData);
-	                infoModal.modal('show');
-	                return false;
-	            }
-	        }).fail(function ($xhr) {
-	            var response = $xhr;
-	            var htmlData = '<ul><li> Status code: ' + response.status + '. Error: ' + response.responseText + '</li></ul>';
-	            infoModal.find('.modal-body').html(htmlData);
-	            infoModal.modal('show');
-	            return false;
-	        });
-
-	    },
-	    render: function () {
-	        const RemoveTooltip = (
-	            React.createElement(Tooltip, null, "Remove scenario.")
-	        );
-	        return (
-	            React.createElement(OverlayTrigger, {placement: "left", overlay: RemoveTooltip}, 
-	                React.createElement(Button, {onClick: this.handleClick, bsStyle: "danger", bsSize: "small"}, 
-	                    React.createElement("span", {className: "glyphicon glyphicon-remove-sign"})
+	                                className: "glyphicon glyphicon-cloud-download"}), 
+	                    "Details"
 	                )
 	            )
 	        );
@@ -222,188 +110,219 @@ webpackJsonp([1],[
 
 	        // rendering action buttons
 	        return (React.createElement("div", {className: "btn-group"}, 
-	                React.createElement(ExportButton, {data: this.props.rowData.name}), 
-	                React.createElement(RemoveButton, {data: this.props.rowData}), 
-	                React.createElement(EndSessionsButton, {data: this.props.rowData})
+	                React.createElement(DetailsButton, {data: this.props.rowData.href})
 	            )
 	        )
 	    }
 	});
 
-	var StatusLabelComponent = React.createClass({
-	    displayName: "StatusLabelComponent",
-
-	    getInitialState: function () {
-	        // getting scenario name and hostname
-	        return {
-	            labelClass: 'label label-default'
-	        };
-	    },
-
-	    componentDidMount: function () {
-
-	    },
-
-	    render: function () {
-	        switch (this.props.rowData.status) {
-	            case undefined:
-	                this.state.labelClass = '';
-	                break;
-	            case 'dormant':
-	                break;
-	            case 'playback':
-	                this.state.labelClass = 'label label-success';
-	                break;
-	            case 'record':
-	                this.state.labelClass = 'label label-warning';
-	                break;
-	        }
-
-	        var sessionStatusTooltip = (
-	            React.createElement(Tooltip, null, "Current session mode is ", this.props.rowData.status, ". Check out documentation for more" + " " +
-	                "information.")
-	        );
-
-	        // checking whether row has children object, removing children objects from children because they cause
-	        // to create a whole separate grid inside a row
-	        if (this.props.rowData.sessions != undefined) {
-	            var sessions = this.props.rowData.sessions.length;
-	            if (sessions > 1) {
-	                // adding session count number to the label
-	                var sessionCounterTooltip = (
-	                    React.createElement(Tooltip, null, "There are ", sessions, " sessions in this scenario. Access scenario details to get" + " " +
-	                        "more information.")
-	                );
-	                return (
-
-	                    React.createElement("div", null, 
-	                        React.createElement(OverlayTrigger, {placement: "left", overlay: sessionStatusTooltip}, 
-	                            React.createElement("span", {className: this.state.labelClass}, " ", this.props.rowData.status)
-	                        ), 
-	                        " ", 
-	                        React.createElement(OverlayTrigger, {placement: "left", overlay: sessionCounterTooltip}, 
-	                            React.createElement("span", {className: "label label-primary"}, sessions)
-	                        )
-	                    )
-
-	                )
-
-	            } else {
-	                // standard row output for each scenario
-	                return ( React.createElement(OverlayTrigger, {placement: "left", overlay: sessionStatusTooltip}, 
-	                        React.createElement("span", {className: this.state.labelClass}, " ", this.props.rowData.status)
-	                    )
-	                )
-	            }
-	        } else {
-	            // children session status label
-	            return (React.createElement(OverlayTrigger, {placement: "left", overlay: sessionStatusTooltip}, 
-	                React.createElement("span", {className: this.state.labelClass}, " ", this.props.rowData.status)
-	            ))
-	        }
-
-
-	    }
-	});
-
 	var columnMeta = [
 	    {
-	        "columnName": "name",
-	        "displayName": "Scenario",
+	        "columnName": "start_time",
+	        "displayName": "Time",
 	        "order": 1,
 	        "locked": false,
+	        "visible": true
+	    },
+	    {
+	        "columnName": "function",
+	        "displayName": "API call",
+	        "order": 2,
+	        "locked": false,
 	        "visible": true,
-	        "customComponent": LinkComponent
+	        "customComponent": ApiCallWrapper
+	    },
+	    {
+	        "columnName": "scenario",
+	        "displayName": "Scenario",
+	        "order": 3,
+	        "locked": false,
+	        "visible": true
+	    },
+	    {
+	        "columnName": "return_code",
+	        "displayName": "HTTP status code",
+	        "order": 4,
+	        "locked": false,
+	        "visible": true,
+	        "customComponent": StatusLabelComponent
+	    },
+	    {
+	        "columnName": "duration_ms",
+	        "displayName": "Response time (ms)",
+	        "order": 5,
+	        "locked": false,
+	        "visible": true
 	    },
 	    {
 	        "columnName": "actions",
 	        "displayName": "Actions",
+	        "order": 6,
 	        "locked": false,
 	        "visible": true,
 	        "customComponent": ActionComponent
-	    },
-	    {
-	        "columnName": "status",
-	        "displayName": "Status",
-	        "locked": false,
-	        "visible": true,
-	        "customComponent": StatusLabelComponent
 	    }
 
 	];
 
-	function updateTable(component, href) {
-	    $.get(href, function (result) {
-	        var newList = reformatJSON(result.data);
-	        if (component.isMounted()) {
-	            component.setState({
-	                results: newList
-	            });
-	        }
-	    });
-	}
-
-	var ExternalScenarios = React.createClass({displayName: "ExternalScenarios",
+	var RecordsComponent = React.createClass({displayName: "RecordsComponent",
 	    getInitialState: function () {
 	        var initial = {
+	            "currentPage": 0,
+	            "isLoading": false,
+	            "maxPages": 0,
+	            "externalResultsPerPage": 25,
+	            "externalSortColumn": null,
+	            "externalSortAscending": true,
 	            "results": [],
-	            "resultsPerPage": 100
+	            "currentQuery": "",
+	            "ws": null,
+	            "wsQuery": {
+	                "skip": 0,
+	                "q": null,
+	                "limit": 25
+	            }
 	        };
 
 	        return initial;
 	    },
-	    //general lifecycle methods
 	    componentWillMount: function () {
 	    },
 	    componentDidMount: function () {
-	        // getting scenarios
-	        var href = '';
-	        if ($.cookie("stubo.all-hosts") == 'true') {
-	            // amending query argument to get all hosts
-	            href = this.props.source + '?all-hosts=true'
+	        this.getExternalData();
+	        // establishing websocket connection
+
+	        if ("WebSocket" in window) {
+	            this.state.ws = new WebSocket("ws:/" + window.location.host + "/stubo/api/ws/tracker");
+
+	            this.state.ws.onclose = function () {
+	                console.log("Connection is closed ...");
+	            };
+
 	        } else {
-	            href = this.props.source + '?all-hosts=false'
+	            console.log("WebSocket not supported by your browser.");
+	        }
+	    },
+	    getExternalData: function (page) {
+	        var that = this;
+	        page = page || 1;
+
+	        var skip = (page - 1) * 25;
+
+	        if (this.state.ws != null) {
+	            that.state.wsQuery['skip'] = skip;
+	            // websockets supported, communicating through them
+	            that.state.ws.send(JSON.stringify(that.state.wsQuery));
+
+	            // getting response with data
+	            this.state.ws.onmessage = function (e) {
+	                var data = JSON.parse(e.data);
+	                that.setState({
+	                    results: data.data,
+	                    currentPage: page - 1,
+	                    maxPages: Math.round(data.paging.totalItems / 25),
+	                    isLoading: false
+	                });
+
+	            };
+	        } else {
+	            var query = '?skip=' + skip;
+
+	            var href = '/stubo/api/v2/tracker/records' + query + '&limit=25' + '&q=' + this.state.currentQuery;
+
+	            $.get(href, function (data) {
+
+	                that.setState({
+	                    results: data.data,
+	                    currentPage: page - 1,
+	                    maxPages: Math.round(data.paging.totalItems / 25),
+	                    isLoading: false
+	                });
+
+	            });
 	        }
 
-	        updateTable(this, href);
-
-	        // subscribing to modal close event
-	        $('#myModal').on('hidden.bs.modal', function () {
-	            console.log("downloading new scenario list");
-	            updateTable(this, href);
-	        }.bind(this));
 	    },
-
-	    //what page is currently viewed
 	    setPage: function (index) {
+	        //This should interact with the data source to get the page at the given index
+	        index = index > this.state.maxPages ? this.state.maxPages : index < 1 ? 1 : index + 1;
+	        this.getExternalData(index);
 	    },
-	    //this will handle how the data is sorted
-	    sortData: function (sort, sortAscending, data) {
-	    },
-	    //this changes whether data is sorted in ascending or descending order
-	    changeSort: function (sort, sortAscending) {
-	    },
-	    //this method handles the filtering of the data
-	    setFilter: function (filter) {
-	    },
-	    //this method handles determining the page size
 	    setPageSize: function (size) {
 	    },
 
+	    setFilter: function (filter) {
+	        var that = this;
+
+	        if (this.state.ws != null) {
+	            that.state.wsQuery['q'] = filter;
+	            // websockets supported, communicating through them
+	            that.state.ws.send(JSON.stringify(that.state.wsQuery));
+
+	            // getting response with data
+	            this.state.ws.onmessage = function (e) {
+	                var data = JSON.parse(e.data);
+	                that.setState({
+	                    results: data.data,
+	                    currentPage: 0,
+	                    maxPages: Math.round(data.paging.totalItems / 25),
+	                    isLoading: false,
+	                    currentQuery: filter
+	                });
+
+	            };
+	        } else {
+	            // do this if browser does not support websockets
+
+	            var href = '/stubo/api/v2/tracker/records?skip=0&limit=25' + '&q=' + filter;
+
+	            $.get(href, function (data) {
+	                that.setState({
+	                    results: data.data,
+	                    currentPage: 0,
+	                    maxPages: Math.round(data.paging.totalItems / 25),
+	                    isLoading: false,
+	                    currentQuery: filter
+	                });
+
+	            });
+	        }
+
+	    },
 
 	    render: function () {
-	        return React.createElement(Griddle, {results: this.state.results, 
-	                        useGriddleStyles: true, 
-	                        showFilter: true, showSettings: true, 
-	                        resultsPerPage: this.state.resultsPerPage, 
+	        return React.createElement(Griddle, {useExternal: true, 
+	                        externalSetPage: this.setPage, 
+	                        enableSort: false, 
+	                        columns: ["start_time", "function", "scenario", "return_code", "duration_ms", "actions"], 
 	                        columnMetadata: columnMeta, 
-	                        columns: ["name", "session", "status", "loaded", "last_used", "space_used_kb", "stub_count", "recorded", "actions"]})
+
+	                        externalSetPageSize: this.setPageSize, 
+	                        externalMaxPage: this.state.maxPages, 
+	                        externalChangeSort: function(){}, 
+
+	                        filterPlaceholderText: 'Filter results, use "rt" for response time,' +
+	                             '"sc" for status code. Example: "scenario_1 sc:200 rt:<=500"', 
+	                        externalSetFilter: this.setFilter, 
+	                        showFilter: true, 
+
+	                        externalCurrentPage: this.state.currentPage, 
+
+	                        results: this.state.results, 
+	                        tableClassName: "table", 
+
+	                        resultsPerPage: this.state.externalResultsPerPage, 
+
+	                        externalSortColumn: this.state.externalSortColumn, 
+	                        externalSortAscending: this.state.externalSortAscending, 
+
+	                        externalLoadingComponent: Loading, 
+	                        externalIsLoading: this.state.isLoading})
 	    }
 	});
 
-	React.render(
-	    React.createElement(ExternalScenarios, {source: "/stubo/api/v2/scenarios/detail"}),
-	    document.getElementById("app"))
+
+	React.render(React.createElement(RecordsComponent, null), document.getElementById("app"));
 
 /***/ },
 /* 1 */,
