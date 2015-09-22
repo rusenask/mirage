@@ -19,18 +19,23 @@ function getUrlVars()
     return vars;
 }
 
-var scenario_href = getUrlVars()["scenario"];
+var LoadJsonData = function(href){
+    // getting current url
+    if(href == null) {
+        href = getUrlVars()["scenario"];
+    }
+    // adding stubs path
+    href = href + '/stubs';
 
-
-function getData(href){
     $.get(href, function (result) {
         // render component
         React.render(
-            <Inspector data={ result.data } />,
+            <Inspector
+                ignoreCase={false}
+                data={ result.data } />,
             document.getElementById('app')
         );
     });
-}
+};
 
-getData(scenario_href + "/stubs");
-
+LoadJsonData();
