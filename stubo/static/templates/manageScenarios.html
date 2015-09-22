@@ -133,10 +133,7 @@
                 });
                 singleObj['sessions'] = sessions;
 
-
                 newScenariosList.push(singleObj);
-
-
             }
         }
         return newScenariosList
@@ -147,7 +144,7 @@
 
         render: function () {
             var url = "/manage/scenarios/details?scenario=" + this.props.rowData.ref;
-            return <a href={url}>{this.props.data}</a>
+            return <a href={url}><span style={{!overflow: 'hidden', textOverflow: 'ellipsis'}}> {this.props.data}</span></a>
 
         }
     });
