@@ -1,9 +1,4 @@
 var React = require('../node_modules/react');
-var Griddle = require('../node_modules/griddle-react');
-
-var Tooltip = require('../node_modules/react-bootstrap').Tooltip;
-var OverlayTrigger = require('../node_modules/react-bootstrap').OverlayTrigger;
-var Button = require('../node_modules/react-bootstrap').Button;
 var Well = require('../node_modules/react-bootstrap').Well;
 
 
