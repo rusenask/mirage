@@ -17,33 +17,39 @@ function getUrlVars() {
     return vars;
 }
 
+var DtWrapper = React.createClass({
+    displayName: "DtWrapper",
 
-var dlHorizontalWrapper = React.createClass({
-   displayName: "dlHorizontalWrapper",
-
-    getInitialState: function() {
-        return {data: this.props.data}
-    },
-
-    render: function() {
-        var trackerData = this.state.data;
-        console.log("entering dlhorizontalwrapper");
-        console.log(trackerData);
-        return <dd> {trackerData} </dd>
+    render: function () {
+        return <dt> {this.props.data} </dt>
     }
 });
 
-function updateComponent(component, href) {
-    $.get(href, function (result) {
-        if (component.isMounted()) {
-            console.log("updating");
-            //console.log(result);
-            component.setState({
-                data: result.data
-            });
-        }
-    });
-}
+var DdWrapper = React.createClass({
+    displayName: "DdWrapper",
+
+    render: function () {
+        return <dd> {this.props.data} </dd>
+    }
+});
+
+var DlHorizontalWrapper = React.createClass({
+    displayName: "dlHorizontalWrapper",
+
+    render: function () {
+        var rows = [];
+
+        $.each(this.props.data, function (k, v) {
+            //display the key and value pair
+            rows.push(<DtWrapper data={k} />);
+            rows.push(<DdWrapper data={v} />);
+            //console.log(k + ' is ' + v);
+        });
+        return (
+            <dl className="dl-horizontal">{rows}</dl>
+        )
+    }
+});
 
 var TrackerDetails = React.createClass({
     displayName: "TrackerDetails",
@@ -55,9 +61,10 @@ var TrackerDetails = React.createClass({
     componentDidMount: function () {
         // fetching data
         var href = getUrlVars()["href"];
-        $.get(href, function(result) {
+        $.get(href, function (result) {
             var trackerRecord = result.data;
             console.log(trackerRecord);
+            // update state
             if (this.isMounted()) {
                 this.setState({
                     data: trackerRecord
@@ -66,8 +73,10 @@ var TrackerDetails = React.createClass({
         }.bind(this));
     },
 
-    render: function() {
-        return <dlHorizontalWrapper data={this.state.data}/>
+    render: function () {
+        return (
+            <DlHorizontalWrapper data={this.state.data}/>
+        )
     }
 });
 
