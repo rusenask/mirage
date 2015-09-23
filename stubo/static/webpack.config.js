@@ -2,6 +2,7 @@ var CommonsChunkPlugin = require("./node_modules/webpack/lib/optimize/CommonsChu
 
 module.exports = {
     entry: {
+        base: "./scripts/base.jsx",
         scenarioDetails: "./scripts/scenarioDetails.jsx",
         manageScenarios: "./scripts/manageScenarios.jsx",
         manageDelayPolicies: "./scripts/manageDelayPolicies.jsx",
