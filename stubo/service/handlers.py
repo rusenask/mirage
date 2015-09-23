@@ -548,10 +548,10 @@ class TrackerHandler(RequestHandler):
         self.render('trackerRecords.html')
 
 
-class TrackerRecordDetailsHandler(RequestHandler):
+class TrackerDetailsHandler(RequestHandler):
 
     def get(self):
-        self.render('trackerRecords.html')
+        self.render('trackerRecordDetails.html')
 
 """
 -------------------------------------------------------------------
@@ -1601,7 +1601,6 @@ class TrackerWebSocket(websocket.WebSocketHandler):
 
         tracker = Tracker(self.db)
 
-        # TODO: add filtering
         mf = MagicFiltering(query=query, hostname=hostname)
         tracker_filter = mf.get_filter()
 
