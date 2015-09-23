@@ -4,6 +4,7 @@ var Griddle = require('../node_modules/griddle-react');
 var Tooltip = require('../node_modules/react-bootstrap').Tooltip;
 var OverlayTrigger = require('../node_modules/react-bootstrap').OverlayTrigger;
 var Button = require('../node_modules/react-bootstrap').Button;
+var Well = require('../node_modules/react-bootstrap').Well;
 
 
 function getUrlVars() {
@@ -29,7 +30,21 @@ var DdWrapper = React.createClass({
     displayName: "DdWrapper",
 
     render: function () {
-        return <dd> {this.props.data} </dd>
+        var value = this.props.data;
+        var objectConstructor = {}.constructor;
+        // check if this is a JSON object and recursively applying
+        // horizontal key-value styling
+        if(value.constructor === objectConstructor){
+            const wellInstance = (
+                <Well bsSize="xsmall">
+                    <DlHorizontalWrapper data={value}/>
+                </Well>
+            );
+            return <dd> {wellInstance} </dd>
+        }
+         else {
+            return <dd> {value} </dd>
+        }
     }
 });
 
@@ -38,12 +53,11 @@ var DlHorizontalWrapper = React.createClass({
 
     render: function () {
         var rows = [];
-
-        $.each(this.props.data, function (k, v) {
+        var list = this.props.data;
+        $.each(list, function (k, v) {
             //display the key and value pair
             rows.push(<DtWrapper data={k} />);
             rows.push(<DdWrapper data={v} />);
-            //console.log(k + ' is ' + v);
         });
         return (
             <dl className="dl-horizontal">{rows}</dl>
@@ -63,7 +77,6 @@ var TrackerDetails = React.createClass({
         var href = getUrlVars()["href"];
         $.get(href, function (result) {
             var trackerRecord = result.data;
-            console.log(trackerRecord);
             // update state
             if (this.isMounted()) {
                 this.setState({
