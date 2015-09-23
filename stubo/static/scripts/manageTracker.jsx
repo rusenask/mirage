@@ -85,7 +85,7 @@ var DetailsButton = React.createClass({
             <Tooltip>Show details for this tracker record.</Tooltip>
         );
 
-        var url = this.props.data
+        var url = '/tracker/objects?href='+ this.props.data;
         return (
             <OverlayTrigger placement='left' overlay={tooltip}>
                 <a href={url} className="btn btn-xs btn-info">

@@ -71,7 +71,9 @@ class TornadoManager(object):
                                  'stubo.ext.transformer.StuboDefaultHooks')
         self.cfg['hooks'] = resolve_class(hooks_cls)
         tornado_app = tornado.web.Application(
+            # adding static path (PROJECT_ROOT/stubo/static
             static_path=static_path(),
+            # adding template path (PROJECT_ROOT/stubo/templates)
             template_path=os.path.join(stubo_path(), 'templates'),
             xheaders=True,
             **self.cfg)
