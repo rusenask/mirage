@@ -1191,4 +1191,38 @@ class MagicFilterTest(unittest.TestCase):
 
         self.assertFalse({'$or': [
             {'scenario': {'$options': 'i', '$regex': 'rt:aaa'}},
-            {'function': {'$options': 'i', '$regex': 'rt:aaa'}}]} in tracker_filter['$and'])
+            {'function': {'$options': 'i', '$regex': 'rt:aaa'}}]} in tracker_filter['$and'])class ModuleApiTest(Base):
+    """
+    Tests for v2 API
+    """
+
+    def _insert_module_from_archive(self):
+        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile='
+                                            '/static/cmds/tests/exports/localhost_split/split.zip'),
+                               self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+
+    def test_list_modules(self):
+        """
+
+        Tests API v2 module list functionality (displaying href, name in separate fields).
+        First it inserts a module through the API v1 commands file, then calls API v2
+        to list the modules and looks for the inserted module.
+        """
+        # preparing module
+        self._insert_module_from_archive()
+
+        # fetching v2 api
+        self.http_client.fetch(self.get_url("/api/v2/modules"),
+                               self.stop)
+        response = self.wait()
+        self.assertEqual(response.code, 200)
+        bd = json.loads(response.body)
+        self.assertTrue("version" in bd, bd)
+        # check whether our module is in the list as well
+        self.assertTrue(
+            {u'loaded_sys_versions': [u'localhost_splitter_v1'],
+             u'latest_code_version': 1,
+             u'href': u'/api/v2/modules/objects/splitter',
+             u'name': u'splitter'} in bd['data'], bd)
