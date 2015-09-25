@@ -1,5 +1,6 @@
 
 var React = require('../node_modules/react');
+var cookie = require('react-cookie');
 var Griddle = require('../node_modules/griddle-react');
 
 //var Tooltip = ReactBootstrap.Tooltip;
@@ -354,7 +355,7 @@ var ExternalScenarios = React.createClass({
     componentDidMount: function () {
         // getting scenarios
         var href = '';
-        if ($.cookie("stubo.all-hosts") == 'true') {
+        if (cookie.load('stubo.all-hosts') || false) {
             // amending query argument to get all hosts
             href = this.props.source + '?all-hosts=true'
         } else {
