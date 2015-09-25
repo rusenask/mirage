@@ -1,6 +1,66 @@
 var React = require('../node_modules/react');
 var Input = require('../node_modules/react-bootstrap').Input;
+var cookie = require('react-cookie');
+var Tooltip = require('../node_modules/react-bootstrap').Tooltip;
+var OverlayTrigger = require('../node_modules/react-bootstrap').OverlayTrigger;
 
+// creating "track all hosts" button + cookie control
+
+var TrackingAllHosts = React.createClass({
+
+    getInitialState: function () {
+        return {trackingAll: cookie.load('stubo.all-hosts') || false};
+    },
+
+    handleClick: function () {
+        var state = this.state.trackingAll;
+
+        // cookie options, passed as json object
+        var opt = {
+            'path': "/"
+        };
+
+        if (this.isMounted()) {
+            cookie.save('stubo.all-hosts', !state, opt);
+            this.setState({
+                trackingAll: !state
+            });
+        }
+
+    },
+
+    render: function () {
+        var msg = null;
+        if(this.state.trackingAll){
+            msg = "Disable this option to only see data for current hostname";
+        }else {
+            msg = "Enable this option to see data for all virtualized hosts";
+        }
+
+        var ButtonTooltip = (
+            <Tooltip> {msg} </Tooltip>
+        );
+
+        return (
+            <OverlayTrigger placement='right' overlay={ButtonTooltip}>
+                <a href="#" onClick={this.handleClick}>
+                    <i className="fa fa-th"></i>
+                    <span> Tracking all hosts </span>
+                    <input className="pull-right"
+                           type="checkbox"
+                           checked={this.state.trackingAll}
+                           onChange={this.handleClick}/>
+                </a>
+            </OverlayTrigger>
+        );
+    }
+
+});
+
+React.render(
+    <TrackingAllHosts/>,
+    document.getElementById("trackingall")
+);
 
 function getBooleanState(trackingLevel) {
     return trackingLevel == "full";
