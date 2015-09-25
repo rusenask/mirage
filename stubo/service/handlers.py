@@ -575,6 +575,9 @@ from stubo.service.api_v2 import update_delay_policy as api_v2_update_delay_poli
 from stubo.service.api_v2 import get_delay_policy as api_v2_get_delay_policy
 from stubo.service.api_v2 import MagicFiltering
 
+from stubo.utils.command_queue import InternalCommandQueue
+from stubo.service.api import delete_module
+
 from stubo.service.api import end_session, end_sessions, delete_delay_policy, put_stub, get_response
 from stubo.utils.track import BaseHandler
 from stubo.utils import asbool
@@ -1707,7 +1710,7 @@ class TrackerRecordDetailsHandler(BaseHandler):
             self.set_status(404)
             self.write("Record with ID: %s not found." % record_id)
 
-from stubo.service.api import list_module
+from stubo.service.api_v2 import list_available_modules
 
 class ExternalModulesHandler(BaseHandler):
     """
@@ -1729,8 +1732,25 @@ class ExternalModulesHandler(BaseHandler):
     """
 
     def get(self):
-        modules = list_module(self, None)
-        self.write(modules)
+        self.write(list_available_modules(get_hostname(self.request)))
+
+
+class ExternalModuleDeleteHandler(BaseHandler):
+    """
+    /api/v2/modules/objects/<module_name>
+
+    """
+    def delete(self, module_name):
+        # complying to current api
+        names = [module_name]
+
+        # deleting modules in slave redis
+        cmdq = InternalCommandQueue()
+        # Note: delete and unload from all slaves not just the executing one
+        cmdq.add(get_hostname(self.request),
+                 'delete/module?name={0}'.format(module_name))
+        result = delete_module(self.request, names)
+        self.write(result)
 
 
 def _get_scenario_full_name(handler, name, host=None):

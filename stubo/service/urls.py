@@ -58,6 +58,7 @@ rest_api = [
     ("/stubo/api/v2/delay-policy/objects/(?P<delay_policy_name>[^\/]+)", "GetDelayPolicyDetailsHandler"),
     # external modules
     ("/api/v2/modules", "ExternalModulesHandler"),
+    ("/api/v2/modules/objects/(?P<module_name>[^\/]+)", "ExternalModuleDeleteHandler"),
     # tracker records
     ("/stubo/api/v2/tracker/records", "TrackerRecordsHandler"),
     ("/stubo/api/v2/tracker/records/objects/(?P<record_id>[^\/]+)", "TrackerRecordDetailsHandler"),
