@@ -1707,6 +1707,31 @@ class TrackerRecordDetailsHandler(BaseHandler):
             self.set_status(404)
             self.write("Record with ID: %s not found." % record_id)
 
+from stubo.service.api import list_module
+
+class ExternalModulesHandler(BaseHandler):
+    """
+    /api/v2/modules/
+
+    example output:
+    {
+    version: "0.6.6"
+    data: {
+        info: {
+            response: {
+                loaded_sys_versions: [0]
+                latest_code_version: 1
+            }-
+        }-
+        message: "list modules"
+        }-
+    }
+    """
+
+    def get(self):
+        modules = list_module(self, None)
+        self.write(modules)
+
 
 def _get_scenario_full_name(handler, name, host=None):
     """
