@@ -15,7 +15,7 @@ from stubo.utils import get_hostname
 from stubo.cache import Cache
 from stubo.exceptions import exception_response
 import logging
-
+from stubo.ext.module import Module
 log = logging.getLogger(__name__)
 
 
@@ -255,6 +255,37 @@ def get_delay_policy(handler, name, cache_loc):
     response['data'] = delay_list
     return response, status_code
 
+from stubo.cache import get_keys
+import sys
+
+def list_available_modules(hostname):
+    """
+    Gets all available modules (for given host) and returns a list with them.
+    :param hostname:
+    :return:
+    """
+    modules_list = []
+    module = Module(hostname)
+    # getting keys
+    keys = get_keys('{0}:modules:*'.format(module.host()))
+
+    names = [x.rpartition(':')[-1] for x in keys]
+
+    for name in names:
+        loaded_sys_versions = [x for x in sys.modules.keys() if '{0}_v'.format(name) in x]
+        lastest_code_version = module.latest_version(name)
+        obj = {
+            'name': name,
+            'latest_code_version': lastest_code_version,
+            'loaded_sys_versions': loaded_sys_versions,
+            'href': '/api/v2/modules/objects/%s' % name
+        }
+        modules_list.append(obj)
+
+    return {
+        'version': version,
+        'data': modules_list
+    }
 
 class MagicFiltering:
     def __init__(self, query, hostname):
