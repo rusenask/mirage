@@ -6,6 +6,7 @@ module.exports = {
         scenarioDetails: "./scripts/scenarioDetails.jsx",
         manageScenarios: "./scripts/manageScenarios.jsx",
         manageDelayPolicies: "./scripts/manageDelayPolicies.jsx",
+        manageExternalModules: "./scripts/manageExternalModules.jsx",
         manageTracker: "./scripts/manageTracker.jsx",
         manageTrackerDetails: "./scripts/manageTrackerDetails.jsx"
     },
