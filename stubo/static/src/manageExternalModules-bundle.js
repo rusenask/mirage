@@ -1,193 +1,29 @@
-webpackJsonp([3],[
+webpackJsonp([2],[
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	
 	var React = __webpack_require__(1);
-	var cookie = __webpack_require__(387);
 	var Griddle = __webpack_require__(389);
-
-	//var Tooltip = ReactBootstrap.Tooltip;
-	var Tooltip = __webpack_require__(157).Tooltip;
-	var OverlayTrigger = __webpack_require__(157).OverlayTrigger;
 	var Button = __webpack_require__(157).Button;
 
-	//var OverlayTrigger = ReactBootstrap.OverlayTrigger;
-	//var Button = ReactBootstrap.Button;
-
-
-	function SessionExecute(href, body) {
-	    var infoModal = $('#myModal');
-
-	    $.ajax({
-	        type: "POST",
-	        dataType: "json",
-	        url: href,
-	        data: JSON.stringify(body),
-	        success: function (data) {
-	            var info_msg = JSON.stringify(data.data, null, 2);
-	            var htmlData = '<ul><li>Message: ' + info_msg + '</li></ul>';
-	            infoModal.find('.modal-body').html(htmlData);
-	            infoModal.modal('show');
-	            return false;
-	        }
-	    }).fail(function ($xhr) {
-	        var data = $xhr.responseJSON;
-	        var htmlData = '<ul><li>Error: ' + data.error.message + '</li></ul>';
-	        infoModal.find('.modal-body').html(htmlData);
-	        infoModal.modal('show');
-	        return false;
-	    });
-
-	}
-
-	// we are getting session data nested in the array, so we bring it forward
-	function reformatJSON(initialData) {
-
-	    var newScenariosList = [];
-	    for (var key in initialData) {
-	        if (initialData.hasOwnProperty(key)) {
-	            // console.log(key + " -> " + initialData[key].name);
-	            var singleObj = {};
-	            singleObj['name'] = initialData[key].name;
-	            singleObj['ref'] = initialData[key].scenarioRef;
-	            singleObj['space_used_kb'] = initialData[key].space_used_kb;
-	            singleObj['stub_count'] = initialData[key].stub_count;
-	            singleObj['recorded'] = initialData[key].recorded;
-	            // creating children array
-
-	            var sessions = [];
-
-	            initialData[key].sessions.forEach(function (entry, index) {
-	                // adding session information to parent object
-	                if (index == 0) {
-	                    singleObj['session'] = entry.name;
-	                    singleObj['status'] = entry.status;
-	                    singleObj['loaded'] = entry.loaded;
-	                    singleObj['last_used'] = entry.last_used;
-
-	                } else {
-	                    var childrenObj = {};
-	                    childrenObj['name'] = initialData[key].name;
-	                    childrenObj['session'] = entry.name;
-	                    childrenObj['status'] = entry.status;
-	                    childrenObj['loaded'] = entry.loaded;
-	                    childrenObj['last_used'] = entry.last_used;
-	                    childrenObj['ref'] = initialData[key].scenarioRef;
-	                    childrenObj['space_used_kb'] = initialData[key].space_used_kb;
-	                    childrenObj['stub_count'] = initialData[key].stub_count;
-	                    childrenObj['recorded'] = initialData[key].recorded;
-	                    // adding object to children array
-	                    sessions.push(childrenObj)
-	                }
-	            });
-	            singleObj['sessions'] = sessions;
-
-	            newScenariosList.push(singleObj);
-	        }
-	    }
-	    return newScenariosList
-	}
-
-	var LinkComponent = React.createClass({
-	    displayName: "LinkComponent",
-
-	    render: function () {
-	        var url = "/manage/scenarios/details?scenario=" + this.props.rowData.ref;
-	        return React.createElement("a", {href: url}, React.createElement("span", {style: {overflow: 'hidden', textOverflow: 'ellipsis'}}, " ", this.props.data))
-
-	    }
-	});
-
-	var ExportButton = React.createClass({
-	    displayName: "ExportButton",
-	    render: function () {
-	        const tooltip = (
-	            React.createElement(Tooltip, null, "Export scenario.")
-	        );
-
-	        var hostname_scenario = this.props.data.split(":");
-	        var url = "/stubo/api/get/export?scenario=" + hostname_scenario[1] + "&html=true";
-	        return (
-	            React.createElement(OverlayTrigger, {placement: "left", overlay: tooltip}, 
-	                React.createElement("a", {href: url, className: "btn btn-sm btn-info"}, 
-	                            React.createElement("span", {
-	                                className: "glyphicon glyphicon-cloud-download"})
-	                )
-	            )
-	        );
-	    }
-	});
-
-	// end session placeholder
-	var EndSessionsButton = React.createClass({
-	    displayName: "EndSessionsButton",
-
-	    getInitialState: function () {
-	        return {
-	            ref: this.props.data.ref,
-	            status: false
-	        };
-	    },
-	    handleClick: function (event) {
-	        this.setState({status: !this.state.status});
-
-	        var href = this.state.ref + "/action";
-
-	        var body = {
-	            end: 'sessions'
-	        };
-	        SessionExecute(href, body);
-
-	    },
-	    render: function () {
-
-
-	        const EndSessionsTooltip = (
-	            React.createElement(Tooltip, null, "End all active sessions for this scenario.")
-	        );
-	        // checking whether scenario has a session and whether it is dormant or not
-	        if (this.props.data.session != null && this.props.data.status != 'dormant') {
-	            return (
-	                React.createElement(OverlayTrigger, {placement: "left", overlay: EndSessionsTooltip}, 
-
-	                    React.createElement(Button, {onClick: this.handleClick, bsStyle: "warning", bsSize: "small"}, 
-	                        React.createElement("span", {className: "glyphicon glyphicon-stop"})
-	                    )
-	                )
-	            );
-	        }
-	        // session status is either dormant or there are no sessions, disabling button
-	        else {
-	            return (
-	                React.createElement(Button, {onClick: this.handleClick, bsStyle: "warning", bsSize: "small", disabled: true}, 
-	                    React.createElement("span", {className: "glyphicon glyphicon-stop"})
-	                )
-
-	            );
-	        }
-	    }
-	});
-
-	// remove scenario action button
+	// remove delay policy action button
 	var RemoveButton = React.createClass({displayName: "RemoveButton",
 	    getInitialState: function () {
-	        // getting scenario ref
+	        // getting ref
 	        return {
-	            ref: this.props.data.ref,
+	            ref: this.props.data.href,
 	            name: this.props.data.name
 	        };
 	    },
 	    handleClick: function (event) {
 
 	        var infoModal = $('#myModal');
-	        var scenarioName = this.state.name;
-
+	        var name = this.state.name;
 	        $.ajax({
 	            type: "DELETE",
 	            url: this.state.ref,
 	            success: function () {
-	                var htmlData = '<ul><li> Scenario (' + scenarioName + ') removed successfuly. </li></ul>';
+	                var htmlData = '<ul><li> Module (' + name + ') removed successfuly. </li></ul>';
 	                infoModal.find('.modal-body').html(htmlData);
 	                infoModal.modal('show');
 	                return false;
@@ -202,14 +38,10 @@ webpackJsonp([3],[
 
 	    },
 	    render: function () {
-	        const RemoveTooltip = (
-	            React.createElement(Tooltip, null, "Remove scenario.")
-	        );
+
 	        return (
-	            React.createElement(OverlayTrigger, {placement: "left", overlay: RemoveTooltip}, 
-	                React.createElement(Button, {onClick: this.handleClick, bsStyle: "danger", bsSize: "small"}, 
-	                    React.createElement("span", {className: "glyphicon glyphicon-remove-sign"})
-	                )
+	            React.createElement(Button, {onClick: this.handleClick, bsStyle: "danger", bsSize: "small"}, 
+	                React.createElement("span", null, "Remove")
 	            )
 	        );
 	    }
@@ -219,102 +51,33 @@ webpackJsonp([3],[
 	    displayName: "ActionComponent",
 
 	    render: function () {
-
-
 	        // rendering action buttons
-	        return (React.createElement("div", {className: "btn-group"}, 
-	                React.createElement(ExportButton, {data: this.props.rowData.name}), 
-	                React.createElement(RemoveButton, {data: this.props.rowData}), 
-	                React.createElement(EndSessionsButton, {data: this.props.rowData})
-	            )
+	        return (
+	            React.createElement(RemoveButton, {data: this.props.rowData})
 	        )
-	    }
-	});
-
-	var StatusLabelComponent = React.createClass({
-	    displayName: "StatusLabelComponent",
-
-	    getInitialState: function () {
-	        // getting scenario name and hostname
-	        return {
-	            labelClass: 'label label-default'
-	        };
-	    },
-
-	    componentDidMount: function () {
-
-	    },
-
-	    render: function () {
-	        switch (this.props.rowData.status) {
-	            case undefined:
-	                this.state.labelClass = '';
-	                break;
-	            case 'dormant':
-	                break;
-	            case 'playback':
-	                this.state.labelClass = 'label label-success';
-	                break;
-	            case 'record':
-	                this.state.labelClass = 'label label-warning';
-	                break;
-	        }
-
-	        var sessionStatusTooltip = (
-	            React.createElement(Tooltip, null, "Current session mode is ", this.props.rowData.status, ". Check out documentation for more" + " " +
-	                "information.")
-	        );
-
-	        // checking whether row has children object, removing children objects from children because they cause
-	        // to create a whole separate grid inside a row
-	        if (this.props.rowData.sessions != undefined) {
-	            var sessions = this.props.rowData.sessions.length;
-	            if (sessions > 1) {
-	                // adding session count number to the label
-	                var sessionCounterTooltip = (
-	                    React.createElement(Tooltip, null, "There are ", sessions, " sessions in this scenario. Access scenario details to get" + " " +
-	                        "more information.")
-	                );
-	                return (
-
-	                    React.createElement("div", null, 
-	                        React.createElement(OverlayTrigger, {placement: "left", overlay: sessionStatusTooltip}, 
-	                            React.createElement("span", {className: this.state.labelClass}, " ", this.props.rowData.status)
-	                        ), 
-	                        " ", 
-	                        React.createElement(OverlayTrigger, {placement: "left", overlay: sessionCounterTooltip}, 
-	                            React.createElement("span", {className: "label label-primary"}, sessions)
-	                        )
-	                    )
-
-	                )
-
-	            } else {
-	                // standard row output for each scenario
-	                return ( React.createElement(OverlayTrigger, {placement: "left", overlay: sessionStatusTooltip}, 
-	                        React.createElement("span", {className: this.state.labelClass}, " ", this.props.rowData.status)
-	                    )
-	                )
-	            }
-	        } else {
-	            // children session status label
-	            return (React.createElement(OverlayTrigger, {placement: "left", overlay: sessionStatusTooltip}, 
-	                React.createElement("span", {className: this.state.labelClass}, " ", this.props.rowData.status)
-	            ))
-	        }
-
-
 	    }
 	});
 
 	var columnMeta = [
 	    {
 	        "columnName": "name",
-	        "displayName": "Scenario",
+	        "displayName": "Module name",
 	        "order": 1,
 	        "locked": false,
-	        "visible": true,
-	        "customComponent": LinkComponent
+	        "visible": true
+	    },
+	    {
+	        "columnName": "latest_code_version",
+	        "displayName": "Code version",
+	        "order": 2,
+	        "locked": false,
+	        "visible": true
+	    },
+	    {
+	        "columnName": "loaded_sys_versions",
+	        "displayName": "Loaded versions",
+	        "locked": false,
+	        "visible": true
 	    },
 	    {
 	        "columnName": "actions",
@@ -322,33 +85,25 @@ webpackJsonp([3],[
 	        "locked": false,
 	        "visible": true,
 	        "customComponent": ActionComponent
-	    },
-	    {
-	        "columnName": "status",
-	        "displayName": "Status",
-	        "locked": false,
-	        "visible": true,
-	        "customComponent": StatusLabelComponent
 	    }
 
 	];
 
 	function updateTable(component, href) {
 	    $.get(href, function (result) {
-	        var newList = reformatJSON(result.data);
 	        if (component.isMounted()) {
 	            component.setState({
-	                results: newList
+	                results: result.data
 	            });
 	        }
 	    });
 	}
 
-	var ExternalScenarios = React.createClass({displayName: "ExternalScenarios",
+	var ExternalModules = React.createClass({displayName: "ExternalModules",
 	    getInitialState: function () {
 	        var initial = {
 	            "results": [],
-	            "resultsPerPage": 50
+	            "resultsPerPage": 10
 	        };
 
 	        return initial;
@@ -357,20 +112,12 @@ webpackJsonp([3],[
 	    componentWillMount: function () {
 	    },
 	    componentDidMount: function () {
-	        // getting scenarios
-	        var href = '';
-	        if (cookie.load('stubo.all-hosts') || false) {
-	            // amending query argument to get all hosts
-	            href = this.props.source + '?all-hosts=true'
-	        } else {
-	            href = this.props.source + '?all-hosts=false'
-	        }
+	        href = this.props.source;
 
 	        updateTable(this, href);
 
 	        // subscribing to modal close event
 	        $('#myModal').on('hidden.bs.modal', function () {
-	            console.log("downloading new scenario list");
 	            updateTable(this, href);
 	        }.bind(this));
 	    },
@@ -398,14 +145,15 @@ webpackJsonp([3],[
 	                        showFilter: true, showSettings: true, 
 	                        resultsPerPage: this.state.resultsPerPage, 
 	                        columnMetadata: columnMeta, 
-	                        columns: ["name", "session", "status", "loaded", "last_used", "space_used_kb", "stub_count", "recorded", "actions"]})
+	                        columns: ["name", "latest_code_version", "loaded_sys_versions", "actions"]})
 	    }
 	});
 
 	React.render(
-	    React.createElement(ExternalScenarios, {source: "/stubo/api/v2/scenarios/detail"}),
-	    document.getElementById("app")
+	    React.createElement(ExternalModules, {source: "/api/v2/modules"}),
+	    document.getElementById('app')
 	);
+
 
 /***/ },
 /* 1 */,
@@ -16262,265 +16010,8 @@ webpackJsonp([3],[
 	module.exports = exports['default'];
 
 /***/ },
-/* 387 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var cookie = __webpack_require__(388);
-
-	var _rawCookie = {};
-	var _res = undefined;
-
-	function load(name, doNotParse) {
-	  var cookies = {};
-
-	  if (typeof document !== 'undefined') {
-	    cookies = cookie.parse(document.cookie);
-	  }
-
-	  var cookieVal = (cookies && cookies[name]) || _rawCookie[name];
-
-	  if (!doNotParse) {
-	    try {
-	      cookieVal = JSON.parse(cookieVal);
-	    } catch(e) {
-	      // Not serialized object
-	    }
-	  }
-
-	  return cookieVal;
-	}
-
-	function save(name, val, opt) {
-	  _rawCookie[name] = val;
-
-	  // allow you to work with cookies as objects.
-	  if (typeof val === 'object') {
-	    _rawCookie[name] = JSON.stringify(val);
-	  }
-
-	  // Cookies only work in the browser
-	  if (typeof document !== 'undefined') {
-	    document.cookie = cookie.serialize(name, _rawCookie[name], opt);
-	  }
-
-	  if (_res && _res.cookie) {
-	    _res.cookie(name, val, opt);
-	  }
-	}
-
-	function remove(name, path) {
-	  delete _rawCookie[name];
-
-	  if (typeof document !== 'undefined') {
-	    var removeCookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-
-	    if (path) {
-	      removeCookie += ' path=' + path;
-	    }
-
-	    document.cookie = removeCookie;
-	  }
-
-	  if (_res && _res.clearCookie) {
-	    var opt = path ? { path: path } : undefined;
-	    _res.clearCookie(name, opt);
-	  }
-	}
-
-	function setRawCookie(rawCookie) {
-	  _rawCookie = cookie.parse(rawCookie);
-	}
-
-	function plugToRequest(req, res) {
-	  if (req) {
-	    if (req.cookie) {
-	      _rawCookie = req.cookie;
-	    } else if (req.headers && req.headers.cookie) {
-	      setRawCookie(req.headers.cookie);
-	    }
-	  }
-
-	  _res = res;
-	}
-
-	var reactCookie = {
-	  load: load,
-	  save: save,
-	  remove: remove,
-	  setRawCookie: setRawCookie,
-	  plugToRequest: plugToRequest
-	};
-
-	if (typeof window !== 'undefined') {
-	  window['reactCookie'] = reactCookie;
-	}
-
-	module.exports = reactCookie;
-
-
-/***/ },
-/* 388 */
-/***/ function(module, exports) {
-
-	/*!
-	 * cookie
-	 * Copyright(c) 2012-2014 Roman Shtylman
-	 * Copyright(c) 2015 Douglas Christopher Wilson
-	 * MIT Licensed
-	 */
-
-	/**
-	 * Module exports.
-	 * @public
-	 */
-
-	exports.parse = parse;
-	exports.serialize = serialize;
-
-	/**
-	 * Module variables.
-	 * @private
-	 */
-
-	var decode = decodeURIComponent;
-	var encode = encodeURIComponent;
-
-	/**
-	 * RegExp to match field-content in RFC 7230 sec 3.2
-	 *
-	 * field-content = field-vchar [ 1*( SP / HTAB ) field-vchar ]
-	 * field-vchar   = VCHAR / obs-text
-	 * obs-text      = %x80-FF
-	 */
-
-	var fieldContentRegExp = /^[\u0009\u0020-\u007e\u0080-\u00ff]+$/;
-
-	/**
-	 * Parse a cookie header.
-	 *
-	 * Parse the given cookie header string into an object
-	 * The object has the various cookies as keys(names) => values
-	 *
-	 * @param {string} str
-	 * @param {object} [options]
-	 * @return {object}
-	 * @public
-	 */
-
-	function parse(str, options) {
-	  if (typeof str !== 'string') {
-	    throw new TypeError('argument str must be a string');
-	  }
-
-	  var obj = {}
-	  var opt = options || {};
-	  var pairs = str.split(/; */);
-	  var dec = opt.decode || decode;
-
-	  pairs.forEach(function(pair) {
-	    var eq_idx = pair.indexOf('=')
-
-	    // skip things that don't look like key=value
-	    if (eq_idx < 0) {
-	      return;
-	    }
-
-	    var key = pair.substr(0, eq_idx).trim()
-	    var val = pair.substr(++eq_idx, pair.length).trim();
-
-	    // quoted values
-	    if ('"' == val[0]) {
-	      val = val.slice(1, -1);
-	    }
-
-	    // only assign once
-	    if (undefined == obj[key]) {
-	      obj[key] = tryDecode(val, dec);
-	    }
-	  });
-
-	  return obj;
-	}
-
-	/**
-	 * Serialize data into a cookie header.
-	 *
-	 * Serialize the a name value pair into a cookie string suitable for
-	 * http headers. An optional options object specified cookie parameters.
-	 *
-	 * serialize('foo', 'bar', { httpOnly: true })
-	 *   => "foo=bar; httpOnly"
-	 *
-	 * @param {string} name
-	 * @param {string} val
-	 * @param {object} [options]
-	 * @return {string}
-	 * @public
-	 */
-
-	function serialize(name, val, options) {
-	  var opt = options || {};
-	  var enc = opt.encode || encode;
-
-	  if (!fieldContentRegExp.test(name)) {
-	    throw new TypeError('argument name is invalid');
-	  }
-
-	  var value = enc(val);
-
-	  if (value && !fieldContentRegExp.test(value)) {
-	    throw new TypeError('argument val is invalid');
-	  }
-
-	  var pairs = [name + '=' + value];
-
-	  if (null != opt.maxAge) {
-	    var maxAge = opt.maxAge - 0;
-	    if (isNaN(maxAge)) throw new Error('maxAge should be a Number');
-	    pairs.push('Max-Age=' + maxAge);
-	  }
-
-	  if (opt.domain) {
-	    if (!fieldContentRegExp.test(opt.domain)) {
-	      throw new TypeError('option domain is invalid');
-	    }
-
-	    pairs.push('Domain=' + opt.domain);
-	  }
-
-	  if (opt.path) {
-	    if (!fieldContentRegExp.test(opt.path)) {
-	      throw new TypeError('option path is invalid');
-	    }
-
-	    pairs.push('Path=' + opt.path);
-	  }
-
-	  if (opt.expires) pairs.push('Expires=' + opt.expires.toUTCString());
-	  if (opt.httpOnly) pairs.push('HttpOnly');
-	  if (opt.secure) pairs.push('Secure');
-
-	  return pairs.join('; ');
-	}
-
-	/**
-	 * Try decoding a string using a decoding function.
-	 *
-	 * @param {string} str
-	 * @param {function} decode
-	 * @private
-	 */
-
-	function tryDecode(str, decode) {
-	  try {
-	    return decode(str);
-	  } catch (e) {
-	    return str;
-	  }
-	}
-
-
-/***/ },
+/* 387 */,
+/* 388 */,
 /* 389 */
 /***/ function(module, exports, __webpack_require__) {
 
