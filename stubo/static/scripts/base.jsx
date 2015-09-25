@@ -113,16 +113,30 @@ var TrackingLevelComponent = React.createClass({
     },
 
     render: function () {
+        var msg = null;
+        if(this.state.checked){
+            msg = "Disable full tracking (debugging) mode.";
+        }else {
+            msg = "Enable this option to capture more data. Beware that this option is global and decreases" +
+                " performance for all virtual Mirage instances.";
+        }
+
+        var ButtonTooltip = (
+            <Tooltip> {msg} </Tooltip>
+        );
+
         // rendering field with checkbox
         return (
-            <a href="#" onClick={this.handleClick}>
-                <i className="fa fa-flash"></i>
-                <span> Full tracking level </span>
-                <input className="pull-right"
-                       type="checkbox"
-                       checked={this.state.checked}
-                       onChange={this.handleClick}/>
-            </a>
+            <OverlayTrigger placement='right' overlay={ButtonTooltip}>
+                <a href="#" onClick={this.handleClick}>
+                    <i className="fa fa-flash"></i>
+                    <span> Full tracking level </span>
+                    <input className="pull-right"
+                           type="checkbox"
+                           checked={this.state.checked}
+                           onChange={this.handleClick}/>
+                </a>
+            </OverlayTrigger>
         )
     }
 
