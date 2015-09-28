@@ -520,6 +520,15 @@ class ManageScenarioDetailsHandler(RequestHandler):
     def get(self):
         self.render('manageScenarioDetails.html')
 
+class ManageScenarioExportHandler(RequestHandler):
+    """
+   /manage/scenarios/export?scenario=<href to scenario>
+
+   """
+
+    def get(self):
+        self.render('manageExportScenario.html')
+
 class ManageDelayPoliciesHandler(RequestHandler):
 
     def get(self):
@@ -1169,10 +1178,13 @@ class ScenarioActionHandler(TrackRequest):
         ...
 
         """
-        cache = Cache(get_hostname(self.request))
+        # checking whether scenario name was supplied
+        if ':' in self.scenario_name:
+            scenario_name_key = self.scenario_name
+            _, self.scenario_name = self.scenario_name.split(':')
+        else:
+            scenario_name_key = _get_scenario_full_name(self, self.scenario_name)
 
-        # getting parameters
-        scenario_name_key = cache.scenario_key_name(self.scenario_name)
         static_dir = self.settings['static_path']
 
         exporter = Exporter(static_dir=static_dir)
