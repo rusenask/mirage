@@ -23,6 +23,7 @@ let ScenarioNameComponent = React.createClass({
     }
 });
 
+// displaying single list entry (name + download button)
 let ListItemWrapper = React.createClass({
     displayName: "ListItemWrapper",
 
@@ -41,7 +42,7 @@ let ListItemWrapper = React.createClass({
     }
 });
 
-
+// this component get a list of lists (those children lists contain name and href to resource)
 let LinksComponent = React.createClass({
     displayName: "LinksComponent",
 
@@ -62,7 +63,7 @@ let LinksComponent = React.createClass({
     }
 });
 
-
+// creates two boxes with links and also provides a scenario name for the template
 let ExportInformation = React.createClass({
     displayName: "ExportInformation",
 

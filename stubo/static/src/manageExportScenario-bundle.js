@@ -40,6 +40,7 @@ webpackJsonp([2],[
 	    }
 	});
 
+	// displaying single list entry (name + download button)
 	var ListItemWrapper = _react2['default'].createClass({
 	    displayName: "ListItemWrapper",
 
@@ -72,6 +73,7 @@ webpackJsonp([2],[
 	    }
 	});
 
+	// this component get a list of lists (those children lists contain name and href to resource)
 	var LinksComponent = _react2['default'].createClass({
 	    displayName: "LinksComponent",
 
@@ -92,6 +94,7 @@ webpackJsonp([2],[
 	    }
 	});
 
+	// creates two boxes with links and also provides a scenario name for the template
 	var ExportInformation = _react2['default'].createClass({
 	    displayName: "ExportInformation",
 
