@@ -22,7 +22,10 @@ module.exports = {
 
               //type of loader to be used
               //loaders can accept parameters as a query string
-              loader: 'jsx-loader?harmony'
+              loader: 'babel'
+          },
+          {
+              test: /\.js$/, loader: 'babel-loader'
           }
       ]
     },
