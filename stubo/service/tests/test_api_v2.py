@@ -755,7 +755,13 @@ class TestStubOperations(Base):
         bd = json.loads(response.body)
         # checking response for command, yaml links and scenario name
         self.assertTrue('command_links' in bd['data'])
+        # there should be four items in command links: commands, zip, tar.gz, jar
+        self.assertEqual(len(bd['data']['command_links']), 4, bd['data']['command_links'])
         self.assertTrue('yaml_links' in bd['data'])
+
+        # there should be five items in yaml links: json, yaml, zip, tar.gz, jar
+        self.assertEqual(len(bd['data']['yaml_links']), 5, bd['data']['yaml_links'])
+
         self.assertEqual(scenario_name, bd['data']['scenario'])
 
         # wiping stubs
