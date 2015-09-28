@@ -1112,6 +1112,72 @@ class ScenarioActionHandler(TrackRequest):
                                                                                    self.scenario_name,
                                                                                    ex))
 
+    @stubo_async
+    def _export_scenario(self, body_dict):
+        """
+        Standard export functionality example request:
+        {
+          "export": null
+        }
+        Example response:
+        {
+            "version": "0.6.6", "data": {
+                "yaml_links": [
+                    ["scenario_1_1443437153_0.json", "http:/host:port/static/exports/localhost_scenario_1/yaml_format/
+                                                      scenario_1_1443437153_0.json?v=c0edf1d9ded15b97c6d083d2128b9945"],
+                        ...
+                ],
+                "command_links": [
+                    ["scenario_1_1443437153_0.response", "http://host:port/static/exports/localhost_scenario_1/
+                                                  scenario_1_1443437153_0.response?v=55c4a49780ed085e7a5f9176e90aef60"],
+                ...
+                ],
+                "scenario": "scenario_1",
+                "export_dir_path": "/Users/karolisrusenas/IdeaProjects/mirage/stubo/static/exports/localhost_scenario_1/
+                                    yaml_format"
+            }
+        }
+
+
+        """
+        cache = Cache(get_hostname(self.request))
+
+        # getting parameters
+        scenario_name_key = cache.scenario_key_name(self.scenario_name)
+        static_dir = self.settings['static_path']
+
+        exporter = Exporter(static_dir=static_dir)
+        runnable = body_dict.get('runnable', False)
+        playback_session = body_dict.get('playback_session', None)
+        session = body_dict.get('session', None)
+        export_dir = body_dict.get('export_dir', None)
+
+        # exporting to commands format
+        command_links = export_stubs_to_commands_format(handler=self,
+                                                        scenario_name_key=scenario_name_key,
+                                                        scenario_name=self.scenario_name,
+                                                        session_id=session,
+                                                        runnable=runnable,
+                                                        playback_session=playback_session,
+                                                        static_dir=static_dir,
+                                                        export_dir=export_dir)
+
+        # doing the export
+        export_dir_path, files, runnable_info = exporter.export(scenario_name_key,
+                                                                runnable=runnable,
+                                                                playback_session=playback_session,
+                                                                session_id=session,
+                                                                export_dir=export_dir)
+
+        # getting export links
+        yaml_links = get_export_links(self, scenario_name_key + "/" + YAML_FORMAT_SUBDIR, files)
+
+        payload = dict(scenario=self.scenario_name, export_dir_path=export_dir_path,
+                       command_links=command_links, yaml_links=yaml_links)
+        if runnable_info:
+            payload['runnable'] = runnable_info
+        return dict(version=version, data=payload)
+
 
 class CreateDelayPolicyHandler(BaseHandler):
     """
