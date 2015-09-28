@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Grid, Row, Col } from 'react-bootstrap'
+import { Grid, Row, Col, OverlayTrigger, Tooltip } from 'react-bootstrap'
 
 function getUrlVars() {
     let vars = [], hash;
@@ -14,6 +14,25 @@ function getUrlVars() {
     return vars;
 }
 
+let ListItemWrapper = React.createClass({
+    displayName: "ListItemWrapper",
+
+    render: function() {
+        const tooltip = (
+            <Tooltip>Download this file.</Tooltip>
+        );
+        return( <li>
+                    <OverlayTrigger placement='right' overlay={tooltip}>
+                        <a className="btn btn-xs btn-info" href={this.props.data[1]} ><i className="fa fa-fw fa-download"></i></a>
+                    </OverlayTrigger>
+
+                    <span> {this.props.data[0]} </span>
+                </li>
+        )
+    }
+});
+
+
 let LinksComponent = React.createClass({
     displayName: "LinksComponent",
 
@@ -26,9 +45,11 @@ let LinksComponent = React.createClass({
 
     render: function () {
         return (
-            <div>
-                {this.props.data}
-            </div>
+                <ul>
+                    {this.props.data.map(function(result) {
+                        return <ListItemWrapper key={result[0]} data={result}/>;
+                    })}
+                </ul>
         )
     }
 });
