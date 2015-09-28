@@ -581,6 +581,9 @@ from stubo.service.api import delete_module
 from stubo.service.api import end_session, end_sessions, delete_delay_policy, put_stub, get_response
 from stubo.utils.track import BaseHandler
 from stubo.utils import asbool
+from stubo.model.exporter import Exporter
+from stubo.model.export_commands import export_stubs_to_commands_format, get_export_links
+from stubo.model.exporter import YAML_FORMAT_SUBDIR
 
 
 NOT_ALLOWED_MSG = 'Method not allowed'
@@ -1019,8 +1022,7 @@ class ScenarioActionHandler(TrackRequest):
 
             # export scenario
             elif 'export' in body_dict:
-                # do scenario export
-                pass
+                self._export_scenario(body_dict)
 
             else:
                 self.send_error(status_code=400)
