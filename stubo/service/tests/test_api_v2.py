@@ -721,6 +721,11 @@ class TestStubOperations(Base):
         self._delete_stubs(scenario_name)
 
     def test_export_scenario_stubs(self):
+        """
+        Test scenario export functionality. Creates a scenario, inserts stubs, ends session.
+        Then exports scenario and checks for contents. Deletes scenario in the end.
+
+        """
         scenario_name = "scenario_stub_multi_test_x"
         session_name = "session_stub_multi_test_x"
 
