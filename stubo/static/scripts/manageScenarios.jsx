@@ -2,17 +2,12 @@
 var React = require('../node_modules/react');
 var cookie = require('react-cookie');
 var Griddle = require('../node_modules/griddle-react');
-
-//var Tooltip = ReactBootstrap.Tooltip;
 var Tooltip = require('../node_modules/react-bootstrap').Tooltip;
 var OverlayTrigger = require('../node_modules/react-bootstrap').OverlayTrigger;
 var Button = require('../node_modules/react-bootstrap').Button;
 
-//var OverlayTrigger = ReactBootstrap.OverlayTrigger;
-//var Button = ReactBootstrap.Button;
 
-
-function SessionExecute(href, body) {
+function ExecuteRequest(href, body) {
     var infoModal = $('#myModal');
 
     $.ajax({
@@ -102,8 +97,8 @@ var ExportButton = React.createClass({
             <Tooltip>Export scenario.</Tooltip>
         );
 
-        var hostname_scenario = this.props.data.split(":");
-        var url = "/stubo/api/get/export?scenario=" + hostname_scenario[1] + "&html=true";
+        var url = '/manage/scenarios/export?scenario=' + this.props.data.ref;
+
         return (
             <OverlayTrigger placement='left' overlay={tooltip}>
                 <a href={url} className="btn btn-sm btn-info">
@@ -115,7 +110,7 @@ var ExportButton = React.createClass({
     }
 });
 
-// end session placeholder
+// end session button
 var EndSessionsButton = React.createClass({
     displayName: "EndSessionsButton",
 
@@ -133,7 +128,7 @@ var EndSessionsButton = React.createClass({
         var body = {
             end: 'sessions'
         };
-        SessionExecute(href, body);
+        ExecuteRequest(href, body);
 
     },
     render: function () {
@@ -215,11 +210,9 @@ var ActionComponent = React.createClass({
     displayName: "ActionComponent",
 
     render: function () {
-
-
         // rendering action buttons
         return (<div className="btn-group">
-                <ExportButton data={this.props.rowData.name}/>
+                <ExportButton data={this.props.rowData}/>
                 <RemoveButton data={this.props.rowData}/>
                 <EndSessionsButton data={this.props.rowData}/>
             </div>
