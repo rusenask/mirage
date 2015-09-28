@@ -1140,6 +1140,33 @@ class ScenarioActionHandler(TrackRequest):
             }
         }
 
+        Example export runnable scenario request body:
+        {
+          "export": null,
+          "runnable": true,
+          "playback_session": "response_play"
+        }
+
+        All optional parameters:
+        Optional:
+        {
+             “session”: “session_name(if None - will default to current time”,
+             “export_dir”: “export_dir_name”,
+             “runnable”: true,
+             “playback_session”: “session_to_use(required when runnable)”
+         }
+
+        In addition to usual export links to files there will be created another object (runnable):
+        ...
+        runnable: {
+            last_used: {
+                    start_time: "2015-09-25 17:12:03.133000+00:00"
+                    remote_ip: "::1"
+                }
+            playback_session: "response_play"
+            number_of_playback_requests: 1
+            }
+        ...
 
         """
         cache = Cache(get_hostname(self.request))
