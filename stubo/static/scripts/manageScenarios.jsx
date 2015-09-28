@@ -1,4 +1,3 @@
-
 var React = require('../node_modules/react');
 var cookie = require('react-cookie');
 var Griddle = require('../node_modules/griddle-react');
@@ -162,6 +161,8 @@ var EndSessionsButton = React.createClass({
 
 // remove scenario action button
 var RemoveButton = React.createClass({
+    displayName: "RemoveButton",
+
     getInitialState: function () {
         // getting scenario ref
         return {
@@ -334,6 +335,7 @@ function updateTable(component, href) {
 }
 
 var ExternalScenarios = React.createClass({
+    displayName: "ExternalScenarios",
     getInitialState: function () {
         var initial = {
             "results": [],
