@@ -14,6 +14,15 @@ function getUrlVars() {
     return vars;
 }
 
+// display scenario name near the header
+let ScenarioNameComponent = React.createClass({
+    displayName: "ScenarioNameComponent",
+
+    render: function() {
+        return <small> Exported scenario name: {this.props.data} </small>
+    }
+});
+
 let ListItemWrapper = React.createClass({
     displayName: "ListItemWrapper",
 
@@ -37,7 +46,6 @@ let LinksComponent = React.createClass({
     displayName: "LinksComponent",
 
     getInitialState: function () {
-        console.log(this.props.data);
         return {
             "data": this.props.data
         }
@@ -87,10 +95,17 @@ let ExportInformation = React.createClass({
             data: JSON.stringify(body),
             success: function (data) {
                 if (that.isMounted()) {
+
                     that.setState({
                         results: data,
                         mounted: true
                     });
+
+                    // rendering name
+                    React.render(
+                        <ScenarioNameComponent key={data.data.scenario} data={data.data.scenario}/>,
+                        document.getElementById("scenarioName")
+                    );
                 }
             }
         }).fail(function ($xhr) {
