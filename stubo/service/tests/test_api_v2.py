@@ -720,6 +720,47 @@ class TestStubOperations(Base):
         # wiping stubs
         self._delete_stubs(scenario_name)
 
+    def test_export_scenario_stubs(self):
+        scenario_name = "scenario_stub_multi_test_x"
+        session_name = "session_stub_multi_test_x"
+
+        # insert scenario
+        self._insert_scenario(scenario_name)
+        # begin recording
+        self._begin_session_(session_name, scenario_name, "record")
+
+        for stub in xrange(10):
+            body = get_stub(["<status>IS_OK%s</status>" % stub])
+            # inserting stub
+            response = self._add_stub(session=session_name, scenario=scenario_name, body=body)
+            # after insertion there should be one stub and since it's a creation - response code should be 201
+            self.assertEqual(response.code, 201, response.reason)
+        # getting stubs
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/%s/stubs' % scenario_name),
+                               self.stop,
+                               method="GET")
+        response = self.wait()
+        self.assertEqual(200, response.code, response.reason)
+        self.assertTrue('data' in response.body)
+
+        # ending session
+        self._end_session(session_name, scenario_name)
+
+        # exporting scenario
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/scenario_stub_multi_test_x/action'),
+                               self.stop,
+                               method="POST",
+                               body='{ "export": null}')
+        response = self.wait()
+        bd = json.loads(response.body)
+        # checking response for command, yaml links and scenario name
+        self.assertTrue('command_links' in bd['data'])
+        self.assertTrue('yaml_links' in bd['data'])
+        self.assertEqual(scenario_name, bd['data']['scenario'])
+
+        # wiping stubs
+        self._delete_stubs(scenario_name)
+
     def test_delete_scenario_stubs(self):
         """
         Test for delete scenario stubs API call
@@ -859,6 +900,19 @@ class TestStubOperations(Base):
         response = self.wait()
         self.assertEqual(response.code, 200, response.reason)
 
+    def _end_session(self, session, scenario):
+        """
+        Ends specified session
+        :param session:
+        :param scenario:
+        """
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/%s/action' % scenario),
+                               self.stop,
+                               method="POST",
+                               body='{ "end": null, "session": "%s" }' % session)
+        response = self.wait()
+        self.assertEqual(response.code, 200, response.reason)
+
     def _add_stub(self, session, scenario, body):
         """
         Adds stub for specified scenario
@@ -877,7 +931,6 @@ class TestStubOperations(Base):
 
 
 class TestRecords(Base):
-
     def test_all_records(self):
         """
 
@@ -988,8 +1041,8 @@ class TestRecords(Base):
 import unittest
 from stubo.service.api_v2 import MagicFiltering
 
-class MagicFilterTest(unittest.TestCase):
 
+class MagicFilterTest(unittest.TestCase):
     op_list = ['<', '<=', '>', '>=']
 
     op_map = {
