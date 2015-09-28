@@ -25,22 +25,87 @@ webpackJsonp([2],[
 	    return vars;
 	}
 
+	// display scenario name near the header
+	var ScenarioNameComponent = _react2['default'].createClass({
+	    displayName: "ScenarioNameComponent",
+
+	    render: function render() {
+	        return _react2['default'].createElement(
+	            'small',
+	            null,
+	            ' Exported scenario name: ',
+	            this.props.data,
+	            ' '
+	        );
+	    }
+	});
+
+	var ListItemWrapper = _react2['default'].createClass({
+	    displayName: "ListItemWrapper",
+
+	    render: function render() {
+	        var tooltip = _react2['default'].createElement(
+	            _reactBootstrap.Tooltip,
+	            null,
+	            'Download this file.'
+	        );
+	        return _react2['default'].createElement(
+	            'li',
+	            null,
+	            _react2['default'].createElement(
+	                _reactBootstrap.OverlayTrigger,
+	                { placement: 'right', overlay: tooltip },
+	                _react2['default'].createElement(
+	                    'a',
+	                    { className: 'btn btn-xs btn-info', href: this.props.data[1] },
+	                    _react2['default'].createElement('i', { className: 'fa fa-fw fa-download' })
+	                )
+	            ),
+	            _react2['default'].createElement(
+	                'span',
+	                null,
+	                ' ',
+	                this.props.data[0],
+	                ' '
+	            )
+	        );
+	    }
+	});
+
+	var LinksComponent = _react2['default'].createClass({
+	    displayName: "LinksComponent",
+
+	    getInitialState: function getInitialState() {
+	        return {
+	            "data": this.props.data
+	        };
+	    },
+
+	    render: function render() {
+	        return _react2['default'].createElement(
+	            'ul',
+	            null,
+	            this.props.data.map(function (result) {
+	                return _react2['default'].createElement(ListItemWrapper, { key: result[0], data: result });
+	            })
+	        );
+	    }
+	});
+
 	var ExportInformation = _react2['default'].createClass({
 	    displayName: "ExportInformation",
 
 	    getInitialState: function getInitialState() {
 	        return {
 	            "results": [],
-	            "href": getUrlVars()["scenario"] || null
+	            "href": getUrlVars()["scenario"] || null,
+	            "mounted": false
 	        };
 	    },
 
-	    componentWillMount: function componentWillMount() {
-	        console.log("component will mount");
-	    },
+	    componentWillMount: function componentWillMount() {},
 
 	    componentDidMount: function componentDidMount() {
-	        console.log(this.state.href);
 	        var infoModal = $('#myModal');
 	        // creating body for export POST request
 	        var body = {
@@ -48,17 +113,24 @@ webpackJsonp([2],[
 	        };
 
 	        var that = this;
+	        // creating full url + removing hashes (can be there due to enabling/disabling check boxes)
+	        var url = (this.state.href + '/action').replace("#", "");
 
 	        $.ajax({
 	            type: "POST",
 	            dataType: "json",
-	            url: this.state.href + '/action',
+	            url: url,
 	            data: JSON.stringify(body),
 	            success: function success(data) {
 	                if (that.isMounted()) {
+
 	                    that.setState({
-	                        results: data
+	                        results: data,
+	                        mounted: true
 	                    });
+
+	                    // rendering name
+	                    _react2['default'].render(_react2['default'].createElement(ScenarioNameComponent, { key: data.data.scenario, data: data.data.scenario }), document.getElementById("scenarioName"));
 	                }
 	            }
 	        }).fail(function ($xhr) {
@@ -70,6 +142,31 @@ webpackJsonp([2],[
 	    },
 
 	    render: function render() {
+
+	        var YamlLinks = undefined,
+	            CommandLinks = null;
+
+	        // getting yaml links
+	        if (this.state.mounted) {
+	            YamlLinks = _react2['default'].createElement(LinksComponent, { data: this.state.results.data.yaml_links });
+	        } else {
+	            YamlLinks = _react2['default'].createElement(
+	                'div',
+	                null,
+	                ' Loading.. '
+	            );
+	        }
+	        // getting command links
+	        if (this.state.mounted) {
+	            CommandLinks = _react2['default'].createElement(LinksComponent, { data: this.state.results.data.command_links });
+	        } else {
+	            CommandLinks = _react2['default'].createElement(
+	                'div',
+	                null,
+	                ' Loading.. '
+	            );
+	        }
+
 	        // constructing grid
 	        var gridInstance = _react2['default'].createElement(
 	            _reactBootstrap.Grid,
@@ -95,7 +192,7 @@ webpackJsonp([2],[
 	                        _react2['default'].createElement(
 	                            _reactBootstrap.Col,
 	                            { className: 'box-body pad' },
-	                            'Commands'
+	                            CommandLinks
 	                        )
 	                    )
 	                ),
@@ -117,13 +214,13 @@ webpackJsonp([2],[
 	                        _react2['default'].createElement(
 	                            _reactBootstrap.Col,
 	                            { className: 'box-body pad' },
-	                            'Yaml'
+	                            YamlLinks
 	                        )
 	                    )
 	                )
 	            )
 	        );
-	        // rendering
+	        // rendering the grid
 	        return _react2['default'].createElement(
 	            'div',
 	            null,

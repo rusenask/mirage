@@ -1,4 +1,4 @@
-webpackJsonp([6],{
+webpackJsonp([7],{
 
 /***/ 0:
 /***/ function(module, exports, __webpack_require__) {
@@ -7,16 +7,17 @@ webpackJsonp([6],{
 	 * Created by karolisrusenas on 22/09/15.
 	 */
 
+	'use strict';
+
 	var React = __webpack_require__(1);
 
 	var Inspector = __webpack_require__(404);
 
-	function getUrlVars()
-	{
-	    var vars = [], hash;
+	function getUrlVars() {
+	    var vars = [],
+	        hash;
 	    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-	    for(var i = 0; i < hashes.length; i++)
-	    {
+	    for (var i = 0; i < hashes.length; i++) {
 	        hash = hashes[i].split('=');
 	        vars.push(hash[0]);
 	        vars[hash[0]] = hash[1];
@@ -24,9 +25,9 @@ webpackJsonp([6],{
 	    return vars;
 	}
 
-	var LoadJsonData = function(href){
+	var LoadJsonData = function LoadJsonData(href) {
 	    // getting current url
-	    if(href == null) {
+	    if (href == null) {
 	        href = getUrlVars()["scenario"];
 	    }
 	    // adding stubs path
@@ -34,22 +35,20 @@ webpackJsonp([6],{
 
 	    $.get(href, function (result) {
 	        // render component
-	        React.render(
-	            React.createElement(Inspector, {
-	                ignoreCase: false, 
-	                data:  result.data}),
-	            document.getElementById('app')
-	        );
+	        React.render(React.createElement(Inspector, {
+	            ignoreCase: false,
+	            data: result.data }), document.getElementById('app'));
 	    });
 	};
 
 	LoadJsonData();
 
-
 /***/ },
 
 /***/ 404:
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var React = __webpack_require__(1);
 	var D = React.DOM;
@@ -65,11 +64,10 @@ webpackJsonp([6],{
 	var noop = __webpack_require__(412);
 
 	module.exports = React.createClass({
+	    displayName: 'exports',
+
 	    propTypes: {
-	        data: React.PropTypes.oneOfType([
-	            React.PropTypes.object.isRequired,
-	            React.PropTypes.array.isRequired,
-	        ]),
+	        data: React.PropTypes.oneOfType([React.PropTypes.object.isRequired, React.PropTypes.array.isRequired]),
 	        // For now it expects a factory function, not element.
 	        search: React.PropTypes.func,
 	        onClick: React.PropTypes.func,
@@ -78,7 +76,7 @@ webpackJsonp([6],{
 	        filterOptions: React.PropTypes.object
 	    },
 
-	    getDefaultProps: function() {
+	    getDefaultProps: function getDefaultProps() {
 	        return {
 	            data: null,
 	            search: searchBar,
@@ -86,7 +84,7 @@ webpackJsonp([6],{
 	            id: 'json-' + Date.now(),
 	            onClick: noop,
 	            filterOptions: {},
-	            validateQuery: function(query) {
+	            validateQuery: function validateQuery(query) {
 	                return query.length >= 2;
 	            },
 	            /**
@@ -96,17 +94,17 @@ webpackJsonp([6],{
 	             * @param  {Any} value
 	             * @return {Boolean}
 	             */
-	            isExpanded: function(keypath, value) {
+	            isExpanded: function isExpanded(keypath, value) {
 	                return false;
 	            }
 	        };
 	    },
-	    getInitialState: function() {
+	    getInitialState: function getInitialState() {
 	        return {
 	            query: ''
 	        };
 	    },
-	    render: function() {
+	    render: function render() {
 	        var p = this.props;
 	        var s = this.state;
 
@@ -126,51 +124,47 @@ webpackJsonp([6],{
 
 	        var notFound = D.div({ className: 'json-inspector__not-found' }, 'Nothing found');
 
-	        return D.div({ className: 'json-inspector ' + p.className },
-	            this.renderToolbar(),
-	            isEmpty(data) ? notFound : rootNode);
+	        return D.div({ className: 'json-inspector ' + p.className }, this.renderToolbar(), isEmpty(data) ? notFound : rootNode);
 	    },
-	    renderToolbar: function() {
+	    renderToolbar: function renderToolbar() {
 	        var search = this.props.search;
 
 	        if (search) {
-	            return D.div({ className: 'json-inspector__toolbar' },
-	                search({ onChange: this.search, data: this.props.data }));
+	            return D.div({ className: 'json-inspector__toolbar' }, search({ onChange: this.search, data: this.props.data }));
 	        }
 	    },
-	    search: function(query) {
+	    search: function search(query) {
 	        if (query === '' || this.props.validateQuery(query)) {
 	            this.setState({
 	                query: query
 	            });
 	        }
 	    },
-	    componentDidMount: function() {
+	    componentDidMount: function componentDidMount() {
 	        this.createFilterer(this.props.data, this.props.filterOptions);
 	    },
-	    componentWillReceiveProps: function(p) {
+	    componentWillReceiveProps: function componentWillReceiveProps(p) {
 	        this.createFilterer(p.data, p.filterOptions);
 	    },
-	    shouldComponentUpdate: function (p, s) {
-	        return s.query !== this.state.query ||
-	            p.data !== this.props.data ||
-	            p.onClick !== this.props.onClick;
+	    shouldComponentUpdate: function shouldComponentUpdate(p, s) {
+	        return s.query !== this.state.query || p.data !== this.props.data || p.onClick !== this.props.onClick;
 	    },
-	    createFilterer: function(data, options) {
+	    createFilterer: function createFilterer(data, options) {
 	        this.setState({
 	            filterer: filterer(data, options)
 	        });
 	    },
-	    getOriginal: function(path) {
+	    getOriginal: function getOriginal(path) {
 	        return lens(this.props.data, path);
 	    }
 	});
-
 
 /***/ },
 
 /***/ 405:
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var React = __webpack_require__(1);
 	var D = React.DOM;
@@ -184,18 +178,20 @@ webpackJsonp([6],{
 	var PATH_PREFIX = '.root.';
 
 	var Leaf = React.createClass({
-	    getInitialState: function() {
+	    displayName: 'Leaf',
+
+	    getInitialState: function getInitialState() {
 	        return {
 	            expanded: this._isInitiallyExpanded(this.props)
 	        };
 	    },
-	    getDefaultProps: function() {
+	    getDefaultProps: function getDefaultProps() {
 	        return {
 	            root: false,
 	            prefix: ''
 	        };
 	    },
-	    render: function() {
+	    render: function render() {
 	        var id = 'id_' + uid();
 	        var p = this.props;
 
@@ -207,43 +203,28 @@ webpackJsonp([6],{
 
 	        var onLabelClick = this._onClick.bind(this, d);
 
-	        return D.div({ className: this.getClassName(), id: 'leaf-' + this._rootPath() },
-	            D.input({ className: 'json-inspector__radio', type: 'radio', name: p.id, id: id, tabIndex: -1 }),
-	            D.label({ className: 'json-inspector__line', htmlFor: id, onClick: onLabelClick },
-	                D.div({ className: 'json-inspector__flatpath' },
-	                    d.path),
-	                D.span({ className: 'json-inspector__key' },
-	                    this.format(d.key),
-	                    ':',
-	                    this.renderInteractiveLabel(d.key, true)),
-	                this.renderTitle(),
-	                this.renderShowOriginalButton()),
-	            this.renderChildren());
+	        return D.div({ className: this.getClassName(), id: 'leaf-' + this._rootPath() }, D.input({ className: 'json-inspector__radio', type: 'radio', name: p.id, id: id, tabIndex: -1 }), D.label({ className: 'json-inspector__line', htmlFor: id, onClick: onLabelClick }, D.div({ className: 'json-inspector__flatpath' }, d.path), D.span({ className: 'json-inspector__key' }, this.format(d.key), ':', this.renderInteractiveLabel(d.key, true)), this.renderTitle(), this.renderShowOriginalButton()), this.renderChildren());
 	    },
-	    renderTitle: function() {
+	    renderTitle: function renderTitle() {
 	        var data = this.data();
 	        var t = type(data);
 
 	        switch (t) {
 	            case 'Array':
-	                return D.span({ className: 'json-inspector__value json-inspector__value_helper' },
-	                    '[] ' + items(data.length));
+	                return D.span({ className: 'json-inspector__value json-inspector__value_helper' }, '[] ' + items(data.length));
 	            case 'Object':
-	                return D.span({ className: 'json-inspector__value json-inspector__value_helper' },
-	                    '{} ' + items(Object.keys(data).length));
+	                return D.span({ className: 'json-inspector__value json-inspector__value_helper' }, '{} ' + items(Object.keys(data).length));
 	            default:
-	                return D.span({ className: 'json-inspector__value json-inspector__value_' + t.toLowerCase() },
-	                    this.format(String(data)),
-	                    this.renderInteractiveLabel(data, false));
+	                return D.span({ className: 'json-inspector__value json-inspector__value_' + t.toLowerCase() }, this.format(String(data)), this.renderInteractiveLabel(data, false));
 	        }
 	    },
-	    renderChildren: function() {
+	    renderChildren: function renderChildren() {
 	        var p = this.props;
 	        var childPrefix = this._rootPath();
 	        var data = this.data();
 
 	        if (this.state.expanded && !isPrimitive(data)) {
-	            return Object.keys(data).map(function(key) {
+	            return Object.keys(data).map(function (key) {
 	                var value = data[key];
 
 	                return leaf({
@@ -263,7 +244,7 @@ webpackJsonp([6],{
 
 	        return null;
 	    },
-	    renderShowOriginalButton: function() {
+	    renderShowOriginalButton: function renderShowOriginalButton() {
 	        var p = this.props;
 
 	        if (isPrimitive(p.data) || this.state.original || !p.getOriginal || !p.query || contains(this.keypath(), p.query)) {
@@ -275,7 +256,7 @@ webpackJsonp([6],{
 	            onClick: this._onShowOriginalClick
 	        });
 	    },
-	    renderInteractiveLabel: function(originalValue, isKey) {
+	    renderInteractiveLabel: function renderInteractiveLabel(originalValue, isKey) {
 	        if (typeof this.props.interactiveLabel === 'function') {
 	            return this.props.interactiveLabel({
 	                // The distinction between `value` and `originalValue` is
@@ -289,7 +270,7 @@ webpackJsonp([6],{
 
 	        return null;
 	    },
-	    componentWillReceiveProps: function(p) {
+	    componentWillReceiveProps: function componentWillReceiveProps(p) {
 	        if (p.query) {
 	            this.setState({
 	                expanded: !contains(p.label, p.query)
@@ -304,22 +285,22 @@ webpackJsonp([6],{
 	            });
 	        }
 	    },
-	    _rootPath: function() {
+	    _rootPath: function _rootPath() {
 	        return this.props.prefix + '.' + this.props.label;
 	    },
-	    keypath: function() {
+	    keypath: function keypath() {
 	        return this._rootPath().substr(PATH_PREFIX.length);
 	    },
-	    data: function() {
+	    data: function data() {
 	        return this.state.original || this.props.data;
 	    },
-	    format: function(string) {
+	    format: function format(string) {
 	        return highlighter({
 	            string: string,
 	            highlight: this.props.query
 	        });
 	    },
-	    getClassName: function() {
+	    getClassName: function getClassName() {
 	        var cn = 'json-inspector__leaf';
 
 	        if (this.props.root) {
@@ -336,25 +317,25 @@ webpackJsonp([6],{
 
 	        return cn;
 	    },
-	    toggle: function() {
+	    toggle: function toggle() {
 	        this.setState({
 	            expanded: !this.state.expanded
 	        });
 	    },
-	    _onClick: function(data, e) {
+	    _onClick: function _onClick(data, e) {
 	        this.toggle();
 	        this.props.onClick(data);
 
 	        e.stopPropagation();
 	    },
-	    _onShowOriginalClick: function(e) {
+	    _onShowOriginalClick: function _onShowOriginalClick(e) {
 	        this.setState({
 	            original: this.props.getOriginal(this.keypath())
 	        });
 
 	        e.stopPropagation();
 	    },
-	    _isInitiallyExpanded: function(p) {
+	    _isInitiallyExpanded: function _isInitiallyExpanded(p) {
 	        var keypath = this.keypath();
 
 	        if (p.root) {
@@ -371,7 +352,7 @@ webpackJsonp([6],{
 	            // Having a `getOriginal` function passed signalizes that current
 	            // leaf only displays a subset of data, thus should be rendered
 	            // expanded to reveal the children that is being searched for.
-	            return !contains(keypath, p.query) && (typeof p.getOriginal === 'function');
+	            return !contains(keypath, p.query) && typeof p.getOriginal === 'function';
 	        }
 	    }
 	});
@@ -403,70 +384,71 @@ webpackJsonp([6],{
 
 	module.exports = Leaf;
 
-
 /***/ },
 
 /***/ 406:
 /***/ function(module, exports) {
 
+	"use strict";
+
 	var id = Math.ceil(Math.random() * 10);
 
-	module.exports = function() {
+	module.exports = function () {
 	    return ++id;
 	};
-
 
 /***/ },
 
 /***/ 407:
 /***/ function(module, exports) {
 
-	module.exports = function(value) {
+	"use strict";
+
+	module.exports = function (value) {
 	    return Object.prototype.toString.call(value).slice(8, -1);
 	};
-
 
 /***/ },
 
 /***/ 408:
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+
 	var React = __webpack_require__(1);
 	var span = React.DOM.span;
 
 	module.exports = React.createClass({
-	    getDefaultProps: function() {
+	    displayName: 'exports',
+
+	    getDefaultProps: function getDefaultProps() {
 	        return {
 	            string: '',
 	            highlight: ''
 	        };
 	    },
-	    shouldComponentUpdate: function(p) {
+	    shouldComponentUpdate: function shouldComponentUpdate(p) {
 	        return p.highlight !== this.props.highlight;
 	    },
-	    render: function() {
+	    render: function render() {
 	        var p = this.props;
 
 	        if (!p.highlight || p.string.indexOf(p.highlight) === -1) {
 	            return span(null, p.string);
 	        }
 
-	        return span(null,
-	            p.string.split(p.highlight).map(function(part, index) {
-	                return span({ key: index },
-	                    index > 0 ?
-	                        span({ className: 'json-inspector__hl' }, p.highlight) :
-	                        null,
-	                    part);
-	            }));
+	        return span(null, p.string.split(p.highlight).map(function (part, index) {
+	            return span({ key: index }, index > 0 ? span({ className: 'json-inspector__hl' }, p.highlight) : null, part);
+	        }));
 	    }
 	});
-
 
 /***/ },
 
 /***/ 409:
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var debounce = __webpack_require__(410);
 	var React = __webpack_require__(1);
@@ -475,13 +457,15 @@ webpackJsonp([6],{
 	var noop = __webpack_require__(412);
 
 	module.exports = React.createClass({
-	    getDefaultProps: function() {
+	    displayName: 'exports',
+
+	    getDefaultProps: function getDefaultProps() {
 	        return {
 	            timeout: 100,
 	            onChange: noop
 	        };
 	    },
-	    render: function() {
+	    render: function render() {
 	        return input({
 	            className: 'json-inspector__search',
 	            type: 'search',
@@ -490,11 +474,10 @@ webpackJsonp([6],{
 	            onChange: debounce(this.update, this.props.timeout)
 	        });
 	    },
-	    update: function() {
+	    update: function update() {
 	        this.props.onChange(this.refs.query.getDOMNode().value);
 	    }
 	});
-
 
 /***/ },
 
@@ -505,6 +488,8 @@ webpackJsonp([6],{
 	/**
 	 * Module dependencies.
 	 */
+
+	'use strict';
 
 	var now = __webpack_require__(411);
 
@@ -522,7 +507,7 @@ webpackJsonp([6],{
 	 * @api public
 	 */
 
-	module.exports = function debounce(func, wait, immediate){
+	module.exports = function debounce(func, wait, immediate) {
 	  var timeout, args, context, timestamp, result;
 	  if (null == wait) wait = 100;
 
@@ -555,31 +540,34 @@ webpackJsonp([6],{
 	  };
 	};
 
-
 /***/ },
 
 /***/ 411:
 /***/ function(module, exports) {
 
-	module.exports = Date.now || now
+	"use strict";
+
+	module.exports = Date.now || now;
 
 	function now() {
-	    return new Date().getTime()
+	    return new Date().getTime();
 	}
-
 
 /***/ },
 
 /***/ 412:
 /***/ function(module, exports) {
 
-	module.exports = function() {};
+	"use strict";
 
+	module.exports = function () {};
 
 /***/ },
 
 /***/ 413:
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var assign = __webpack_require__(414);
 	var keys = Object.keys;
@@ -587,11 +575,11 @@ webpackJsonp([6],{
 	var type = __webpack_require__(407);
 	var isEmpty = __webpack_require__(415);
 
-	module.exports = function(data, options) {
+	module.exports = function (data, options) {
 	    options || (options = {});
 	    var cache = {};
 
-	    return function(query) {
+	    return function (query) {
 	        var subquery;
 
 	        if (!cache[query]) {
@@ -614,7 +602,7 @@ webpackJsonp([6],{
 	};
 
 	function find(data, query, options) {
-	    return keys(data).reduce(function(acc, key) {
+	    return keys(data).reduce(function (acc, key) {
 	        var value = data[key];
 	        var matches;
 
@@ -639,11 +627,11 @@ webpackJsonp([6],{
 	}
 
 	function contains(query, string, options) {
-	    if(options.ignoreCase) {
-	      query = String(query).toLowerCase();
-	      return string && String(string).toLowerCase().indexOf(query) !== -1;
+	    if (options.ignoreCase) {
+	        query = String(query).toLowerCase();
+	        return string && String(string).toLowerCase().indexOf(query) !== -1;
 	    } else {
-	      return string && String(string).indexOf(query) !== -1;
+	        return string && String(string).indexOf(query) !== -1;
 	    }
 	}
 
@@ -657,7 +645,6 @@ webpackJsonp([6],{
 	    p[key] = value;
 	    return p;
 	}
-
 
 /***/ },
 
@@ -691,40 +678,57 @@ webpackJsonp([6],{
 		return to;
 	};
 
-
 /***/ },
 
 /***/ 415:
 /***/ function(module, exports) {
 
-	module.exports = function(object) {
+	"use strict";
+
+	module.exports = function (object) {
 	    return Object.keys(object).length === 0;
 	};
-
 
 /***/ },
 
 /***/ 416:
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+
 	var type = __webpack_require__(407);
 
 	var PATH_DELIMITER = '.';
 
-	function lens(data, path) {
-	    var p = path.split(PATH_DELIMITER);
-	    var segment = p.shift();
+	function lens(_x, _x2) {
+	    var _again = true;
 
-	    if (!segment) {
-	        return data;
-	    }
+	    _function: while (_again) {
+	        var data = _x,
+	            path = _x2;
+	        p = segment = t = undefined;
+	        _again = false;
 
-	    var t = type(data);
+	        var p = path.split(PATH_DELIMITER);
+	        var segment = p.shift();
 
-	    if (t === 'Array' && data[integer(segment)]) {
-	        return lens(data[integer(segment)], p.join(PATH_DELIMITER));
-	    } else if (t === 'Object' && data[segment]) {
-	        return lens(data[segment], p.join(PATH_DELIMITER));
+	        if (!segment) {
+	            return data;
+	        }
+
+	        var t = type(data);
+
+	        if (t === 'Array' && data[integer(segment)]) {
+	            _x = data[integer(segment)];
+	            _x2 = p.join(PATH_DELIMITER);
+	            _again = true;
+	            continue _function;
+	        } else if (t === 'Object' && data[segment]) {
+	            _x = data[segment];
+	            _x2 = p.join(PATH_DELIMITER);
+	            _again = true;
+	            continue _function;
+	        }
 	    }
 	}
 
@@ -733,7 +737,6 @@ webpackJsonp([6],{
 	}
 
 	module.exports = lens;
-
 
 /***/ }
 

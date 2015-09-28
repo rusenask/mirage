@@ -2,6 +2,8 @@ webpackJsonp([1],[
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+
 	var React = __webpack_require__(1);
 	var Griddle = __webpack_require__(389);
 	var Button = __webpack_require__(157).Button;
@@ -10,15 +12,26 @@ webpackJsonp([1],[
 	var ListItemWrapper = React.createClass({
 	    displayName: "ListItemWrapper",
 
-	    getInitialState: function () {
+	    getInitialState: function getInitialState() {
 	        return {
 	            item: this.props.item,
 	            kvalue: this.props.kvalue
 	        };
 	    },
 
-	    render: function () {
-	        return React.createElement("li", null, React.createElement("strong", null, this.state.kvalue, ": "), " ", this.state.item)
+	    render: function render() {
+	        return React.createElement(
+	            'li',
+	            null,
+	            React.createElement(
+	                'strong',
+	                null,
+	                this.state.kvalue,
+	                ': '
+	            ),
+	            ' ',
+	            this.state.item
+	        );
 	    }
 
 	});
@@ -26,18 +39,16 @@ webpackJsonp([1],[
 	var DelayDetailsComponent = React.createClass({
 	    displayName: "DelayDetailsComponent",
 
-	    getInitialState: function () {
+	    getInitialState: function getInitialState() {
 	        // getting scenario name and hostname
 	        return {
 	            labelClass: 'label label-default'
 	        };
 	    },
 
-	    componentDidMount: function () {
+	    componentDidMount: function componentDidMount() {},
 
-	    },
-
-	    render: function () {
+	    render: function render() {
 
 	        switch (this.props.rowData.delay_type) {
 	            case undefined:
@@ -45,58 +56,69 @@ webpackJsonp([1],[
 	                break;
 
 	            case 'fixed':
-	                return React.createElement("span", null, " ", this.props.rowData.milliseconds, " milliseconds");
+	                return React.createElement(
+	                    'span',
+	                    null,
+	                    ' ',
+	                    this.props.rowData.milliseconds,
+	                    ' milliseconds'
+	                );
 	                break;
 
 	            case 'normalvariate':
-	                return (
-	                    React.createElement("ul", {className: "list-unstyled"}, 
-	                        React.createElement(ListItemWrapper, {kvalue: "stddev", item: this.props.rowData.stddev}), 
-	                        React.createElement(ListItemWrapper, {kvalue: "mean", item: this.props.rowData.mean})
-	                    )
+	                return React.createElement(
+	                    'ul',
+	                    { className: 'list-unstyled' },
+	                    React.createElement(ListItemWrapper, { kvalue: 'stddev', item: this.props.rowData.stddev }),
+	                    React.createElement(ListItemWrapper, { kvalue: 'mean', item: this.props.rowData.mean })
 	                );
 	                break;
 
 	            case 'weighted':
 	                //delay list array
 	                var delayList = this.props.rowData.delays.split(":");
-	                return (
-	                    React.createElement("ul", {className: "list-unstyled"}, 
-	                        delayList.map(function(d) {
-	                            var delay = d.split(",");
-	                            var kvalue = delay[0];
-	                            var item = delay.slice(1).join(', ');
-	                            return  React.createElement(ListItemWrapper, {kvalue: kvalue, item: item});
-	                        })
-	                    )
+	                return React.createElement(
+	                    'ul',
+	                    { className: 'list-unstyled' },
+	                    delayList.map(function (d) {
+	                        var delay = d.split(",");
+	                        var kvalue = delay[0];
+	                        var item = delay.slice(1).join(', ');
+	                        return React.createElement(ListItemWrapper, { kvalue: kvalue, item: item });
+	                    })
 	                );
 
 	                break;
 	        }
 
-
-	        return React.createElement("span", {className: this.state.labelClass}, " ", this.props.rowData.delay_type)
-
+	        return React.createElement(
+	            'span',
+	            { className: this.state.labelClass },
+	            ' ',
+	            this.props.rowData.delay_type
+	        );
 	    }
 	});
 
 	// remove delay policy action button
-	var RemoveButton = React.createClass({displayName: "RemoveButton",
-	    getInitialState: function () {
+	var RemoveButton = React.createClass({
+	    displayName: 'RemoveButton',
+
+	    getInitialState: function getInitialState() {
 	        // getting ref
 	        return {
 	            ref: this.props.data.delayPolicyRef,
 	            name: this.props.data.name
 	        };
 	    },
-	    handleClick: function (event) {
+	    handleClick: function handleClick(event) {
 
 	        var infoModal = $('#myModal');
 	        var name = this.state.name;
 	        $.ajax({
 	            type: "DELETE",
 	            url: this.state.ref,
-	            success: function () {
+	            success: function success() {
 	                var htmlData = '<ul><li> Delay policy (' + name + ') removed successfuly. </li></ul>';
 	                infoModal.find('.modal-body').html(htmlData);
 	                infoModal.modal('show');
@@ -109,13 +131,16 @@ webpackJsonp([1],[
 	            infoModal.modal('show');
 	            return false;
 	        });
-
 	    },
-	    render: function () {
+	    render: function render() {
 
-	        return (
-	            React.createElement(Button, {onClick: this.handleClick, bsStyle: "danger", bsSize: "small"}, 
-	                React.createElement("span", null, "Remove")
+	        return React.createElement(
+	            Button,
+	            { onClick: this.handleClick, bsStyle: 'danger', bsSize: 'small' },
+	            React.createElement(
+	                'span',
+	                null,
+	                'Remove'
 	            )
 	        );
 	    }
@@ -124,45 +149,37 @@ webpackJsonp([1],[
 	var ActionComponent = React.createClass({
 	    displayName: "ActionComponent",
 
-	    render: function () {
+	    render: function render() {
 	        // rendering action buttons
-	        return (
-	            React.createElement(RemoveButton, {data: this.props.rowData})
-	        )
+	        return React.createElement(RemoveButton, { data: this.props.rowData });
 	    }
 	});
 
-	var columnMeta = [
-	    {
-	        "columnName": "name",
-	        "displayName": "Delay Name",
-	        "order": 1,
-	        "locked": false,
-	        "visible": true
-	    },
-	    {
-	        "columnName": "delay_type",
-	        "displayName": "Type",
-	        "order": 2,
-	        "locked": false,
-	        "visible": true
-	    },
-	    {
-	        "columnName": "details",
-	        "displayName": "Details",
-	        "locked": false,
-	        "visible": true,
-	        "customComponent": DelayDetailsComponent
-	    },
-	    {
-	        "columnName": "actions",
-	        "displayName": "Actions",
-	        "locked": false,
-	        "visible": true,
-	        "customComponent": ActionComponent
-	    }
-
-	];
+	var columnMeta = [{
+	    "columnName": "name",
+	    "displayName": "Delay Name",
+	    "order": 1,
+	    "locked": false,
+	    "visible": true
+	}, {
+	    "columnName": "delay_type",
+	    "displayName": "Type",
+	    "order": 2,
+	    "locked": false,
+	    "visible": true
+	}, {
+	    "columnName": "details",
+	    "displayName": "Details",
+	    "locked": false,
+	    "visible": true,
+	    "customComponent": DelayDetailsComponent
+	}, {
+	    "columnName": "actions",
+	    "displayName": "Actions",
+	    "locked": false,
+	    "visible": true,
+	    "customComponent": ActionComponent
+	}];
 
 	function updateTable(component, href) {
 	    $.get(href, function (result) {
@@ -175,8 +192,10 @@ webpackJsonp([1],[
 	    });
 	}
 
-	var ExternalDelayPolicies = React.createClass({displayName: "ExternalDelayPolicies",
-	    getInitialState: function () {
+	var ExternalDelayPolicies = React.createClass({
+	    displayName: 'ExternalDelayPolicies',
+
+	    getInitialState: function getInitialState() {
 	        var initial = {
 	            "results": [],
 	            "resultsPerPage": 10
@@ -185,58 +204,47 @@ webpackJsonp([1],[
 	        return initial;
 	    },
 	    //general lifecycle methods
-	    componentWillMount: function () {
-	    },
-	    componentDidMount: function () {
+	    componentWillMount: function componentWillMount() {},
+	    componentDidMount: function componentDidMount() {
 	        // getting delay policies
 	        var href = '';
 	        if ($.cookie("stubo.all-hosts") == 'true') {
 	            // amending query argument to get all hosts
-	            href = this.props.source + '?all-hosts=true'
+	            href = this.props.source + '?all-hosts=true';
 	        } else {
-	            href = this.props.source + '?all-hosts=false'
+	            href = this.props.source + '?all-hosts=false';
 	        }
 
 	        updateTable(this, href);
 
 	        // subscribing to modal close event
-	        $('#myModal').on('hidden.bs.modal', function () {
+	        $('#myModal').on('hidden.bs.modal', (function () {
 	            updateTable(this, href);
-	        }.bind(this));
+	        }).bind(this));
 	    },
 
 	    //what page is currently viewed
-	    setPage: function (index) {
-	    },
+	    setPage: function setPage(index) {},
 	    //this will handle how the data is sorted
-	    sortData: function (sort, sortAscending, data) {
-	    },
+	    sortData: function sortData(sort, sortAscending, data) {},
 	    //this changes whether data is sorted in ascending or descending order
-	    changeSort: function (sort, sortAscending) {
-	    },
+	    changeSort: function changeSort(sort, sortAscending) {},
 	    //this method handles the filtering of the data
-	    setFilter: function (filter) {
-	    },
+	    setFilter: function setFilter(filter) {},
 	    //this method handles determining the page size
-	    setPageSize: function (size) {
-	    },
+	    setPageSize: function setPageSize(size) {},
 
-
-	    render: function () {
-	        return React.createElement(Griddle, {results: this.state.results, 
-	                        useGriddleStyles: true, 
-	                        showFilter: true, showSettings: true, 
-	                        resultsPerPage: this.state.resultsPerPage, 
-	                        columnMetadata: columnMeta, 
-	                        columns: ["delay_type", "name", "details", "actions"]})
+	    render: function render() {
+	        return React.createElement(Griddle, { results: this.state.results,
+	            useGriddleStyles: true,
+	            showFilter: true, showSettings: true,
+	            resultsPerPage: this.state.resultsPerPage,
+	            columnMetadata: columnMeta,
+	            columns: ["delay_type", "name", "details", "actions"] });
 	    }
 	});
 
-	React.render(
-	    React.createElement(ExternalDelayPolicies, {source: "/stubo/api/v2/delay-policy/detail"}),
-	    document.getElementById('app')
-	);
-
+	React.render(React.createElement(ExternalDelayPolicies, { source: '/stubo/api/v2/delay-policy/detail' }), document.getElementById('app'));
 
 /***/ },
 /* 1 */,
@@ -858,11 +866,15 @@ webpackJsonp([1],[
 /* 158 */
 /***/ function(module, exports, __webpack_require__) {
 
+	"use strict";
+
 	module.exports = { "default": __webpack_require__(159), __esModule: true };
 
 /***/ },
 /* 159 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	__webpack_require__(160);
 	module.exports = __webpack_require__(166).Object.keys;
@@ -872,10 +884,12 @@ webpackJsonp([1],[
 /***/ function(module, exports, __webpack_require__) {
 
 	// 19.1.2.14 Object.keys(O)
+	'use strict';
+
 	var toObject = __webpack_require__(161);
 
-	__webpack_require__(163)('keys', function($keys){
-	  return function keys(it){
+	__webpack_require__(163)('keys', function ($keys) {
+	  return function keys(it) {
 	    return $keys(toObject(it));
 	  };
 	});
@@ -885,8 +899,10 @@ webpackJsonp([1],[
 /***/ function(module, exports, __webpack_require__) {
 
 	// 7.1.13 ToObject(argument)
+	'use strict';
+
 	var defined = __webpack_require__(162);
-	module.exports = function(it){
+	module.exports = function (it) {
 	  return Object(defined(it));
 	};
 
@@ -895,8 +911,10 @@ webpackJsonp([1],[
 /***/ function(module, exports) {
 
 	// 7.2.1 RequireObjectCoercible(argument)
-	module.exports = function(it){
-	  if(it == undefined)throw TypeError("Can't call method on  " + it);
+	"use strict";
+
+	module.exports = function (it) {
+	  if (it == undefined) throw TypeError("Can't call method on  " + it);
 	  return it;
 	};
 
@@ -905,62 +923,69 @@ webpackJsonp([1],[
 /***/ function(module, exports, __webpack_require__) {
 
 	// most Object methods by ES6 should accept primitives
-	module.exports = function(KEY, exec){
-	  var $def = __webpack_require__(164)
-	    , fn   = (__webpack_require__(166).Object || {})[KEY] || Object[KEY]
-	    , exp  = {};
+	'use strict';
+
+	module.exports = function (KEY, exec) {
+	  var $def = __webpack_require__(164),
+	      fn = (__webpack_require__(166).Object || {})[KEY] || Object[KEY],
+	      exp = {};
 	  exp[KEY] = exec(fn);
-	  $def($def.S + $def.F * __webpack_require__(167)(function(){ fn(1); }), 'Object', exp);
+	  $def($def.S + $def.F * __webpack_require__(167)(function () {
+	    fn(1);
+	  }), 'Object', exp);
 	};
 
 /***/ },
 /* 164 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var global    = __webpack_require__(165)
-	  , core      = __webpack_require__(166)
-	  , PROTOTYPE = 'prototype';
-	var ctx = function(fn, that){
-	  return function(){
+	'use strict';
+
+	var global = __webpack_require__(165),
+	    core = __webpack_require__(166),
+	    PROTOTYPE = 'prototype';
+	var ctx = function ctx(fn, that) {
+	  return function () {
 	    return fn.apply(that, arguments);
 	  };
 	};
-	var $def = function(type, name, source){
-	  var key, own, out, exp
-	    , isGlobal = type & $def.G
-	    , isProto  = type & $def.P
-	    , target   = isGlobal ? global : type & $def.S
-	        ? global[name] : (global[name] || {})[PROTOTYPE]
-	    , exports  = isGlobal ? core : core[name] || (core[name] = {});
-	  if(isGlobal)source = name;
-	  for(key in source){
+	var $def = function $def(type, name, source) {
+	  var key,
+	      own,
+	      out,
+	      exp,
+	      isGlobal = type & $def.G,
+	      isProto = type & $def.P,
+	      target = isGlobal ? global : type & $def.S ? global[name] : (global[name] || {})[PROTOTYPE],
+	      exports = isGlobal ? core : core[name] || (core[name] = {});
+	  if (isGlobal) source = name;
+	  for (key in source) {
 	    // contains in native
 	    own = !(type & $def.F) && target && key in target;
-	    if(own && key in exports)continue;
+	    if (own && key in exports) continue;
 	    // export native or passed
 	    out = own ? target[key] : source[key];
 	    // prevent global pollution for namespaces
-	    if(isGlobal && typeof target[key] != 'function')exp = source[key];
+	    if (isGlobal && typeof target[key] != 'function') exp = source[key];
 	    // bind timers to global for call from export context
-	    else if(type & $def.B && own)exp = ctx(out, global);
-	    // wrap global constructors for prevent change them in library
-	    else if(type & $def.W && target[key] == out)!function(C){
-	      exp = function(param){
-	        return this instanceof C ? new C(param) : C(param);
-	      };
-	      exp[PROTOTYPE] = C[PROTOTYPE];
-	    }(out);
-	    else exp = isProto && typeof out == 'function' ? ctx(Function.call, out) : out;
+	    else if (type & $def.B && own) exp = ctx(out, global);
+	      // wrap global constructors for prevent change them in library
+	      else if (type & $def.W && target[key] == out) !(function (C) {
+	          exp = function (param) {
+	            return this instanceof C ? new C(param) : C(param);
+	          };
+	          exp[PROTOTYPE] = C[PROTOTYPE];
+	        })(out);else exp = isProto && typeof out == 'function' ? ctx(Function.call, out) : out;
 	    // export
 	    exports[key] = exp;
-	    if(isProto)(exports[PROTOTYPE] || (exports[PROTOTYPE] = {}))[key] = out;
+	    if (isProto) (exports[PROTOTYPE] || (exports[PROTOTYPE] = {}))[key] = out;
 	  }
 	};
 	// type bitmap
-	$def.F = 1;  // forced
-	$def.G = 2;  // global
-	$def.S = 4;  // static
-	$def.P = 8;  // proto
+	$def.F = 1; // forced
+	$def.G = 2; // global
+	$def.S = 4; // static
+	$def.P = 8; // proto
 	$def.B = 16; // bind
 	$def.W = 32; // wrap
 	module.exports = $def;
@@ -970,26 +995,31 @@ webpackJsonp([1],[
 /***/ function(module, exports) {
 
 	// https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
+	'use strict';
+
 	var UNDEFINED = 'undefined';
-	var global = module.exports = typeof window != UNDEFINED && window.Math == Math
-	  ? window : typeof self != UNDEFINED && self.Math == Math ? self : Function('return this')();
-	if(typeof __g == 'number')__g = global; // eslint-disable-line no-undef
+	var global = module.exports = typeof window != UNDEFINED && window.Math == Math ? window : typeof self != UNDEFINED && self.Math == Math ? self : Function('return this')();
+	if (typeof __g == 'number') __g = global; // eslint-disable-line no-undef
 
 /***/ },
 /* 166 */
 /***/ function(module, exports) {
 
+	'use strict';
+
 	var core = module.exports = {};
-	if(typeof __e == 'number')__e = core; // eslint-disable-line no-undef
+	if (typeof __e == 'number') __e = core; // eslint-disable-line no-undef
 
 /***/ },
 /* 167 */
 /***/ function(module, exports) {
 
-	module.exports = function(exec){
+	"use strict";
+
+	module.exports = function (exec) {
 	  try {
 	    return !!exec();
-	  } catch(e){
+	  } catch (e) {
 	    return true;
 	  }
 	};
@@ -998,14 +1028,18 @@ webpackJsonp([1],[
 /* 168 */
 /***/ function(module, exports, __webpack_require__) {
 
+	"use strict";
+
 	module.exports = { "default": __webpack_require__(169), __esModule: true };
 
 /***/ },
 /* 169 */
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+
 	var $ = __webpack_require__(170);
-	module.exports = function defineProperty(it, key, desc){
+	module.exports = function defineProperty(it, key, desc) {
 	  return $.setDesc(it, key, desc);
 	};
 
@@ -1013,18 +1047,20 @@ webpackJsonp([1],[
 /* 170 */
 /***/ function(module, exports) {
 
+	"use strict";
+
 	var $Object = Object;
 	module.exports = {
-	  create:     $Object.create,
-	  getProto:   $Object.getPrototypeOf,
-	  isEnum:     {}.propertyIsEnumerable,
-	  getDesc:    $Object.getOwnPropertyDescriptor,
-	  setDesc:    $Object.defineProperty,
-	  setDescs:   $Object.defineProperties,
-	  getKeys:    $Object.keys,
-	  getNames:   $Object.getOwnPropertyNames,
+	  create: $Object.create,
+	  getProto: $Object.getPrototypeOf,
+	  isEnum: ({}).propertyIsEnumerable,
+	  getDesc: $Object.getOwnPropertyDescriptor,
+	  setDesc: $Object.defineProperty,
+	  setDescs: $Object.defineProperties,
+	  getKeys: $Object.keys,
+	  getNames: $Object.getOwnPropertyNames,
 	  getSymbols: $Object.getOwnPropertySymbols,
-	  each:       [].forEach
+	  each: [].forEach
 	};
 
 /***/ },
@@ -1174,14 +1210,18 @@ webpackJsonp([1],[
 /* 175 */
 /***/ function(module, exports, __webpack_require__) {
 
+	"use strict";
+
 	module.exports = { "default": __webpack_require__(176), __esModule: true };
 
 /***/ },
 /* 176 */
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+
 	var $ = __webpack_require__(170);
-	module.exports = function create(P, D){
+	module.exports = function create(P, D) {
 	  return $.create(P, D);
 	};
 
@@ -1189,11 +1229,15 @@ webpackJsonp([1],[
 /* 177 */
 /***/ function(module, exports, __webpack_require__) {
 
+	"use strict";
+
 	module.exports = { "default": __webpack_require__(178), __esModule: true };
 
 /***/ },
 /* 178 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	__webpack_require__(179);
 	module.exports = __webpack_require__(166).Object.setPrototypeOf;
@@ -1203,8 +1247,10 @@ webpackJsonp([1],[
 /***/ function(module, exports, __webpack_require__) {
 
 	// 19.1.3.19 Object.setPrototypeOf(O, proto)
+	'use strict';
+
 	var $def = __webpack_require__(164);
-	$def($def.S, 'Object', {setPrototypeOf: __webpack_require__(180).set});
+	$def($def.S, 'Object', { setPrototypeOf: __webpack_require__(180).set });
 
 /***/ },
 /* 180 */
@@ -1212,28 +1258,30 @@ webpackJsonp([1],[
 
 	// Works with __proto__ only. Old v8 can't work with null proto objects.
 	/* eslint-disable no-proto */
-	var getDesc  = __webpack_require__(170).getDesc
-	  , isObject = __webpack_require__(181)
-	  , anObject = __webpack_require__(182);
-	var check = function(O, proto){
+	'use strict';
+
+	var getDesc = __webpack_require__(170).getDesc,
+	    isObject = __webpack_require__(181),
+	    anObject = __webpack_require__(182);
+	var check = function check(O, proto) {
 	  anObject(O);
-	  if(!isObject(proto) && proto !== null)throw TypeError(proto + ": can't set as prototype!");
+	  if (!isObject(proto) && proto !== null) throw TypeError(proto + ": can't set as prototype!");
 	};
 	module.exports = {
 	  set: Object.setPrototypeOf || ('__proto__' in {} // eslint-disable-line
-	    ? function(buggy, set){
-	        try {
-	          set = __webpack_require__(183)(Function.call, getDesc(Object.prototype, '__proto__').set, 2);
-	          set({}, []);
-	        } catch(e){ buggy = true; }
-	        return function setPrototypeOf(O, proto){
-	          check(O, proto);
-	          if(buggy)O.__proto__ = proto;
-	          else set(O, proto);
-	          return O;
-	        };
-	      }()
-	    : undefined),
+	  ? (function (buggy, set) {
+	    try {
+	      set = __webpack_require__(183)(Function.call, getDesc(Object.prototype, '__proto__').set, 2);
+	      set({}, []);
+	    } catch (e) {
+	      buggy = true;
+	    }
+	    return function setPrototypeOf(O, proto) {
+	      check(O, proto);
+	      if (buggy) O.__proto__ = proto;else set(O, proto);
+	      return O;
+	    };
+	  })() : undefined),
 	  check: check
 	};
 
@@ -1242,7 +1290,9 @@ webpackJsonp([1],[
 /***/ function(module, exports) {
 
 	// http://jsperf.com/core-js-isobject
-	module.exports = function(it){
+	'use strict';
+
+	module.exports = function (it) {
 	  return it !== null && (typeof it == 'object' || typeof it == 'function');
 	};
 
@@ -1250,9 +1300,11 @@ webpackJsonp([1],[
 /* 182 */
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+
 	var isObject = __webpack_require__(181);
-	module.exports = function(it){
-	  if(!isObject(it))throw TypeError(it + ' is not an object!');
+	module.exports = function (it) {
+	  if (!isObject(it)) throw TypeError(it + ' is not an object!');
 	  return it;
 	};
 
@@ -1261,31 +1313,38 @@ webpackJsonp([1],[
 /***/ function(module, exports, __webpack_require__) {
 
 	// optional / simple context binding
+	'use strict';
+
 	var aFunction = __webpack_require__(184);
-	module.exports = function(fn, that, length){
+	module.exports = function (fn, that, length) {
 	  aFunction(fn);
-	  if(that === undefined)return fn;
-	  switch(length){
-	    case 1: return function(a){
-	      return fn.call(that, a);
-	    };
-	    case 2: return function(a, b){
-	      return fn.call(that, a, b);
-	    };
-	    case 3: return function(a, b, c){
-	      return fn.call(that, a, b, c);
-	    };
-	  } return function(/* ...args */){
-	      return fn.apply(that, arguments);
-	    };
+	  if (that === undefined) return fn;
+	  switch (length) {
+	    case 1:
+	      return function (a) {
+	        return fn.call(that, a);
+	      };
+	    case 2:
+	      return function (a, b) {
+	        return fn.call(that, a, b);
+	      };
+	    case 3:
+	      return function (a, b, c) {
+	        return fn.call(that, a, b, c);
+	      };
+	  }return function () /* ...args */{
+	    return fn.apply(that, arguments);
+	  };
 	};
 
 /***/ },
 /* 184 */
 /***/ function(module, exports) {
 
-	module.exports = function(it){
-	  if(typeof it != 'function')throw TypeError(it + ' is not a function!');
+	'use strict';
+
+	module.exports = function (it) {
+	  if (typeof it != 'function') throw TypeError(it + ' is not a function!');
 	  return it;
 	};
 
@@ -1464,7 +1523,9 @@ webpackJsonp([1],[
 /* 190 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (root, factory) {
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
+
+	(function (root, factory) {
 	  if (true) {
 	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [exports], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	  } else if (typeof exports === "object") {
@@ -1472,7 +1533,7 @@ webpackJsonp([1],[
 	  } else {
 	    factory(root.babelHelpers = {});
 	  }
-	})(this, function (global) {
+	})(undefined, function (global) {
 	  var babelHelpers = global;
 
 	  babelHelpers.interopRequireDefault = function (obj) {
@@ -1494,7 +1555,7 @@ webpackJsonp([1],[
 
 	    return target;
 	  };
-	})
+	});
 
 /***/ },
 /* 191 */
@@ -2395,11 +2456,7 @@ webpackJsonp([1],[
 	  displayName: 'Accordion',
 
 	  render: function render() {
-	    return _react2['default'].createElement(
-	      _PanelGroup2['default'],
-	      _extends({}, this.props, { accordion: true }),
-	      this.props.children
-	    );
+	    return _react2['default'].createElement(_PanelGroup2['default'], _extends({}, this.props, { accordion: true }), this.props.children);
 	  }
 	});
 
@@ -2434,11 +2491,15 @@ webpackJsonp([1],[
 /* 213 */
 /***/ function(module, exports, __webpack_require__) {
 
+	"use strict";
+
 	module.exports = { "default": __webpack_require__(214), __esModule: true };
 
 /***/ },
 /* 214 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	__webpack_require__(215);
 	module.exports = __webpack_require__(166).Object.assign;
@@ -2448,32 +2509,37 @@ webpackJsonp([1],[
 /***/ function(module, exports, __webpack_require__) {
 
 	// 19.1.3.1 Object.assign(target, source)
+	'use strict';
+
 	var $def = __webpack_require__(164);
 
-	$def($def.S + $def.F, 'Object', {assign: __webpack_require__(216)});
+	$def($def.S + $def.F, 'Object', { assign: __webpack_require__(216) });
 
 /***/ },
 /* 216 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// 19.1.2.1 Object.assign(target, source, ...)
-	var toObject = __webpack_require__(161)
-	  , IObject  = __webpack_require__(217)
-	  , enumKeys = __webpack_require__(219);
+	'use strict';
 
-	module.exports = __webpack_require__(167)(function(){
+	var toObject = __webpack_require__(161),
+	    IObject = __webpack_require__(217),
+	    enumKeys = __webpack_require__(219);
+
+	module.exports = __webpack_require__(167)(function () {
 	  return Symbol() in Object.assign({}); // Object.assign available and Symbol is native
-	}) ? function assign(target, source){   // eslint-disable-line no-unused-vars
-	  var T = toObject(target)
-	    , l = arguments.length
-	    , i = 1;
-	  while(l > i){
-	    var S      = IObject(arguments[i++])
-	      , keys   = enumKeys(S)
-	      , length = keys.length
-	      , j      = 0
-	      , key;
-	    while(length > j)T[key = keys[j++]] = S[key];
+	}) ? function assign(target, source) {
+	  // eslint-disable-line no-unused-vars
+	  var T = toObject(target),
+	      l = arguments.length,
+	      i = 1;
+	  while (l > i) {
+	    var S = IObject(arguments[i++]),
+	        keys = enumKeys(S),
+	        length = keys.length,
+	        j = 0,
+	        key;
+	    while (length > j) T[key = keys[j++]] = S[key];
 	  }
 	  return T;
 	} : Object.assign;
@@ -2483,8 +2549,10 @@ webpackJsonp([1],[
 /***/ function(module, exports, __webpack_require__) {
 
 	// indexed object, fallback for non-array-like ES3 strings
+	'use strict';
+
 	var cof = __webpack_require__(218);
-	module.exports = 0 in Object('z') ? Object : function(it){
+	module.exports = 0 in Object('z') ? Object : function (it) {
 	  return cof(it) == 'String' ? it.split('') : Object(it);
 	};
 
@@ -2492,9 +2560,11 @@ webpackJsonp([1],[
 /* 218 */
 /***/ function(module, exports) {
 
-	var toString = {}.toString;
+	"use strict";
 
-	module.exports = function(it){
+	var toString = ({}).toString;
+
+	module.exports = function (it) {
 	  return toString.call(it).slice(8, -1);
 	};
 
@@ -2503,16 +2573,18 @@ webpackJsonp([1],[
 /***/ function(module, exports, __webpack_require__) {
 
 	// all enumerable object keys, includes symbols
+	'use strict';
+
 	var $ = __webpack_require__(170);
-	module.exports = function(it){
-	  var keys       = $.getKeys(it)
-	    , getSymbols = $.getSymbols;
-	  if(getSymbols){
-	    var symbols = getSymbols(it)
-	      , isEnum  = $.isEnum
-	      , i       = 0
-	      , key;
-	    while(symbols.length > i)if(isEnum.call(it, key = symbols[i++]))keys.push(key);
+	module.exports = function (it) {
+	  var keys = $.getKeys(it),
+	      getSymbols = $.getSymbols;
+	  if (getSymbols) {
+	    var symbols = getSymbols(it),
+	        isEnum = $.isEnum,
+	        i = 0,
+	        key;
+	    while (symbols.length > i) if (isEnum.call(it, key = symbols[i++])) keys.push(key);
 	  }
 	  return keys;
 	};
@@ -2589,11 +2661,7 @@ webpackJsonp([1],[
 	    if (this.props.accordion) {
 	      props.role = 'tablist';
 	    }
-	    return _react2['default'].createElement(
-	      'div',
-	      _extends({}, props, { className: _classnames2['default'](className, classes), onSelect: null }),
-	      _utilsValidComponentChildren2['default'].map(props.children, this.renderPanel)
-	    );
+	    return _react2['default'].createElement('div', _extends({}, props, { className: _classnames2['default'](className, classes), onSelect: null }), _utilsValidComponentChildren2['default'].map(props.children, this.renderPanel));
 	  },
 
 	  renderPanel: function renderPanel(child, index) {
@@ -2673,10 +2741,12 @@ webpackJsonp([1],[
 	  http://jedwatson.github.io/classnames
 	*/
 
+	'use strict';
+
 	(function () {
 		'use strict';
 
-		function classNames () {
+		function classNames() {
 
 			var classes = '';
 
@@ -2688,10 +2758,8 @@ webpackJsonp([1],[
 
 				if ('string' === argType || 'number' === argType) {
 					classes += ' ' + arg;
-
 				} else if (Array.isArray(arg)) {
 					classes += ' ' + classNames.apply(null, arg);
-
 				} else if ('object' === argType) {
 					for (var key in arg) {
 						if (arg.hasOwnProperty(key) && arg[key]) {
@@ -2706,7 +2774,7 @@ webpackJsonp([1],[
 
 		if (typeof module !== 'undefined' && module.exports) {
 			module.exports = classNames;
-		} else if (true){
+		} else if (true) {
 			// AMD. Register as an anonymous module.
 			!(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
 				return classNames;
@@ -2714,9 +2782,7 @@ webpackJsonp([1],[
 		} else {
 			window.classNames = classNames;
 		}
-
-	}());
-
+	})();
 
 /***/ },
 /* 223 */
@@ -2878,13 +2944,9 @@ webpackJsonp([1],[
 	    }, this.props.style);
 
 	    // eslint-disable-line react/prop-types
-	    return _react2['default'].createElement(
-	      'div',
-	      _extends({}, this.props, {
-	        className: _classnames2['default'](this.props.className, this.state.affixClass),
-	        style: holderStyle }),
-	      this.props.children
-	    );
+	    return _react2['default'].createElement('div', _extends({}, this.props, {
+	      className: _classnames2['default'](this.props.className, this.state.affixClass),
+	      style: holderStyle }), this.props.children);
 	  }
 	});
 
@@ -3148,30 +3210,18 @@ webpackJsonp([1],[
 	  },
 
 	  renderDismissButton: function renderDismissButton() {
-	    return _react2['default'].createElement(
-	      'button',
-	      {
-	        type: 'button',
-	        className: 'close',
-	        onClick: this.props.onDismiss,
-	        'aria-hidden': 'true' },
-	      _react2['default'].createElement(
-	        'span',
-	        null,
-	        '×'
-	      )
-	    );
+	    return _react2['default'].createElement('button', {
+	      type: 'button',
+	      className: 'close',
+	      onClick: this.props.onDismiss,
+	      'aria-hidden': 'true' }, _react2['default'].createElement('span', null, '×'));
 	  },
 
 	  renderSrOnlyDismissButton: function renderSrOnlyDismissButton() {
-	    return _react2['default'].createElement(
-	      'button',
-	      {
-	        type: 'button',
-	        className: 'close sr-only',
-	        onClick: this.props.onDismiss },
-	      this.props.closeLabel
-	    );
+	    return _react2['default'].createElement('button', {
+	      type: 'button',
+	      className: 'close sr-only',
+	      onClick: this.props.onDismiss }, this.props.closeLabel);
 	  },
 
 	  render: function render() {
@@ -3180,13 +3230,7 @@ webpackJsonp([1],[
 
 	    classes['alert-dismissable'] = isDismissable;
 
-	    return _react2['default'].createElement(
-	      'div',
-	      _extends({}, this.props, { role: 'alert', className: _classnames2['default'](this.props.className, classes) }),
-	      isDismissable ? this.renderDismissButton() : null,
-	      this.props.children,
-	      isDismissable ? this.renderSrOnlyDismissButton() : null
-	    );
+	    return _react2['default'].createElement('div', _extends({}, this.props, { role: 'alert', className: _classnames2['default'](this.props.className, classes) }), isDismissable ? this.renderDismissButton() : null, this.props.children, isDismissable ? this.renderSrOnlyDismissButton() : null);
 	  },
 
 	  componentDidMount: function componentDidMount() {
@@ -3249,12 +3293,8 @@ webpackJsonp([1],[
 	      'pull-right': this.props.pullRight,
 	      'badge': this.hasContent()
 	    };
-	    return _react2['default'].createElement(
-	      'span',
-	      _extends({}, this.props, {
-	        className: _classnames2['default'](this.props.className, classes) }),
-	      this.props.children
-	    );
+	    return _react2['default'].createElement('span', _extends({}, this.props, {
+	      className: _classnames2['default'](this.props.className, classes) }), this.props.children);
 	  }
 	});
 
@@ -3353,26 +3393,18 @@ webpackJsonp([1],[
 	    var href = this.props.href || '#';
 	    classes.disabled = this.props.disabled;
 
-	    return _react2['default'].createElement(
-	      Component,
-	      _extends({}, this.props, {
-	        href: href,
-	        className: _classnames2['default'](this.props.className, classes),
-	        role: 'button' }),
-	      this.props.children
-	    );
+	    return _react2['default'].createElement(Component, _extends({}, this.props, {
+	      href: href,
+	      className: _classnames2['default'](this.props.className, classes),
+	      role: 'button' }), this.props.children);
 	  },
 
 	  renderButton: function renderButton(classes) {
 	    var Component = this.props.componentClass || 'button';
 
-	    return _react2['default'].createElement(
-	      Component,
-	      _extends({}, this.props, {
-	        type: this.props.type || 'button',
-	        className: _classnames2['default'](this.props.className, classes) }),
-	      this.props.children
-	    );
+	    return _react2['default'].createElement(Component, _extends({}, this.props, {
+	      type: this.props.type || 'button',
+	      className: _classnames2['default'](this.props.className, classes) }), this.props.children);
 	  },
 
 	  renderNavItem: function renderNavItem(classes) {
@@ -3380,11 +3412,7 @@ webpackJsonp([1],[
 	      active: this.props.active
 	    };
 
-	    return _react2['default'].createElement(
-	      'li',
-	      { className: _classnames2['default'](liClasses) },
-	      this.renderAnchor(classes)
-	    );
+	    return _react2['default'].createElement('li', { className: _classnames2['default'](liClasses) }, this.renderAnchor(classes));
 	  }
 	});
 
@@ -3445,11 +3473,7 @@ webpackJsonp([1],[
 
 	    var other = _objectWithoutProperties(_props, ['bsStyle', 'value']);
 
-	    return _react2['default'].createElement(
-	      _FormGroup2['default'],
-	      other,
-	      children
-	    );
+	    return _react2['default'].createElement(_FormGroup2['default'], other, children);
 	  };
 
 	  ButtonInput.prototype.renderInput = function renderInput() {
@@ -3527,11 +3551,7 @@ webpackJsonp([1],[
 	      'has-error': this.props.bsStyle === 'error'
 	    };
 
-	    return _react2['default'].createElement(
-	      'div',
-	      { className: _classnames2['default'](classes, this.props.groupClassName) },
-	      this.props.children
-	    );
+	    return _react2['default'].createElement('div', { className: _classnames2['default'](classes, this.props.groupClassName) }, this.props.children);
 	  };
 
 	  return FormGroup;
@@ -3644,29 +3664,13 @@ webpackJsonp([1],[
 	  };
 
 	  InputBase.prototype.renderInputGroup = function renderInputGroup(children) {
-	    var addonBefore = this.props.addonBefore ? _react2['default'].createElement(
-	      'span',
-	      { className: 'input-group-addon', key: 'addonBefore' },
-	      this.props.addonBefore
-	    ) : null;
+	    var addonBefore = this.props.addonBefore ? _react2['default'].createElement('span', { className: 'input-group-addon', key: 'addonBefore' }, this.props.addonBefore) : null;
 
-	    var addonAfter = this.props.addonAfter ? _react2['default'].createElement(
-	      'span',
-	      { className: 'input-group-addon', key: 'addonAfter' },
-	      this.props.addonAfter
-	    ) : null;
+	    var addonAfter = this.props.addonAfter ? _react2['default'].createElement('span', { className: 'input-group-addon', key: 'addonAfter' }, this.props.addonAfter) : null;
 
-	    var buttonBefore = this.props.buttonBefore ? _react2['default'].createElement(
-	      'span',
-	      { className: 'input-group-btn' },
-	      this.props.buttonBefore
-	    ) : null;
+	    var buttonBefore = this.props.buttonBefore ? _react2['default'].createElement('span', { className: 'input-group-btn' }, this.props.buttonBefore) : null;
 
-	    var buttonAfter = this.props.buttonAfter ? _react2['default'].createElement(
-	      'span',
-	      { className: 'input-group-btn' },
-	      this.props.buttonAfter
-	    ) : null;
+	    var buttonAfter = this.props.buttonAfter ? _react2['default'].createElement('span', { className: 'input-group-btn' }, this.props.buttonAfter) : null;
 
 	    var inputGroupClassName = undefined;
 	    switch (this.props.bsSize) {
@@ -3677,15 +3681,7 @@ webpackJsonp([1],[
 	      default:
 	    }
 
-	    return addonBefore || addonAfter || buttonBefore || buttonAfter ? _react2['default'].createElement(
-	      'div',
-	      { className: _classnames2['default'](inputGroupClassName, 'input-group'), key: 'input-group' },
-	      addonBefore,
-	      buttonBefore,
-	      children,
-	      addonAfter,
-	      buttonAfter
-	    ) : children;
+	    return addonBefore || addonAfter || buttonBefore || buttonAfter ? _react2['default'].createElement('div', { className: _classnames2['default'](inputGroupClassName, 'input-group'), key: 'input-group' }, addonBefore, buttonBefore, children, addonAfter, buttonAfter) : children;
 	  };
 
 	  InputBase.prototype.renderIcon = function renderIcon() {
@@ -3710,11 +3706,7 @@ webpackJsonp([1],[
 	  };
 
 	  InputBase.prototype.renderHelp = function renderHelp() {
-	    return this.props.help ? _react2['default'].createElement(
-	      'span',
-	      { className: 'help-block', key: 'help' },
-	      this.props.help
-	    ) : null;
+	    return this.props.help ? _react2['default'].createElement('span', { className: 'help-block', key: 'help' }, this.props.help) : null;
 	  };
 
 	  InputBase.prototype.renderCheckboxAndRadioWrapper = function renderCheckboxAndRadioWrapper(children) {
@@ -3723,19 +3715,11 @@ webpackJsonp([1],[
 	      'radio': this.props.type === 'radio'
 	    };
 
-	    return _react2['default'].createElement(
-	      'div',
-	      { className: _classnames2['default'](classes), key: 'checkboxRadioWrapper' },
-	      children
-	    );
+	    return _react2['default'].createElement('div', { className: _classnames2['default'](classes), key: 'checkboxRadioWrapper' }, children);
 	  };
 
 	  InputBase.prototype.renderWrapper = function renderWrapper(children) {
-	    return this.props.wrapperClassName ? _react2['default'].createElement(
-	      'div',
-	      { className: this.props.wrapperClassName, key: 'wrapper' },
-	      children
-	    ) : children;
+	    return this.props.wrapperClassName ? _react2['default'].createElement('div', { className: this.props.wrapperClassName, key: 'wrapper' }, children) : children;
 	  };
 
 	  InputBase.prototype.renderLabel = function renderLabel(children) {
@@ -3744,12 +3728,7 @@ webpackJsonp([1],[
 	    };
 	    classes[this.props.labelClassName] = this.props.labelClassName;
 
-	    return this.props.label ? _react2['default'].createElement(
-	      'label',
-	      { htmlFor: this.props.id, className: _classnames2['default'](classes), key: 'label' },
-	      children,
-	      this.props.label
-	    ) : children;
+	    return this.props.label ? _react2['default'].createElement('label', { htmlFor: this.props.id, className: _classnames2['default'](classes), key: 'label' }, children, this.props.label) : children;
 	  };
 
 	  InputBase.prototype.renderInput = function renderInput() {
@@ -3759,19 +3738,11 @@ webpackJsonp([1],[
 
 	    switch (this.props.type) {
 	      case 'select':
-	        return _react2['default'].createElement(
-	          'select',
-	          _extends({}, this.props, { className: _classnames2['default'](this.props.className, 'form-control'), ref: 'input', key: 'input' }),
-	          this.props.children
-	        );
+	        return _react2['default'].createElement('select', _extends({}, this.props, { className: _classnames2['default'](this.props.className, 'form-control'), ref: 'input', key: 'input' }), this.props.children);
 	      case 'textarea':
 	        return _react2['default'].createElement('textarea', _extends({}, this.props, { className: _classnames2['default'](this.props.className, 'form-control'), ref: 'input', key: 'input' }));
 	      case 'static':
-	        return _react2['default'].createElement(
-	          'p',
-	          _extends({}, this.props, { className: _classnames2['default'](this.props.className, 'form-control-static'), ref: 'input', key: 'input' }),
-	          this.props.value
-	        );
+	        return _react2['default'].createElement('p', _extends({}, this.props, { className: _classnames2['default'](this.props.className, 'form-control-static'), ref: 'input', key: 'input' }), this.props.value);
 	      default:
 	        var className = this.isCheckboxOrRadio() || this.isFile() ? '' : 'form-control';
 	        return _react2['default'].createElement('input', _extends({}, this.props, { className: _classnames2['default'](this.props.className, className), ref: 'input', key: 'input' }));
@@ -3779,11 +3750,7 @@ webpackJsonp([1],[
 	  };
 
 	  InputBase.prototype.renderFormGroup = function renderFormGroup(children) {
-	    return _react2['default'].createElement(
-	      _FormGroup2['default'],
-	      this.props,
-	      children
-	    );
+	    return _react2['default'].createElement(_FormGroup2['default'], this.props, children);
 	  };
 
 	  InputBase.prototype.renderChildren = function renderChildren() {
@@ -3880,11 +3847,7 @@ webpackJsonp([1],[
 
 	    var className = _classnames2['default'](this.props.className, (_classNames = {}, _classNames[this.props.bsClass] = true, _classNames['glyphicon-' + this.props.glyph] = true, _classNames['form-control-feedback'] = this.props.formControlFeedback, _classNames));
 
-	    return _react2['default'].createElement(
-	      'span',
-	      _extends({}, this.props, { className: className }),
-	      this.props.children
-	    );
+	    return _react2['default'].createElement('span', _extends({}, this.props, { className: className }), this.props.children);
 	  }
 	});
 
@@ -3954,12 +3917,8 @@ webpackJsonp([1],[
 	    classes['btn-group-justified'] = this.props.justified;
 	    classes['btn-block'] = this.props.block;
 
-	    return _react2['default'].createElement(
-	      'div',
-	      _extends({}, this.props, {
-	        className: _classnames2['default'](this.props.className, classes) }),
-	      this.props.children
-	    );
+	    return _react2['default'].createElement('div', _extends({}, this.props, {
+	      className: _classnames2['default'](this.props.className, classes) }), this.props.children);
 	  }
 	});
 
@@ -4004,13 +3963,9 @@ webpackJsonp([1],[
 	  render: function render() {
 	    var classes = this.getBsClassSet();
 
-	    return _react2['default'].createElement(
-	      'div',
-	      _extends({}, this.props, {
-	        role: 'toolbar',
-	        className: _classnames2['default'](this.props.className, classes) }),
-	      this.props.children
-	    );
+	    return _react2['default'].createElement('div', _extends({}, this.props, {
+	      role: 'toolbar',
+	      className: _classnames2['default'](this.props.className, classes) }), this.props.children);
 	  }
 	});
 
@@ -4188,36 +4143,18 @@ webpackJsonp([1],[
 	      slide: this.props.slide
 	    };
 
-	    return _react2['default'].createElement(
-	      'div',
-	      _extends({}, this.props, {
-	        className: _classnames2['default'](this.props.className, classes),
-	        onMouseOver: this.handleMouseOver,
-	        onMouseOut: this.handleMouseOut }),
-	      this.props.indicators ? this.renderIndicators() : null,
-	      _react2['default'].createElement(
-	        'div',
-	        { className: 'carousel-inner', ref: 'inner' },
-	        _utilsValidComponentChildren2['default'].map(this.props.children, this.renderItem)
-	      ),
-	      this.props.controls ? this.renderControls() : null
-	    );
+	    return _react2['default'].createElement('div', _extends({}, this.props, {
+	      className: _classnames2['default'](this.props.className, classes),
+	      onMouseOver: this.handleMouseOver,
+	      onMouseOut: this.handleMouseOut }), this.props.indicators ? this.renderIndicators() : null, _react2['default'].createElement('div', { className: 'carousel-inner', ref: 'inner' }, _utilsValidComponentChildren2['default'].map(this.props.children, this.renderItem)), this.props.controls ? this.renderControls() : null);
 	  },
 
 	  renderPrev: function renderPrev() {
-	    return _react2['default'].createElement(
-	      'a',
-	      { className: 'left carousel-control', href: '#prev', key: 0, onClick: this.prev },
-	      this.props.prevIcon
-	    );
+	    return _react2['default'].createElement('a', { className: 'left carousel-control', href: '#prev', key: 0, onClick: this.prev }, this.props.prevIcon);
 	  },
 
 	  renderNext: function renderNext() {
-	    return _react2['default'].createElement(
-	      'a',
-	      { className: 'right carousel-control', href: '#next', key: 1, onClick: this.next },
-	      this.props.nextIcon
-	    );
+	    return _react2['default'].createElement('a', { className: 'right carousel-control', href: '#next', key: 1, onClick: this.next }, this.props.nextIcon);
 	  },
 
 	  renderControls: function renderControls() {
@@ -4250,11 +4187,7 @@ webpackJsonp([1],[
 	      ' ');
 	    }, this);
 
-	    return _react2['default'].createElement(
-	      'ol',
-	      { className: 'carousel-indicators' },
-	      indicators
-	    );
+	    return _react2['default'].createElement('ol', { className: 'carousel-indicators' }, indicators);
 	  },
 
 	  getActiveIndex: function getActiveIndex() {
@@ -4420,20 +4353,11 @@ webpackJsonp([1],[
 	      classes[this.state.direction] = true;
 	    }
 
-	    return _react2['default'].createElement(
-	      'div',
-	      _extends({}, this.props, { className: _classnames2['default'](this.props.className, classes) }),
-	      this.props.children,
-	      this.props.caption ? this.renderCaption() : null
-	    );
+	    return _react2['default'].createElement('div', _extends({}, this.props, { className: _classnames2['default'](this.props.className, classes) }), this.props.children, this.props.caption ? this.renderCaption() : null);
 	  },
 
 	  renderCaption: function renderCaption() {
-	    return _react2['default'].createElement(
-	      'div',
-	      { className: 'carousel-caption' },
-	      this.props.caption
-	    );
+	    return _react2['default'].createElement('div', { className: 'carousel-caption' }, this.props.caption);
 	  }
 	});
 
@@ -4764,11 +4688,7 @@ webpackJsonp([1],[
 	      }
 	    }, this);
 
-	    return _react2['default'].createElement(
-	      ComponentClass,
-	      _extends({}, this.props, { className: _classnames2['default'](this.props.className, classes) }),
-	      this.props.children
-	    );
+	    return _react2['default'].createElement(ComponentClass, _extends({}, this.props, { className: _classnames2['default'](this.props.className, classes) }), this.props.children);
 	  }
 	});
 
@@ -5027,18 +4947,10 @@ webpackJsonp([1],[
 	    var classes = this.props.collapsible ? 'navbar-collapse' : null;
 	    var renderChildren = this.props.collapsible ? this.renderCollapsibleNavChildren : this.renderChildren;
 
-	    var nav = _react2['default'].createElement(
-	      'div',
-	      { eventKey: this.props.eventKey, className: _classnames2['default'](this.props.className, classes) },
-	      _utilsValidComponentChildren2['default'].map(this.props.children, renderChildren)
-	    );
+	    var nav = _react2['default'].createElement('div', { eventKey: this.props.eventKey, className: _classnames2['default'](this.props.className, classes) }, _utilsValidComponentChildren2['default'].map(this.props.children, renderChildren));
 
 	    if (this.props.collapsible) {
-	      return _react2['default'].createElement(
-	        _Collapse2['default'],
-	        { 'in': this.props.expanded },
-	        nav
-	      );
+	      return _react2['default'].createElement(_Collapse2['default'], { 'in': this.props.expanded }, nav);
 	    } else {
 	      return nav;
 	    }
@@ -5177,26 +5089,22 @@ webpackJsonp([1],[
 	    var exit = _utilsCreateChainedFunction2['default'](this.onExitListener, this.props.onExit);
 	    var exiting = _utilsCreateChainedFunction2['default'](this.onExitingListener, this.props.onExiting);
 
-	    return _react2['default'].createElement(
-	      _reactOverlaysLibTransition2['default'],
-	      _extends({
-	        ref: 'transition'
-	      }, this.props, {
-	        'aria-expanded': this.props.role ? this.props['in'] : null,
-	        className: this._dimension() === 'width' ? 'width' : '',
-	        exitedClassName: 'collapse',
-	        exitingClassName: 'collapsing',
-	        enteredClassName: 'collapse in',
-	        enteringClassName: 'collapsing',
-	        onEnter: enter,
-	        onEntering: entering,
-	        onEntered: entered,
-	        onExit: exit,
-	        onExiting: exiting,
-	        onExited: this.props.onExited
-	      }),
-	      this.props.children
-	    );
+	    return _react2['default'].createElement(_reactOverlaysLibTransition2['default'], _extends({
+	      ref: 'transition'
+	    }, this.props, {
+	      'aria-expanded': this.props.role ? this.props['in'] : null,
+	      className: this._dimension() === 'width' ? 'width' : '',
+	      exitedClassName: 'collapse',
+	      exitingClassName: 'collapsing',
+	      enteredClassName: 'collapse in',
+	      enteringClassName: 'collapsing',
+	      onEnter: enter,
+	      onEntering: entering,
+	      onEntered: entered,
+	      onExit: exit,
+	      onExiting: exiting,
+	      onExited: this.props.onExited
+	    }), this.props.children);
 	  };
 
 	  /* -- Expanding -- */
@@ -5354,15 +5262,37 @@ webpackJsonp([1],[
 
 	exports.__esModule = true;
 
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	var _extends = Object.assign || function (target) {
+	  for (var i = 1; i < arguments.length; i++) {
+	    var source = arguments[i];for (var key in source) {
+	      if (Object.prototype.hasOwnProperty.call(source, key)) {
+	        target[key] = source[key];
+	      }
+	    }
+	  }return target;
+	};
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	function _interopRequireDefault(obj) {
+	  return obj && obj.__esModule ? obj : { 'default': obj };
+	}
 
-	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+	function _objectWithoutProperties(obj, keys) {
+	  var target = {};for (var i in obj) {
+	    if (keys.indexOf(i) >= 0) continue;if (!Object.prototype.hasOwnProperty.call(obj, i)) continue;target[i] = obj[i];
+	  }return target;
+	}
 
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+	function _classCallCheck(instance, Constructor) {
+	  if (!(instance instanceof Constructor)) {
+	    throw new TypeError('Cannot call a class as a function');
+	  }
+	}
 
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+	function _inherits(subClass, superClass) {
+	  if (typeof superClass !== 'function' && superClass !== null) {
+	    throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass);
+	  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) subClass.__proto__ = superClass;
+	}
 
 	var _react = __webpack_require__(1);
 
@@ -5445,12 +5375,12 @@ webpackJsonp([1],[
 
 	      // Otherwise we're already entering or entered.
 	    } else {
-	      if (status === ENTERING || status === ENTERED) {
-	        this.performExit(nextProps);
-	      }
+	        if (status === ENTERING || status === ENTERED) {
+	          this.performExit(nextProps);
+	        }
 
-	      // Otherwise we're already exited or exiting.
-	    }
+	        // Otherwise we're already exited or exiting.
+	      }
 	  };
 
 	  Transition.prototype.componentDidUpdate = function componentDidUpdate() {
@@ -5924,14 +5854,10 @@ webpackJsonp([1],[
 	      dropup: this.props.dropup
 	    };
 
-	    return _react2['default'].createElement(
-	      Component,
-	      _extends({}, props, {
-	        tabIndex: '-1',
-	        className: _classnames2['default'](this.props.className, rootClasses)
-	      }),
-	      children
-	    );
+	    return _react2['default'].createElement(Component, _extends({}, props, {
+	      tabIndex: '-1',
+	      className: _classnames2['default'](this.props.className, rootClasses)
+	    }), children);
 	  };
 
 	  Dropdown.prototype.toggleOpen = function toggleOpen() {
@@ -6134,8 +6060,6 @@ webpackJsonp([1],[
 	// Source: http://jsfiddle.net/vWx8V/
 	// http://stackoverflow.com/questions/5603195/full-list-of-javascript-keycodes
 
-
-
 	/**
 	 * Conenience method returns corresponding value for given keyName or keyCode.
 	 *
@@ -6144,32 +6068,34 @@ webpackJsonp([1],[
 	 * @api public
 	 */
 
-	exports = module.exports = function(searchInput) {
+	'use strict';
+
+	exports = module.exports = function (searchInput) {
 	  // Keyboard Events
 	  if (searchInput && 'object' === typeof searchInput) {
-	    var hasKeyCode = searchInput.which || searchInput.keyCode || searchInput.charCode
-	    if (hasKeyCode) searchInput = hasKeyCode
+	    var hasKeyCode = searchInput.which || searchInput.keyCode || searchInput.charCode;
+	    if (hasKeyCode) searchInput = hasKeyCode;
 	  }
 
 	  // Numbers
-	  if ('number' === typeof searchInput) return names[searchInput]
+	  if ('number' === typeof searchInput) return names[searchInput];
 
 	  // Everything else (cast to string)
-	  var search = String(searchInput)
+	  var search = String(searchInput);
 
 	  // check codes
-	  var foundNamedKey = codes[search.toLowerCase()]
-	  if (foundNamedKey) return foundNamedKey
+	  var foundNamedKey = codes[search.toLowerCase()];
+	  if (foundNamedKey) return foundNamedKey;
 
 	  // check aliases
-	  var foundNamedKey = aliases[search.toLowerCase()]
-	  if (foundNamedKey) return foundNamedKey
+	  var foundNamedKey = aliases[search.toLowerCase()];
+	  if (foundNamedKey) return foundNamedKey;
 
 	  // weird character?
-	  if (search.length === 1) return search.charCodeAt(0)
+	  if (search.length === 1) return search.charCodeAt(0);
 
-	  return undefined
-	}
+	  return undefined;
+	};
 
 	/**
 	 * Get by name
@@ -6219,8 +6145,8 @@ webpackJsonp([1],[
 	  '[': 219,
 	  '\\': 220,
 	  ']': 221,
-	  "'": 222,
-	}
+	  "'": 222
+	};
 
 	// Helper aliases
 
@@ -6244,24 +6170,23 @@ webpackJsonp([1],[
 	  'ins': 45,
 	  'del': 46,
 	  'cmd': 91
-	}
-
+	};
 
 	/*!
 	 * Programatically add the following
 	 */
 
 	// lower case chars
-	for (i = 97; i < 123; i++) codes[String.fromCharCode(i)] = i - 32
+	for (i = 97; i < 123; i++) codes[String.fromCharCode(i)] = i - 32;
 
 	// numbers
-	for (var i = 48; i < 58; i++) codes[i - 48] = i
+	for (var i = 48; i < 58; i++) codes[i - 48] = i;
 
 	// function keys
-	for (i = 1; i < 13; i++) codes['f'+i] = i + 111
+	for (i = 1; i < 13; i++) codes['f' + i] = i + 111;
 
 	// numpad keys
-	for (i = 0; i < 10; i++) codes['numpad '+i] = i + 96
+	for (i = 0; i < 10; i++) codes['numpad ' + i] = i + 96;
 
 	/**
 	 * Get by code
@@ -6269,16 +6194,15 @@ webpackJsonp([1],[
 	 *   exports.name[13] // => 'Enter'
 	 */
 
-	var names = exports.names = exports.title = {} // title for backward compat
+	var names = exports.names = exports.title = {}; // title for backward compat
 
 	// Create reverse mapping
-	for (i in codes) names[codes[i]] = i
+	for (i in codes) names[codes[i]] = i;
 
 	// Add aliases
 	for (var alias in aliases) {
-	  codes[alias] = aliases[alias]
+	  codes[alias] = aliases[alias];
 	}
-
 
 /***/ },
 /* 249 */
@@ -6288,7 +6212,9 @@ webpackJsonp([1],[
 
 	exports.__esModule = true;
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	function _interopRequireDefault(obj) {
+	  return obj && obj.__esModule ? obj : { 'default': obj };
+	}
 
 	var _createUncontrollable = __webpack_require__(250);
 
@@ -6323,15 +6249,39 @@ webpackJsonp([1],[
 
 	exports.__esModule = true;
 
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	var _extends = Object.assign || function (target) {
+	  for (var i = 1; i < arguments.length; i++) {
+	    var source = arguments[i];for (var key in source) {
+	      if (Object.prototype.hasOwnProperty.call(source, key)) {
+	        target[key] = source[key];
+	      }
+	    }
+	  }return target;
+	};
 
 	exports['default'] = createUncontrollable;
 
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+	function _interopRequireWildcard(obj) {
+	  if (obj && obj.__esModule) {
+	    return obj;
+	  } else {
+	    var newObj = {};if (obj != null) {
+	      for (var key in obj) {
+	        if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];
+	      }
+	    }newObj['default'] = obj;return newObj;
+	  }
+	}
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	function _interopRequireDefault(obj) {
+	  return obj && obj.__esModule ? obj : { 'default': obj };
+	}
 
-	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+	function _objectWithoutProperties(obj, keys) {
+	  var target = {};for (var i in obj) {
+	    if (keys.indexOf(i) >= 0) continue;if (!Object.prototype.hasOwnProperty.call(obj, i)) continue;target[i] = obj[i];
+	  }return target;
+	}
 
 	var _react = __webpack_require__(1);
 
@@ -6454,7 +6404,9 @@ webpackJsonp([1],[
 	exports.each = each;
 	exports.has = has;
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	function _interopRequireDefault(obj) {
+	  return obj && obj.__esModule ? obj : { 'default': obj };
+	}
 
 	var _react = __webpack_require__(1);
 
@@ -6569,7 +6521,7 @@ webpackJsonp([1],[
 	 * will remain to ensure logic does not differ in production.
 	 */
 
-	var invariant = function(condition, format, a, b, c, d, e, f) {
+	var invariant = function invariant(condition, format, a, b, c, d, e, f) {
 	  if (process.env.NODE_ENV !== 'production') {
 	    if (format === undefined) {
 	      throw new Error('invariant requires an error message argument');
@@ -6579,17 +6531,13 @@ webpackJsonp([1],[
 	  if (!condition) {
 	    var error;
 	    if (format === undefined) {
-	      error = new Error(
-	        'Minified exception occurred; use the non-minified dev environment ' +
-	        'for the full error message and additional helpful warnings.'
-	      );
+	      error = new Error('Minified exception occurred; use the non-minified dev environment ' + 'for the full error message and additional helpful warnings.');
 	    } else {
 	      var args = [a, b, c, d, e, f];
 	      var argIndex = 0;
-	      error = new Error(
-	        'Invariant Violation: ' +
-	        format.replace(/%s/g, function() { return args[argIndex++]; })
-	      );
+	      error = new Error('Invariant Violation: ' + format.replace(/%s/g, function () {
+	        return args[argIndex++];
+	      }));
 	    }
 
 	    error.framesToPop = 1; // we don't care about invariant's own frame
@@ -6598,7 +6546,6 @@ webpackJsonp([1],[
 	};
 
 	module.exports = invariant;
-
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
@@ -6637,12 +6584,7 @@ webpackJsonp([1],[
 
 	var _SafeAnchor2 = _interopRequireDefault(_SafeAnchor);
 
-	var CARET = _react2['default'].createElement(
-	  'span',
-	  null,
-	  ' ',
-	  _react2['default'].createElement('span', { className: 'caret' })
-	);
+	var CARET = _react2['default'].createElement('span', null, ' ', _react2['default'].createElement('span', { className: 'caret' }));
 
 	var DropdownToggle = (function (_React$Component) {
 	  _inherits(DropdownToggle, _React$Component);
@@ -6662,16 +6604,11 @@ webpackJsonp([1],[
 
 	    var Component = this.props.useAnchor ? _SafeAnchor2['default'] : _Button2['default'];
 
-	    return _react2['default'].createElement(
-	      Component,
-	      _extends({}, this.props, {
-	        className: _classnames2['default'](classes, this.props.className),
-	        type: 'button',
-	        'aria-haspopup': true,
-	        'aria-expanded': this.props.open }),
-	      this.props.title || this.props.children,
-	      caret
-	    );
+	    return _react2['default'].createElement(Component, _extends({}, this.props, {
+	      className: _classnames2['default'](classes, this.props.className),
+	      type: 'button',
+	      'aria-haspopup': true,
+	      'aria-expanded': this.props.open }), this.props.title || this.props.children, caret);
 	  };
 
 	  return DropdownToggle;
@@ -6909,22 +6846,14 @@ webpackJsonp([1],[
 	      'dropdown-menu-right': this.props.pullRight
 	    };
 
-	    var list = _react2['default'].createElement(
-	      'ul',
-	      {
-	        className: _classnames2['default'](this.props.className, classes),
-	        role: 'menu',
-	        'aria-labelledby': this.props.labelledBy
-	      },
-	      items
-	    );
+	    var list = _react2['default'].createElement('ul', {
+	      className: _classnames2['default'](this.props.className, classes),
+	      role: 'menu',
+	      'aria-labelledby': this.props.labelledBy
+	    }, items);
 
 	    if (this.props.open) {
-	      list = _react2['default'].createElement(
-	        _reactOverlaysLibRootCloseWrapper2['default'],
-	        { noWrap: true, onRootClose: this.props.onClose },
-	        list
-	      );
+	      list = _react2['default'].createElement(_reactOverlaysLibRootCloseWrapper2['default'], { noWrap: true, onRootClose: this.props.onClose }, list);
 	    }
 
 	    return list;
@@ -6957,11 +6886,21 @@ webpackJsonp([1],[
 
 	exports.__esModule = true;
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	function _interopRequireDefault(obj) {
+	  return obj && obj.__esModule ? obj : { 'default': obj };
+	}
 
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+	function _classCallCheck(instance, Constructor) {
+	  if (!(instance instanceof Constructor)) {
+	    throw new TypeError('Cannot call a class as a function');
+	  }
+	}
 
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+	function _inherits(subClass, superClass) {
+	  if (typeof superClass !== 'function' && superClass !== null) {
+	    throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass);
+	  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) subClass.__proto__ = superClass;
+	}
 
 	var _react = __webpack_require__(1);
 
@@ -7053,11 +6992,7 @@ webpackJsonp([1],[
 
 	    // Wrap the child in a new element, so the child won't have to handle
 	    // potentially combining multiple onClick listeners.
-	    return _react2['default'].createElement(
-	      'div',
-	      { onClick: suppressRootClose },
-	      child
-	    );
+	    return _react2['default'].createElement('div', { onClick: suppressRootClose }, child);
 	  };
 
 	  RootCloseWrapper.prototype.getWrappedDOMNode = function getWrappedDOMNode() {
@@ -7100,7 +7035,9 @@ webpackJsonp([1],[
 
 	exports.__esModule = true;
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	function _interopRequireDefault(obj) {
+	  return obj && obj.__esModule ? obj : { 'default': obj };
+	}
 
 	var _domHelpersEventsOn = __webpack_require__(246);
 
@@ -7197,7 +7134,9 @@ webpackJsonp([1],[
 
 	exports.__esModule = true;
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	function _interopRequireDefault(obj) {
+	  return obj && obj.__esModule ? obj : { 'default': obj };
+	}
 
 	var _react = __webpack_require__(1);
 
@@ -7216,6 +7155,8 @@ webpackJsonp([1],[
 /***/ },
 /* 261 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var baseEach = __webpack_require__(262),
 	    createFind = __webpack_require__(283);
@@ -7274,10 +7215,11 @@ webpackJsonp([1],[
 
 	module.exports = find;
 
-
 /***/ },
 /* 262 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var baseForOwn = __webpack_require__(263),
 	    createBaseEach = __webpack_require__(282);
@@ -7295,10 +7237,11 @@ webpackJsonp([1],[
 
 	module.exports = baseEach;
 
-
 /***/ },
 /* 263 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var baseFor = __webpack_require__(264),
 	    keys = __webpack_require__(268);
@@ -7318,10 +7261,11 @@ webpackJsonp([1],[
 
 	module.exports = baseForOwn;
 
-
 /***/ },
 /* 264 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var createBaseFor = __webpack_require__(265);
 
@@ -7341,10 +7285,11 @@ webpackJsonp([1],[
 
 	module.exports = baseFor;
 
-
 /***/ },
 /* 265 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var toObject = __webpack_require__(266);
 
@@ -7356,13 +7301,13 @@ webpackJsonp([1],[
 	 * @returns {Function} Returns the new base function.
 	 */
 	function createBaseFor(fromRight) {
-	  return function(object, iteratee, keysFunc) {
+	  return function (object, iteratee, keysFunc) {
 	    var iterable = toObject(object),
 	        props = keysFunc(object),
 	        length = props.length,
 	        index = fromRight ? length : -1;
 
-	    while ((fromRight ? index-- : ++index < length)) {
+	    while (fromRight ? index-- : ++index < length) {
 	      var key = props[index];
 	      if (iteratee(iterable[key], key, iterable) === false) {
 	        break;
@@ -7374,10 +7319,11 @@ webpackJsonp([1],[
 
 	module.exports = createBaseFor;
 
-
 /***/ },
 /* 266 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var isObject = __webpack_require__(267);
 
@@ -7393,7 +7339,6 @@ webpackJsonp([1],[
 	}
 
 	module.exports = toObject;
-
 
 /***/ },
 /* 267 */
@@ -7419,6 +7364,8 @@ webpackJsonp([1],[
 	 * _.isObject(1);
 	 * // => false
 	 */
+	'use strict';
+
 	function isObject(value) {
 	  // Avoid a V8 JIT bug in Chrome 19-20.
 	  // See https://code.google.com/p/v8/issues/detail?id=2291 for more details.
@@ -7428,10 +7375,11 @@ webpackJsonp([1],[
 
 	module.exports = isObject;
 
-
 /***/ },
 /* 268 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var getNative = __webpack_require__(269),
 	    isArrayLike = __webpack_require__(273),
@@ -7468,10 +7416,9 @@ webpackJsonp([1],[
 	 * _.keys('hi');
 	 * // => ['0', '1']
 	 */
-	var keys = !nativeKeys ? shimKeys : function(object) {
+	var keys = !nativeKeys ? shimKeys : function (object) {
 	  var Ctor = object == null ? undefined : object.constructor;
-	  if ((typeof Ctor == 'function' && Ctor.prototype === object) ||
-	      (typeof object != 'function' && isArrayLike(object))) {
+	  if (typeof Ctor == 'function' && Ctor.prototype === object || typeof object != 'function' && isArrayLike(object)) {
 	    return shimKeys(object);
 	  }
 	  return isObject(object) ? nativeKeys(object) : [];
@@ -7479,10 +7426,11 @@ webpackJsonp([1],[
 
 	module.exports = keys;
 
-
 /***/ },
 /* 269 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var isNative = __webpack_require__(270);
 
@@ -7501,10 +7449,11 @@ webpackJsonp([1],[
 
 	module.exports = getNative;
 
-
 /***/ },
 /* 270 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var isFunction = __webpack_require__(271),
 	    isObjectLike = __webpack_require__(272);
@@ -7522,10 +7471,7 @@ webpackJsonp([1],[
 	var hasOwnProperty = objectProto.hasOwnProperty;
 
 	/** Used to detect if a method is native. */
-	var reIsNative = RegExp('^' +
-	  fnToString.call(hasOwnProperty).replace(/[\\^$.*+?()[\]{}|]/g, '\\$&')
-	  .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
-	);
+	var reIsNative = RegExp('^' + fnToString.call(hasOwnProperty).replace(/[\\^$.*+?()[\]{}|]/g, '\\$&').replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$');
 
 	/**
 	 * Checks if `value` is a native function.
@@ -7555,10 +7501,11 @@ webpackJsonp([1],[
 
 	module.exports = isNative;
 
-
 /***/ },
 /* 271 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var isObject = __webpack_require__(267);
 
@@ -7599,7 +7546,6 @@ webpackJsonp([1],[
 
 	module.exports = isFunction;
 
-
 /***/ },
 /* 272 */
 /***/ function(module, exports) {
@@ -7611,16 +7557,19 @@ webpackJsonp([1],[
 	 * @param {*} value The value to check.
 	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
 	 */
+	'use strict';
+
 	function isObjectLike(value) {
 	  return !!value && typeof value == 'object';
 	}
 
 	module.exports = isObjectLike;
 
-
 /***/ },
 /* 273 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var getLength = __webpack_require__(274),
 	    isLength = __webpack_require__(276);
@@ -7638,10 +7587,11 @@ webpackJsonp([1],[
 
 	module.exports = isArrayLike;
 
-
 /***/ },
 /* 274 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var baseProperty = __webpack_require__(275);
 
@@ -7659,7 +7609,6 @@ webpackJsonp([1],[
 
 	module.exports = getLength;
 
-
 /***/ },
 /* 275 */
 /***/ function(module, exports) {
@@ -7671,14 +7620,15 @@ webpackJsonp([1],[
 	 * @param {string} key The key of the property to get.
 	 * @returns {Function} Returns the new function.
 	 */
+	"use strict";
+
 	function baseProperty(key) {
-	  return function(object) {
+	  return function (object) {
 	    return object == null ? undefined : object[key];
 	  };
 	}
 
 	module.exports = baseProperty;
-
 
 /***/ },
 /* 276 */
@@ -7688,6 +7638,8 @@ webpackJsonp([1],[
 	 * Used as the [maximum length](http://ecma-international.org/ecma-262/6.0/#sec-number.max_safe_integer)
 	 * of an array-like value.
 	 */
+	'use strict';
+
 	var MAX_SAFE_INTEGER = 9007199254740991;
 
 	/**
@@ -7705,10 +7657,11 @@ webpackJsonp([1],[
 
 	module.exports = isLength;
 
-
 /***/ },
 /* 277 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var isArguments = __webpack_require__(278),
 	    isArray = __webpack_require__(279),
@@ -7735,15 +7688,14 @@ webpackJsonp([1],[
 	      propsLength = props.length,
 	      length = propsLength && object.length;
 
-	  var allowIndexes = !!length && isLength(length) &&
-	    (isArray(object) || isArguments(object));
+	  var allowIndexes = !!length && isLength(length) && (isArray(object) || isArguments(object));
 
 	  var index = -1,
 	      result = [];
 
 	  while (++index < propsLength) {
 	    var key = props[index];
-	    if ((allowIndexes && isIndex(key, length)) || hasOwnProperty.call(object, key)) {
+	    if (allowIndexes && isIndex(key, length) || hasOwnProperty.call(object, key)) {
 	      result.push(key);
 	    }
 	  }
@@ -7752,10 +7704,11 @@ webpackJsonp([1],[
 
 	module.exports = shimKeys;
 
-
 /***/ },
 /* 278 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var isArrayLike = __webpack_require__(273),
 	    isObjectLike = __webpack_require__(272);
@@ -7786,16 +7739,16 @@ webpackJsonp([1],[
 	 * // => false
 	 */
 	function isArguments(value) {
-	  return isObjectLike(value) && isArrayLike(value) &&
-	    hasOwnProperty.call(value, 'callee') && !propertyIsEnumerable.call(value, 'callee');
+	    return isObjectLike(value) && isArrayLike(value) && hasOwnProperty.call(value, 'callee') && !propertyIsEnumerable.call(value, 'callee');
 	}
 
 	module.exports = isArguments;
 
-
 /***/ },
 /* 279 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var getNative = __webpack_require__(269),
 	    isLength = __webpack_require__(276),
@@ -7832,18 +7785,19 @@ webpackJsonp([1],[
 	 * _.isArray(function() { return arguments; }());
 	 * // => false
 	 */
-	var isArray = nativeIsArray || function(value) {
+	var isArray = nativeIsArray || function (value) {
 	  return isObjectLike(value) && isLength(value.length) && objToString.call(value) == arrayTag;
 	};
 
 	module.exports = isArray;
-
 
 /***/ },
 /* 280 */
 /***/ function(module, exports) {
 
 	/** Used to detect unsigned integer values. */
+	'use strict';
+
 	var reIsUint = /^\d+$/;
 
 	/**
@@ -7861,17 +7815,18 @@ webpackJsonp([1],[
 	 * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
 	 */
 	function isIndex(value, length) {
-	  value = (typeof value == 'number' || reIsUint.test(value)) ? +value : -1;
+	  value = typeof value == 'number' || reIsUint.test(value) ? +value : -1;
 	  length = length == null ? MAX_SAFE_INTEGER : length;
 	  return value > -1 && value % 1 == 0 && value < length;
 	}
 
 	module.exports = isIndex;
 
-
 /***/ },
 /* 281 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var isArguments = __webpack_require__(278),
 	    isArray = __webpack_require__(279),
@@ -7915,8 +7870,7 @@ webpackJsonp([1],[
 	    object = Object(object);
 	  }
 	  var length = object.length;
-	  length = (length && isLength(length) &&
-	    (isArray(object) || isArguments(object)) && length) || 0;
+	  length = length && isLength(length) && (isArray(object) || isArguments(object)) && length || 0;
 
 	  var Ctor = object.constructor,
 	      index = -1,
@@ -7925,11 +7879,10 @@ webpackJsonp([1],[
 	      skipIndexes = length > 0;
 
 	  while (++index < length) {
-	    result[index] = (index + '');
+	    result[index] = index + '';
 	  }
 	  for (var key in object) {
-	    if (!(skipIndexes && isIndex(key, length)) &&
-	        !(key == 'constructor' && (isProto || !hasOwnProperty.call(object, key)))) {
+	    if (!(skipIndexes && isIndex(key, length)) && !(key == 'constructor' && (isProto || !hasOwnProperty.call(object, key)))) {
 	      result.push(key);
 	    }
 	  }
@@ -7938,10 +7891,11 @@ webpackJsonp([1],[
 
 	module.exports = keysIn;
 
-
 /***/ },
 /* 282 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var getLength = __webpack_require__(274),
 	    isLength = __webpack_require__(276),
@@ -7956,7 +7910,7 @@ webpackJsonp([1],[
 	 * @returns {Function} Returns the new base function.
 	 */
 	function createBaseEach(eachFunc, fromRight) {
-	  return function(collection, iteratee) {
+	  return function (collection, iteratee) {
 	    var length = collection ? getLength(collection) : 0;
 	    if (!isLength(length)) {
 	      return eachFunc(collection, iteratee);
@@ -7964,7 +7918,7 @@ webpackJsonp([1],[
 	    var index = fromRight ? length : -1,
 	        iterable = toObject(collection);
 
-	    while ((fromRight ? index-- : ++index < length)) {
+	    while (fromRight ? index-- : ++index < length) {
 	      if (iteratee(iterable[index], index, iterable) === false) {
 	        break;
 	      }
@@ -7975,10 +7929,11 @@ webpackJsonp([1],[
 
 	module.exports = createBaseEach;
 
-
 /***/ },
 /* 283 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var baseCallback = __webpack_require__(284),
 	    baseFind = __webpack_require__(308),
@@ -7994,7 +7949,7 @@ webpackJsonp([1],[
 	 * @returns {Function} Returns the new find function.
 	 */
 	function createFind(eachFunc, fromRight) {
-	  return function(collection, predicate, thisArg) {
+	  return function (collection, predicate, thisArg) {
 	    predicate = baseCallback(predicate, thisArg, 3);
 	    if (isArray(collection)) {
 	      var index = baseFindIndex(collection, predicate, fromRight);
@@ -8006,10 +7961,11 @@ webpackJsonp([1],[
 
 	module.exports = createFind;
 
-
 /***/ },
 /* 284 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var baseMatches = __webpack_require__(285),
 	    baseMatchesProperty = __webpack_require__(297),
@@ -8030,9 +7986,7 @@ webpackJsonp([1],[
 	function baseCallback(func, thisArg, argCount) {
 	  var type = typeof func;
 	  if (type == 'function') {
-	    return thisArg === undefined
-	      ? func
-	      : bindCallback(func, thisArg, argCount);
+	    return thisArg === undefined ? func : bindCallback(func, thisArg, argCount);
 	  }
 	  if (func == null) {
 	    return identity;
@@ -8040,17 +7994,16 @@ webpackJsonp([1],[
 	  if (type == 'object') {
 	    return baseMatches(func);
 	  }
-	  return thisArg === undefined
-	    ? property(func)
-	    : baseMatchesProperty(func, thisArg);
+	  return thisArg === undefined ? property(func) : baseMatchesProperty(func, thisArg);
 	}
 
 	module.exports = baseCallback;
 
-
 /***/ },
 /* 285 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var baseIsMatch = __webpack_require__(286),
 	    getMatchData = __webpack_require__(294),
@@ -8069,24 +8022,25 @@ webpackJsonp([1],[
 	    var key = matchData[0][0],
 	        value = matchData[0][1];
 
-	    return function(object) {
+	    return function (object) {
 	      if (object == null) {
 	        return false;
 	      }
-	      return object[key] === value && (value !== undefined || (key in toObject(object)));
+	      return object[key] === value && (value !== undefined || key in toObject(object));
 	    };
 	  }
-	  return function(object) {
+	  return function (object) {
 	    return baseIsMatch(object, matchData);
 	  };
 	}
 
 	module.exports = baseMatches;
 
-
 /***/ },
 /* 286 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var baseIsEqual = __webpack_require__(287),
 	    toObject = __webpack_require__(266);
@@ -8112,10 +8066,7 @@ webpackJsonp([1],[
 	  object = toObject(object);
 	  while (index--) {
 	    var data = matchData[index];
-	    if ((noCustomizer && data[2])
-	          ? data[1] !== object[data[0]]
-	          : !(data[0] in object)
-	        ) {
+	    if (noCustomizer && data[2] ? data[1] !== object[data[0]] : !(data[0] in object)) {
 	      return false;
 	    }
 	  }
@@ -8141,10 +8092,11 @@ webpackJsonp([1],[
 
 	module.exports = baseIsMatch;
 
-
 /***/ },
 /* 287 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var baseIsEqualDeep = __webpack_require__(288),
 	    isObject = __webpack_require__(267),
@@ -8167,7 +8119,7 @@ webpackJsonp([1],[
 	  if (value === other) {
 	    return true;
 	  }
-	  if (value == null || other == null || (!isObject(value) && !isObjectLike(other))) {
+	  if (value == null || other == null || !isObject(value) && !isObjectLike(other)) {
 	    return value !== value && other !== other;
 	  }
 	  return baseIsEqualDeep(value, other, baseIsEqual, customizer, isLoose, stackA, stackB);
@@ -8175,10 +8127,11 @@ webpackJsonp([1],[
 
 	module.exports = baseIsEqual;
 
-
 /***/ },
 /* 288 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var equalArrays = __webpack_require__(289),
 	    equalByTag = __webpack_require__(291),
@@ -8283,10 +8236,11 @@ webpackJsonp([1],[
 
 	module.exports = baseIsEqualDeep;
 
-
 /***/ },
 /* 289 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var arraySome = __webpack_require__(290);
 
@@ -8326,9 +8280,9 @@ webpackJsonp([1],[
 	    }
 	    // Recursively compare arrays (susceptible to call stack limits).
 	    if (isLoose) {
-	      if (!arraySome(other, function(othValue) {
-	            return arrValue === othValue || equalFunc(arrValue, othValue, customizer, isLoose, stackA, stackB);
-	          })) {
+	      if (!arraySome(other, function (othValue) {
+	        return arrValue === othValue || equalFunc(arrValue, othValue, customizer, isLoose, stackA, stackB);
+	      })) {
 	        return false;
 	      }
 	    } else if (!(arrValue === othValue || equalFunc(arrValue, othValue, customizer, isLoose, stackA, stackB))) {
@@ -8339,7 +8293,6 @@ webpackJsonp([1],[
 	}
 
 	module.exports = equalArrays;
-
 
 /***/ },
 /* 290 */
@@ -8355,6 +8308,8 @@ webpackJsonp([1],[
 	 * @returns {boolean} Returns `true` if any element passes the predicate check,
 	 *  else `false`.
 	 */
+	"use strict";
+
 	function arraySome(array, predicate) {
 	  var index = -1,
 	      length = array.length;
@@ -8369,12 +8324,13 @@ webpackJsonp([1],[
 
 	module.exports = arraySome;
 
-
 /***/ },
 /* 291 */
 /***/ function(module, exports) {
 
 	/** `Object#toString` result references. */
+	'use strict';
+
 	var boolTag = '[object Boolean]',
 	    dateTag = '[object Date]',
 	    errorTag = '[object Error]',
@@ -8408,25 +8364,24 @@ webpackJsonp([1],[
 
 	    case numberTag:
 	      // Treat `NaN` vs. `NaN` as equal.
-	      return (object != +object)
-	        ? other != +other
-	        : object == +other;
+	      return object != +object ? other != +other : object == +other;
 
 	    case regexpTag:
 	    case stringTag:
 	      // Coerce regexes to strings and treat strings primitives and string
 	      // objects as equal. See https://es5.github.io/#x15.10.6.4 for more details.
-	      return object == (other + '');
+	      return object == other + '';
 	  }
 	  return false;
 	}
 
 	module.exports = equalByTag;
 
-
 /***/ },
 /* 292 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var keys = __webpack_require__(268);
 
@@ -8471,7 +8426,7 @@ webpackJsonp([1],[
 	    key = objProps[index];
 	    var objValue = object[key],
 	        othValue = other[key],
-	        result = customizer ? customizer(isLoose ? othValue : objValue, isLoose? objValue : othValue, key) : undefined;
+	        result = customizer ? customizer(isLoose ? othValue : objValue, isLoose ? objValue : othValue, key) : undefined;
 
 	    // Recursively compare objects (susceptible to call stack limits).
 	    if (!(result === undefined ? equalFunc(objValue, othValue, customizer, isLoose, stackA, stackB) : result)) {
@@ -8484,10 +8439,7 @@ webpackJsonp([1],[
 	        othCtor = other.constructor;
 
 	    // Non `Object` object instances with different constructors are not equal.
-	    if (objCtor != othCtor &&
-	        ('constructor' in object && 'constructor' in other) &&
-	        !(typeof objCtor == 'function' && objCtor instanceof objCtor &&
-	          typeof othCtor == 'function' && othCtor instanceof othCtor)) {
+	    if (objCtor != othCtor && ('constructor' in object && 'constructor' in other) && !(typeof objCtor == 'function' && objCtor instanceof objCtor && typeof othCtor == 'function' && othCtor instanceof othCtor)) {
 	      return false;
 	    }
 	  }
@@ -8496,10 +8448,11 @@ webpackJsonp([1],[
 
 	module.exports = equalObjects;
 
-
 /***/ },
 /* 293 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var isLength = __webpack_require__(276),
 	    isObjectLike = __webpack_require__(272);
@@ -8532,18 +8485,8 @@ webpackJsonp([1],[
 
 	/** Used to identify `toStringTag` values of typed arrays. */
 	var typedArrayTags = {};
-	typedArrayTags[float32Tag] = typedArrayTags[float64Tag] =
-	typedArrayTags[int8Tag] = typedArrayTags[int16Tag] =
-	typedArrayTags[int32Tag] = typedArrayTags[uint8Tag] =
-	typedArrayTags[uint8ClampedTag] = typedArrayTags[uint16Tag] =
-	typedArrayTags[uint32Tag] = true;
-	typedArrayTags[argsTag] = typedArrayTags[arrayTag] =
-	typedArrayTags[arrayBufferTag] = typedArrayTags[boolTag] =
-	typedArrayTags[dateTag] = typedArrayTags[errorTag] =
-	typedArrayTags[funcTag] = typedArrayTags[mapTag] =
-	typedArrayTags[numberTag] = typedArrayTags[objectTag] =
-	typedArrayTags[regexpTag] = typedArrayTags[setTag] =
-	typedArrayTags[stringTag] = typedArrayTags[weakMapTag] = false;
+	typedArrayTags[float32Tag] = typedArrayTags[float64Tag] = typedArrayTags[int8Tag] = typedArrayTags[int16Tag] = typedArrayTags[int32Tag] = typedArrayTags[uint8Tag] = typedArrayTags[uint8ClampedTag] = typedArrayTags[uint16Tag] = typedArrayTags[uint32Tag] = true;
+	typedArrayTags[argsTag] = typedArrayTags[arrayTag] = typedArrayTags[arrayBufferTag] = typedArrayTags[boolTag] = typedArrayTags[dateTag] = typedArrayTags[errorTag] = typedArrayTags[funcTag] = typedArrayTags[mapTag] = typedArrayTags[numberTag] = typedArrayTags[objectTag] = typedArrayTags[regexpTag] = typedArrayTags[setTag] = typedArrayTags[stringTag] = typedArrayTags[weakMapTag] = false;
 
 	/** Used for native method references. */
 	var objectProto = Object.prototype;
@@ -8571,15 +8514,16 @@ webpackJsonp([1],[
 	 * // => false
 	 */
 	function isTypedArray(value) {
-	  return isObjectLike(value) && isLength(value.length) && !!typedArrayTags[objToString.call(value)];
+	    return isObjectLike(value) && isLength(value.length) && !!typedArrayTags[objToString.call(value)];
 	}
 
 	module.exports = isTypedArray;
 
-
 /***/ },
 /* 294 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var isStrictComparable = __webpack_require__(295),
 	    pairs = __webpack_require__(296);
@@ -8603,10 +8547,11 @@ webpackJsonp([1],[
 
 	module.exports = getMatchData;
 
-
 /***/ },
 /* 295 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var isObject = __webpack_require__(267);
 
@@ -8624,10 +8569,11 @@ webpackJsonp([1],[
 
 	module.exports = isStrictComparable;
 
-
 /***/ },
 /* 296 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var keys = __webpack_require__(268),
 	    toObject = __webpack_require__(266);
@@ -8663,10 +8609,11 @@ webpackJsonp([1],[
 
 	module.exports = pairs;
 
-
 /***/ },
 /* 297 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var baseGet = __webpack_require__(298),
 	    baseIsEqual = __webpack_require__(287),
@@ -8689,10 +8636,10 @@ webpackJsonp([1],[
 	function baseMatchesProperty(path, srcValue) {
 	  var isArr = isArray(path),
 	      isCommon = isKey(path) && isStrictComparable(srcValue),
-	      pathKey = (path + '');
+	      pathKey = path + '';
 
 	  path = toPath(path);
-	  return function(object) {
+	  return function (object) {
 	    if (object == null) {
 	      return false;
 	    }
@@ -8706,18 +8653,17 @@ webpackJsonp([1],[
 	      key = last(path);
 	      object = toObject(object);
 	    }
-	    return object[key] === srcValue
-	      ? (srcValue !== undefined || (key in object))
-	      : baseIsEqual(srcValue, object[key], undefined, true);
+	    return object[key] === srcValue ? srcValue !== undefined || key in object : baseIsEqual(srcValue, object[key], undefined, true);
 	  };
 	}
 
 	module.exports = baseMatchesProperty;
 
-
 /***/ },
 /* 298 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var toObject = __webpack_require__(266);
 
@@ -8744,11 +8690,10 @@ webpackJsonp([1],[
 	  while (object != null && index < length) {
 	    object = object[path[index++]];
 	  }
-	  return (index && index == length) ? object : undefined;
+	  return index && index == length ? object : undefined;
 	}
 
 	module.exports = baseGet;
-
 
 /***/ },
 /* 299 */
@@ -8763,19 +8708,21 @@ webpackJsonp([1],[
 	 * @param {number} [end=array.length] The end position.
 	 * @returns {Array} Returns the slice of `array`.
 	 */
+	"use strict";
+
 	function baseSlice(array, start, end) {
 	  var index = -1,
 	      length = array.length;
 
-	  start = start == null ? 0 : (+start || 0);
+	  start = start == null ? 0 : +start || 0;
 	  if (start < 0) {
-	    start = -start > length ? 0 : (length + start);
+	    start = -start > length ? 0 : length + start;
 	  }
-	  end = (end === undefined || end > length) ? length : (+end || 0);
+	  end = end === undefined || end > length ? length : +end || 0;
 	  if (end < 0) {
 	    end += length;
 	  }
-	  length = start > end ? 0 : ((end - start) >>> 0);
+	  length = start > end ? 0 : end - start >>> 0;
 	  start >>>= 0;
 
 	  var result = Array(length);
@@ -8787,10 +8734,11 @@ webpackJsonp([1],[
 
 	module.exports = baseSlice;
 
-
 /***/ },
 /* 300 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var isArray = __webpack_require__(279),
 	    toObject = __webpack_require__(266);
@@ -8809,18 +8757,17 @@ webpackJsonp([1],[
 	 */
 	function isKey(value, object) {
 	  var type = typeof value;
-	  if ((type == 'string' && reIsPlainProp.test(value)) || type == 'number') {
+	  if (type == 'string' && reIsPlainProp.test(value) || type == 'number') {
 	    return true;
 	  }
 	  if (isArray(value)) {
 	    return false;
 	  }
 	  var result = !reIsDeepProp.test(value);
-	  return result || (object != null && value in toObject(object));
+	  return result || object != null && value in toObject(object);
 	}
 
 	module.exports = isKey;
-
 
 /***/ },
 /* 301 */
@@ -8839,6 +8786,8 @@ webpackJsonp([1],[
 	 * _.last([1, 2, 3]);
 	 * // => 3
 	 */
+	"use strict";
+
 	function last(array) {
 	  var length = array ? array.length : 0;
 	  return length ? array[length - 1] : undefined;
@@ -8846,10 +8795,11 @@ webpackJsonp([1],[
 
 	module.exports = last;
 
-
 /***/ },
 /* 302 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var baseToString = __webpack_require__(303),
 	    isArray = __webpack_require__(279);
@@ -8872,14 +8822,13 @@ webpackJsonp([1],[
 	    return value;
 	  }
 	  var result = [];
-	  baseToString(value).replace(rePropName, function(match, number, quote, string) {
-	    result.push(quote ? string.replace(reEscapeChar, '$1') : (number || match));
+	  baseToString(value).replace(rePropName, function (match, number, quote, string) {
+	    result.push(quote ? string.replace(reEscapeChar, '$1') : number || match);
 	  });
 	  return result;
 	}
 
 	module.exports = toPath;
-
 
 /***/ },
 /* 303 */
@@ -8893,16 +8842,19 @@ webpackJsonp([1],[
 	 * @param {*} value The value to process.
 	 * @returns {string} Returns the string.
 	 */
+	'use strict';
+
 	function baseToString(value) {
-	  return value == null ? '' : (value + '');
+	  return value == null ? '' : value + '';
 	}
 
 	module.exports = baseToString;
 
-
 /***/ },
 /* 304 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var identity = __webpack_require__(305);
 
@@ -8924,26 +8876,29 @@ webpackJsonp([1],[
 	    return func;
 	  }
 	  switch (argCount) {
-	    case 1: return function(value) {
-	      return func.call(thisArg, value);
-	    };
-	    case 3: return function(value, index, collection) {
-	      return func.call(thisArg, value, index, collection);
-	    };
-	    case 4: return function(accumulator, value, index, collection) {
-	      return func.call(thisArg, accumulator, value, index, collection);
-	    };
-	    case 5: return function(value, other, key, object, source) {
-	      return func.call(thisArg, value, other, key, object, source);
-	    };
+	    case 1:
+	      return function (value) {
+	        return func.call(thisArg, value);
+	      };
+	    case 3:
+	      return function (value, index, collection) {
+	        return func.call(thisArg, value, index, collection);
+	      };
+	    case 4:
+	      return function (accumulator, value, index, collection) {
+	        return func.call(thisArg, accumulator, value, index, collection);
+	      };
+	    case 5:
+	      return function (value, other, key, object, source) {
+	        return func.call(thisArg, value, other, key, object, source);
+	      };
 	  }
-	  return function() {
+	  return function () {
 	    return func.apply(thisArg, arguments);
 	  };
 	}
 
 	module.exports = bindCallback;
-
 
 /***/ },
 /* 305 */
@@ -8964,16 +8919,19 @@ webpackJsonp([1],[
 	 * _.identity(object) === object;
 	 * // => true
 	 */
+	"use strict";
+
 	function identity(value) {
 	  return value;
 	}
 
 	module.exports = identity;
 
-
 /***/ },
 /* 306 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var baseProperty = __webpack_require__(275),
 	    basePropertyDeep = __webpack_require__(307),
@@ -9007,10 +8965,11 @@ webpackJsonp([1],[
 
 	module.exports = property;
 
-
 /***/ },
 /* 307 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var baseGet = __webpack_require__(298),
 	    toPath = __webpack_require__(302);
@@ -9023,15 +8982,14 @@ webpackJsonp([1],[
 	 * @returns {Function} Returns the new function.
 	 */
 	function basePropertyDeep(path) {
-	  var pathKey = (path + '');
+	  var pathKey = path + '';
 	  path = toPath(path);
-	  return function(object) {
+	  return function (object) {
 	    return baseGet(object, path, pathKey);
 	  };
 	}
 
 	module.exports = basePropertyDeep;
-
 
 /***/ },
 /* 308 */
@@ -9050,9 +9008,11 @@ webpackJsonp([1],[
 	 *  instead of the element itself.
 	 * @returns {*} Returns the found element or its key, else `undefined`.
 	 */
+	"use strict";
+
 	function baseFind(collection, predicate, eachFunc, retKey) {
 	  var result;
-	  eachFunc(collection, function(value, key, collection) {
+	  eachFunc(collection, function (value, key, collection) {
 	    if (predicate(value, key, collection)) {
 	      result = retKey ? key : value;
 	      return false;
@@ -9062,7 +9022,6 @@ webpackJsonp([1],[
 	}
 
 	module.exports = baseFind;
-
 
 /***/ },
 /* 309 */
@@ -9078,11 +9037,13 @@ webpackJsonp([1],[
 	 * @param {boolean} [fromRight] Specify iterating from right to left.
 	 * @returns {number} Returns the index of the matched value, else `-1`.
 	 */
+	"use strict";
+
 	function baseFindIndex(array, predicate, fromRight) {
 	  var length = array.length,
 	      index = fromRight ? length : -1;
 
-	  while ((fromRight ? index-- : ++index < length)) {
+	  while (fromRight ? index-- : ++index < length) {
 	    if (predicate(array[index], index, array)) {
 	      return index;
 	    }
@@ -9092,10 +9053,11 @@ webpackJsonp([1],[
 
 	module.exports = baseFindIndex;
 
-
 /***/ },
 /* 310 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var arrayMap = __webpack_require__(311),
 	    baseDifference = __webpack_require__(312),
@@ -9129,7 +9091,7 @@ webpackJsonp([1],[
 	 * _.omit(object, _.isNumber);
 	 * // => { 'user': 'fred' }
 	 */
-	var omit = restParam(function(object, props) {
+	var omit = restParam(function (object, props) {
 	  if (object == null) {
 	    return {};
 	  }
@@ -9138,13 +9100,12 @@ webpackJsonp([1],[
 	    return pickByArray(object, baseDifference(keysIn(object), props));
 	  }
 	  var predicate = bindCallback(props[0], props[1], 3);
-	  return pickByCallback(object, function(value, key, object) {
+	  return pickByCallback(object, function (value, key, object) {
 	    return !predicate(value, key, object);
 	  });
 	});
 
 	module.exports = omit;
-
 
 /***/ },
 /* 311 */
@@ -9159,6 +9120,8 @@ webpackJsonp([1],[
 	 * @param {Function} iteratee The function invoked per iteration.
 	 * @returns {Array} Returns the new mapped array.
 	 */
+	"use strict";
+
 	function arrayMap(array, iteratee) {
 	  var index = -1,
 	      length = array.length,
@@ -9172,10 +9135,11 @@ webpackJsonp([1],[
 
 	module.exports = arrayMap;
 
-
 /***/ },
 /* 312 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var baseIndexOf = __webpack_require__(313),
 	    cacheIndexOf = __webpack_require__(315),
@@ -9203,7 +9167,7 @@ webpackJsonp([1],[
 	  var index = -1,
 	      indexOf = baseIndexOf,
 	      isCommon = true,
-	      cache = (isCommon && values.length >= LARGE_ARRAY_SIZE) ? createCache(values) : null,
+	      cache = isCommon && values.length >= LARGE_ARRAY_SIZE ? createCache(values) : null,
 	      valuesLength = values.length;
 
 	  if (cache) {
@@ -9211,8 +9175,7 @@ webpackJsonp([1],[
 	    isCommon = false;
 	    values = cache;
 	  }
-	  outer:
-	  while (++index < length) {
+	  outer: while (++index < length) {
 	    var value = array[index];
 
 	    if (isCommon && value === value) {
@@ -9223,8 +9186,7 @@ webpackJsonp([1],[
 	        }
 	      }
 	      result.push(value);
-	    }
-	    else if (indexOf(values, value, 0) < 0) {
+	    } else if (indexOf(values, value, 0) < 0) {
 	      result.push(value);
 	    }
 	  }
@@ -9233,10 +9195,11 @@ webpackJsonp([1],[
 
 	module.exports = baseDifference;
 
-
 /***/ },
 /* 313 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var indexOfNaN = __webpack_require__(314);
 
@@ -9266,7 +9229,6 @@ webpackJsonp([1],[
 
 	module.exports = baseIndexOf;
 
-
 /***/ },
 /* 314 */
 /***/ function(module, exports) {
@@ -9280,11 +9242,13 @@ webpackJsonp([1],[
 	 * @param {boolean} [fromRight] Specify iterating from right to left.
 	 * @returns {number} Returns the index of the matched `NaN`, else `-1`.
 	 */
+	"use strict";
+
 	function indexOfNaN(array, fromIndex, fromRight) {
 	  var length = array.length,
 	      index = fromIndex + (fromRight ? 0 : -1);
 
-	  while ((fromRight ? index-- : ++index < length)) {
+	  while (fromRight ? index-- : ++index < length) {
 	    var other = array[index];
 	    if (other !== other) {
 	      return index;
@@ -9295,10 +9259,11 @@ webpackJsonp([1],[
 
 	module.exports = indexOfNaN;
 
-
 /***/ },
 /* 315 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var isObject = __webpack_require__(267);
 
@@ -9313,19 +9278,20 @@ webpackJsonp([1],[
 	 */
 	function cacheIndexOf(cache, value) {
 	  var data = cache.data,
-	      result = (typeof value == 'string' || isObject(value)) ? data.set.has(value) : data.hash[value];
+	      result = typeof value == 'string' || isObject(value) ? data.set.has(value) : data.hash[value];
 
 	  return result ? 0 : -1;
 	}
 
 	module.exports = cacheIndexOf;
 
-
 /***/ },
 /* 316 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(global) {var SetCache = __webpack_require__(317),
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+
+	var SetCache = __webpack_require__(317),
 	    getNative = __webpack_require__(269);
 
 	/** Native method references. */
@@ -9342,18 +9308,19 @@ webpackJsonp([1],[
 	 * @returns {null|Object} Returns the new cache object if `Set` is supported, else `null`.
 	 */
 	function createCache(values) {
-	  return (nativeCreate && Set) ? new SetCache(values) : null;
+	  return nativeCreate && Set ? new SetCache(values) : null;
 	}
 
 	module.exports = createCache;
-
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
 /* 317 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(global) {var cachePush = __webpack_require__(318),
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+
+	var cachePush = __webpack_require__(318),
 	    getNative = __webpack_require__(269);
 
 	/** Native method references. */
@@ -9372,7 +9339,7 @@ webpackJsonp([1],[
 	function SetCache(values) {
 	  var length = values ? values.length : 0;
 
-	  this.data = { 'hash': nativeCreate(null), 'set': new Set };
+	  this.data = { 'hash': nativeCreate(null), 'set': new Set() };
 	  while (length--) {
 	    this.push(values[length]);
 	  }
@@ -9382,12 +9349,13 @@ webpackJsonp([1],[
 	SetCache.prototype.push = cachePush;
 
 	module.exports = SetCache;
-
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
 /* 318 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var isObject = __webpack_require__(267);
 
@@ -9410,10 +9378,11 @@ webpackJsonp([1],[
 
 	module.exports = cachePush;
 
-
 /***/ },
 /* 319 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var arrayPush = __webpack_require__(320),
 	    isArguments = __webpack_require__(278),
@@ -9440,8 +9409,7 @@ webpackJsonp([1],[
 
 	  while (++index < length) {
 	    var value = array[index];
-	    if (isObjectLike(value) && isArrayLike(value) &&
-	        (isStrict || isArray(value) || isArguments(value))) {
+	    if (isObjectLike(value) && isArrayLike(value) && (isStrict || isArray(value) || isArguments(value))) {
 	      if (isDeep) {
 	        // Recursively flatten arrays (susceptible to call stack limits).
 	        baseFlatten(value, isDeep, isStrict, result);
@@ -9457,7 +9425,6 @@ webpackJsonp([1],[
 
 	module.exports = baseFlatten;
 
-
 /***/ },
 /* 320 */
 /***/ function(module, exports) {
@@ -9470,6 +9437,8 @@ webpackJsonp([1],[
 	 * @param {Array} values The values to append.
 	 * @returns {Array} Returns `array`.
 	 */
+	"use strict";
+
 	function arrayPush(array, values) {
 	  var index = -1,
 	      length = values.length,
@@ -9483,10 +9452,11 @@ webpackJsonp([1],[
 
 	module.exports = arrayPush;
 
-
 /***/ },
 /* 321 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var toObject = __webpack_require__(266);
 
@@ -9517,10 +9487,11 @@ webpackJsonp([1],[
 
 	module.exports = pickByArray;
 
-
 /***/ },
 /* 322 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var baseForIn = __webpack_require__(323);
 
@@ -9535,7 +9506,7 @@ webpackJsonp([1],[
 	 */
 	function pickByCallback(object, predicate) {
 	  var result = {};
-	  baseForIn(object, function(value, key, object) {
+	  baseForIn(object, function (value, key, object) {
 	    if (predicate(value, key, object)) {
 	      result[key] = value;
 	    }
@@ -9545,10 +9516,11 @@ webpackJsonp([1],[
 
 	module.exports = pickByCallback;
 
-
 /***/ },
 /* 323 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var baseFor = __webpack_require__(264),
 	    keysIn = __webpack_require__(281);
@@ -9568,12 +9540,13 @@ webpackJsonp([1],[
 
 	module.exports = baseForIn;
 
-
 /***/ },
 /* 324 */
 /***/ function(module, exports) {
 
 	/** Used as the `TypeError` message for "Functions" methods. */
+	'use strict';
+
 	var FUNC_ERROR_TEXT = 'Expected a function';
 
 	/* Native method references for those with the same name as other `lodash` methods. */
@@ -9605,8 +9578,8 @@ webpackJsonp([1],[
 	  if (typeof func != 'function') {
 	    throw new TypeError(FUNC_ERROR_TEXT);
 	  }
-	  start = nativeMax(start === undefined ? (func.length - 1) : (+start || 0), 0);
-	  return function() {
+	  start = nativeMax(start === undefined ? func.length - 1 : +start || 0, 0);
+	  return function () {
 	    var args = arguments,
 	        index = -1,
 	        length = nativeMax(args.length - start, 0),
@@ -9616,9 +9589,12 @@ webpackJsonp([1],[
 	      rest[index] = args[start + index];
 	    }
 	    switch (start) {
-	      case 0: return func.call(this, rest);
-	      case 1: return func.call(this, args[0], rest);
-	      case 2: return func.call(this, args[0], args[1], rest);
+	      case 0:
+	        return func.call(this, rest);
+	      case 1:
+	        return func.call(this, args[0], rest);
+	      case 2:
+	        return func.call(this, args[0], args[1], rest);
 	    }
 	    var otherArgs = Array(start + 1);
 	    index = -1;
@@ -9631,7 +9607,6 @@ webpackJsonp([1],[
 	}
 
 	module.exports = restParam;
-
 
 /***/ },
 /* 325 */
@@ -9701,20 +9676,7 @@ webpackJsonp([1],[
 	      return _react2['default'].createElement(_NavDropdown2['default'], this.props);
 	    }
 
-	    return _react2['default'].createElement(
-	      _Dropdown2['default'],
-	      props,
-	      _react2['default'].createElement(
-	        _Dropdown2['default'].Toggle,
-	        toggleProps,
-	        title
-	      ),
-	      _react2['default'].createElement(
-	        _Dropdown2['default'].Menu,
-	        null,
-	        this.props.children
-	      )
-	    );
+	    return _react2['default'].createElement(_Dropdown2['default'], props, _react2['default'].createElement(_Dropdown2['default'].Toggle, toggleProps, title), _react2['default'].createElement(_Dropdown2['default'].Menu, null, this.props.children));
 	  };
 
 	  return DropdownButton;
@@ -9793,24 +9755,11 @@ webpackJsonp([1],[
 
 	    var props = _objectWithoutProperties(_props, ['children', 'title', 'noCaret']);
 
-	    return _react2['default'].createElement(
-	      _Dropdown2['default'],
-	      _extends({}, props, { componentClass: 'li' }),
-	      _react2['default'].createElement(
-	        _Dropdown2['default'].Toggle,
-	        {
-	          useAnchor: true,
-	          disabled: props.disabled,
-	          noCaret: noCaret
-	        },
-	        title
-	      ),
-	      _react2['default'].createElement(
-	        _Dropdown2['default'].Menu,
-	        null,
-	        children
-	      )
-	    );
+	    return _react2['default'].createElement(_Dropdown2['default'], _extends({}, props, { componentClass: 'li' }), _react2['default'].createElement(_Dropdown2['default'].Toggle, {
+	      useAnchor: true,
+	      disabled: props.disabled,
+	      noCaret: noCaret
+	    }, title), _react2['default'].createElement(_Dropdown2['default'].Menu, null, children));
 	  };
 
 	  return NavDropdown;
@@ -9886,33 +9835,19 @@ webpackJsonp([1],[
 
 	    var disabled = props.disabled;
 
-	    var button = _react2['default'].createElement(
-	      _Button2['default'],
-	      {
-	        onClick: onClick,
-	        bsStyle: bsStyle,
-	        disabled: disabled,
-	        target: target,
-	        href: href
-	      },
-	      title
-	    );
+	    var button = _react2['default'].createElement(_Button2['default'], {
+	      onClick: onClick,
+	      bsStyle: bsStyle,
+	      disabled: disabled,
+	      target: target,
+	      href: href
+	    }, title);
 
-	    return _react2['default'].createElement(
-	      _Dropdown2['default'],
-	      props,
-	      button,
-	      _react2['default'].createElement(_SplitToggle2['default'], {
-	        'aria-label': title,
-	        bsStyle: bsStyle,
-	        disabled: disabled
-	      }),
-	      _react2['default'].createElement(
-	        _Dropdown2['default'].Menu,
-	        null,
-	        children
-	      )
-	    );
+	    return _react2['default'].createElement(_Dropdown2['default'], props, button, _react2['default'].createElement(_SplitToggle2['default'], {
+	      'aria-label': title,
+	      bsStyle: bsStyle,
+	      disabled: disabled
+	    }), _react2['default'].createElement(_Dropdown2['default'].Menu, null, children));
 	  };
 
 	  return SplitButton;
@@ -10141,12 +10076,8 @@ webpackJsonp([1],[
 	    var ComponentClass = this.props.componentClass;
 	    var className = this.props.fluid ? 'container-fluid' : 'container';
 
-	    return _react2['default'].createElement(
-	      ComponentClass,
-	      _extends({}, this.props, {
-	        className: _classnames2['default'](this.props.className, className) }),
-	      this.props.children
-	    );
+	    return _react2['default'].createElement(ComponentClass, _extends({}, this.props, {
+	      className: _classnames2['default'](this.props.className, className) }), this.props.children);
 	  }
 	});
 
@@ -10279,11 +10210,7 @@ webpackJsonp([1],[
 	  };
 
 	  Static.prototype.renderInput = function renderInput() {
-	    return _react2['default'].createElement(
-	      'p',
-	      _extends({}, this.props, { className: _classnames2['default'](this.props.className, 'form-control-static'), ref: 'input', key: 'input' }),
-	      this.getValue()
-	    );
+	    return _react2['default'].createElement('p', _extends({}, this.props, { className: _classnames2['default'](this.props.className, 'form-control-static'), ref: 'input', key: 'input' }), this.getValue());
 	  };
 
 	  return Static;
@@ -10441,11 +10368,7 @@ webpackJsonp([1],[
 	  render: function render() {
 	    var ComponentClass = this.props.componentClass;
 
-	    return _react2['default'].createElement(
-	      ComponentClass,
-	      _extends({}, this.props, { className: _classnames2['default'](this.props.className, 'jumbotron') }),
-	      this.props.children
-	    );
+	    return _react2['default'].createElement(ComponentClass, _extends({}, this.props, { className: _classnames2['default'](this.props.className, 'jumbotron') }), this.props.children);
 	  }
 	});
 
@@ -10491,11 +10414,7 @@ webpackJsonp([1],[
 	  render: function render() {
 	    var classes = this.getBsClassSet();
 
-	    return _react2['default'].createElement(
-	      'span',
-	      _extends({}, this.props, { className: _classnames2['default'](this.props.className, classes) }),
-	      this.props.children
-	    );
+	    return _react2['default'].createElement('span', _extends({}, this.props, { className: _classnames2['default'](this.props.className, classes) }), this.props.children);
 	  }
 	});
 
@@ -10574,21 +10493,13 @@ webpackJsonp([1],[
 	      return _react.cloneElement(item, { listItem: true });
 	    });
 
-	    return _react2['default'].createElement(
-	      'ul',
-	      _extends({}, this.props, {
-	        className: _classnames2['default'](this.props.className, 'list-group') }),
-	      listItems
-	    );
+	    return _react2['default'].createElement('ul', _extends({}, this.props, {
+	      className: _classnames2['default'](this.props.className, 'list-group') }), listItems);
 	  };
 
 	  ListGroup.prototype.renderDiv = function renderDiv(items) {
-	    return _react2['default'].createElement(
-	      'div',
-	      _extends({}, this.props, {
-	        className: _classnames2['default'](this.props.className, 'list-group') }),
-	      items
-	    );
+	    return _react2['default'].createElement('div', _extends({}, this.props, {
+	      className: _classnames2['default'](this.props.className, 'list-group') }), items);
 	  };
 
 	  return ListGroup;
@@ -10669,40 +10580,24 @@ webpackJsonp([1],[
 	  },
 
 	  renderLi: function renderLi(classes) {
-	    return _react2['default'].createElement(
-	      'li',
-	      _extends({}, this.props, { className: _classnames2['default'](this.props.className, classes) }),
-	      this.props.header ? this.renderStructuredContent() : this.props.children
-	    );
+	    return _react2['default'].createElement('li', _extends({}, this.props, { className: _classnames2['default'](this.props.className, classes) }), this.props.header ? this.renderStructuredContent() : this.props.children);
 	  },
 
 	  renderAnchor: function renderAnchor(classes) {
-	    return _react2['default'].createElement(
-	      'a',
-	      _extends({}, this.props, {
-	        className: _classnames2['default'](this.props.className, classes)
-	      }),
-	      this.props.header ? this.renderStructuredContent() : this.props.children
-	    );
+	    return _react2['default'].createElement('a', _extends({}, this.props, {
+	      className: _classnames2['default'](this.props.className, classes)
+	    }), this.props.header ? this.renderStructuredContent() : this.props.children);
 	  },
 
 	  renderButton: function renderButton(classes) {
-	    return _react2['default'].createElement(
-	      'button',
-	      _extends({
-	        type: 'button'
-	      }, this.props, {
-	        className: _classnames2['default'](this.props.className, classes) }),
-	      this.props.children
-	    );
+	    return _react2['default'].createElement('button', _extends({
+	      type: 'button'
+	    }, this.props, {
+	      className: _classnames2['default'](this.props.className, classes) }), this.props.children);
 	  },
 
 	  renderSpan: function renderSpan(classes) {
-	    return _react2['default'].createElement(
-	      'span',
-	      _extends({}, this.props, { className: _classnames2['default'](this.props.className, classes) }),
-	      this.props.header ? this.renderStructuredContent() : this.props.children
-	    );
+	    return _react2['default'].createElement('span', _extends({}, this.props, { className: _classnames2['default'](this.props.className, classes) }), this.props.header ? this.renderStructuredContent() : this.props.children);
 	  },
 
 	  renderStructuredContent: function renderStructuredContent() {
@@ -10713,18 +10608,10 @@ webpackJsonp([1],[
 	        className: _classnames2['default'](this.props.header.props.className, 'list-group-item-heading')
 	      });
 	    } else {
-	      header = _react2['default'].createElement(
-	        'h4',
-	        { key: 'header', className: 'list-group-item-heading' },
-	        this.props.header
-	      );
+	      header = _react2['default'].createElement('h4', { key: 'header', className: 'list-group-item-heading' }, this.props.header);
 	    }
 
-	    var content = _react2['default'].createElement(
-	      'p',
-	      { key: 'content', className: 'list-group-item-text' },
-	      this.props.children
-	    );
+	    var content = _react2['default'].createElement('p', { key: 'content', className: 'list-group-item-text' }, this.props.children);
 
 	    return [header, content];
 	  }
@@ -10794,11 +10681,7 @@ webpackJsonp([1],[
 	    }
 
 	    if (this.props.header) {
-	      return _react2['default'].createElement(
-	        'li',
-	        { role: 'heading', className: 'dropdown-header' },
-	        this.props.children
-	      );
+	      return _react2['default'].createElement('li', { role: 'heading', className: 'dropdown-header' }, this.props.children);
 	    }
 
 	    var classes = {
@@ -10806,26 +10689,18 @@ webpackJsonp([1],[
 	      active: this.props.active
 	    };
 
-	    return _react2['default'].createElement(
-	      'li',
-	      { role: 'presentation',
-	        className: _classnames2['default'](this.props.className, classes),
-	        style: this.props.style
-	      },
-	      _react2['default'].createElement(
-	        _SafeAnchor2['default'],
-	        {
-	          role: 'menuitem',
-	          tabIndex: '-1',
-	          id: this.props.id,
-	          target: this.props.target,
-	          title: this.props.title,
-	          href: this.props.href || '',
-	          onKeyDown: this.props.onKeyDown,
-	          onClick: this.handleClick },
-	        this.props.children
-	      )
-	    );
+	    return _react2['default'].createElement('li', { role: 'presentation',
+	      className: _classnames2['default'](this.props.className, classes),
+	      style: this.props.style
+	    }, _react2['default'].createElement(_SafeAnchor2['default'], {
+	      role: 'menuitem',
+	      tabIndex: '-1',
+	      id: this.props.id,
+	      target: this.props.target,
+	      title: this.props.title,
+	      href: this.props.href || '',
+	      onKeyDown: this.props.onKeyDown,
+	      onClick: this.handleClick }, this.props.children));
 	  };
 
 	  return MenuItem;
@@ -11079,42 +10954,30 @@ webpackJsonp([1],[
 	      return null;
 	    }
 
-	    var modal = _react2['default'].createElement(
-	      Dialog,
-	      _extends({}, props, {
-	        ref: this._setDialogRef,
-	        className: _classnames2['default'](this.props.className, { 'in': show && !animation }),
-	        onClick: backdrop === true ? this.handleBackdropClick : null }),
-	      this.renderContent()
-	    );
+	    var modal = _react2['default'].createElement(Dialog, _extends({}, props, {
+	      ref: this._setDialogRef,
+	      className: _classnames2['default'](this.props.className, { 'in': show && !animation }),
+	      onClick: backdrop === true ? this.handleBackdropClick : null }), this.renderContent());
 
 	    if (animation) {
-	      modal = _react2['default'].createElement(
-	        _Fade2['default'],
-	        {
-	          transitionAppear: true,
-	          unmountOnExit: true,
-	          'in': show,
-	          timeout: Modal.TRANSITION_DURATION,
-	          onExit: onExit,
-	          onExiting: onExiting,
-	          onExited: this.handleHidden,
-	          onEnter: onEnter,
-	          onEntering: onEntering,
-	          onEntered: onEntered },
-	        modal
-	      );
+	      modal = _react2['default'].createElement(_Fade2['default'], {
+	        transitionAppear: true,
+	        unmountOnExit: true,
+	        'in': show,
+	        timeout: Modal.TRANSITION_DURATION,
+	        onExit: onExit,
+	        onExiting: onExiting,
+	        onExited: this.handleHidden,
+	        onEnter: onEnter,
+	        onEntering: onEntering,
+	        onEntered: onEntered }, modal);
 	    }
 
 	    if (backdrop) {
 	      modal = this.renderBackdrop(modal);
 	    }
 
-	    return _react2['default'].createElement(
-	      _reactOverlaysLibPortal2['default'],
-	      { container: props.container },
-	      modal
-	    );
+	    return _react2['default'].createElement(_reactOverlaysLibPortal2['default'], { container: props.container }, modal);
 	  },
 
 	  renderContent: function renderContent() {
@@ -11146,17 +11009,8 @@ webpackJsonp([1],[
 	      className: _classnames2['default'](bsClass + '-backdrop', { 'in': this.props.show && !animation }),
 	      onClick: onClick });
 
-	    return _react2['default'].createElement(
-	      'div',
-	      {
-	        ref: 'modal' },
-	      animation ? _react2['default'].createElement(
-	        _Fade2['default'],
-	        { transitionAppear: true, 'in': this.props.show, timeout: duration },
-	        backdrop
-	      ) : backdrop,
-	      modal
-	    );
+	    return _react2['default'].createElement('div', {
+	      ref: 'modal' }, animation ? _react2['default'].createElement(_Fade2['default'], { transitionAppear: true, 'in': this.props.show, timeout: duration }, backdrop) : backdrop, modal);
 	  },
 
 	  _setDialogRef: function _setDialogRef(ref) {
@@ -11381,11 +11235,15 @@ webpackJsonp([1],[
 /* 341 */
 /***/ function(module, exports, __webpack_require__) {
 
+	"use strict";
+
 	module.exports = { "default": __webpack_require__(342), __esModule: true };
 
 /***/ },
 /* 342 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	__webpack_require__(343);
 	module.exports = __webpack_require__(166).Object.isFrozen;
@@ -11395,10 +11253,12 @@ webpackJsonp([1],[
 /***/ function(module, exports, __webpack_require__) {
 
 	// 19.1.2.12 Object.isFrozen(O)
+	'use strict';
+
 	var isObject = __webpack_require__(181);
 
-	__webpack_require__(163)('isFrozen', function($isFrozen){
-	  return function isFrozen(it){
+	__webpack_require__(163)('isFrozen', function ($isFrozen) {
+	  return function isFrozen(it) {
 	    return isObject(it) ? $isFrozen ? $isFrozen(it) : false : true;
 	  };
 	});
@@ -11441,7 +11301,9 @@ webpackJsonp([1],[
 
 	exports.__esModule = true;
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	function _interopRequireDefault(obj) {
+	  return obj && obj.__esModule ? obj : { 'default': obj };
+	}
 
 	var _react = __webpack_require__(1);
 
@@ -11633,7 +11495,9 @@ webpackJsonp([1],[
 	exports.__esModule = true;
 	exports['default'] = getContainer;
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	function _interopRequireDefault(obj) {
+	  return obj && obj.__esModule ? obj : { 'default': obj };
+	}
 
 	var _react = __webpack_require__(1);
 
@@ -11693,16 +11557,12 @@ webpackJsonp([1],[
 	  Fade.prototype.render = function render() {
 	    var timeout = this.props.timeout || this.props.duration;
 
-	    return _react2['default'].createElement(
-	      _reactOverlaysLibTransition2['default'],
-	      _extends({}, this.props, {
-	        timeout: timeout,
-	        className: 'fade',
-	        enteredClassName: 'in',
-	        enteringClassName: 'in'
-	      }),
-	      this.props.children
-	    );
+	    return _react2['default'].createElement(_reactOverlaysLibTransition2['default'], _extends({}, this.props, {
+	      timeout: timeout,
+	      className: 'fade',
+	      enteredClassName: 'in',
+	      enteringClassName: 'in'
+	    }), this.props.children);
 	  };
 
 	  return Fade;
@@ -11841,24 +11701,12 @@ webpackJsonp([1],[
 	    delete dialogClasses.modal;
 	    dialogClasses[bsClass + '-dialog'] = true;
 
-	    return _react2['default'].createElement(
-	      'div',
-	      _extends({}, this.props, {
-	        title: null,
-	        tabIndex: '-1',
-	        role: 'dialog',
-	        style: modalStyle,
-	        className: _classnames2['default'](this.props.className, bsClass) }),
-	      _react2['default'].createElement(
-	        'div',
-	        { className: _classnames2['default'](this.props.dialogClassName, dialogClasses) },
-	        _react2['default'].createElement(
-	          'div',
-	          { className: bsClass + '-content', role: 'document' },
-	          this.props.children
-	        )
-	      )
-	    );
+	    return _react2['default'].createElement('div', _extends({}, this.props, {
+	      title: null,
+	      tabIndex: '-1',
+	      role: 'dialog',
+	      style: modalStyle,
+	      className: _classnames2['default'](this.props.className, bsClass) }), _react2['default'].createElement('div', { className: _classnames2['default'](this.props.dialogClassName, dialogClasses) }, _react2['default'].createElement('div', { className: bsClass + '-content', role: 'document' }, this.props.children)));
 	  }
 	});
 
@@ -11899,12 +11747,8 @@ webpackJsonp([1],[
 	  }
 
 	  ModalBody.prototype.render = function render() {
-	    return _react2['default'].createElement(
-	      'div',
-	      _extends({}, this.props, {
-	        className: _classnames2['default'](this.props.className, this.props.modalClassName) }),
-	      this.props.children
-	    );
+	    return _react2['default'].createElement('div', _extends({}, this.props, {
+	      className: _classnames2['default'](this.props.className, this.props.modalClassName) }), this.props.children);
 	  };
 
 	  return ModalBody;
@@ -11960,23 +11804,10 @@ webpackJsonp([1],[
 	  // used in liue of parent contexts right now to auto wire the close button
 
 	  ModalHeader.prototype.render = function render() {
-	    return _react2['default'].createElement(
-	      'div',
-	      _extends({}, this.props, {
-	        className: _classnames2['default'](this.props.className, this.props.modalClassName) }),
-	      this.props.closeButton && _react2['default'].createElement(
-	        'button',
-	        {
-	          className: 'close',
-	          onClick: this.props.onHide },
-	        _react2['default'].createElement(
-	          'span',
-	          { 'aria-hidden': 'true' },
-	          '×'
-	        )
-	      ),
-	      this.props.children
-	    );
+	    return _react2['default'].createElement('div', _extends({}, this.props, {
+	      className: _classnames2['default'](this.props.className, this.props.modalClassName) }), this.props.closeButton && _react2['default'].createElement('button', {
+	      className: 'close',
+	      onClick: this.props.onHide }, _react2['default'].createElement('span', { 'aria-hidden': 'true' }, '×')), this.props.children);
 	  };
 
 	  return ModalHeader;
@@ -12051,12 +11882,8 @@ webpackJsonp([1],[
 	  }
 
 	  ModalTitle.prototype.render = function render() {
-	    return _react2['default'].createElement(
-	      'h4',
-	      _extends({}, this.props, {
-	        className: _classnames2['default'](this.props.className, this.props.modalClassName) }),
-	      this.props.children
-	    );
+	    return _react2['default'].createElement('h4', _extends({}, this.props, {
+	      className: _classnames2['default'](this.props.className, this.props.modalClassName) }), this.props.children);
 	  };
 
 	  return ModalTitle;
@@ -12110,12 +11937,8 @@ webpackJsonp([1],[
 	  }
 
 	  ModalFooter.prototype.render = function render() {
-	    return _react2['default'].createElement(
-	      'div',
-	      _extends({}, this.props, {
-	        className: _classnames2['default'](this.props.className, this.props.modalClassName) }),
-	      this.props.children
-	    );
+	    return _react2['default'].createElement('div', _extends({}, this.props, {
+	      className: _classnames2['default'](this.props.className, this.props.modalClassName) }), this.props.children);
 	  };
 
 	  return ModalFooter;
@@ -12227,15 +12050,7 @@ webpackJsonp([1],[
 	      return this.renderUl();
 	    }
 
-	    return _react2['default'].createElement(
-	      _Collapse2['default'],
-	      { 'in': this.props.expanded },
-	      _react2['default'].createElement(
-	        'nav',
-	        _extends({}, this.props, { className: _classnames2['default'](this.props.className, classes) }),
-	        this.renderUl()
-	      )
-	    );
+	    return _react2['default'].createElement(_Collapse2['default'], { 'in': this.props.expanded }, _react2['default'].createElement('nav', _extends({}, this.props, { className: _classnames2['default'](this.props.className, classes) }), this.renderUl()));
 	  },
 
 	  renderUl: function renderUl() {
@@ -12247,16 +12062,12 @@ webpackJsonp([1],[
 	    classes['pull-right'] = this.props.pullRight;
 	    classes['navbar-right'] = this.props.right;
 
-	    return _react2['default'].createElement(
-	      'ul',
-	      _extends({}, this.props, {
-	        role: this.props.bsStyle === 'tabs' ? 'tablist' : null,
-	        className: _classnames2['default'](this.props.ulClassName, classes),
-	        id: this.props.ulId,
-	        ref: 'ul'
-	      }),
-	      _utilsValidComponentChildren2['default'].map(this.props.children, this.renderNavItem)
-	    );
+	    return _react2['default'].createElement('ul', _extends({}, this.props, {
+	      role: this.props.bsStyle === 'tabs' ? 'tablist' : null,
+	      className: _classnames2['default'](this.props.ulClassName, classes),
+	      id: this.props.ulId,
+	      ref: 'ul'
+	    }), _utilsValidComponentChildren2['default'].map(this.props.children, this.renderNavItem));
 	  },
 
 	  getChildActiveProp: function getChildActiveProp(child) {
@@ -12404,16 +12215,7 @@ webpackJsonp([1],[
 	    classes['navbar-static-top'] = this.props.staticTop;
 	    classes['navbar-inverse'] = this.props.inverse;
 
-	    return _react2['default'].createElement(
-	      ComponentClass,
-	      _extends({}, this.props, { className: _classnames2['default'](this.props.className, classes) }),
-	      _react2['default'].createElement(
-	        'div',
-	        { className: this.props.fluid ? 'container-fluid' : 'container' },
-	        this.props.brand || this.props.toggleButton || this.props.toggleNavKey != null ? this.renderHeader() : null,
-	        _utilsValidComponentChildren2['default'].map(this.props.children, this.renderChild)
-	      )
-	    );
+	    return _react2['default'].createElement(ComponentClass, _extends({}, this.props, { className: _classnames2['default'](this.props.className, classes) }), _react2['default'].createElement('div', { className: this.props.fluid ? 'container-fluid' : 'container' }, this.props.brand || this.props.toggleButton || this.props.toggleNavKey != null ? this.renderHeader() : null, _utilsValidComponentChildren2['default'].map(this.props.children, this.renderChild)));
 	  },
 
 	  renderChild: function renderChild(child, index) {
@@ -12434,20 +12236,11 @@ webpackJsonp([1],[
 	          className: _classnames2['default'](this.props.brand.props.className, 'navbar-brand')
 	        });
 	      } else {
-	        brand = _react2['default'].createElement(
-	          'span',
-	          { className: 'navbar-brand' },
-	          this.props.brand
-	        );
+	        brand = _react2['default'].createElement('span', { className: 'navbar-brand' }, this.props.brand);
 	      }
 	    }
 
-	    return _react2['default'].createElement(
-	      'div',
-	      { className: 'navbar-header' },
-	      brand,
-	      this.props.toggleButton || this.props.toggleNavKey != null ? this.renderToggleButton() : null
-	    );
+	    return _react2['default'].createElement('div', { className: 'navbar-header' }, brand, this.props.toggleButton || this.props.toggleNavKey != null ? this.renderToggleButton() : null);
 	  },
 
 	  renderToggleButton: function renderToggleButton() {
@@ -12460,17 +12253,9 @@ webpackJsonp([1],[
 	      });
 	    }
 
-	    children = this.props.toggleButton != null ? this.props.toggleButton : [_react2['default'].createElement(
-	      'span',
-	      { className: 'sr-only', key: 0 },
-	      'Toggle navigation'
-	    ), _react2['default'].createElement('span', { className: 'icon-bar', key: 1 }), _react2['default'].createElement('span', { className: 'icon-bar', key: 2 }), _react2['default'].createElement('span', { className: 'icon-bar', key: 3 })];
+	    children = this.props.toggleButton != null ? this.props.toggleButton : [_react2['default'].createElement('span', { className: 'sr-only', key: 0 }, 'Toggle navigation'), _react2['default'].createElement('span', { className: 'icon-bar', key: 1 }), _react2['default'].createElement('span', { className: 'icon-bar', key: 2 }), _react2['default'].createElement('span', { className: 'icon-bar', key: 3 })];
 
-	    return _react2['default'].createElement(
-	      'button',
-	      { className: 'navbar-toggle', type: 'button', onClick: this.handleToggle },
-	      children
-	    );
+	    return _react2['default'].createElement('button', { className: 'navbar-toggle', type: 'button', onClick: this.handleToggle }, children);
 	  }
 	});
 
@@ -12565,15 +12350,7 @@ webpackJsonp([1],[
 	      linkProps.role = 'button';
 	    }
 
-	    return _react2['default'].createElement(
-	      'li',
-	      _extends({}, props, { role: 'presentation', className: _classnames2['default'](props.className, classes) }),
-	      _react2['default'].createElement(
-	        _SafeAnchor2['default'],
-	        _extends({}, linkProps, { 'aria-selected': active, 'aria-controls': ariaControls }),
-	        children
-	      )
-	    );
+	    return _react2['default'].createElement('li', _extends({}, props, { role: 'presentation', className: _classnames2['default'](props.className, classes) }), _react2['default'].createElement(_SafeAnchor2['default'], _extends({}, linkProps, { 'aria-selected': active, 'aria-controls': ariaControls }), children));
 	  },
 
 	  handleClick: function handleClick(e) {
@@ -12658,13 +12435,9 @@ webpackJsonp([1],[
 	      });
 	    }
 
-	    return _react2['default'].createElement(
-	      _reactOverlaysLibOverlay2['default'],
-	      _extends({}, props, {
-	        transition: transition
-	      }),
-	      child
-	    );
+	    return _react2['default'].createElement(_reactOverlaysLibOverlay2['default'], _extends({}, props, {
+	      transition: transition
+	    }), child);
 	  };
 
 	  return Overlay;
@@ -12738,15 +12511,37 @@ webpackJsonp([1],[
 
 	exports.__esModule = true;
 
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	var _extends = Object.assign || function (target) {
+	  for (var i = 1; i < arguments.length; i++) {
+	    var source = arguments[i];for (var key in source) {
+	      if (Object.prototype.hasOwnProperty.call(source, key)) {
+	        target[key] = source[key];
+	      }
+	    }
+	  }return target;
+	};
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	function _interopRequireDefault(obj) {
+	  return obj && obj.__esModule ? obj : { 'default': obj };
+	}
 
-	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+	function _objectWithoutProperties(obj, keys) {
+	  var target = {};for (var i in obj) {
+	    if (keys.indexOf(i) >= 0) continue;if (!Object.prototype.hasOwnProperty.call(obj, i)) continue;target[i] = obj[i];
+	  }return target;
+	}
 
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+	function _classCallCheck(instance, Constructor) {
+	  if (!(instance instanceof Constructor)) {
+	    throw new TypeError('Cannot call a class as a function');
+	  }
+	}
 
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+	function _inherits(subClass, superClass) {
+	  if (typeof superClass !== 'function' && superClass !== null) {
+	    throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass);
+	  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) subClass.__proto__ = superClass;
+	}
 
 	var _react = __webpack_require__(1);
 
@@ -12816,11 +12611,7 @@ webpackJsonp([1],[
 
 	    // Position is be inner-most because it adds inline styles into the child,
 	    // which the other wrappers don't forward correctly.
-	    child = _react2['default'].createElement(
-	      _Position2['default'],
-	      { container: container, containerPadding: containerPadding, target: target, placement: placement },
-	      child
-	    );
+	    child = _react2['default'].createElement(_Position2['default'], { container: container, containerPadding: containerPadding, target: target, placement: placement }, child);
 
 	    if (Transition) {
 	      var onExit = props.onExit;
@@ -12831,36 +12622,24 @@ webpackJsonp([1],[
 
 	      // This animates the child node by injecting props, so it must precede
 	      // anything that adds a wrapping div.
-	      child = _react2['default'].createElement(
-	        Transition,
-	        {
-	          'in': props.show,
-	          transitionAppear: true,
-	          onExit: onExit,
-	          onExiting: onExiting,
-	          onExited: this.onHiddenListener,
-	          onEnter: onEnter,
-	          onEntering: onEntering,
-	          onEntered: onEntered
-	        },
-	        child
-	      );
+	      child = _react2['default'].createElement(Transition, {
+	        'in': props.show,
+	        transitionAppear: true,
+	        onExit: onExit,
+	        onExiting: onExiting,
+	        onExited: this.onHiddenListener,
+	        onEnter: onEnter,
+	        onEntering: onEntering,
+	        onEntered: onEntered
+	      }, child);
 	    }
 
 	    // This goes after everything else because it adds a wrapping div.
 	    if (rootClose) {
-	      child = _react2['default'].createElement(
-	        _RootCloseWrapper2['default'],
-	        { onRootClose: props.onHide },
-	        child
-	      );
+	      child = _react2['default'].createElement(_RootCloseWrapper2['default'], { onRootClose: props.onHide }, child);
 	    }
 
-	    return _react2['default'].createElement(
-	      _Portal2['default'],
-	      { container: container },
-	      child
-	    );
+	    return _react2['default'].createElement(_Portal2['default'], { container: container }, child);
 	  };
 
 	  Overlay.prototype.handleHidden = function handleHidden() {
@@ -12937,15 +12716,37 @@ webpackJsonp([1],[
 
 	exports.__esModule = true;
 
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	var _extends = Object.assign || function (target) {
+	  for (var i = 1; i < arguments.length; i++) {
+	    var source = arguments[i];for (var key in source) {
+	      if (Object.prototype.hasOwnProperty.call(source, key)) {
+	        target[key] = source[key];
+	      }
+	    }
+	  }return target;
+	};
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	function _interopRequireDefault(obj) {
+	  return obj && obj.__esModule ? obj : { 'default': obj };
+	}
 
-	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+	function _objectWithoutProperties(obj, keys) {
+	  var target = {};for (var i in obj) {
+	    if (keys.indexOf(i) >= 0) continue;if (!Object.prototype.hasOwnProperty.call(obj, i)) continue;target[i] = obj[i];
+	  }return target;
+	}
 
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+	function _classCallCheck(instance, Constructor) {
+	  if (!(instance instanceof Constructor)) {
+	    throw new TypeError('Cannot call a class as a function');
+	  }
+	}
 
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+	function _inherits(subClass, superClass) {
+	  if (typeof superClass !== 'function' && superClass !== null) {
+	    throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass);
+	  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) subClass.__proto__ = superClass;
+	}
 
 	var _react = __webpack_require__(1);
 
@@ -13124,7 +12925,9 @@ webpackJsonp([1],[
 
 	exports.__esModule = true;
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	function _interopRequireDefault(obj) {
+	  return obj && obj.__esModule ? obj : { 'default': obj };
+	}
 
 	var _ownerDocument = __webpack_require__(260);
 
@@ -13263,7 +13066,9 @@ webpackJsonp([1],[
 
 	exports.__esModule = true;
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	function _interopRequireDefault(obj) {
+	  return obj && obj.__esModule ? obj : { 'default': obj };
+	}
 
 	var _react = __webpack_require__(1);
 
@@ -13505,11 +13310,7 @@ webpackJsonp([1],[
 	      container: overlayProps.container
 	    });
 
-	    return _react2['default'].createElement(
-	      _Overlay2['default'],
-	      overlayProps,
-	      overlay
-	    );
+	    return _react2['default'].createElement(_Overlay2['default'], overlayProps, overlay);
 	  },
 
 	  render: function render() {
@@ -13689,11 +13490,7 @@ webpackJsonp([1],[
 	        var props = _extends({}, this.props);
 	        props[propName] = this.getWrappedOverlay();
 
-	        return _react2['default'].createElement(
-	          Trigger,
-	          props,
-	          this.props.children
-	        );
+	        return _react2['default'].createElement(Trigger, props, this.props.children);
 	      };
 
 	      TriggerWithContext.prototype.getWrappedOverlay = function getWrappedOverlay() {
@@ -13717,6 +13514,8 @@ webpackJsonp([1],[
 /***/ },
 /* 365 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
 
 	var baseFlatten = __webpack_require__(319),
 	    bindCallback = __webpack_require__(304),
@@ -13750,17 +13549,14 @@ webpackJsonp([1],[
 	 * _.pick(object, _.isString);
 	 * // => { 'user': 'fred' }
 	 */
-	var pick = restParam(function(object, props) {
+	var pick = restParam(function (object, props) {
 	  if (object == null) {
 	    return {};
 	  }
-	  return typeof props[0] == 'function'
-	    ? pickByCallback(object, bindCallback(props[0], props[1], 3))
-	    : pickByArray(object, baseFlatten(props));
+	  return typeof props[0] == 'function' ? pickByCallback(object, bindCallback(props[0], props[1], 3)) : pickByArray(object, baseFlatten(props));
 	});
 
 	module.exports = pick;
-
 
 /***/ },
 /* 366 */
@@ -13786,15 +13582,7 @@ webpackJsonp([1],[
 	  displayName: 'PageHeader',
 
 	  render: function render() {
-	    return _react2['default'].createElement(
-	      'div',
-	      _extends({}, this.props, { className: _classnames2['default'](this.props.className, 'page-header') }),
-	      _react2['default'].createElement(
-	        'h1',
-	        null,
-	        this.props.children
-	      )
-	    );
+	    return _react2['default'].createElement('div', _extends({}, this.props, { className: _classnames2['default'](this.props.className, 'page-header') }), _react2['default'].createElement('h1', null, this.props.children));
 	  }
 	});
 
@@ -13854,20 +13642,12 @@ webpackJsonp([1],[
 	      'next': this.props.next
 	    };
 
-	    return _react2['default'].createElement(
-	      'li',
-	      _extends({}, this.props, {
-	        className: _classnames2['default'](this.props.className, classes) }),
-	      _react2['default'].createElement(
-	        _SafeAnchor2['default'],
-	        {
-	          href: this.props.href,
-	          title: this.props.title,
-	          target: this.props.target,
-	          onClick: this.handleSelect },
-	        this.props.children
-	      )
-	    );
+	    return _react2['default'].createElement('li', _extends({}, this.props, {
+	      className: _classnames2['default'](this.props.className, classes) }), _react2['default'].createElement(_SafeAnchor2['default'], {
+	      href: this.props.href,
+	      title: this.props.title,
+	      target: this.props.target,
+	      onClick: this.handleSelect }, this.props.children));
 	  },
 
 	  handleSelect: function handleSelect(e) {
@@ -13920,12 +13700,8 @@ webpackJsonp([1],[
 	  },
 
 	  render: function render() {
-	    return _react2['default'].createElement(
-	      'ul',
-	      _extends({}, this.props, {
-	        className: _classnames2['default'](this.props.className, 'pager') }),
-	      _utilsValidComponentChildren2['default'].map(this.props.children, this.renderPageItem)
-	    );
+	    return _react2['default'].createElement('ul', _extends({}, this.props, {
+	      className: _classnames2['default'](this.props.className, 'pager') }), _utilsValidComponentChildren2['default'].map(this.props.children, this.renderPageItem));
 	  },
 
 	  renderPageItem: function renderPageItem(child, index) {
@@ -14044,31 +13820,19 @@ webpackJsonp([1],[
 	    }
 
 	    for (var pagenumber = startPage; pagenumber <= endPage; pagenumber++) {
-	      pageButtons.push(_react2['default'].createElement(
-	        _PaginationButton2['default'],
-	        {
-	          key: pagenumber,
-	          eventKey: pagenumber,
-	          active: pagenumber === activePage,
-	          onSelect: onSelect,
-	          buttonComponentClass: buttonComponentClass },
-	        pagenumber
-	      ));
+	      pageButtons.push(_react2['default'].createElement(_PaginationButton2['default'], {
+	        key: pagenumber,
+	        eventKey: pagenumber,
+	        active: pagenumber === activePage,
+	        onSelect: onSelect,
+	        buttonComponentClass: buttonComponentClass }, pagenumber));
 	    }
 
 	    if (maxButtons && hasHiddenPagesAfter && ellipsis) {
-	      pageButtons.push(_react2['default'].createElement(
-	        _PaginationButton2['default'],
-	        {
-	          key: 'ellipsis',
-	          disabled: true,
-	          buttonComponentClass: buttonComponentClass },
-	        _react2['default'].createElement(
-	          'span',
-	          { 'aria-label': 'More' },
-	          '...'
-	        )
-	      ));
+	      pageButtons.push(_react2['default'].createElement(_PaginationButton2['default'], {
+	        key: 'ellipsis',
+	        disabled: true,
+	        buttonComponentClass: buttonComponentClass }, _react2['default'].createElement('span', { 'aria-label': 'More' }, '...')));
 	    }
 
 	    return pageButtons;
@@ -14079,20 +13843,12 @@ webpackJsonp([1],[
 	      return null;
 	    }
 
-	    return _react2['default'].createElement(
-	      _PaginationButton2['default'],
-	      {
-	        key: 'prev',
-	        eventKey: this.props.activePage - 1,
-	        disabled: this.props.activePage === 1,
-	        onSelect: this.props.onSelect,
-	        buttonComponentClass: this.props.buttonComponentClass },
-	      _react2['default'].createElement(
-	        'span',
-	        { 'aria-label': 'Previous' },
-	        '‹'
-	      )
-	    );
+	    return _react2['default'].createElement(_PaginationButton2['default'], {
+	      key: 'prev',
+	      eventKey: this.props.activePage - 1,
+	      disabled: this.props.activePage === 1,
+	      onSelect: this.props.onSelect,
+	      buttonComponentClass: this.props.buttonComponentClass }, _react2['default'].createElement('span', { 'aria-label': 'Previous' }, '‹'));
 	  },
 
 	  renderNext: function renderNext() {
@@ -14100,20 +13856,12 @@ webpackJsonp([1],[
 	      return null;
 	    }
 
-	    return _react2['default'].createElement(
-	      _PaginationButton2['default'],
-	      {
-	        key: 'next',
-	        eventKey: this.props.activePage + 1,
-	        disabled: this.props.activePage >= this.props.items,
-	        onSelect: this.props.onSelect,
-	        buttonComponentClass: this.props.buttonComponentClass },
-	      _react2['default'].createElement(
-	        'span',
-	        { 'aria-label': 'Next' },
-	        '›'
-	      )
-	    );
+	    return _react2['default'].createElement(_PaginationButton2['default'], {
+	      key: 'next',
+	      eventKey: this.props.activePage + 1,
+	      disabled: this.props.activePage >= this.props.items,
+	      onSelect: this.props.onSelect,
+	      buttonComponentClass: this.props.buttonComponentClass }, _react2['default'].createElement('span', { 'aria-label': 'Next' }, '›'));
 	  },
 
 	  renderFirst: function renderFirst() {
@@ -14121,20 +13869,12 @@ webpackJsonp([1],[
 	      return null;
 	    }
 
-	    return _react2['default'].createElement(
-	      _PaginationButton2['default'],
-	      {
-	        key: 'first',
-	        eventKey: 1,
-	        disabled: this.props.activePage === 1,
-	        onSelect: this.props.onSelect,
-	        buttonComponentClass: this.props.buttonComponentClass },
-	      _react2['default'].createElement(
-	        'span',
-	        { 'aria-label': 'First' },
-	        '«'
-	      )
-	    );
+	    return _react2['default'].createElement(_PaginationButton2['default'], {
+	      key: 'first',
+	      eventKey: 1,
+	      disabled: this.props.activePage === 1,
+	      onSelect: this.props.onSelect,
+	      buttonComponentClass: this.props.buttonComponentClass }, _react2['default'].createElement('span', { 'aria-label': 'First' }, '«'));
 	  },
 
 	  renderLast: function renderLast() {
@@ -14142,33 +13882,17 @@ webpackJsonp([1],[
 	      return null;
 	    }
 
-	    return _react2['default'].createElement(
-	      _PaginationButton2['default'],
-	      {
-	        key: 'last',
-	        eventKey: this.props.items,
-	        disabled: this.props.activePage >= this.props.items,
-	        onSelect: this.props.onSelect,
-	        buttonComponentClass: this.props.buttonComponentClass },
-	      _react2['default'].createElement(
-	        'span',
-	        { 'aria-label': 'Last' },
-	        '»'
-	      )
-	    );
+	    return _react2['default'].createElement(_PaginationButton2['default'], {
+	      key: 'last',
+	      eventKey: this.props.items,
+	      disabled: this.props.activePage >= this.props.items,
+	      onSelect: this.props.onSelect,
+	      buttonComponentClass: this.props.buttonComponentClass }, _react2['default'].createElement('span', { 'aria-label': 'Last' }, '»'));
 	  },
 
 	  render: function render() {
-	    return _react2['default'].createElement(
-	      'ul',
-	      _extends({}, this.props, {
-	        className: _classnames2['default'](this.props.className, this.getBsClassSet()) }),
-	      this.renderFirst(),
-	      this.renderPrev(),
-	      this.renderPageButtons(),
-	      this.renderNext(),
-	      this.renderLast()
-	    );
+	    return _react2['default'].createElement('ul', _extends({}, this.props, {
+	      className: _classnames2['default'](this.props.className, this.getBsClassSet()) }), this.renderFirst(), this.renderPrev(), this.renderPageButtons(), this.renderNext(), this.renderLast());
 	  }
 	});
 
@@ -14257,12 +13981,8 @@ webpackJsonp([1],[
 
 	    var ButtonComponentClass = this.props.buttonComponentClass;
 
-	    return _react2['default'].createElement(
-	      'li',
-	      { className: _classnames2['default'](className, classes) },
-	      _react2['default'].createElement(ButtonComponentClass, _extends({}, anchorProps, {
-	        onClick: this.handleClick }))
-	    );
+	    return _react2['default'].createElement('li', { className: _classnames2['default'](className, classes) }, _react2['default'].createElement(ButtonComponentClass, _extends({}, anchorProps, {
+	      onClick: this.handleClick })));
 	  }
 	});
 
@@ -14387,15 +14107,9 @@ webpackJsonp([1],[
 
 	    var props = _objectWithoutProperties(_props, ['headerRole', 'panelRole']);
 
-	    return _react2['default'].createElement(
-	      'div',
-	      _extends({}, props, {
-	        className: _classnames2['default'](this.props.className, this.getBsClassSet()),
-	        id: this.props.collapsible ? null : this.props.id, onSelect: null }),
-	      this.renderHeading(headerRole),
-	      this.props.collapsible ? this.renderCollapsibleBody(panelRole) : this.renderBody(),
-	      this.renderFooter()
-	    );
+	    return _react2['default'].createElement('div', _extends({}, props, {
+	      className: _classnames2['default'](this.props.className, this.getBsClassSet()),
+	      id: this.props.collapsible ? null : this.props.id, onSelect: null }), this.renderHeading(headerRole), this.props.collapsible ? this.renderCollapsibleBody(panelRole) : this.renderBody(), this.renderFooter());
 	  },
 
 	  renderCollapsibleBody: function renderCollapsibleBody(panelRole) {
@@ -14409,15 +14123,7 @@ webpackJsonp([1],[
 	      props.role = panelRole;
 	    }
 
-	    return _react2['default'].createElement(
-	      _Collapse2['default'],
-	      { 'in': this.isExpanded() },
-	      _react2['default'].createElement(
-	        'div',
-	        props,
-	        this.renderBody()
-	      )
-	    );
+	    return _react2['default'].createElement(_Collapse2['default'], { 'in': this.isExpanded() }, _react2['default'].createElement('div', props, this.renderBody()));
 	  },
 
 	  renderBody: function renderBody() {
@@ -14435,11 +14141,7 @@ webpackJsonp([1],[
 	    }
 
 	    function addPanelBody(children) {
-	      bodyElements.push(_react2['default'].createElement(
-	        'div',
-	        _extends({ className: bodyClass }, getProps()),
-	        children
-	      ));
+	      bodyElements.push(_react2['default'].createElement('div', _extends({ className: bodyClass }, getProps()), children));
 	    }
 
 	    function maybeRenderPanelBody() {
@@ -14502,34 +14204,22 @@ webpackJsonp([1],[
 	      }
 	    }
 
-	    return _react2['default'].createElement(
-	      'div',
-	      { className: this.prefixClass('heading') },
-	      header
-	    );
+	    return _react2['default'].createElement('div', { className: this.prefixClass('heading') }, header);
 	  },
 
 	  renderAnchor: function renderAnchor(header, headerRole) {
-	    return _react2['default'].createElement(
-	      'a',
-	      {
-	        href: '#' + (this.props.id || ''),
-	        'aria-controls': this.props.collapsible ? this.props.id : null,
-	        className: this.isExpanded() ? null : 'collapsed',
-	        'aria-expanded': this.isExpanded(),
-	        'aria-selected': this.isExpanded(),
-	        onClick: this.handleSelect,
-	        role: headerRole },
-	      header
-	    );
+	    return _react2['default'].createElement('a', {
+	      href: '#' + (this.props.id || ''),
+	      'aria-controls': this.props.collapsible ? this.props.id : null,
+	      className: this.isExpanded() ? null : 'collapsed',
+	      'aria-expanded': this.isExpanded(),
+	      'aria-selected': this.isExpanded(),
+	      onClick: this.handleSelect,
+	      role: headerRole }, header);
 	  },
 
 	  renderCollapsibleTitle: function renderCollapsibleTitle(header, headerRole) {
-	    return _react2['default'].createElement(
-	      'h4',
-	      { className: this.prefixClass('title'), role: 'presentation' },
-	      this.renderAnchor(header, headerRole)
-	    );
+	    return _react2['default'].createElement('h4', { className: this.prefixClass('title'), role: 'presentation' }, this.renderAnchor(header, headerRole));
 	  },
 
 	  renderFooter: function renderFooter() {
@@ -14537,11 +14227,7 @@ webpackJsonp([1],[
 	      return null;
 	    }
 
-	    return _react2['default'].createElement(
-	      'div',
-	      { className: this.prefixClass('footer') },
-	      this.props.footer
-	    );
+	    return _react2['default'].createElement('div', { className: this.prefixClass('footer') }, this.props.footer);
 	  }
 	});
 
@@ -14641,25 +14327,11 @@ webpackJsonp([1],[
 	      'top': this.props.arrowOffsetTop
 	    };
 
-	    return _react2['default'].createElement(
-	      'div',
-	      _extends({ role: 'tooltip' }, this.props, { className: _classnames2['default'](this.props.className, classes), style: style, title: null }),
-	      _react2['default'].createElement('div', { className: 'arrow', style: arrowStyle }),
-	      this.props.title ? this.renderTitle() : null,
-	      _react2['default'].createElement(
-	        'div',
-	        { className: 'popover-content' },
-	        this.props.children
-	      )
-	    );
+	    return _react2['default'].createElement('div', _extends({ role: 'tooltip' }, this.props, { className: _classnames2['default'](this.props.className, classes), style: style, title: null }), _react2['default'].createElement('div', { className: 'arrow', style: arrowStyle }), this.props.title ? this.renderTitle() : null, _react2['default'].createElement('div', { className: 'popover-content' }, this.props.children));
 	  },
 
 	  renderTitle: function renderTitle() {
-	    return _react2['default'].createElement(
-	      'h3',
-	      { className: 'popover-title' },
-	      this.props.title
-	    );
+	    return _react2['default'].createElement('h3', { className: 'popover-title' }, this.props.title);
 	  }
 	});
 
@@ -14756,17 +14428,13 @@ webpackJsonp([1],[
 	      content = this.renderProgressBar();
 	    }
 
-	    return _react2['default'].createElement(
-	      'div',
-	      _extends({}, this.props, {
-	        className: _classnames2['default'](this.props.className, 'progress'),
-	        min: null,
-	        max: null,
-	        label: null,
-	        'aria-valuetext': null
-	      }),
-	      content
-	    );
+	    return _react2['default'].createElement('div', _extends({}, this.props, {
+	      className: _classnames2['default'](this.props.className, 'progress'),
+	      min: null,
+	      max: null,
+	      label: null,
+	      'aria-valuetext': null
+	    }), content);
 	  },
 
 	  renderChildBar: function renderChildBar(child, index) {
@@ -14793,11 +14461,7 @@ webpackJsonp([1],[
 	    }
 
 	    if (this.props.srOnly) {
-	      label = _react2['default'].createElement(
-	        'span',
-	        { className: 'sr-only' },
-	        label
-	      );
+	      label = _react2['default'].createElement('span', { className: 'sr-only' }, label);
 	    }
 
 	    var classes = _classnames2['default'](className, this.getBsClassSet(), {
@@ -14805,32 +14469,24 @@ webpackJsonp([1],[
 	      'progress-bar-striped': this.props.active || this.props.striped
 	    });
 
-	    return _react2['default'].createElement(
-	      'div',
-	      _extends({}, props, {
-	        className: classes,
-	        role: 'progressbar',
-	        style: { width: percentage + '%' },
-	        'aria-valuenow': this.props.now,
-	        'aria-valuemin': this.props.min,
-	        'aria-valuemax': this.props.max }),
-	      label
-	    );
+	    return _react2['default'].createElement('div', _extends({}, props, {
+	      className: classes,
+	      role: 'progressbar',
+	      style: { width: percentage + '%' },
+	      'aria-valuenow': this.props.now,
+	      'aria-valuemin': this.props.min,
+	      'aria-valuemax': this.props.max }), label);
 	  },
 
 	  renderLabel: function renderLabel(percentage) {
 	    var InterpolateClass = this.props.interpolateClass || _Interpolate2['default'];
 
-	    return _react2['default'].createElement(
-	      InterpolateClass,
-	      {
-	        now: this.props.now,
-	        min: this.props.min,
-	        max: this.props.max,
-	        percent: percentage,
-	        bsStyle: this.props.bsStyle },
-	      this.props.label
-	    );
+	    return _react2['default'].createElement(InterpolateClass, {
+	      now: this.props.now,
+	      min: this.props.min,
+	      max: this.props.max,
+	      percent: percentage,
+	      bsStyle: this.props.bsStyle }, this.props.label);
 	  }
 	});
 
@@ -14905,11 +14561,7 @@ webpackJsonp([1],[
 	  render: function render() {
 	    var ComponentClass = this.props.componentClass;
 
-	    return _react2['default'].createElement(
-	      ComponentClass,
-	      _extends({}, this.props, { className: _classnames2['default'](this.props.className, 'row') }),
-	      this.props.children
-	    );
+	    return _react2['default'].createElement(ComponentClass, _extends({}, this.props, { className: _classnames2['default'](this.props.className, 'row') }), this.props.children);
 	  }
 	});
 
@@ -15044,24 +14696,11 @@ webpackJsonp([1],[
 	      'disabled': this.props.disabled
 	    };
 
-	    return _react2['default'].createElement(
-	      'li',
-	      _extends({}, this.props, { className: _classnames2['default'](this.props.className, classes) }),
-	      _react2['default'].createElement(
-	        _SafeAnchor2['default'],
-	        {
-	          href: this.props.href,
-	          title: this.props.title,
-	          target: this.props.target,
-	          onClick: this.handleClick },
-	        this.props.text
-	      ),
-	      _react2['default'].createElement(
-	        'ul',
-	        { className: 'nav' },
-	        _utilsValidComponentChildren2['default'].map(this.props.children, this.renderNavItem)
-	      )
-	    );
+	    return _react2['default'].createElement('li', _extends({}, this.props, { className: _classnames2['default'](this.props.className, classes) }), _react2['default'].createElement(_SafeAnchor2['default'], {
+	      href: this.props.href,
+	      title: this.props.title,
+	      target: this.props.target,
+	      onClick: this.handleClick }, this.props.text), _react2['default'].createElement('ul', { className: 'nav' }, _utilsValidComponentChildren2['default'].map(this.props.children, this.renderNavItem)));
 	  },
 
 	  renderNavItem: function renderNavItem(child, index) {
@@ -15182,16 +14821,12 @@ webpackJsonp([1],[
 	      'in': this.props.active && !this.state.animateIn
 	    };
 
-	    return _react2['default'].createElement(
-	      'div',
-	      _extends({}, this.props, {
-	        title: undefined,
-	        role: 'tabpanel',
-	        'aria-hidden': !this.props.active,
-	        className: _classnames2['default'](this.props.className, classes)
-	      }),
-	      this.props.children
-	    );
+	    return _react2['default'].createElement('div', _extends({}, this.props, {
+	      title: undefined,
+	      role: 'tabpanel',
+	      'aria-hidden': !this.props.active,
+	      className: _classnames2['default'](this.props.className, classes)
+	    }), this.props.children);
 	  }
 	});
 
@@ -15254,11 +14889,7 @@ webpackJsonp([1],[
 	      return _react2['default'].createElement(_TabPane2['default'], _extends({ title: title }, others));
 	    });
 
-	    return _react2['default'].createElement(
-	      _Tabs2['default'],
-	      props,
-	      tabs
-	    );
+	    return _react2['default'].createElement(_Tabs2['default'], props, tabs);
 	  }
 	});
 
@@ -15507,47 +15138,16 @@ webpackJsonp([1],[
 	      var tabsColProps = _getColProps.tabsColProps;
 	      var panesColProps = _getColProps.panesColProps;
 
-	      var tabs = _react2['default'].createElement(
-	        _Col2['default'],
-	        _extends({ componentClass: _Nav2['default'] }, tabsProps, tabsColProps),
-	        childTabs
-	      );
-	      var panes = _react2['default'].createElement(
-	        _Col2['default'],
-	        _extends({}, panesProps, panesColProps),
-	        childPanes
-	      );
+	      var tabs = _react2['default'].createElement(_Col2['default'], _extends({ componentClass: _Nav2['default'] }, tabsProps, tabsColProps), childTabs);
+	      var panes = _react2['default'].createElement(_Col2['default'], _extends({}, panesProps, panesColProps), childPanes);
 
 	      if (position === 'left') {
-	        return _react2['default'].createElement(
-	          'div',
-	          containerProps,
-	          tabs,
-	          panes
-	        );
+	        return _react2['default'].createElement('div', containerProps, tabs, panes);
 	      } else {
-	        return _react2['default'].createElement(
-	          'div',
-	          containerProps,
-	          panes,
-	          tabs
-	        );
+	        return _react2['default'].createElement('div', containerProps, panes, tabs);
 	      }
 	    } else {
-	      return _react2['default'].createElement(
-	        'div',
-	        containerProps,
-	        _react2['default'].createElement(
-	          _Nav2['default'],
-	          tabsProps,
-	          childTabs
-	        ),
-	        _react2['default'].createElement(
-	          'div',
-	          panesProps,
-	          childPanes
-	        )
-	      );
+	      return _react2['default'].createElement('div', containerProps, _react2['default'].createElement(_Nav2['default'], tabsProps, childTabs), _react2['default'].createElement('div', panesProps, childPanes));
 	    }
 	  },
 
@@ -15590,20 +15190,16 @@ webpackJsonp([1],[
 
 	    var isActive = this.getActiveKey() === eventKey;
 
-	    return _react2['default'].createElement(
-	      _NavItem2['default'],
-	      {
-	        linkId: tabId(this.props, child),
-	        ref: function (ref) {
-	          return (_this2._tabs || (_this2._tabs = []))[index] = ref;
-	        },
-	        'aria-controls': paneId(this.props, child),
-	        onKeyDown: _utilsCreateChainedFunction2['default'](this.handleKeyDown, onKeyDown),
-	        eventKey: eventKey,
-	        tabIndex: isActive ? tabIndex : -1,
-	        disabled: disabled },
-	      title
-	    );
+	    return _react2['default'].createElement(_NavItem2['default'], {
+	      linkId: tabId(this.props, child),
+	      ref: function ref(_ref3) {
+	        return (_this2._tabs || (_this2._tabs = []))[index] = _ref3;
+	      },
+	      'aria-controls': paneId(this.props, child),
+	      onKeyDown: _utilsCreateChainedFunction2['default'](this.handleKeyDown, onKeyDown),
+	      eventKey: eventKey,
+	      tabIndex: isActive ? tabIndex : -1,
+	      disabled: disabled }, title);
 	  },
 
 	  getColProps: function getColProps(_ref) {
@@ -15787,17 +15383,9 @@ webpackJsonp([1],[
 	      'table-condensed': this.props.condensed,
 	      'table-hover': this.props.hover
 	    };
-	    var table = _react2['default'].createElement(
-	      'table',
-	      _extends({}, this.props, { className: _classnames2['default'](this.props.className, classes) }),
-	      this.props.children
-	    );
+	    var table = _react2['default'].createElement('table', _extends({}, this.props, { className: _classnames2['default'](this.props.className, classes) }), this.props.children);
 
-	    return this.props.responsive ? _react2['default'].createElement(
-	      'div',
-	      { className: 'table-responsive' },
-	      table
-	    ) : table;
+	    return this.props.responsive ? _react2['default'].createElement('div', { className: 'table-responsive' }, table) : table;
 	  }
 	});
 
@@ -15853,29 +15441,12 @@ webpackJsonp([1],[
 	    var classes = this.getBsClassSet();
 
 	    if (this.props.href) {
-	      return _react2['default'].createElement(
-	        _SafeAnchor2['default'],
-	        _extends({}, this.props, { href: this.props.href, className: _classnames2['default'](this.props.className, classes) }),
-	        _react2['default'].createElement('img', { src: this.props.src, alt: this.props.alt })
-	      );
+	      return _react2['default'].createElement(_SafeAnchor2['default'], _extends({}, this.props, { href: this.props.href, className: _classnames2['default'](this.props.className, classes) }), _react2['default'].createElement('img', { src: this.props.src, alt: this.props.alt }));
 	    } else {
 	      if (this.props.children) {
-	        return _react2['default'].createElement(
-	          'div',
-	          _extends({}, this.props, { className: _classnames2['default'](this.props.className, classes) }),
-	          _react2['default'].createElement('img', { src: this.props.src, alt: this.props.alt }),
-	          _react2['default'].createElement(
-	            'div',
-	            { className: 'caption' },
-	            this.props.children
-	          )
-	        );
+	        return _react2['default'].createElement('div', _extends({}, this.props, { className: _classnames2['default'](this.props.className, classes) }), _react2['default'].createElement('img', { src: this.props.src, alt: this.props.alt }), _react2['default'].createElement('div', { className: 'caption' }, this.props.children));
 	      } else {
-	        return _react2['default'].createElement(
-	          'div',
-	          _extends({}, this.props, { className: _classnames2['default'](this.props.className, classes) }),
-	          _react2['default'].createElement('img', { src: this.props.src, alt: this.props.alt })
-	        );
+	        return _react2['default'].createElement('div', _extends({}, this.props, { className: _classnames2['default'](this.props.className, classes) }), _react2['default'].createElement('img', { src: this.props.src, alt: this.props.alt }));
 	      }
 	    }
 	  }
@@ -15936,24 +15507,15 @@ webpackJsonp([1],[
 
 	    var props = _objectWithoutProperties(_props, ['placement', 'positionLeft', 'positionTop', 'arrowOffsetLeft', 'arrowOffsetTop', 'className', 'style', 'children']);
 
-	    return _react2['default'].createElement(
-	      'div',
-	      _extends({
-	        role: 'tooltip'
-	      }, props, {
-	        className: _classnames2['default'](className, 'tooltip', placement),
-	        style: _extends({ left: positionLeft, top: positionTop }, style)
-	      }),
-	      _react2['default'].createElement('div', {
-	        className: 'tooltip-arrow',
-	        style: { left: arrowOffsetLeft, top: arrowOffsetTop }
-	      }),
-	      _react2['default'].createElement(
-	        'div',
-	        { className: 'tooltip-inner' },
-	        children
-	      )
-	    );
+	    return _react2['default'].createElement('div', _extends({
+	      role: 'tooltip'
+	    }, props, {
+	      className: _classnames2['default'](className, 'tooltip', placement),
+	      style: _extends({ left: positionLeft, top: positionTop }, style)
+	    }), _react2['default'].createElement('div', {
+	      className: 'tooltip-arrow',
+	      style: { left: arrowOffsetLeft, top: arrowOffsetTop }
+	    }), _react2['default'].createElement('div', { className: 'tooltip-inner' }, children));
 	  };
 
 	  return Tooltip;
@@ -16035,11 +15597,7 @@ webpackJsonp([1],[
 	  render: function render() {
 	    var classes = this.getBsClassSet();
 
-	    return _react2['default'].createElement(
-	      'div',
-	      _extends({}, this.props, { className: _classnames2['default'](this.props.className, classes) }),
-	      this.props.children
-	    );
+	    return _react2['default'].createElement('div', _extends({}, this.props, { className: _classnames2['default'](this.props.className, classes) }), this.props.children);
 	  }
 	});
 
@@ -16132,7 +15690,7 @@ webpackJsonp([1],[
 	    },
 	    columnSettings: null,
 	    rowSettings: null,
-	    getDefaultProps: function () {
+	    getDefaultProps: function getDefaultProps() {
 	        return {
 	            columns: [],
 	            columnMetadata: [],
@@ -16221,7 +15779,7 @@ webpackJsonp([1],[
 	        uniqueIdentifier: React.PropTypes.string
 	    },
 	    /* if we have a filter display the max page and results accordingly */
-	    setFilter: function (filter) {
+	    setFilter: function setFilter(filter) {
 	        if (this.props.useExternal) {
 	            this.props.externalSetFilter(filter);
 	            return;
@@ -16259,7 +15817,7 @@ webpackJsonp([1],[
 
 	        this._resetSelectedRows();
 	    },
-	    setPageSize: function (size) {
+	    setPageSize: function setPageSize(size) {
 	        if (this.props.useExternal) {
 	            this.props.externalSetPageSize(size);
 	            return;
@@ -16269,12 +15827,12 @@ webpackJsonp([1],[
 	        this.props.resultsPerPage = size;
 	        this.setMaxPage();
 	    },
-	    toggleColumnChooser: function () {
+	    toggleColumnChooser: function toggleColumnChooser() {
 	        this.setState({
 	            showColumnChooser: !this.state.showColumnChooser
 	        });
 	    },
-	    toggleCustomComponent: function () {
+	    toggleCustomComponent: function toggleCustomComponent() {
 	        if (this.state.customComponentType === "grid") {
 	            this.setProps({
 	                useCustomGridComponent: !this.props.useCustomGridComponent
@@ -16285,7 +15843,7 @@ webpackJsonp([1],[
 	            });
 	        }
 	    },
-	    getMaxPage: function (results, totalResults) {
+	    getMaxPage: function getMaxPage(results, totalResults) {
 	        if (this.props.useExternal) {
 	            return this.props.externalMaxPage;
 	        }
@@ -16296,14 +15854,14 @@ webpackJsonp([1],[
 	        var maxPage = Math.ceil(totalResults / this.props.resultsPerPage);
 	        return maxPage;
 	    },
-	    setMaxPage: function (results) {
+	    setMaxPage: function setMaxPage(results) {
 	        var maxPage = this.getMaxPage(results);
 	        //re-render if we have new max page value
 	        if (this.state.maxPage !== maxPage) {
 	            this.setState({ page: 0, maxPage: maxPage, filteredColumns: this.columnSettings.filteredColumns });
 	        }
 	    },
-	    setPage: function (number) {
+	    setPage: function setPage(number) {
 	        if (this.props.useExternal) {
 	            this.props.externalSetPage(number);
 	            return;
@@ -16330,26 +15888,26 @@ webpackJsonp([1],[
 	            this._resetSelectedRows();
 	        }
 	    },
-	    setColumns: function (columns) {
+	    setColumns: function setColumns(columns) {
 	        this.columnSettings.filteredColumns = _.isArray(columns) ? columns : [columns];
 
 	        this.setState({
 	            filteredColumns: this.columnSettings.filteredColumns
 	        });
 	    },
-	    nextPage: function () {
+	    nextPage: function nextPage() {
 	        var currentPage = this.getCurrentPage();
 	        if (currentPage < this.getCurrentMaxPage() - 1) {
 	            this.setPage(currentPage + 1);
 	        }
 	    },
-	    previousPage: function () {
+	    previousPage: function previousPage() {
 	        var currentPage = this.getCurrentPage();
 	        if (currentPage > 0) {
 	            this.setPage(currentPage - 1);
 	        }
 	    },
-	    changeSort: function (sort) {
+	    changeSort: function changeSort(sort) {
 	        if (this.props.enableSort === false) {
 	            return;
 	        }
@@ -16376,13 +15934,12 @@ webpackJsonp([1],[
 	        //Better reset the selection
 	        this._resetSelectedRows();
 	    },
-	    componentWillReceiveProps: function (nextProps) {
+	    componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
 	        this.setMaxPage(nextProps.results);
 
 	        if (nextProps.columns !== this.columnSettings.filteredColumns) {
 	            this.columnSettings.filteredColumns = nextProps.columns;
 	        }
-
 
 	        if (nextProps.selectedRowIds) {
 	            var visibleRows = this.getDataForRender(this.getCurrentResults(), this.columnSettings.getColumns(), true);
@@ -16393,7 +15950,7 @@ webpackJsonp([1],[
 	            });
 	        }
 	    },
-	    getInitialState: function () {
+	    getInitialState: function getInitialState() {
 	        var state = {
 	            maxPage: 0,
 	            page: 0,
@@ -16409,7 +15966,7 @@ webpackJsonp([1],[
 
 	        return state;
 	    },
-	    componentWillMount: function () {
+	    componentWillMount: function componentWillMount() {
 	        this.verifyExternal();
 	        this.verifyCustom();
 
@@ -16435,7 +15992,7 @@ webpackJsonp([1],[
 	        }
 	    },
 	    //todo: clean these verify methods up
-	    verifyExternal: function () {
+	    verifyExternal: function verifyExternal() {
 	        if (this.props.useExternal === true) {
 	            //hooray for big ugly nested if
 	            if (this.props.externalSetPage === null) {
@@ -16463,7 +16020,7 @@ webpackJsonp([1],[
 	            }
 	        }
 	    },
-	    verifyCustom: function () {
+	    verifyCustom: function verifyCustom() {
 	        if (this.props.useCustomGridComponent === true && this.props.customGridComponent === null) {
 	            console.error("useCustomGridComponent is set to true but no custom component was specified.");
 	        }
@@ -16474,7 +16031,7 @@ webpackJsonp([1],[
 	            console.error("Cannot currently use both customGridComponent and customRowComponent.");
 	        }
 	    },
-	    getDataForRender: function (data, cols, pageList) {
+	    getDataForRender: function getDataForRender(data, cols, pageList) {
 	        var that = this;
 	        //get the correct page size
 	        if (this.state.sortColumn !== "" || this.props.initialSort !== "") {
@@ -16524,23 +16081,23 @@ webpackJsonp([1],[
 	        return transformedData;
 	    },
 	    //this is the current results
-	    getCurrentResults: function () {
+	    getCurrentResults: function getCurrentResults() {
 	        return this.state.filteredResults || this.props.results;
 	    },
-	    getCurrentPage: function () {
+	    getCurrentPage: function getCurrentPage() {
 	        return this.props.externalCurrentPage || this.state.page;
 	    },
-	    getCurrentSort: function () {
+	    getCurrentSort: function getCurrentSort() {
 	        return this.props.useExternal ? this.props.externalSortColumn : this.state.sortColumn;
 	    },
-	    getCurrentSortAscending: function () {
+	    getCurrentSortAscending: function getCurrentSortAscending() {
 	        return this.props.useExternal ? this.props.externalSortAscending : this.state.sortAscending;
 	    },
-	    getCurrentMaxPage: function () {
+	    getCurrentMaxPage: function getCurrentMaxPage() {
 	        return this.props.useExternal ? this.props.externalMaxPage : this.state.maxPage;
 	    },
 	    //This takes the props relating to sort and puts them in one object
-	    getSortObject: function () {
+	    getSortObject: function getSortObject() {
 	        return {
 	            enableSort: this.props.enableSort,
 	            changeSort: this.changeSort,
@@ -16553,7 +16110,7 @@ webpackJsonp([1],[
 	            sortDefaultComponent: this.props.sortDefaultComponent
 	        };
 	    },
-	    _toggleSelectAll: function () {
+	    _toggleSelectAll: function _toggleSelectAll() {
 	        var visibleRows = this.getDataForRender(this.getCurrentResults(), this.columnSettings.getColumns(), true),
 	            newIsSelectAllChecked = !this.state.isSelectAllChecked,
 	            newSelectedRowIds = JSON.parse(JSON.stringify(this.state.selectedRowIds));
@@ -16567,7 +16124,7 @@ webpackJsonp([1],[
 	            selectedRowIds: newSelectedRowIds
 	        });
 	    },
-	    _toggleSelectRow: function (row, isChecked) {
+	    _toggleSelectRow: function _toggleSelectRow(row, isChecked) {
 	        var visibleRows = this.getDataForRender(this.getCurrentResults(), this.columnSettings.getColumns(), true),
 	            newSelectedRowIds = JSON.parse(JSON.stringify(this.state.selectedRowIds));
 
@@ -16578,7 +16135,7 @@ webpackJsonp([1],[
 	            selectedRowIds: newSelectedRowIds
 	        });
 	    },
-	    _updateSelectedRowIds: function (id, selectedRowIds, isChecked) {
+	    _updateSelectedRowIds: function _updateSelectedRowIds(id, selectedRowIds, isChecked) {
 	        var isFound;
 
 	        if (isChecked) {
@@ -16593,10 +16150,10 @@ webpackJsonp([1],[
 	            selectedRowIds.splice(selectedRowIds.indexOf(id), 1);
 	        }
 	    },
-	    _getIsSelectAllChecked: function () {
+	    _getIsSelectAllChecked: function _getIsSelectAllChecked() {
 	        return this.state.isSelectAllChecked;
 	    },
-	    _getAreAllRowsChecked: function (selectedRowIds, visibleRowIds) {
+	    _getAreAllRowsChecked: function _getAreAllRowsChecked(selectedRowIds, visibleRowIds) {
 	        var i, isFound;
 
 	        if (selectedRowIds.length !== visibleRowIds.length) {
@@ -16615,20 +16172,20 @@ webpackJsonp([1],[
 
 	        return true;
 	    },
-	    _getIsRowChecked: function (row) {
+	    _getIsRowChecked: function _getIsRowChecked(row) {
 	        return this.state.selectedRowIds.indexOf(row[this.props.uniqueIdentifier]) > -1 ? true : false;
 	    },
-	    getSelectedRowIds: function () {
+	    getSelectedRowIds: function getSelectedRowIds() {
 	        return this.state.selectedRowIds;
 	    },
-	    _resetSelectedRows: function () {
+	    _resetSelectedRows: function _resetSelectedRows() {
 	        this.setState({
 	            isSelectAllChecked: false,
 	            selectedRowIds: []
 	        });
 	    },
 	    //This takes the props relating to multiple selection and puts them in one object
-	    getMultipleSelectionObject: function () {
+	    getMultipleSelectionObject: function getMultipleSelectionObject() {
 	        return {
 	            isMultipleSelection: _.find(this.props.results, function (result) {
 	                return "children" in result;
@@ -16641,7 +16198,7 @@ webpackJsonp([1],[
 	            getIsRowChecked: this._getIsRowChecked
 	        };
 	    },
-	    isInfiniteScrollEnabled: function () {
+	    isInfiniteScrollEnabled: function isInfiniteScrollEnabled() {
 	        // If a custom pager is included, don't allow for infinite scrolling.
 	        if (this.props.useCustomPagerComponent) {
 	            return false;
@@ -16650,21 +16207,21 @@ webpackJsonp([1],[
 	        // Otherwise, send back the property.
 	        return this.props.enableInfiniteScroll;
 	    },
-	    getClearFixStyles: function () {
+	    getClearFixStyles: function getClearFixStyles() {
 	        return {
 	            clear: "both",
 	            display: "table",
 	            width: "100%"
 	        };
 	    },
-	    getSettingsStyles: function () {
+	    getSettingsStyles: function getSettingsStyles() {
 	        return {
 	            float: "left",
 	            width: "50%",
 	            textAlign: "right"
 	        };
 	    },
-	    getFilterStyles: function () {
+	    getFilterStyles: function getFilterStyles() {
 	        return {
 	            float: "left",
 	            width: "50%",
@@ -16673,19 +16230,14 @@ webpackJsonp([1],[
 	            minHeight: "1px"
 	        };
 	    },
-	    getFilter: function () {
+	    getFilter: function getFilter() {
 	        return this.props.showFilter && this.props.useCustomGridComponent === false ? React.createElement(GridFilter, { changeFilter: this.setFilter, placeholderText: this.props.filterPlaceholderText }) : "";
 	    },
-	    getSettings: function () {
-	        return this.props.showSettings ? React.createElement(
-	            "button",
-	            { type: "button", className: this.props.settingsToggleClassName, onClick: this.toggleColumnChooser,
-	                style: this.props.useGriddleStyles ? { background: "none", border: "none", padding: 0, margin: 0, fontSize: 14 } : null },
-	            this.props.settingsText,
-	            this.props.settingsIconComponent
-	        ) : "";
+	    getSettings: function getSettings() {
+	        return this.props.showSettings ? React.createElement("button", { type: "button", className: this.props.settingsToggleClassName, onClick: this.toggleColumnChooser,
+	            style: this.props.useGriddleStyles ? { background: "none", border: "none", padding: 0, margin: 0, fontSize: 14 } : null }, this.props.settingsText, this.props.settingsIconComponent) : "";
 	    },
-	    getTopSection: function (filter, settings) {
+	    getTopSection: function getTopSection(filter, settings) {
 	        if (this.props.showFilter === false && this.props.showSettings === false) {
 	            return "";
 	        }
@@ -16701,90 +16253,64 @@ webpackJsonp([1],[
 	            topContainerStyles = this.getClearFixStyles();
 	        }
 
-	        return React.createElement(
-	            "div",
-	            { className: "top-section", style: topContainerStyles },
-	            React.createElement(
-	                "div",
-	                { className: "griddle-filter", style: filterStyles },
-	                filter
-	            ),
-	            React.createElement(
-	                "div",
-	                { className: "griddle-settings-toggle", style: settingsStyles },
-	                settings
-	            )
-	        );
+	        return React.createElement("div", { className: "top-section", style: topContainerStyles }, React.createElement("div", { className: "griddle-filter", style: filterStyles }, filter), React.createElement("div", { className: "griddle-settings-toggle", style: settingsStyles }, settings));
 	    },
-	    getPagingSection: function (currentPage, maxPage) {
+	    getPagingSection: function getPagingSection(currentPage, maxPage) {
 	        if ((this.props.showPager && !this.isInfiniteScrollEnabled() && !this.props.useCustomGridComponent) === false) {
 	            return "";
 	        }
 
-	        return React.createElement(
-	            "div",
-	            { className: "griddle-footer" },
-	            this.props.useCustomPagerComponent ? React.createElement(CustomPaginationContainer, { next: this.nextPage, previous: this.previousPage, currentPage: currentPage, maxPage: maxPage, setPage: this.setPage, nextText: this.props.nextText, previousText: this.props.previousText, customPagerComponent: this.props.customPagerComponent }) : React.createElement(GridPagination, { useGriddleStyles: this.props.useGriddleStyles, next: this.nextPage, previous: this.previousPage, nextClassName: this.props.nextClassName, nextIconComponent: this.props.nextIconComponent, previousClassName: this.props.previousClassName, previousIconComponent: this.props.previousIconComponent, currentPage: currentPage, maxPage: maxPage, setPage: this.setPage, nextText: this.props.nextText, previousText: this.props.previousText })
-	        );
+	        return React.createElement("div", { className: "griddle-footer" }, this.props.useCustomPagerComponent ? React.createElement(CustomPaginationContainer, { next: this.nextPage, previous: this.previousPage, currentPage: currentPage, maxPage: maxPage, setPage: this.setPage, nextText: this.props.nextText, previousText: this.props.previousText, customPagerComponent: this.props.customPagerComponent }) : React.createElement(GridPagination, { useGriddleStyles: this.props.useGriddleStyles, next: this.nextPage, previous: this.previousPage, nextClassName: this.props.nextClassName, nextIconComponent: this.props.nextIconComponent, previousClassName: this.props.previousClassName, previousIconComponent: this.props.previousIconComponent, currentPage: currentPage, maxPage: maxPage, setPage: this.setPage, nextText: this.props.nextText, previousText: this.props.previousText }));
 	    },
-	    getColumnSelectorSection: function (keys, cols) {
+	    getColumnSelectorSection: function getColumnSelectorSection(keys, cols) {
 	        return this.state.showColumnChooser ? React.createElement(GridSettings, { columns: keys, selectedColumns: cols, setColumns: this.setColumns, settingsText: this.props.settingsText,
 	            settingsIconComponent: this.props.settingsIconComponent, maxRowsText: this.props.maxRowsText, setPageSize: this.setPageSize,
 	            showSetPageSize: !this.props.useCustomGridComponent, resultsPerPage: this.props.resultsPerPage, enableToggleCustom: this.props.enableToggleCustom,
 	            toggleCustomComponent: this.toggleCustomComponent, useCustomComponent: this.props.useCustomRowComponent || this.props.useCustomGridComponent,
 	            useGriddleStyles: this.props.useGriddleStyles, enableCustomFormatText: this.props.enableCustomFormatText, columnMetadata: this.props.columnMetadata }) : "";
 	    },
-	    getCustomGridSection: function () {
+	    getCustomGridSection: function getCustomGridSection() {
 	        return React.createElement(this.props.customGridComponent, { data: this.props.results, className: this.props.customGridComponentClassName });
 	    },
-	    getCustomRowSection: function (data, cols, meta, pagingContent) {
-	        return React.createElement(
-	            "div",
-	            null,
-	            React.createElement(CustomRowComponentContainer, { data: data, columns: cols, metadataColumns: meta,
-	                className: this.props.customRowComponentClassName, customComponent: this.props.customRowComponent,
-	                style: this.getClearFixStyles() }),
-	            this.props.showPager && pagingContent
-	        );
+	    getCustomRowSection: function getCustomRowSection(data, cols, meta, pagingContent) {
+	        return React.createElement("div", null, React.createElement(CustomRowComponentContainer, { data: data, columns: cols, metadataColumns: meta,
+	            className: this.props.customRowComponentClassName, customComponent: this.props.customRowComponent,
+	            style: this.getClearFixStyles() }), this.props.showPager && pagingContent);
 	    },
-	    getStandardGridSection: function (data, cols, meta, pagingContent, hasMorePages) {
+	    getStandardGridSection: function getStandardGridSection(data, cols, meta, pagingContent, hasMorePages) {
 	        var sortProperties = this.getSortObject();
 	        var multipleSelectionProperties = this.getMultipleSelectionObject();
 
-	        return React.createElement(
-	            "div",
-	            { className: "griddle-body" },
-	            React.createElement(GridTable, { useGriddleStyles: this.props.useGriddleStyles,
-	                columnSettings: this.columnSettings,
-	                rowSettings: this.rowSettings,
-	                sortSettings: sortProperties,
-	                multipleSelectionSettings: multipleSelectionProperties,
-	                isSubGriddle: this.props.isSubGriddle,
-	                useGriddleIcons: this.props.useGriddleIcons,
-	                useFixedLayout: this.props.useFixedLayout,
-	                showPager: this.props.showPager,
-	                pagingContent: pagingContent,
-	                data: data,
-	                className: this.props.tableClassName,
-	                enableInfiniteScroll: this.isInfiniteScrollEnabled(),
-	                nextPage: this.nextPage,
-	                showTableHeading: this.props.showTableHeading,
-	                useFixedHeader: this.props.useFixedHeader,
-	                parentRowCollapsedClassName: this.props.parentRowCollapsedClassName,
-	                parentRowExpandedClassName: this.props.parentRowExpandedClassName,
-	                parentRowCollapsedComponent: this.props.parentRowCollapsedComponent,
-	                parentRowExpandedComponent: this.props.parentRowExpandedComponent,
-	                bodyHeight: this.props.bodyHeight,
-	                paddingHeight: this.props.paddingHeight,
-	                rowHeight: this.props.rowHeight,
-	                infiniteScrollLoadTreshold: this.props.infiniteScrollLoadTreshold,
-	                externalLoadingComponent: this.props.externalLoadingComponent,
-	                externalIsLoading: this.props.externalIsLoading,
-	                hasMorePages: hasMorePages,
-	                onRowClick: this.props.onRowClick })
-	        );
+	        return React.createElement("div", { className: "griddle-body" }, React.createElement(GridTable, { useGriddleStyles: this.props.useGriddleStyles,
+	            columnSettings: this.columnSettings,
+	            rowSettings: this.rowSettings,
+	            sortSettings: sortProperties,
+	            multipleSelectionSettings: multipleSelectionProperties,
+	            isSubGriddle: this.props.isSubGriddle,
+	            useGriddleIcons: this.props.useGriddleIcons,
+	            useFixedLayout: this.props.useFixedLayout,
+	            showPager: this.props.showPager,
+	            pagingContent: pagingContent,
+	            data: data,
+	            className: this.props.tableClassName,
+	            enableInfiniteScroll: this.isInfiniteScrollEnabled(),
+	            nextPage: this.nextPage,
+	            showTableHeading: this.props.showTableHeading,
+	            useFixedHeader: this.props.useFixedHeader,
+	            parentRowCollapsedClassName: this.props.parentRowCollapsedClassName,
+	            parentRowExpandedClassName: this.props.parentRowExpandedClassName,
+	            parentRowCollapsedComponent: this.props.parentRowCollapsedComponent,
+	            parentRowExpandedComponent: this.props.parentRowExpandedComponent,
+	            bodyHeight: this.props.bodyHeight,
+	            paddingHeight: this.props.paddingHeight,
+	            rowHeight: this.props.rowHeight,
+	            infiniteScrollLoadTreshold: this.props.infiniteScrollLoadTreshold,
+	            externalLoadingComponent: this.props.externalLoadingComponent,
+	            externalIsLoading: this.props.externalIsLoading,
+	            hasMorePages: hasMorePages,
+	            onRowClick: this.props.onRowClick }));
 	    },
-	    getContentSection: function (data, cols, meta, pagingContent, hasMorePages) {
+	    getContentSection: function getContentSection(data, cols, meta, pagingContent, hasMorePages) {
 	        if (this.props.useCustomGridComponent && this.props.customGridComponent !== null) {
 	            return this.getCustomGridSection();
 	        } else if (this.props.useCustomRowComponent) {
@@ -16793,30 +16319,21 @@ webpackJsonp([1],[
 	            return this.getStandardGridSection(data, cols, meta, pagingContent, hasMorePages);
 	        }
 	    },
-	    getNoDataSection: function (gridClassName, topSection) {
+	    getNoDataSection: function getNoDataSection(gridClassName, topSection) {
 	        var myReturn = null;
 	        if (this.props.customNoDataComponent != null) {
-	            myReturn = React.createElement(
-	                "div",
-	                { className: gridClassName },
-	                React.createElement(this.props.customNoDataComponent, null)
-	            );
+	            myReturn = React.createElement("div", { className: gridClassName }, React.createElement(this.props.customNoDataComponent, null));
 
 	            return myReturn;
 	        }
 
-	        myReturn = React.createElement(
-	            "div",
-	            { className: gridClassName },
-	            topSection,
-	            React.createElement(GridNoData, { noDataMessage: this.props.noDataMessage })
-	        );
+	        myReturn = React.createElement("div", { className: gridClassName }, topSection, React.createElement(GridNoData, { noDataMessage: this.props.noDataMessage }));
 	        return myReturn;
 	    },
-	    shouldShowNoDataSection: function (results) {
+	    shouldShowNoDataSection: function shouldShowNoDataSection(results) {
 	        return this.props.useExternal === false && (typeof results === "undefined" || results.length === 0) || this.props.useExternal === true && this.props.externalIsLoading === false && results.length === 0;
 	    },
-	    render: function () {
+	    render: function render() {
 	        var that = this,
 	            results = this.getCurrentResults(); // Attempt to assign to the filtered results, if we have any.
 
@@ -16866,17 +16383,7 @@ webpackJsonp([1],[
 	            return this.getNoDataSection(gridClassName, topSection);
 	        }
 
-	        return React.createElement(
-	            "div",
-	            { className: gridClassName },
-	            topSection,
-	            columnSelector,
-	            React.createElement(
-	                "div",
-	                { className: "griddle-container", style: this.props.useGriddleStyles && !this.props.isSubGriddle ? { border: "1px solid #DDD" } : null },
-	                resultContent
-	            )
-	        );
+	        return React.createElement("div", { className: gridClassName }, topSection, columnSelector, React.createElement("div", { className: "griddle-container", style: this.props.useGriddleStyles && !this.props.isSubGriddle ? { border: "1px solid #DDD" } : null }, resultContent));
 	    }
 	});
 
@@ -16900,7 +16407,7 @@ webpackJsonp([1],[
 
 	var GridTable = React.createClass({
 	  displayName: "GridTable",
-	  getDefaultProps: function () {
+	  getDefaultProps: function getDefaultProps() {
 	    return {
 	      data: [],
 	      columnSettings: null,
@@ -16930,22 +16437,22 @@ webpackJsonp([1],[
 	      onRowClick: null
 	    };
 	  },
-	  getInitialState: function () {
+	  getInitialState: function getInitialState() {
 	    return {
 	      scrollTop: 0,
 	      scrollHeight: this.props.bodyHeight,
 	      clientHeight: this.props.bodyHeight
 	    };
 	  },
-	  componentDidMount: function () {
+	  componentDidMount: function componentDidMount() {
 	    // After the initial render, see if we need to load additional pages.
 	    this.gridScroll();
 	  },
-	  componentDidUpdate: function (prevProps, prevState) {
+	  componentDidUpdate: function componentDidUpdate(prevProps, prevState) {
 	    // After the subsequent renders, see if we need to load additional pages.
 	    this.gridScroll();
 	  },
-	  gridScroll: function () {
+	  gridScroll: function gridScroll() {
 	    if (this.props.enableInfiniteScroll && !this.props.externalIsLoading) {
 	      // If the scroll height is greater than the current amount of rows displayed, update the page.
 	      var scrollable = this.refs.scrollable.getDOMNode();
@@ -16977,7 +16484,7 @@ webpackJsonp([1],[
 	      }
 	    }
 	  },
-	  verifyProps: function () {
+	  verifyProps: function verifyProps() {
 	    if (this.props.columnSettings === null) {
 	      console.error("gridTable: The columnSettings prop is null and it shouldn't be");
 	    }
@@ -16985,10 +16492,10 @@ webpackJsonp([1],[
 	      console.error("gridTable: The rowSettings prop is null and it shouldn't be");
 	    }
 	  },
-	  getAdjustedRowHeight: function () {
+	  getAdjustedRowHeight: function getAdjustedRowHeight() {
 	    return this.props.rowHeight + this.props.paddingHeight * 2; // account for padding.
 	  },
-	  getNodeContent: function () {
+	  getNodeContent: function getNodeContent() {
 	    this.verifyProps();
 	    var that = this;
 
@@ -17055,7 +16562,7 @@ webpackJsonp([1],[
 	      return null;
 	    }
 	  },
-	  render: function () {
+	  render: function render() {
 	    var that = this;
 	    var nodes = [];
 
@@ -17103,25 +16610,9 @@ webpackJsonp([1],[
 	        defaultColSpan = this.props.columnSettings.getVisibleColumnCount();
 	      }
 
-	      var loadingComponent = this.props.externalLoadingComponent ? React.createElement(this.props.externalLoadingComponent, null) : React.createElement(
-	        "div",
-	        null,
-	        "Loading..."
-	      );
+	      var loadingComponent = this.props.externalLoadingComponent ? React.createElement(this.props.externalLoadingComponent, null) : React.createElement("div", null, "Loading...");
 
-	      loadingContent = React.createElement(
-	        "tbody",
-	        null,
-	        React.createElement(
-	          "tr",
-	          null,
-	          React.createElement(
-	            "td",
-	            { style: defaultLoadingStyle, colSpan: defaultColSpan },
-	            loadingComponent
-	          )
-	        )
-	      );
+	      loadingContent = React.createElement("tbody", null, React.createElement("tr", null, React.createElement("td", { style: defaultLoadingStyle, colSpan: defaultColSpan }, loadingComponent)));
 	    }
 
 	    //construct the table heading component
@@ -17133,11 +16624,7 @@ webpackJsonp([1],[
 
 	    //check to see if any of the rows have children... if they don't wrap everything in a tbody so the browser doesn't auto do this
 	    if (!anyHasChildren) {
-	      nodes = React.createElement(
-	        "tbody",
-	        null,
-	        nodes
-	      );
+	      nodes = React.createElement("tbody", null, nodes);
 	    }
 
 	    var pagingContent = "";
@@ -17148,19 +16635,7 @@ webpackJsonp([1],[
 	        border: "0",
 	        color: "#222"
 	      } : null;
-	      pagingContent = React.createElement(
-	        "tbody",
-	        null,
-	        React.createElement(
-	          "tr",
-	          null,
-	          React.createElement(
-	            "td",
-	            { colSpan: this.props.multipleSelectionSettings.isMultipleSelection ? this.props.columnSettings.getVisibleColumnCount() + 1 : this.props.columnSettings.getVisibleColumnCount(), style: pagingStyles, className: "footer-container" },
-	            this.props.pagingContent
-	          )
-	        )
-	      );
+	      pagingContent = React.createElement("tbody", null, React.createElement("tr", null, React.createElement("td", { colSpan: this.props.multipleSelectionSettings.isMultipleSelection ? this.props.columnSettings.getVisibleColumnCount() + 1 : this.props.columnSettings.getVisibleColumnCount(), style: pagingStyles, className: "footer-container" }, this.props.pagingContent)));
 	    }
 
 	    // If we have a fixed header, split into two tables.
@@ -17169,40 +16644,10 @@ webpackJsonp([1],[
 	        tableStyle.tableLayout = "fixed";
 	      }
 
-	      return React.createElement(
-	        "div",
-	        null,
-	        React.createElement(
-	          "table",
-	          { className: this.props.className, style: this.props.useGriddleStyles && tableStyle || null },
-	          tableHeading
-	        ),
-	        React.createElement(
-	          "div",
-	          { ref: "scrollable", onScroll: this.gridScroll, style: gridStyle },
-	          React.createElement(
-	            "table",
-	            { className: this.props.className, style: this.props.useGriddleStyles && tableStyle || null },
-	            nodes,
-	            loadingContent,
-	            pagingContent
-	          )
-	        )
-	      );
+	      return React.createElement("div", null, React.createElement("table", { className: this.props.className, style: this.props.useGriddleStyles && tableStyle || null }, tableHeading), React.createElement("div", { ref: "scrollable", onScroll: this.gridScroll, style: gridStyle }, React.createElement("table", { className: this.props.className, style: this.props.useGriddleStyles && tableStyle || null }, nodes, loadingContent, pagingContent)));
 	    }
 
-	    return React.createElement(
-	      "div",
-	      { ref: "scrollable", onScroll: this.gridScroll, style: gridStyle },
-	      React.createElement(
-	        "table",
-	        { className: this.props.className, style: this.props.useGriddleStyles && tableStyle || null },
-	        tableHeading,
-	        nodes,
-	        loadingContent,
-	        pagingContent
-	      )
-	    );
+	    return React.createElement("div", { ref: "scrollable", onScroll: this.gridScroll, style: gridStyle }, React.createElement("table", { className: this.props.className, style: this.props.useGriddleStyles && tableStyle || null }, tableHeading, nodes, loadingContent, pagingContent));
 	  }
 	});
 
@@ -17223,7 +16668,7 @@ webpackJsonp([1],[
 
 	var GridTitle = React.createClass({
 	    displayName: "GridTitle",
-	    getDefaultProps: function () {
+	    getDefaultProps: function getDefaultProps() {
 	        return {
 	            columnSettings: null,
 	            rowSettings: null,
@@ -17234,20 +16679,20 @@ webpackJsonp([1],[
 	            useGriddleIcons: true,
 	            headerStyles: {} };
 	    },
-	    componentWillMount: function () {
+	    componentWillMount: function componentWillMount() {
 	        this.verifyProps();
 	    },
-	    sort: function (event) {
+	    sort: function sort(event) {
 	        this.props.sortSettings.changeSort(event.target.dataset.title || event.target.parentElement.dataset.title);
 	    },
-	    toggleSelectAll: function (event) {
+	    toggleSelectAll: function toggleSelectAll(event) {
 	        this.props.multipleSelectionSettings.toggleSelectAll();
 	    },
-	    handleSelectionChange: function (event) {
+	    handleSelectionChange: function handleSelectionChange(event) {
 	        //hack to get around warning message that's not helpful in this case
 	        return;
 	    },
-	    verifyProps: function () {
+	    verifyProps: function verifyProps() {
 	        if (this.props.columnSettings === null) {
 	            console.error("gridTitle: The columnSettings prop is null and it shouldn't be");
 	        }
@@ -17256,7 +16701,7 @@ webpackJsonp([1],[
 	            console.error("gridTitle: The sortSettings prop is null and it shouldn't be");
 	        }
 	    },
-	    render: function () {
+	    render: function render() {
 	        this.verifyProps();
 	        var that = this;
 	        var titleStyles = null;
@@ -17272,7 +16717,6 @@ webpackJsonp([1],[
 	                columnSort += that.props.sortSettings.sortDescendingClassName;
 	                sortComponent = that.props.useGriddleIcons && that.props.sortSettings.sortDescendingComponent;
 	            }
-
 
 	            var meta = that.props.columnSettings.getColumnMetadataByName(col);
 	            var columnIsSortable = that.props.columnSettings.getMetadataColumnProperty(col, "sortable", true);
@@ -17291,36 +16735,19 @@ webpackJsonp([1],[
 	                };
 	            }
 
-	            return React.createElement(
-	                "th",
-	                { onClick: columnIsSortable ? that.sort : null, "data-title": col, className: columnSort, key: displayName, style: titleStyles },
-	                displayName,
-	                sortComponent
-	            );
+	            return React.createElement("th", { onClick: columnIsSortable ? that.sort : null, "data-title": col, className: columnSort, key: displayName, style: titleStyles }, displayName, sortComponent);
 	        });
 
 	        if (nodes && this.props.multipleSelectionSettings.isMultipleSelection) {
-	            nodes.unshift(React.createElement(
-	                "th",
-	                { key: "selection", onClick: this.toggleSelectAll, style: titleStyles },
-	                React.createElement("input", { type: "checkbox", checked: this.props.multipleSelectionSettings.getIsSelectAllChecked(), onChange: this.handleSelectionChange })
-	            ));
+	            nodes.unshift(React.createElement("th", { key: "selection", onClick: this.toggleSelectAll, style: titleStyles }, React.createElement("input", { type: "checkbox", checked: this.props.multipleSelectionSettings.getIsSelectAllChecked(), onChange: this.handleSelectionChange })));
 	        }
 
 	        //Get the row from the row settings.
 	        var className = that.props.rowSettings && that.props.rowSettings.getHeaderRowMetadataClass() || null;
 
-	        return React.createElement(
-	            "thead",
-	            null,
-	            React.createElement(
-	                "tr",
-	                {
-	                    className: className,
-	                    style: this.props.headerStyles },
-	                nodes
-	            )
-	        );
+	        return React.createElement("thead", null, React.createElement("tr", {
+	            className: className,
+	            style: this.props.headerStyles }, nodes));
 	    }
 	});
 
@@ -17335,7 +16762,9 @@ webpackJsonp([1],[
 	//     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	//     Underscore may be freely distributed under the MIT license.
 
-	(function() {
+	'use strict';
+
+	(function () {
 
 	  // Baseline setup
 	  // --------------
@@ -17347,28 +16776,28 @@ webpackJsonp([1],[
 	  var previousUnderscore = root._;
 
 	  // Save bytes in the minified (but not gzipped) version:
-	  var ArrayProto = Array.prototype, ObjProto = Object.prototype, FuncProto = Function.prototype;
+	  var ArrayProto = Array.prototype,
+	      ObjProto = Object.prototype,
+	      FuncProto = Function.prototype;
 
 	  // Create quick reference variables for speed access to core prototypes.
-	  var
-	    push             = ArrayProto.push,
-	    slice            = ArrayProto.slice,
-	    toString         = ObjProto.toString,
-	    hasOwnProperty   = ObjProto.hasOwnProperty;
+	  var push = ArrayProto.push,
+	      slice = ArrayProto.slice,
+	      toString = ObjProto.toString,
+	      hasOwnProperty = ObjProto.hasOwnProperty;
 
 	  // All **ECMAScript 5** native function implementations that we hope to use
 	  // are declared here.
-	  var
-	    nativeIsArray      = Array.isArray,
-	    nativeKeys         = Object.keys,
-	    nativeBind         = FuncProto.bind,
-	    nativeCreate       = Object.create;
+	  var nativeIsArray = Array.isArray,
+	      nativeKeys = Object.keys,
+	      nativeBind = FuncProto.bind,
+	      nativeCreate = Object.create;
 
 	  // Naked function reference for surrogate-prototype-swapping.
-	  var Ctor = function(){};
+	  var Ctor = function Ctor() {};
 
 	  // Create a safe reference to the Underscore object for use below.
-	  var _ = function(obj) {
+	  var _ = function _(obj) {
 	    if (obj instanceof _) return obj;
 	    if (!(this instanceof _)) return new _(obj);
 	    this._wrapped = obj;
@@ -17392,23 +16821,27 @@ webpackJsonp([1],[
 	  // Internal function that returns an efficient (for current engines) version
 	  // of the passed-in callback, to be repeatedly applied in other Underscore
 	  // functions.
-	  var optimizeCb = function(func, context, argCount) {
+	  var optimizeCb = function optimizeCb(func, context, argCount) {
 	    if (context === void 0) return func;
 	    switch (argCount == null ? 3 : argCount) {
-	      case 1: return function(value) {
-	        return func.call(context, value);
-	      };
-	      case 2: return function(value, other) {
-	        return func.call(context, value, other);
-	      };
-	      case 3: return function(value, index, collection) {
-	        return func.call(context, value, index, collection);
-	      };
-	      case 4: return function(accumulator, value, index, collection) {
-	        return func.call(context, accumulator, value, index, collection);
-	      };
+	      case 1:
+	        return function (value) {
+	          return func.call(context, value);
+	        };
+	      case 2:
+	        return function (value, other) {
+	          return func.call(context, value, other);
+	        };
+	      case 3:
+	        return function (value, index, collection) {
+	          return func.call(context, value, index, collection);
+	        };
+	      case 4:
+	        return function (accumulator, value, index, collection) {
+	          return func.call(context, accumulator, value, index, collection);
+	        };
 	    }
-	    return function() {
+	    return function () {
 	      return func.apply(context, arguments);
 	    };
 	  };
@@ -17416,19 +16849,19 @@ webpackJsonp([1],[
 	  // A mostly-internal function to generate callbacks that can be applied
 	  // to each element in a collection, returning the desired result — either
 	  // identity, an arbitrary callback, a property matcher, or a property accessor.
-	  var cb = function(value, context, argCount) {
+	  var cb = function cb(value, context, argCount) {
 	    if (value == null) return _.identity;
 	    if (_.isFunction(value)) return optimizeCb(value, context, argCount);
 	    if (_.isObject(value)) return _.matcher(value);
 	    return _.property(value);
 	  };
-	  _.iteratee = function(value, context) {
+	  _.iteratee = function (value, context) {
 	    return cb(value, context, Infinity);
 	  };
 
 	  // An internal function for creating assigner functions.
-	  var createAssigner = function(keysFunc, undefinedOnly) {
-	    return function(obj) {
+	  var createAssigner = function createAssigner(keysFunc, undefinedOnly) {
+	    return function (obj) {
 	      var length = arguments.length;
 	      if (length < 2 || obj == null) return obj;
 	      for (var index = 1; index < length; index++) {
@@ -17445,17 +16878,17 @@ webpackJsonp([1],[
 	  };
 
 	  // An internal function for creating a new object that inherits from another.
-	  var baseCreate = function(prototype) {
+	  var baseCreate = function baseCreate(prototype) {
 	    if (!_.isObject(prototype)) return {};
 	    if (nativeCreate) return nativeCreate(prototype);
 	    Ctor.prototype = prototype;
-	    var result = new Ctor;
+	    var result = new Ctor();
 	    Ctor.prototype = null;
 	    return result;
 	  };
 
-	  var property = function(key) {
-	    return function(obj) {
+	  var property = function property(key) {
+	    return function (obj) {
 	      return obj == null ? void 0 : obj[key];
 	    };
 	  };
@@ -17466,7 +16899,7 @@ webpackJsonp([1],[
 	  // Avoids a very nasty iOS 8 JIT bug on ARM-64. #2094
 	  var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
 	  var getLength = property('length');
-	  var isArrayLike = function(collection) {
+	  var isArrayLike = function isArrayLike(collection) {
 	    var length = getLength(collection);
 	    return typeof length == 'number' && length >= 0 && length <= MAX_ARRAY_INDEX;
 	  };
@@ -17477,7 +16910,7 @@ webpackJsonp([1],[
 	  // The cornerstone, an `each` implementation, aka `forEach`.
 	  // Handles raw objects in addition to array-likes. Treats all
 	  // sparse array-likes as if they were dense.
-	  _.each = _.forEach = function(obj, iteratee, context) {
+	  _.each = _.forEach = function (obj, iteratee, context) {
 	    iteratee = optimizeCb(iteratee, context);
 	    var i, length;
 	    if (isArrayLike(obj)) {
@@ -17494,7 +16927,7 @@ webpackJsonp([1],[
 	  };
 
 	  // Return the results of applying the iteratee to each element.
-	  _.map = _.collect = function(obj, iteratee, context) {
+	  _.map = _.collect = function (obj, iteratee, context) {
 	    iteratee = cb(iteratee, context);
 	    var keys = !isArrayLike(obj) && _.keys(obj),
 	        length = (keys || obj).length,
@@ -17518,7 +16951,7 @@ webpackJsonp([1],[
 	      return memo;
 	    }
 
-	    return function(obj, iteratee, memo, context) {
+	    return function (obj, iteratee, memo, context) {
 	      iteratee = optimizeCb(iteratee, context, 4);
 	      var keys = !isArrayLike(obj) && _.keys(obj),
 	          length = (keys || obj).length,
@@ -17540,7 +16973,7 @@ webpackJsonp([1],[
 	  _.reduceRight = _.foldr = createReduce(-1);
 
 	  // Return the first value which passes a truth test. Aliased as `detect`.
-	  _.find = _.detect = function(obj, predicate, context) {
+	  _.find = _.detect = function (obj, predicate, context) {
 	    var key;
 	    if (isArrayLike(obj)) {
 	      key = _.findIndex(obj, predicate, context);
@@ -17552,23 +16985,23 @@ webpackJsonp([1],[
 
 	  // Return all the elements that pass a truth test.
 	  // Aliased as `select`.
-	  _.filter = _.select = function(obj, predicate, context) {
+	  _.filter = _.select = function (obj, predicate, context) {
 	    var results = [];
 	    predicate = cb(predicate, context);
-	    _.each(obj, function(value, index, list) {
+	    _.each(obj, function (value, index, list) {
 	      if (predicate(value, index, list)) results.push(value);
 	    });
 	    return results;
 	  };
 
 	  // Return all the elements for which a truth test fails.
-	  _.reject = function(obj, predicate, context) {
+	  _.reject = function (obj, predicate, context) {
 	    return _.filter(obj, _.negate(cb(predicate)), context);
 	  };
 
 	  // Determine whether all of the elements match a truth test.
 	  // Aliased as `all`.
-	  _.every = _.all = function(obj, predicate, context) {
+	  _.every = _.all = function (obj, predicate, context) {
 	    predicate = cb(predicate, context);
 	    var keys = !isArrayLike(obj) && _.keys(obj),
 	        length = (keys || obj).length;
@@ -17581,7 +17014,7 @@ webpackJsonp([1],[
 
 	  // Determine if at least one element in the object matches a truth test.
 	  // Aliased as `any`.
-	  _.some = _.any = function(obj, predicate, context) {
+	  _.some = _.any = function (obj, predicate, context) {
 	    predicate = cb(predicate, context);
 	    var keys = !isArrayLike(obj) && _.keys(obj),
 	        length = (keys || obj).length;
@@ -17594,43 +17027,45 @@ webpackJsonp([1],[
 
 	  // Determine if the array or object contains a given item (using `===`).
 	  // Aliased as `includes` and `include`.
-	  _.contains = _.includes = _.include = function(obj, item, fromIndex, guard) {
+	  _.contains = _.includes = _.include = function (obj, item, fromIndex, guard) {
 	    if (!isArrayLike(obj)) obj = _.values(obj);
 	    if (typeof fromIndex != 'number' || guard) fromIndex = 0;
 	    return _.indexOf(obj, item, fromIndex) >= 0;
 	  };
 
 	  // Invoke a method (with arguments) on every item in a collection.
-	  _.invoke = function(obj, method) {
+	  _.invoke = function (obj, method) {
 	    var args = slice.call(arguments, 2);
 	    var isFunc = _.isFunction(method);
-	    return _.map(obj, function(value) {
+	    return _.map(obj, function (value) {
 	      var func = isFunc ? method : value[method];
 	      return func == null ? func : func.apply(value, args);
 	    });
 	  };
 
 	  // Convenience version of a common use case of `map`: fetching a property.
-	  _.pluck = function(obj, key) {
+	  _.pluck = function (obj, key) {
 	    return _.map(obj, _.property(key));
 	  };
 
 	  // Convenience version of a common use case of `filter`: selecting only objects
 	  // containing specific `key:value` pairs.
-	  _.where = function(obj, attrs) {
+	  _.where = function (obj, attrs) {
 	    return _.filter(obj, _.matcher(attrs));
 	  };
 
 	  // Convenience version of a common use case of `find`: getting the first object
 	  // containing specific `key:value` pairs.
-	  _.findWhere = function(obj, attrs) {
+	  _.findWhere = function (obj, attrs) {
 	    return _.find(obj, _.matcher(attrs));
 	  };
 
 	  // Return the maximum element (or element-based computation).
-	  _.max = function(obj, iteratee, context) {
-	    var result = -Infinity, lastComputed = -Infinity,
-	        value, computed;
+	  _.max = function (obj, iteratee, context) {
+	    var result = -Infinity,
+	        lastComputed = -Infinity,
+	        value,
+	        computed;
 	    if (iteratee == null && obj != null) {
 	      obj = isArrayLike(obj) ? obj : _.values(obj);
 	      for (var i = 0, length = obj.length; i < length; i++) {
@@ -17641,7 +17076,7 @@ webpackJsonp([1],[
 	      }
 	    } else {
 	      iteratee = cb(iteratee, context);
-	      _.each(obj, function(value, index, list) {
+	      _.each(obj, function (value, index, list) {
 	        computed = iteratee(value, index, list);
 	        if (computed > lastComputed || computed === -Infinity && result === -Infinity) {
 	          result = value;
@@ -17653,9 +17088,11 @@ webpackJsonp([1],[
 	  };
 
 	  // Return the minimum element (or element-based computation).
-	  _.min = function(obj, iteratee, context) {
-	    var result = Infinity, lastComputed = Infinity,
-	        value, computed;
+	  _.min = function (obj, iteratee, context) {
+	    var result = Infinity,
+	        lastComputed = Infinity,
+	        value,
+	        computed;
 	    if (iteratee == null && obj != null) {
 	      obj = isArrayLike(obj) ? obj : _.values(obj);
 	      for (var i = 0, length = obj.length; i < length; i++) {
@@ -17666,7 +17103,7 @@ webpackJsonp([1],[
 	      }
 	    } else {
 	      iteratee = cb(iteratee, context);
-	      _.each(obj, function(value, index, list) {
+	      _.each(obj, function (value, index, list) {
 	        computed = iteratee(value, index, list);
 	        if (computed < lastComputed || computed === Infinity && result === Infinity) {
 	          result = value;
@@ -17679,7 +17116,7 @@ webpackJsonp([1],[
 
 	  // Shuffle a collection, using the modern version of the
 	  // [Fisher-Yates shuffle](http://en.wikipedia.org/wiki/Fisher–Yates_shuffle).
-	  _.shuffle = function(obj) {
+	  _.shuffle = function (obj) {
 	    var set = isArrayLike(obj) ? obj : _.values(obj);
 	    var length = set.length;
 	    var shuffled = Array(length);
@@ -17694,7 +17131,7 @@ webpackJsonp([1],[
 	  // Sample **n** random values from a collection.
 	  // If **n** is not specified, returns a single random element.
 	  // The internal `guard` argument allows it to work with `map`.
-	  _.sample = function(obj, n, guard) {
+	  _.sample = function (obj, n, guard) {
 	    if (n == null || guard) {
 	      if (!isArrayLike(obj)) obj = _.values(obj);
 	      return obj[_.random(obj.length - 1)];
@@ -17703,15 +17140,15 @@ webpackJsonp([1],[
 	  };
 
 	  // Sort the object's values by a criterion produced by an iteratee.
-	  _.sortBy = function(obj, iteratee, context) {
+	  _.sortBy = function (obj, iteratee, context) {
 	    iteratee = cb(iteratee, context);
-	    return _.pluck(_.map(obj, function(value, index, list) {
+	    return _.pluck(_.map(obj, function (value, index, list) {
 	      return {
 	        value: value,
 	        index: index,
 	        criteria: iteratee(value, index, list)
 	      };
-	    }).sort(function(left, right) {
+	    }).sort(function (left, right) {
 	      var a = left.criteria;
 	      var b = right.criteria;
 	      if (a !== b) {
@@ -17723,11 +17160,11 @@ webpackJsonp([1],[
 	  };
 
 	  // An internal function used for aggregate "group by" operations.
-	  var group = function(behavior) {
-	    return function(obj, iteratee, context) {
+	  var group = function group(behavior) {
+	    return function (obj, iteratee, context) {
 	      var result = {};
 	      iteratee = cb(iteratee, context);
-	      _.each(obj, function(value, index) {
+	      _.each(obj, function (value, index) {
 	        var key = iteratee(value, index, obj);
 	        behavior(result, value, key);
 	      });
@@ -17737,25 +17174,25 @@ webpackJsonp([1],[
 
 	  // Groups the object's values by a criterion. Pass either a string attribute
 	  // to group by, or a function that returns the criterion.
-	  _.groupBy = group(function(result, value, key) {
-	    if (_.has(result, key)) result[key].push(value); else result[key] = [value];
+	  _.groupBy = group(function (result, value, key) {
+	    if (_.has(result, key)) result[key].push(value);else result[key] = [value];
 	  });
 
 	  // Indexes the object's values by a criterion, similar to `groupBy`, but for
 	  // when you know that your index values will be unique.
-	  _.indexBy = group(function(result, value, key) {
+	  _.indexBy = group(function (result, value, key) {
 	    result[key] = value;
 	  });
 
 	  // Counts instances of an object that group by a certain criterion. Pass
 	  // either a string attribute to count by, or a function that returns the
 	  // criterion.
-	  _.countBy = group(function(result, value, key) {
-	    if (_.has(result, key)) result[key]++; else result[key] = 1;
+	  _.countBy = group(function (result, value, key) {
+	    if (_.has(result, key)) result[key]++;else result[key] = 1;
 	  });
 
 	  // Safely create a real, live array from anything iterable.
-	  _.toArray = function(obj) {
+	  _.toArray = function (obj) {
 	    if (!obj) return [];
 	    if (_.isArray(obj)) return slice.call(obj);
 	    if (isArrayLike(obj)) return _.map(obj, _.identity);
@@ -17763,17 +17200,18 @@ webpackJsonp([1],[
 	  };
 
 	  // Return the number of elements in an object.
-	  _.size = function(obj) {
+	  _.size = function (obj) {
 	    if (obj == null) return 0;
 	    return isArrayLike(obj) ? obj.length : _.keys(obj).length;
 	  };
 
 	  // Split a collection into two arrays: one whose elements all satisfy the given
 	  // predicate, and one whose elements all do not satisfy the predicate.
-	  _.partition = function(obj, predicate, context) {
+	  _.partition = function (obj, predicate, context) {
 	    predicate = cb(predicate, context);
-	    var pass = [], fail = [];
-	    _.each(obj, function(value, key, obj) {
+	    var pass = [],
+	        fail = [];
+	    _.each(obj, function (value, key, obj) {
 	      (predicate(value, key, obj) ? pass : fail).push(value);
 	    });
 	    return [pass, fail];
@@ -17785,7 +17223,7 @@ webpackJsonp([1],[
 	  // Get the first element of an array. Passing **n** will return the first N
 	  // values in the array. Aliased as `head` and `take`. The **guard** check
 	  // allows it to work with `_.map`.
-	  _.first = _.head = _.take = function(array, n, guard) {
+	  _.first = _.head = _.take = function (array, n, guard) {
 	    if (array == null) return void 0;
 	    if (n == null || guard) return array[0];
 	    return _.initial(array, array.length - n);
@@ -17794,13 +17232,13 @@ webpackJsonp([1],[
 	  // Returns everything but the last entry of the array. Especially useful on
 	  // the arguments object. Passing **n** will return all the values in
 	  // the array, excluding the last N.
-	  _.initial = function(array, n, guard) {
+	  _.initial = function (array, n, guard) {
 	    return slice.call(array, 0, Math.max(0, array.length - (n == null || guard ? 1 : n)));
 	  };
 
 	  // Get the last element of an array. Passing **n** will return the last N
 	  // values in the array.
-	  _.last = function(array, n, guard) {
+	  _.last = function (array, n, guard) {
 	    if (array == null) return void 0;
 	    if (n == null || guard) return array[array.length - 1];
 	    return _.rest(array, Math.max(0, array.length - n));
@@ -17809,24 +17247,26 @@ webpackJsonp([1],[
 	  // Returns everything but the first entry of the array. Aliased as `tail` and `drop`.
 	  // Especially useful on the arguments object. Passing an **n** will return
 	  // the rest N values in the array.
-	  _.rest = _.tail = _.drop = function(array, n, guard) {
+	  _.rest = _.tail = _.drop = function (array, n, guard) {
 	    return slice.call(array, n == null || guard ? 1 : n);
 	  };
 
 	  // Trim out all falsy values from an array.
-	  _.compact = function(array) {
+	  _.compact = function (array) {
 	    return _.filter(array, _.identity);
 	  };
 
 	  // Internal implementation of a recursive `flatten` function.
-	  var flatten = function(input, shallow, strict, startIndex) {
-	    var output = [], idx = 0;
+	  var flatten = function flatten(input, shallow, strict, startIndex) {
+	    var output = [],
+	        idx = 0;
 	    for (var i = startIndex || 0, length = getLength(input); i < length; i++) {
 	      var value = input[i];
 	      if (isArrayLike(value) && (_.isArray(value) || _.isArguments(value))) {
 	        //flatten current level of array or arguments object
 	        if (!shallow) value = flatten(value, shallow, strict);
-	        var j = 0, len = value.length;
+	        var j = 0,
+	            len = value.length;
 	        output.length += len;
 	        while (j < len) {
 	          output[idx++] = value[j++];
@@ -17839,19 +17279,19 @@ webpackJsonp([1],[
 	  };
 
 	  // Flatten out an array, either recursively (by default), or just one level.
-	  _.flatten = function(array, shallow) {
+	  _.flatten = function (array, shallow) {
 	    return flatten(array, shallow, false);
 	  };
 
 	  // Return a version of the array that does not contain the specified value(s).
-	  _.without = function(array) {
+	  _.without = function (array) {
 	    return _.difference(array, slice.call(arguments, 1));
 	  };
 
 	  // Produce a duplicate-free version of the array. If the array has already
 	  // been sorted, you have the option of using a faster algorithm.
 	  // Aliased as `unique`.
-	  _.uniq = _.unique = function(array, isSorted, iteratee, context) {
+	  _.uniq = _.unique = function (array, isSorted, iteratee, context) {
 	    if (!_.isBoolean(isSorted)) {
 	      context = iteratee;
 	      iteratee = isSorted;
@@ -17880,13 +17320,13 @@ webpackJsonp([1],[
 
 	  // Produce an array that contains the union: each distinct element from all of
 	  // the passed-in arrays.
-	  _.union = function() {
+	  _.union = function () {
 	    return _.uniq(flatten(arguments, true, true));
 	  };
 
 	  // Produce an array that contains every item shared between all the
 	  // passed-in arrays.
-	  _.intersection = function(array) {
+	  _.intersection = function (array) {
 	    var result = [];
 	    var argsLength = arguments.length;
 	    for (var i = 0, length = getLength(array); i < length; i++) {
@@ -17902,22 +17342,22 @@ webpackJsonp([1],[
 
 	  // Take the difference between one array and a number of other arrays.
 	  // Only the elements present in just the first array will remain.
-	  _.difference = function(array) {
+	  _.difference = function (array) {
 	    var rest = flatten(arguments, true, true, 1);
-	    return _.filter(array, function(value){
+	    return _.filter(array, function (value) {
 	      return !_.contains(rest, value);
 	    });
 	  };
 
 	  // Zip together multiple lists into a single array -- elements that share
 	  // an index go together.
-	  _.zip = function() {
+	  _.zip = function () {
 	    return _.unzip(arguments);
 	  };
 
 	  // Complement of _.zip. Unzip accepts an array of arrays and groups
 	  // each array's elements on shared indices
-	  _.unzip = function(array) {
+	  _.unzip = function (array) {
 	    var length = array && _.max(array, getLength).length || 0;
 	    var result = Array(length);
 
@@ -17930,7 +17370,7 @@ webpackJsonp([1],[
 	  // Converts lists into objects. Pass either a single array of `[key, value]`
 	  // pairs, or two parallel arrays of the same length -- one of keys, and one of
 	  // the corresponding values.
-	  _.object = function(list, values) {
+	  _.object = function (list, values) {
 	    var result = {};
 	    for (var i = 0, length = getLength(list); i < length; i++) {
 	      if (values) {
@@ -17944,7 +17384,7 @@ webpackJsonp([1],[
 
 	  // Generator function to create the findIndex and findLastIndex functions
 	  function createPredicateIndexFinder(dir) {
-	    return function(array, predicate, context) {
+	    return function (array, predicate, context) {
 	      predicate = cb(predicate, context);
 	      var length = getLength(array);
 	      var index = dir > 0 ? 0 : length - 1;
@@ -17961,26 +17401,28 @@ webpackJsonp([1],[
 
 	  // Use a comparator function to figure out the smallest index at which
 	  // an object should be inserted so as to maintain order. Uses binary search.
-	  _.sortedIndex = function(array, obj, iteratee, context) {
+	  _.sortedIndex = function (array, obj, iteratee, context) {
 	    iteratee = cb(iteratee, context, 1);
 	    var value = iteratee(obj);
-	    var low = 0, high = getLength(array);
+	    var low = 0,
+	        high = getLength(array);
 	    while (low < high) {
 	      var mid = Math.floor((low + high) / 2);
-	      if (iteratee(array[mid]) < value) low = mid + 1; else high = mid;
+	      if (iteratee(array[mid]) < value) low = mid + 1;else high = mid;
 	    }
 	    return low;
 	  };
 
 	  // Generator function to create the indexOf and lastIndexOf functions
 	  function createIndexFinder(dir, predicateFind, sortedIndex) {
-	    return function(array, item, idx) {
-	      var i = 0, length = getLength(array);
+	    return function (array, item, idx) {
+	      var i = 0,
+	          length = getLength(array);
 	      if (typeof idx == 'number') {
 	        if (dir > 0) {
-	            i = idx >= 0 ? idx : Math.max(idx + length, i);
+	          i = idx >= 0 ? idx : Math.max(idx + length, i);
 	        } else {
-	            length = idx >= 0 ? Math.min(idx + 1, length) : idx + length + 1;
+	          length = idx >= 0 ? Math.min(idx + 1, length) : idx + length + 1;
 	        }
 	      } else if (sortedIndex && idx && length) {
 	        idx = sortedIndex(array, item);
@@ -18007,7 +17449,7 @@ webpackJsonp([1],[
 	  // Generate an integer Array containing an arithmetic progression. A port of
 	  // the native Python `range()` function. See
 	  // [the Python documentation](http://docs.python.org/library/functions.html#range).
-	  _.range = function(start, stop, step) {
+	  _.range = function (start, stop, step) {
 	    if (stop == null) {
 	      stop = start || 0;
 	      start = 0;
@@ -18029,7 +17471,7 @@ webpackJsonp([1],[
 
 	  // Determines whether to execute a function as a constructor
 	  // or a normal function with the provided arguments
-	  var executeBound = function(sourceFunc, boundFunc, context, callingContext, args) {
+	  var executeBound = function executeBound(sourceFunc, boundFunc, context, callingContext, args) {
 	    if (!(callingContext instanceof boundFunc)) return sourceFunc.apply(context, args);
 	    var self = baseCreate(sourceFunc.prototype);
 	    var result = sourceFunc.apply(self, args);
@@ -18040,11 +17482,11 @@ webpackJsonp([1],[
 	  // Create a function bound to a given object (assigning `this`, and arguments,
 	  // optionally). Delegates to **ECMAScript 5**'s native `Function.bind` if
 	  // available.
-	  _.bind = function(func, context) {
+	  _.bind = function (func, context) {
 	    if (nativeBind && func.bind === nativeBind) return nativeBind.apply(func, slice.call(arguments, 1));
 	    if (!_.isFunction(func)) throw new TypeError('Bind must be called on a function');
 	    var args = slice.call(arguments, 2);
-	    var bound = function() {
+	    var bound = function bound() {
 	      return executeBound(func, bound, context, this, args.concat(slice.call(arguments)));
 	    };
 	    return bound;
@@ -18053,10 +17495,11 @@ webpackJsonp([1],[
 	  // Partially apply a function by creating a version that has had some of its
 	  // arguments pre-filled, without changing its dynamic `this` context. _ acts
 	  // as a placeholder, allowing any combination of arguments to be pre-filled.
-	  _.partial = function(func) {
+	  _.partial = function (func) {
 	    var boundArgs = slice.call(arguments, 1);
-	    var bound = function() {
-	      var position = 0, length = boundArgs.length;
+	    var bound = function bound() {
+	      var position = 0,
+	          length = boundArgs.length;
 	      var args = Array(length);
 	      for (var i = 0; i < length; i++) {
 	        args[i] = boundArgs[i] === _ ? arguments[position++] : boundArgs[i];
@@ -18070,8 +17513,10 @@ webpackJsonp([1],[
 	  // Bind a number of an object's methods to that object. Remaining arguments
 	  // are the method names to be bound. Useful for ensuring that all callbacks
 	  // defined on an object belong to it.
-	  _.bindAll = function(obj) {
-	    var i, length = arguments.length, key;
+	  _.bindAll = function (obj) {
+	    var i,
+	        length = arguments.length,
+	        key;
 	    if (length <= 1) throw new Error('bindAll must be passed function names');
 	    for (i = 1; i < length; i++) {
 	      key = arguments[i];
@@ -18081,8 +17526,8 @@ webpackJsonp([1],[
 	  };
 
 	  // Memoize an expensive function by storing its results.
-	  _.memoize = function(func, hasher) {
-	    var memoize = function(key) {
+	  _.memoize = function (func, hasher) {
+	    var memoize = function memoize(key) {
 	      var cache = memoize.cache;
 	      var address = '' + (hasher ? hasher.apply(this, arguments) : key);
 	      if (!_.has(cache, address)) cache[address] = func.apply(this, arguments);
@@ -18094,9 +17539,9 @@ webpackJsonp([1],[
 
 	  // Delays a function for the given number of milliseconds, and then calls
 	  // it with the arguments supplied.
-	  _.delay = function(func, wait) {
+	  _.delay = function (func, wait) {
 	    var args = slice.call(arguments, 2);
-	    return setTimeout(function(){
+	    return setTimeout(function () {
 	      return func.apply(null, args);
 	    }, wait);
 	  };
@@ -18110,18 +17555,18 @@ webpackJsonp([1],[
 	  // as much as it can, without ever going more than once per `wait` duration;
 	  // but if you'd like to disable the execution on the leading edge, pass
 	  // `{leading: false}`. To disable execution on the trailing edge, ditto.
-	  _.throttle = function(func, wait, options) {
+	  _.throttle = function (func, wait, options) {
 	    var context, args, result;
 	    var timeout = null;
 	    var previous = 0;
 	    if (!options) options = {};
-	    var later = function() {
+	    var later = function later() {
 	      previous = options.leading === false ? 0 : _.now();
 	      timeout = null;
 	      result = func.apply(context, args);
 	      if (!timeout) context = args = null;
 	    };
-	    return function() {
+	    return function () {
 	      var now = _.now();
 	      if (!previous && options.leading === false) previous = now;
 	      var remaining = wait - (now - previous);
@@ -18146,10 +17591,10 @@ webpackJsonp([1],[
 	  // be triggered. The function will be called after it stops being called for
 	  // N milliseconds. If `immediate` is passed, trigger the function on the
 	  // leading edge, instead of the trailing.
-	  _.debounce = function(func, wait, immediate) {
+	  _.debounce = function (func, wait, immediate) {
 	    var timeout, args, context, timestamp, result;
 
-	    var later = function() {
+	    var later = function later() {
 	      var last = _.now() - timestamp;
 
 	      if (last < wait && last >= 0) {
@@ -18163,7 +17608,7 @@ webpackJsonp([1],[
 	      }
 	    };
 
-	    return function() {
+	    return function () {
 	      context = this;
 	      args = arguments;
 	      timestamp = _.now();
@@ -18181,23 +17626,23 @@ webpackJsonp([1],[
 	  // Returns the first function passed as an argument to the second,
 	  // allowing you to adjust arguments, run code before and after, and
 	  // conditionally execute the original function.
-	  _.wrap = function(func, wrapper) {
+	  _.wrap = function (func, wrapper) {
 	    return _.partial(wrapper, func);
 	  };
 
 	  // Returns a negated version of the passed-in predicate.
-	  _.negate = function(predicate) {
-	    return function() {
+	  _.negate = function (predicate) {
+	    return function () {
 	      return !predicate.apply(this, arguments);
 	    };
 	  };
 
 	  // Returns a function that is the composition of a list of functions, each
 	  // consuming the return value of the function that follows.
-	  _.compose = function() {
+	  _.compose = function () {
 	    var args = arguments;
 	    var start = args.length - 1;
-	    return function() {
+	    return function () {
 	      var i = start;
 	      var result = args[start].apply(this, arguments);
 	      while (i--) result = args[i].call(this, result);
@@ -18206,8 +17651,8 @@ webpackJsonp([1],[
 	  };
 
 	  // Returns a function that will only be executed on and after the Nth call.
-	  _.after = function(times, func) {
-	    return function() {
+	  _.after = function (times, func) {
+	    return function () {
 	      if (--times < 1) {
 	        return func.apply(this, arguments);
 	      }
@@ -18215,9 +17660,9 @@ webpackJsonp([1],[
 	  };
 
 	  // Returns a function that will only be executed up to (but not including) the Nth call.
-	  _.before = function(times, func) {
+	  _.before = function (times, func) {
 	    var memo;
-	    return function() {
+	    return function () {
 	      if (--times > 0) {
 	        memo = func.apply(this, arguments);
 	      }
@@ -18234,14 +17679,13 @@ webpackJsonp([1],[
 	  // ----------------
 
 	  // Keys in IE < 9 that won't be iterated by `for key in ...` and thus missed.
-	  var hasEnumBug = !{toString: null}.propertyIsEnumerable('toString');
-	  var nonEnumerableProps = ['valueOf', 'isPrototypeOf', 'toString',
-	                      'propertyIsEnumerable', 'hasOwnProperty', 'toLocaleString'];
+	  var hasEnumBug = !({ toString: null }).propertyIsEnumerable('toString');
+	  var nonEnumerableProps = ['valueOf', 'isPrototypeOf', 'toString', 'propertyIsEnumerable', 'hasOwnProperty', 'toLocaleString'];
 
 	  function collectNonEnumProps(obj, keys) {
 	    var nonEnumIdx = nonEnumerableProps.length;
 	    var constructor = obj.constructor;
-	    var proto = (_.isFunction(constructor) && constructor.prototype) || ObjProto;
+	    var proto = _.isFunction(constructor) && constructor.prototype || ObjProto;
 
 	    // Constructor is a special case.
 	    var prop = 'constructor';
@@ -18257,7 +17701,7 @@ webpackJsonp([1],[
 
 	  // Retrieve the names of an object's own properties.
 	  // Delegates to **ECMAScript 5**'s native `Object.keys`
-	  _.keys = function(obj) {
+	  _.keys = function (obj) {
 	    if (!_.isObject(obj)) return [];
 	    if (nativeKeys) return nativeKeys(obj);
 	    var keys = [];
@@ -18268,7 +17712,7 @@ webpackJsonp([1],[
 	  };
 
 	  // Retrieve all the property names of an object.
-	  _.allKeys = function(obj) {
+	  _.allKeys = function (obj) {
 	    if (!_.isObject(obj)) return [];
 	    var keys = [];
 	    for (var key in obj) keys.push(key);
@@ -18278,7 +17722,7 @@ webpackJsonp([1],[
 	  };
 
 	  // Retrieve the values of an object's properties.
-	  _.values = function(obj) {
+	  _.values = function (obj) {
 	    var keys = _.keys(obj);
 	    var length = keys.length;
 	    var values = Array(length);
@@ -18290,21 +17734,21 @@ webpackJsonp([1],[
 
 	  // Returns the results of applying the iteratee to each element of the object
 	  // In contrast to _.map it returns an object
-	  _.mapObject = function(obj, iteratee, context) {
+	  _.mapObject = function (obj, iteratee, context) {
 	    iteratee = cb(iteratee, context);
-	    var keys =  _.keys(obj),
-	          length = keys.length,
-	          results = {},
-	          currentKey;
-	      for (var index = 0; index < length; index++) {
-	        currentKey = keys[index];
-	        results[currentKey] = iteratee(obj[currentKey], currentKey, obj);
-	      }
-	      return results;
+	    var keys = _.keys(obj),
+	        length = keys.length,
+	        results = {},
+	        currentKey;
+	    for (var index = 0; index < length; index++) {
+	      currentKey = keys[index];
+	      results[currentKey] = iteratee(obj[currentKey], currentKey, obj);
+	    }
+	    return results;
 	  };
 
 	  // Convert an object into a list of `[key, value]` pairs.
-	  _.pairs = function(obj) {
+	  _.pairs = function (obj) {
 	    var keys = _.keys(obj);
 	    var length = keys.length;
 	    var pairs = Array(length);
@@ -18315,7 +17759,7 @@ webpackJsonp([1],[
 	  };
 
 	  // Invert the keys and values of an object. The values must be serializable.
-	  _.invert = function(obj) {
+	  _.invert = function (obj) {
 	    var result = {};
 	    var keys = _.keys(obj);
 	    for (var i = 0, length = keys.length; i < length; i++) {
@@ -18326,7 +17770,7 @@ webpackJsonp([1],[
 
 	  // Return a sorted list of the function names available on the object.
 	  // Aliased as `methods`
-	  _.functions = _.methods = function(obj) {
+	  _.functions = _.methods = function (obj) {
 	    var names = [];
 	    for (var key in obj) {
 	      if (_.isFunction(obj[key])) names.push(key);
@@ -18342,9 +17786,10 @@ webpackJsonp([1],[
 	  _.extendOwn = _.assign = createAssigner(_.keys);
 
 	  // Returns the first key on an object that passes a predicate test
-	  _.findKey = function(obj, predicate, context) {
+	  _.findKey = function (obj, predicate, context) {
 	    predicate = cb(predicate, context);
-	    var keys = _.keys(obj), key;
+	    var keys = _.keys(obj),
+	        key;
 	    for (var i = 0, length = keys.length; i < length; i++) {
 	      key = keys[i];
 	      if (predicate(obj[key], key, obj)) return key;
@@ -18352,15 +17797,20 @@ webpackJsonp([1],[
 	  };
 
 	  // Return a copy of the object only containing the whitelisted properties.
-	  _.pick = function(object, oiteratee, context) {
-	    var result = {}, obj = object, iteratee, keys;
+	  _.pick = function (object, oiteratee, context) {
+	    var result = {},
+	        obj = object,
+	        iteratee,
+	        keys;
 	    if (obj == null) return result;
 	    if (_.isFunction(oiteratee)) {
 	      keys = _.allKeys(obj);
 	      iteratee = optimizeCb(oiteratee, context);
 	    } else {
 	      keys = flatten(arguments, false, false, 1);
-	      iteratee = function(value, key, obj) { return key in obj; };
+	      iteratee = function (value, key, obj) {
+	        return key in obj;
+	      };
 	      obj = Object(obj);
 	    }
 	    for (var i = 0, length = keys.length; i < length; i++) {
@@ -18371,13 +17821,13 @@ webpackJsonp([1],[
 	    return result;
 	  };
 
-	   // Return a copy of the object without the blacklisted properties.
-	  _.omit = function(obj, iteratee, context) {
+	  // Return a copy of the object without the blacklisted properties.
+	  _.omit = function (obj, iteratee, context) {
 	    if (_.isFunction(iteratee)) {
 	      iteratee = _.negate(iteratee);
 	    } else {
 	      var keys = _.map(flatten(arguments, false, false, 1), String);
-	      iteratee = function(value, key) {
+	      iteratee = function (value, key) {
 	        return !_.contains(keys, key);
 	      };
 	    }
@@ -18390,14 +17840,14 @@ webpackJsonp([1],[
 	  // Creates an object that inherits from the given prototype object.
 	  // If additional properties are provided then they will be added to the
 	  // created object.
-	  _.create = function(prototype, props) {
+	  _.create = function (prototype, props) {
 	    var result = baseCreate(prototype);
 	    if (props) _.extendOwn(result, props);
 	    return result;
 	  };
 
 	  // Create a (shallow-cloned) duplicate of an object.
-	  _.clone = function(obj) {
+	  _.clone = function (obj) {
 	    if (!_.isObject(obj)) return obj;
 	    return _.isArray(obj) ? obj.slice() : _.extend({}, obj);
 	  };
@@ -18405,14 +17855,15 @@ webpackJsonp([1],[
 	  // Invokes interceptor with the obj, and then returns obj.
 	  // The primary purpose of this method is to "tap into" a method chain, in
 	  // order to perform operations on intermediate results within the chain.
-	  _.tap = function(obj, interceptor) {
+	  _.tap = function (obj, interceptor) {
 	    interceptor(obj);
 	    return obj;
 	  };
 
 	  // Returns whether an object has a given set of `key:value` pairs.
-	  _.isMatch = function(object, attrs) {
-	    var keys = _.keys(attrs), length = keys.length;
+	  _.isMatch = function (object, attrs) {
+	    var keys = _.keys(attrs),
+	        length = keys.length;
 	    if (object == null) return !length;
 	    var obj = Object(object);
 	    for (var i = 0; i < length; i++) {
@@ -18422,9 +17873,8 @@ webpackJsonp([1],[
 	    return true;
 	  };
 
-
 	  // Internal recursive comparison function for `isEqual`.
-	  var eq = function(a, b, aStack, bStack) {
+	  var eq = function eq(a, b, aStack, bStack) {
 	    // Identical objects are equal. `0 === -0`, but they aren't identical.
 	    // See the [Harmony `egal` proposal](http://wiki.ecmascript.org/doku.php?id=harmony:egal).
 	    if (a === b) return a !== 0 || 1 / a === 1 / b;
@@ -18464,10 +17914,9 @@ webpackJsonp([1],[
 
 	      // Objects with different constructors are not equivalent, but `Object`s or `Array`s
 	      // from different frames are.
-	      var aCtor = a.constructor, bCtor = b.constructor;
-	      if (aCtor !== bCtor && !(_.isFunction(aCtor) && aCtor instanceof aCtor &&
-	                               _.isFunction(bCtor) && bCtor instanceof bCtor)
-	                          && ('constructor' in a && 'constructor' in b)) {
+	      var aCtor = a.constructor,
+	          bCtor = b.constructor;
+	      if (aCtor !== bCtor && !(_.isFunction(aCtor) && aCtor instanceof aCtor && _.isFunction(bCtor) && bCtor instanceof bCtor) && ('constructor' in a && 'constructor' in b)) {
 	        return false;
 	      }
 	    }
@@ -18500,7 +17949,8 @@ webpackJsonp([1],[
 	      }
 	    } else {
 	      // Deep compare objects.
-	      var keys = _.keys(a), key;
+	      var keys = _.keys(a),
+	          key;
 	      length = keys.length;
 	      // Ensure that both objects contain the same number of properties before comparing deep equality.
 	      if (_.keys(b).length !== length) return false;
@@ -18517,38 +17967,38 @@ webpackJsonp([1],[
 	  };
 
 	  // Perform a deep comparison to check if two objects are equal.
-	  _.isEqual = function(a, b) {
+	  _.isEqual = function (a, b) {
 	    return eq(a, b);
 	  };
 
 	  // Is a given array, string, or object empty?
 	  // An "empty" object has no enumerable own-properties.
-	  _.isEmpty = function(obj) {
+	  _.isEmpty = function (obj) {
 	    if (obj == null) return true;
 	    if (isArrayLike(obj) && (_.isArray(obj) || _.isString(obj) || _.isArguments(obj))) return obj.length === 0;
 	    return _.keys(obj).length === 0;
 	  };
 
 	  // Is a given value a DOM element?
-	  _.isElement = function(obj) {
+	  _.isElement = function (obj) {
 	    return !!(obj && obj.nodeType === 1);
 	  };
 
 	  // Is a given value an array?
 	  // Delegates to ECMA5's native Array.isArray
-	  _.isArray = nativeIsArray || function(obj) {
+	  _.isArray = nativeIsArray || function (obj) {
 	    return toString.call(obj) === '[object Array]';
 	  };
 
 	  // Is a given variable an object?
-	  _.isObject = function(obj) {
+	  _.isObject = function (obj) {
 	    var type = typeof obj;
 	    return type === 'function' || type === 'object' && !!obj;
 	  };
 
 	  // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp, isError.
-	  _.each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp', 'Error'], function(name) {
-	    _['is' + name] = function(obj) {
+	  _.each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp', 'Error'], function (name) {
+	    _['is' + name] = function (obj) {
 	      return toString.call(obj) === '[object ' + name + ']';
 	    };
 	  });
@@ -18556,7 +18006,7 @@ webpackJsonp([1],[
 	  // Define a fallback version of the method in browsers (ahem, IE < 9), where
 	  // there isn't any inspectable "Arguments" type.
 	  if (!_.isArguments(arguments)) {
-	    _.isArguments = function(obj) {
+	    _.isArguments = function (obj) {
 	      return _.has(obj, 'callee');
 	    };
 	  }
@@ -18564,39 +18014,39 @@ webpackJsonp([1],[
 	  // Optimize `isFunction` if appropriate. Work around some typeof bugs in old v8,
 	  // IE 11 (#1621), and in Safari 8 (#1929).
 	  if (typeof /./ != 'function' && typeof Int8Array != 'object') {
-	    _.isFunction = function(obj) {
+	    _.isFunction = function (obj) {
 	      return typeof obj == 'function' || false;
 	    };
 	  }
 
 	  // Is a given object a finite number?
-	  _.isFinite = function(obj) {
+	  _.isFinite = function (obj) {
 	    return isFinite(obj) && !isNaN(parseFloat(obj));
 	  };
 
 	  // Is the given value `NaN`? (NaN is the only number which does not equal itself).
-	  _.isNaN = function(obj) {
+	  _.isNaN = function (obj) {
 	    return _.isNumber(obj) && obj !== +obj;
 	  };
 
 	  // Is a given value a boolean?
-	  _.isBoolean = function(obj) {
+	  _.isBoolean = function (obj) {
 	    return obj === true || obj === false || toString.call(obj) === '[object Boolean]';
 	  };
 
 	  // Is a given value equal to null?
-	  _.isNull = function(obj) {
+	  _.isNull = function (obj) {
 	    return obj === null;
 	  };
 
 	  // Is a given variable undefined?
-	  _.isUndefined = function(obj) {
+	  _.isUndefined = function (obj) {
 	    return obj === void 0;
 	  };
 
 	  // Shortcut function for checking if an object has a given property directly
 	  // on itself (in other words, not on a prototype).
-	  _.has = function(obj, key) {
+	  _.has = function (obj, key) {
 	    return obj != null && hasOwnProperty.call(obj, key);
 	  };
 
@@ -18605,45 +18055,45 @@ webpackJsonp([1],[
 
 	  // Run Underscore.js in *noConflict* mode, returning the `_` variable to its
 	  // previous owner. Returns a reference to the Underscore object.
-	  _.noConflict = function() {
+	  _.noConflict = function () {
 	    root._ = previousUnderscore;
 	    return this;
 	  };
 
 	  // Keep the identity function around for default iteratees.
-	  _.identity = function(value) {
+	  _.identity = function (value) {
 	    return value;
 	  };
 
 	  // Predicate-generating functions. Often useful outside of Underscore.
-	  _.constant = function(value) {
-	    return function() {
+	  _.constant = function (value) {
+	    return function () {
 	      return value;
 	    };
 	  };
 
-	  _.noop = function(){};
+	  _.noop = function () {};
 
 	  _.property = property;
 
 	  // Generates a function for a given object that returns a given property.
-	  _.propertyOf = function(obj) {
-	    return obj == null ? function(){} : function(key) {
+	  _.propertyOf = function (obj) {
+	    return obj == null ? function () {} : function (key) {
 	      return obj[key];
 	    };
 	  };
 
 	  // Returns a predicate for checking whether an object has a given set of
 	  // `key:value` pairs.
-	  _.matcher = _.matches = function(attrs) {
+	  _.matcher = _.matches = function (attrs) {
 	    attrs = _.extendOwn({}, attrs);
-	    return function(obj) {
+	    return function (obj) {
 	      return _.isMatch(obj, attrs);
 	    };
 	  };
 
 	  // Run a function **n** times.
-	  _.times = function(n, iteratee, context) {
+	  _.times = function (n, iteratee, context) {
 	    var accum = Array(Math.max(0, n));
 	    iteratee = optimizeCb(iteratee, context, 1);
 	    for (var i = 0; i < n; i++) accum[i] = iteratee(i);
@@ -18651,7 +18101,7 @@ webpackJsonp([1],[
 	  };
 
 	  // Return a random integer between min and max (inclusive).
-	  _.random = function(min, max) {
+	  _.random = function (min, max) {
 	    if (max == null) {
 	      max = min;
 	      min = 0;
@@ -18660,11 +18110,11 @@ webpackJsonp([1],[
 	  };
 
 	  // A (possibly faster) way to get the current timestamp as an integer.
-	  _.now = Date.now || function() {
+	  _.now = Date.now || function () {
 	    return new Date().getTime();
 	  };
 
-	   // List of HTML entities for escaping.
+	  // List of HTML entities for escaping.
 	  var escapeMap = {
 	    '&': '&amp;',
 	    '<': '&lt;',
@@ -18676,15 +18126,15 @@ webpackJsonp([1],[
 	  var unescapeMap = _.invert(escapeMap);
 
 	  // Functions for escaping and unescaping strings to/from HTML interpolation.
-	  var createEscaper = function(map) {
-	    var escaper = function(match) {
+	  var createEscaper = function createEscaper(map) {
+	    var escaper = function escaper(match) {
 	      return map[match];
 	    };
 	    // Regexes for identifying a key that needs to be escaped
 	    var source = '(?:' + _.keys(map).join('|') + ')';
 	    var testRegexp = RegExp(source);
 	    var replaceRegexp = RegExp(source, 'g');
-	    return function(string) {
+	    return function (string) {
 	      string = string == null ? '' : '' + string;
 	      return testRegexp.test(string) ? string.replace(replaceRegexp, escaper) : string;
 	    };
@@ -18694,7 +18144,7 @@ webpackJsonp([1],[
 
 	  // If the value of the named `property` is a function then invoke it with the
 	  // `object` as context; otherwise, return it.
-	  _.result = function(object, property, fallback) {
+	  _.result = function (object, property, fallback) {
 	    var value = object == null ? void 0 : object[property];
 	    if (value === void 0) {
 	      value = fallback;
@@ -18705,7 +18155,7 @@ webpackJsonp([1],[
 	  // Generate a unique integer id (unique within the entire client session).
 	  // Useful for temporary DOM ids.
 	  var idCounter = 0;
-	  _.uniqueId = function(prefix) {
+	  _.uniqueId = function (prefix) {
 	    var id = ++idCounter + '';
 	    return prefix ? prefix + id : id;
 	  };
@@ -18713,9 +18163,9 @@ webpackJsonp([1],[
 	  // By default, Underscore uses ERB-style template delimiters, change the
 	  // following template settings to use alternative delimiters.
 	  _.templateSettings = {
-	    evaluate    : /<%([\s\S]+?)%>/g,
-	    interpolate : /<%=([\s\S]+?)%>/g,
-	    escape      : /<%-([\s\S]+?)%>/g
+	    evaluate: /<%([\s\S]+?)%>/g,
+	    interpolate: /<%=([\s\S]+?)%>/g,
+	    escape: /<%-([\s\S]+?)%>/g
 	  };
 
 	  // When customizing `templateSettings`, if you don't want to define an
@@ -18726,17 +18176,17 @@ webpackJsonp([1],[
 	  // Certain characters need to be escaped so that they can be put into a
 	  // string literal.
 	  var escapes = {
-	    "'":      "'",
-	    '\\':     '\\',
-	    '\r':     'r',
-	    '\n':     'n',
+	    "'": "'",
+	    '\\': '\\',
+	    '\r': 'r',
+	    '\n': 'n',
 	    '\u2028': 'u2028',
 	    '\u2029': 'u2029'
 	  };
 
 	  var escaper = /\\|'|\r|\n|\u2028|\u2029/g;
 
-	  var escapeChar = function(match) {
+	  var escapeChar = function escapeChar(match) {
 	    return '\\' + escapes[match];
 	  };
 
@@ -18744,21 +18194,17 @@ webpackJsonp([1],[
 	  // Underscore templating handles arbitrary delimiters, preserves whitespace,
 	  // and correctly escapes quotes within interpolated code.
 	  // NB: `oldSettings` only exists for backwards compatibility.
-	  _.template = function(text, settings, oldSettings) {
+	  _.template = function (text, settings, oldSettings) {
 	    if (!settings && oldSettings) settings = oldSettings;
 	    settings = _.defaults({}, settings, _.templateSettings);
 
 	    // Combine delimiters into one regular expression via alternation.
-	    var matcher = RegExp([
-	      (settings.escape || noMatch).source,
-	      (settings.interpolate || noMatch).source,
-	      (settings.evaluate || noMatch).source
-	    ].join('|') + '|$', 'g');
+	    var matcher = RegExp([(settings.escape || noMatch).source, (settings.interpolate || noMatch).source, (settings.evaluate || noMatch).source].join('|') + '|$', 'g');
 
 	    // Compile the template source, escaping string literals appropriately.
 	    var index = 0;
 	    var source = "__p+='";
-	    text.replace(matcher, function(match, escape, interpolate, evaluate, offset) {
+	    text.replace(matcher, function (match, escape, interpolate, evaluate, offset) {
 	      source += text.slice(index, offset).replace(escaper, escapeChar);
 	      index = offset + match.length;
 
@@ -18778,9 +18224,7 @@ webpackJsonp([1],[
 	    // If a variable is not specified, place data values in local scope.
 	    if (!settings.variable) source = 'with(obj||{}){\n' + source + '}\n';
 
-	    source = "var __t,__p='',__j=Array.prototype.join," +
-	      "print=function(){__p+=__j.call(arguments,'');};\n" +
-	      source + 'return __p;\n';
+	    source = "var __t,__p='',__j=Array.prototype.join," + "print=function(){__p+=__j.call(arguments,'');};\n" + source + 'return __p;\n';
 
 	    try {
 	      var render = new Function(settings.variable || 'obj', '_', source);
@@ -18789,7 +18233,7 @@ webpackJsonp([1],[
 	      throw e;
 	    }
 
-	    var template = function(data) {
+	    var template = function template(data) {
 	      return render.call(this, data, _);
 	    };
 
@@ -18801,7 +18245,7 @@ webpackJsonp([1],[
 	  };
 
 	  // Add a "chain" function. Start chaining a wrapped Underscore object.
-	  _.chain = function(obj) {
+	  _.chain = function (obj) {
 	    var instance = _(obj);
 	    instance._chain = true;
 	    return instance;
@@ -18814,15 +18258,15 @@ webpackJsonp([1],[
 	  // underscore functions. Wrapped objects may be chained.
 
 	  // Helper function to continue chaining intermediate results.
-	  var result = function(instance, obj) {
+	  var result = function result(instance, obj) {
 	    return instance._chain ? _(obj).chain() : obj;
 	  };
 
 	  // Add your own custom functions to the Underscore object.
-	  _.mixin = function(obj) {
-	    _.each(_.functions(obj), function(name) {
+	  _.mixin = function (obj) {
+	    _.each(_.functions(obj), function (name) {
 	      var func = _[name] = obj[name];
-	      _.prototype[name] = function() {
+	      _.prototype[name] = function () {
 	        var args = [this._wrapped];
 	        push.apply(args, arguments);
 	        return result(this, func.apply(_, args));
@@ -18834,9 +18278,9 @@ webpackJsonp([1],[
 	  _.mixin(_);
 
 	  // Add all mutator Array functions to the wrapper.
-	  _.each(['pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'], function(name) {
+	  _.each(['pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'], function (name) {
 	    var method = ArrayProto[name];
-	    _.prototype[name] = function() {
+	    _.prototype[name] = function () {
 	      var obj = this._wrapped;
 	      method.apply(obj, arguments);
 	      if ((name === 'shift' || name === 'splice') && obj.length === 0) delete obj[0];
@@ -18845,15 +18289,15 @@ webpackJsonp([1],[
 	  });
 
 	  // Add all accessor Array functions to the wrapper.
-	  _.each(['concat', 'join', 'slice'], function(name) {
+	  _.each(['concat', 'join', 'slice'], function (name) {
 	    var method = ArrayProto[name];
-	    _.prototype[name] = function() {
+	    _.prototype[name] = function () {
 	      return result(this, method.apply(this._wrapped, arguments));
 	    };
 	  });
 
 	  // Extracts the result from a wrapped and chained object.
-	  _.prototype.value = function() {
+	  _.prototype.value = function () {
 	    return this._wrapped;
 	  };
 
@@ -18861,7 +18305,7 @@ webpackJsonp([1],[
 	  // such as arithmetic and JSON stringification.
 	  _.prototype.valueOf = _.prototype.toJSON = _.prototype.value;
 
-	  _.prototype.toString = function() {
+	  _.prototype.toString = function () {
 	    return '' + this._wrapped;
 	  };
 
@@ -18873,12 +18317,11 @@ webpackJsonp([1],[
 	  // an AMD load request. Those cases could generate an error when an
 	  // anonymous define() is called outside of a loader request.
 	  if (true) {
-	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function() {
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function () {
 	      return _;
 	    }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	  }
-	}.call(this));
-
+	}).call(undefined);
 
 /***/ },
 /* 393 */
@@ -18886,9 +18329,15 @@ webpackJsonp([1],[
 
 	"use strict";
 
-	var _prototypeProperties = function (child, staticProps, instanceProps) { if (staticProps) Object.defineProperties(child, staticProps); if (instanceProps) Object.defineProperties(child.prototype, instanceProps); };
+	var _prototypeProperties = function _prototypeProperties(child, staticProps, instanceProps) {
+	  if (staticProps) Object.defineProperties(child, staticProps);if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
+	};
 
-	var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+	var _classCallCheck = function _classCallCheck(instance, Constructor) {
+	  if (!(instance instanceof Constructor)) {
+	    throw new TypeError("Cannot call a class as a function");
+	  }
+	};
 
 	var _ = __webpack_require__(392);
 
@@ -19010,7 +18459,7 @@ webpackJsonp([1],[
 
 	var GridRowContainer = React.createClass({
 	  displayName: "GridRowContainer",
-	  getDefaultProps: function () {
+	  getDefaultProps: function getDefaultProps() {
 	    return {
 	      useGriddleStyles: true,
 	      useGriddleIcons: true,
@@ -19027,29 +18476,29 @@ webpackJsonp([1],[
 	      multipleSelectionSettings: null
 	    };
 	  },
-	  getInitialState: function () {
+	  getInitialState: function getInitialState() {
 	    return {
 	      data: {},
 	      showChildren: false
 	    };
 	  },
-	  componentWillReceiveProps: function () {
+	  componentWillReceiveProps: function componentWillReceiveProps() {
 	    this.setShowChildren(false);
 	  },
-	  toggleChildren: function () {
+	  toggleChildren: function toggleChildren() {
 	    this.setShowChildren(this.state.showChildren === false);
 	  },
-	  setShowChildren: function (visible) {
+	  setShowChildren: function setShowChildren(visible) {
 	    this.setState({
 	      showChildren: visible
 	    });
 	  },
-	  verifyProps: function () {
+	  verifyProps: function verifyProps() {
 	    if (this.props.columnSettings === null) {
 	      console.error("gridRowContainer: The columnSettings prop is null and it shouldn't be");
 	    }
 	  },
-	  render: function () {
+	  render: function render() {
 	    this.verifyProps();
 	    var that = this;
 	    if (typeof this.props.data === "undefined") {
@@ -19086,31 +18535,19 @@ webpackJsonp([1],[
 	      children = that.props.hasChildren && this.props.data.children.map(function (row, index) {
 	        if (typeof row.children !== "undefined") {
 	          var Griddle = __webpack_require__(389);
-	          return React.createElement(
-	            "tr",
-	            { style: { paddingLeft: 5 } },
-	            React.createElement(
-	              "td",
-	              { colSpan: that.props.columnSettings.getVisibleColumnCount(), className: "griddle-parent", style: that.props.useGriddleStyles ? { border: "none", padding: "0 0 0 5px" } : null },
-	              React.createElement(Griddle, { isSubGriddle: true, results: [row], columns: that.props.columnSettings.getColumns(), tableClassName: that.props.tableClassName, parentRowExpandedClassName: that.props.parentRowExpandedClassName,
-	                parentRowCollapsedClassName: that.props.parentRowCollapsedClassName,
-	                showTableHeading: false, showPager: false, columnMetadata: that.props.columnMetadata,
-	                parentRowExpandedComponent: that.props.parentRowExpandedComponent,
-	                parentRowCollapsedComponent: that.props.parentRowCollapsedComponent,
-	                paddingHeight: that.props.paddingHeight, rowHeight: that.props.rowHeight })
-	            )
-	          );
+	          return React.createElement("tr", { style: { paddingLeft: 5 } }, React.createElement("td", { colSpan: that.props.columnSettings.getVisibleColumnCount(), className: "griddle-parent", style: that.props.useGriddleStyles ? { border: "none", padding: "0 0 0 5px" } : null }, React.createElement(Griddle, { isSubGriddle: true, results: [row], columns: that.props.columnSettings.getColumns(), tableClassName: that.props.tableClassName, parentRowExpandedClassName: that.props.parentRowExpandedClassName,
+	            parentRowCollapsedClassName: that.props.parentRowCollapsedClassName,
+	            showTableHeading: false, showPager: false, columnMetadata: that.props.columnMetadata,
+	            parentRowExpandedComponent: that.props.parentRowExpandedComponent,
+	            parentRowCollapsedComponent: that.props.parentRowCollapsedComponent,
+	            paddingHeight: that.props.paddingHeight, rowHeight: that.props.rowHeight })));
 	        }
 
 	        return React.createElement(that.props.rowSettings.rowComponent, { useGriddleStyles: that.props.useGriddleStyles, isSubGriddle: that.props.isSubGriddle, data: row, columnSettings: that.props.columnSettings, isChildRow: true, columnMetadata: that.props.columnMetadata, key: that.props.rowSettings.getRowKey(row) });
 	      });
 	    }
 
-	    return that.props.hasChildren === false ? arr[0] : React.createElement(
-	      "tbody",
-	      null,
-	      that.state.showChildren ? arr.concat(children) : arr
-	    );
+	    return that.props.hasChildren === false ? arr[0] : React.createElement("tbody", null, that.state.showChildren ? arr.concat(children) : arr);
 	  }
 	});
 
@@ -19122,9 +18559,15 @@ webpackJsonp([1],[
 
 	"use strict";
 
-	var _prototypeProperties = function (child, staticProps, instanceProps) { if (staticProps) Object.defineProperties(child, staticProps); if (instanceProps) Object.defineProperties(child.prototype, instanceProps); };
+	var _prototypeProperties = function _prototypeProperties(child, staticProps, instanceProps) {
+	  if (staticProps) Object.defineProperties(child, staticProps);if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
+	};
 
-	var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+	var _classCallCheck = function _classCallCheck(instance, Constructor) {
+	  if (!(instance instanceof Constructor)) {
+	    throw new TypeError("Cannot call a class as a function");
+	  }
+	};
 
 	var _ = __webpack_require__(392);
 
@@ -19213,20 +18656,16 @@ webpackJsonp([1],[
 
 	var GridFilter = React.createClass({
 	    displayName: "GridFilter",
-	    getDefaultProps: function () {
+	    getDefaultProps: function getDefaultProps() {
 	        return {
 	            placeholderText: ""
 	        };
 	    },
-	    handleChange: function (event) {
+	    handleChange: function handleChange(event) {
 	        this.props.changeFilter(event.target.value);
 	    },
-	    render: function () {
-	        return React.createElement(
-	            "div",
-	            { className: "filter-container" },
-	            React.createElement("input", { type: "text", name: "filter", placeholder: this.props.placeholderText, className: "form-control", onChange: this.handleChange })
-	        );
+	    render: function render() {
+	        return React.createElement("div", { className: "filter-container" }, React.createElement("input", { type: "text", name: "filter", placeholder: this.props.placeholderText, className: "form-control", onChange: this.handleChange }));
 	    }
 	});
 
@@ -19247,7 +18686,7 @@ webpackJsonp([1],[
 	//needs props maxPage, currentPage, nextFunction, prevFunction
 	var GridPagination = React.createClass({
 	    displayName: "GridPagination",
-	    getDefaultProps: function () {
+	    getDefaultProps: function getDefaultProps() {
 	        return {
 	            maxPage: 0,
 	            nextText: "",
@@ -19260,29 +18699,19 @@ webpackJsonp([1],[
 	            previousIconComponent: null
 	        };
 	    },
-	    pageChange: function (event) {
+	    pageChange: function pageChange(event) {
 	        this.props.setPage(parseInt(event.target.value, 10) - 1);
 	    },
-	    render: function () {
+	    render: function render() {
 	        var previous = "";
 	        var next = "";
 
 	        if (this.props.currentPage > 0) {
-	            previous = React.createElement(
-	                "button",
-	                { type: "button", onClick: this.props.previous, style: this.props.useGriddleStyles ? { color: "#222", border: "none", background: "none", margin: "0 0 0 10px" } : null },
-	                this.props.previousIconComponent,
-	                this.props.previousText
-	            );
+	            previous = React.createElement("button", { type: "button", onClick: this.props.previous, style: this.props.useGriddleStyles ? { color: "#222", border: "none", background: "none", margin: "0 0 0 10px" } : null }, this.props.previousIconComponent, this.props.previousText);
 	        }
 
 	        if (this.props.currentPage !== this.props.maxPage - 1) {
-	            next = React.createElement(
-	                "button",
-	                { type: "button", onClick: this.props.next, style: this.props.useGriddleStyles ? { color: "#222", border: "none", background: "none", margin: "0 10px 0 0" } : null },
-	                this.props.nextText,
-	                this.props.nextIconComponent
-	            );
+	            next = React.createElement("button", { type: "button", onClick: this.props.next, style: this.props.useGriddleStyles ? { color: "#222", border: "none", background: "none", margin: "0 10px 0 0" } : null }, this.props.nextText, this.props.nextIconComponent);
 	        }
 
 	        var leftStyle = null;
@@ -19304,38 +18733,10 @@ webpackJsonp([1],[
 	        var options = [];
 
 	        for (var i = 1; i <= this.props.maxPage; i++) {
-	            options.push(React.createElement(
-	                "option",
-	                { value: i, key: i },
-	                i
-	            ));
+	            options.push(React.createElement("option", { value: i, key: i }, i));
 	        }
 
-	        return React.createElement(
-	            "div",
-	            { style: this.props.useGriddleStyles ? { minHeight: "35px" } : null },
-	            React.createElement(
-	                "div",
-	                { className: this.props.previousClassName, style: leftStyle },
-	                previous
-	            ),
-	            React.createElement(
-	                "div",
-	                { className: "griddle-page", style: middleStyle },
-	                React.createElement(
-	                    "select",
-	                    { value: this.props.currentPage + 1, onChange: this.pageChange },
-	                    options
-	                ),
-	                " / ",
-	                this.props.maxPage
-	            ),
-	            React.createElement(
-	                "div",
-	                { className: this.props.nextClassName, style: rightStyle },
-	                next
-	            )
-	        );
+	        return React.createElement("div", { style: this.props.useGriddleStyles ? { minHeight: "35px" } : null }, React.createElement("div", { className: this.props.previousClassName, style: leftStyle }, previous), React.createElement("div", { className: "griddle-page", style: middleStyle }, React.createElement("select", { value: this.props.currentPage + 1, onChange: this.pageChange }, options), " / ", this.props.maxPage), React.createElement("div", { className: this.props.nextClassName, style: rightStyle }, next));
 	    }
 	});
 
@@ -19355,7 +18756,7 @@ webpackJsonp([1],[
 
 	var GridSettings = React.createClass({
 	    displayName: "GridSettings",
-	    getDefaultProps: function () {
+	    getDefaultProps: function getDefaultProps() {
 	        return {
 	            columns: [],
 	            columnMetadata: [],
@@ -19366,14 +18767,14 @@ webpackJsonp([1],[
 	            enableToggleCustom: false,
 	            useCustomComponent: false,
 	            useGriddleStyles: true,
-	            toggleCustomComponent: function () {}
+	            toggleCustomComponent: function toggleCustomComponent() {}
 	        };
 	    },
-	    setPageSize: function (event) {
+	    setPageSize: function setPageSize(event) {
 	        var value = parseInt(event.target.value, 10);
 	        this.props.setPageSize(value);
 	    },
-	    handleChange: function (event) {
+	    handleChange: function handleChange(event) {
 	        var columnName = event.target.dataset ? event.target.dataset.name : event.target.getAttribute("data-name");
 	        if (event.target.checked === true && _.contains(this.props.selectedColumns, columnName) === false) {
 	            this.props.selectedColumns.push(columnName);
@@ -19383,7 +18784,7 @@ webpackJsonp([1],[
 	            this.props.setColumns(_.without(this.props.selectedColumns, columnName));
 	        }
 	    },
-	    render: function () {
+	    render: function render() {
 	        var that = this;
 
 	        var nodes = [];
@@ -19400,101 +18801,19 @@ webpackJsonp([1],[
 	                }
 
 	                if (typeof meta !== "undefined" && meta != null && meta.locked) {
-	                    return React.createElement(
-	                        "div",
-	                        { className: "column checkbox" },
-	                        React.createElement(
-	                            "label",
-	                            null,
-	                            React.createElement("input", { type: "checkbox", disabled: true, name: "check", checked: checked, "data-name": col }),
-	                            displayName
-	                        )
-	                    );
+	                    return React.createElement("div", { className: "column checkbox" }, React.createElement("label", null, React.createElement("input", { type: "checkbox", disabled: true, name: "check", checked: checked, "data-name": col }), displayName));
 	                } else if (typeof meta !== "undefined" && meta != null && typeof meta.visible !== "undefined" && meta.visible === false) {
 	                    return null;
 	                }
-	                return React.createElement(
-	                    "div",
-	                    { className: "griddle-column-selection checkbox", key: col, style: that.props.useGriddleStyles ? { float: "left", width: "20%" } : null },
-	                    React.createElement(
-	                        "label",
-	                        null,
-	                        React.createElement("input", { type: "checkbox", name: "check", onChange: that.handleChange, checked: checked, "data-name": col }),
-	                        displayName
-	                    )
-	                );
+	                return React.createElement("div", { className: "griddle-column-selection checkbox", key: col, style: that.props.useGriddleStyles ? { float: "left", width: "20%" } : null }, React.createElement("label", null, React.createElement("input", { type: "checkbox", name: "check", onChange: that.handleChange, checked: checked, "data-name": col }), displayName));
 	            });
 	        }
 
-	        var toggleCustom = that.props.enableToggleCustom ? React.createElement(
-	            "div",
-	            { className: "form-group" },
-	            React.createElement(
-	                "label",
-	                { htmlFor: "maxRows" },
-	                React.createElement("input", { type: "checkbox", checked: this.props.useCustomComponent, onChange: this.props.toggleCustomComponent }),
-	                " ",
-	                this.props.enableCustomFormatText
-	            )
-	        ) : "";
+	        var toggleCustom = that.props.enableToggleCustom ? React.createElement("div", { className: "form-group" }, React.createElement("label", { htmlFor: "maxRows" }, React.createElement("input", { type: "checkbox", checked: this.props.useCustomComponent, onChange: this.props.toggleCustomComponent }), " ", this.props.enableCustomFormatText)) : "";
 
-	        var setPageSize = this.props.showSetPageSize ? React.createElement(
-	            "div",
-	            null,
-	            React.createElement(
-	                "label",
-	                { htmlFor: "maxRows" },
-	                this.props.maxRowsText,
-	                ":",
-	                React.createElement(
-	                    "select",
-	                    { onChange: this.setPageSize, value: this.props.resultsPerPage },
-	                    React.createElement(
-	                        "option",
-	                        { value: "5" },
-	                        "5"
-	                    ),
-	                    React.createElement(
-	                        "option",
-	                        { value: "10" },
-	                        "10"
-	                    ),
-	                    React.createElement(
-	                        "option",
-	                        { value: "25" },
-	                        "25"
-	                    ),
-	                    React.createElement(
-	                        "option",
-	                        { value: "50" },
-	                        "50"
-	                    ),
-	                    React.createElement(
-	                        "option",
-	                        { value: "100" },
-	                        "100"
-	                    )
-	                )
-	            )
-	        ) : "";
+	        var setPageSize = this.props.showSetPageSize ? React.createElement("div", null, React.createElement("label", { htmlFor: "maxRows" }, this.props.maxRowsText, ":", React.createElement("select", { onChange: this.setPageSize, value: this.props.resultsPerPage }, React.createElement("option", { value: "5" }, "5"), React.createElement("option", { value: "10" }, "10"), React.createElement("option", { value: "25" }, "25"), React.createElement("option", { value: "50" }, "50"), React.createElement("option", { value: "100" }, "100")))) : "";
 
-
-	        return React.createElement(
-	            "div",
-	            { className: "griddle-settings", style: this.props.useGriddleStyles ? { backgroundColor: "#FFF", border: "1px solid #DDD", color: "#222", padding: "10px", marginBottom: "10px" } : null },
-	            React.createElement(
-	                "h6",
-	                null,
-	                this.props.settingsText
-	            ),
-	            React.createElement(
-	                "div",
-	                { className: "griddle-columns", style: this.props.useGriddleStyles ? { clear: "both", display: "table", width: "100%", borderBottom: "1px solid #EDEDED", marginBottom: "10px" } : null },
-	                nodes
-	            ),
-	            setPageSize,
-	            toggleCustom
-	        );
+	        return React.createElement("div", { className: "griddle-settings", style: this.props.useGriddleStyles ? { backgroundColor: "#FFF", border: "1px solid #DDD", color: "#222", padding: "10px", marginBottom: "10px" } : null }, React.createElement("h6", null, this.props.settingsText), React.createElement("div", { className: "griddle-columns", style: this.props.useGriddleStyles ? { clear: "both", display: "table", width: "100%", borderBottom: "1px solid #EDEDED", marginBottom: "10px" } : null }, nodes), setPageSize, toggleCustom);
 	    }
 	});
 
@@ -19513,19 +18832,15 @@ webpackJsonp([1],[
 
 	var GridNoData = React.createClass({
 	    displayName: "GridNoData",
-	    getDefaultProps: function () {
+	    getDefaultProps: function getDefaultProps() {
 	        return {
 	            noDataMessage: "No Data"
 	        };
 	    },
-	    render: function () {
+	    render: function render() {
 	        var that = this;
 
-	        return React.createElement(
-	            "div",
-	            null,
-	            this.props.noDataMessage
-	        );
+	        return React.createElement("div", null, this.props.noDataMessage);
 	    }
 	});
 
@@ -19547,7 +18862,7 @@ webpackJsonp([1],[
 
 	var GridRow = React.createClass({
 	  displayName: "GridRow",
-	  getDefaultProps: function () {
+	  getDefaultProps: function getDefaultProps() {
 	    return {
 	      isChildRow: false,
 	      showChildren: false,
@@ -19568,18 +18883,18 @@ webpackJsonp([1],[
 	      multipleSelectionSettings: null
 	    };
 	  },
-	  handleClick: function (e) {
+	  handleClick: function handleClick(e) {
 	    if (this.props.onRowClick !== null && _.isFunction(this.props.onRowClick)) {
 	      this.props.onRowClick(this, e);
 	    } else if (this.props.hasChildren) {
 	      this.props.toggleChildren();
 	    }
 	  },
-	  handleSelectionChange: function (e) {
+	  handleSelectionChange: function handleSelectionChange(e) {
 	    //hack to get around warning that's not super useful in this case
 	    return;
 	  },
-	  handleSelectClick: function (e) {
+	  handleSelectClick: function handleSelectClick(e) {
 	    if (this.props.multipleSelectionSettings.isMultipleSelection) {
 	      if (e.target.type === "checkbox") {
 	        this.props.multipleSelectionSettings.toggleSelectRow(this.props.data, this.refs.selected.getDOMNode().checked);
@@ -19588,12 +18903,12 @@ webpackJsonp([1],[
 	      }
 	    }
 	  },
-	  verifyProps: function () {
+	  verifyProps: function verifyProps() {
 	    if (this.props.columnSettings === null) {
 	      console.error("gridRow: The columnSettings prop is null and it shouldn't be");
 	    }
 	  },
-	  render: function () {
+	  render: function render() {
 	    var _this = this;
 	    this.verifyProps();
 	    var that = this;
@@ -19628,15 +18943,7 @@ webpackJsonp([1],[
 	      var meta = _this.props.columnSettings.getColumnMetadataByName(col[0]);
 
 	      //todo: Make this not as ridiculous looking
-	      var firstColAppend = index === 0 && _this.props.hasChildren && _this.props.showChildren === false && _this.props.useGriddleIcons ? React.createElement(
-	        "span",
-	        { style: _this.props.useGriddleStyles ? { fontSize: "10px", marginRight: "5px" } : null },
-	        _this.props.parentRowCollapsedComponent
-	      ) : index === 0 && _this.props.hasChildren && _this.props.showChildren && _this.props.useGriddleIcons ? React.createElement(
-	        "span",
-	        { style: _this.props.useGriddleStyles ? { fontSize: "10px" } : null },
-	        _this.props.parentRowExpandedComponent
-	      ) : "";
+	      var firstColAppend = index === 0 && _this.props.hasChildren && _this.props.showChildren === false && _this.props.useGriddleIcons ? React.createElement("span", { style: _this.props.useGriddleStyles ? { fontSize: "10px", marginRight: "5px" } : null }, _this.props.parentRowCollapsedComponent) : index === 0 && _this.props.hasChildren && _this.props.showChildren && _this.props.useGriddleIcons ? React.createElement("span", { style: _this.props.useGriddleStyles ? { fontSize: "10px" } : null }, _this.props.parentRowExpandedComponent) : "";
 
 	      if (index === 0 && _this.props.isChildRow && _this.props.useGriddleStyles) {
 	        columnStyles = _.extend(columnStyles, { paddingLeft: 10 });
@@ -19644,33 +18951,20 @@ webpackJsonp([1],[
 
 	      if (_this.props.columnSettings.hasColumnMetadata() && typeof meta !== "undefined") {
 	        var colData = typeof meta.customComponent === "undefined" || meta.customComponent === null ? col[1] : React.createElement(meta.customComponent, { data: col[1], rowData: dataView, metadata: meta });
-	        returnValue = meta == null ? returnValue : React.createElement(
-	          "td",
-	          { onClick: _this.handleClick, className: meta.cssClassName, key: index, style: columnStyles },
-	          colData
-	        );
+	        returnValue = meta == null ? returnValue : React.createElement("td", { onClick: _this.handleClick, className: meta.cssClassName, key: index, style: columnStyles }, colData);
 	      }
 
-	      return returnValue || React.createElement(
-	        "td",
-	        { onClick: _this.handleClick, key: index, style: columnStyles },
-	        firstColAppend,
-	        col[1]
-	      );
+	      return returnValue || React.createElement("td", { onClick: _this.handleClick, key: index, style: columnStyles }, firstColAppend, col[1]);
 	    });
 
 	    if (nodes && this.props.multipleSelectionSettings && this.props.multipleSelectionSettings.isMultipleSelection) {
 	      var selectedRowIds = this.props.multipleSelectionSettings.getSelectedRowIds();
 
-	      nodes.unshift(React.createElement(
-	        "td",
-	        { key: "selection", style: columnStyles },
-	        React.createElement("input", {
-	          type: "checkbox",
-	          checked: this.props.multipleSelectionSettings.getIsRowChecked(dataView),
-	          onChange: this.handleSelectionChange,
-	          ref: "selected" })
-	      ));
+	      nodes.unshift(React.createElement("td", { key: "selection", style: columnStyles }, React.createElement("input", {
+	        type: "checkbox",
+	        checked: this.props.multipleSelectionSettings.getIsRowChecked(dataView),
+	        onChange: this.handleSelectionChange,
+	        ref: "selected" })));
 	    }
 
 	    //Get the row from the row settings.
@@ -19681,11 +18975,7 @@ webpackJsonp([1],[
 	    } else if (that.props.hasChildren) {
 	      className = that.props.showChildren ? this.props.parentRowExpandedClassName : this.props.parentRowCollapsedClassName;
 	    }
-	    return React.createElement(
-	      "tr",
-	      { onClick: this.props.multipleSelectionSettings && this.props.multipleSelectionSettings.isMultipleSelection ? this.handleSelectClick : null, className: className },
-	      nodes
-	    );
+	    return React.createElement("tr", { onClick: this.props.multipleSelectionSettings && this.props.multipleSelectionSettings.isMultipleSelection ? this.handleSelectClick : null, className: className }, nodes);
 	  }
 	});
 
@@ -19818,7 +19108,7 @@ webpackJsonp([1],[
 
 	var CustomRowComponentContainer = React.createClass({
 	  displayName: "CustomRowComponentContainer",
-	  getDefaultProps: function () {
+	  getDefaultProps: function getDefaultProps() {
 	    return {
 	      data: [],
 	      metadataColumns: [],
@@ -19826,7 +19116,7 @@ webpackJsonp([1],[
 	      customComponent: {}
 	    };
 	  },
-	  render: function () {
+	  render: function render() {
 	    var that = this;
 
 	    if (typeof that.props.customComponent !== "function") {
@@ -19839,11 +19129,7 @@ webpackJsonp([1],[
 	    });
 
 	    var footer = this.props.showPager && this.props.pagingContent;
-	    return React.createElement(
-	      "div",
-	      { className: this.props.className, style: this.props.style },
-	      nodes
-	    );
+	    return React.createElement("div", { className: this.props.className, style: this.props.style }, nodes);
 	  }
 	});
 
@@ -19866,7 +19152,7 @@ webpackJsonp([1],[
 
 	var CustomPaginationContainer = React.createClass({
 	  displayName: "CustomPaginationContainer",
-	  getDefaultProps: function () {
+	  getDefaultProps: function getDefaultProps() {
 	    return {
 	      maxPage: 0,
 	      nextText: "",
@@ -19875,7 +19161,7 @@ webpackJsonp([1],[
 	      customPagerComponent: {}
 	    };
 	  },
-	  render: function () {
+	  render: function render() {
 	    var that = this;
 
 	    if (typeof that.props.customPagerComponent !== "function") {
