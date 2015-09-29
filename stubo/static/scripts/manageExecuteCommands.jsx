@@ -51,7 +51,6 @@ const ExecuteCmdsFile = React.createClass({
             url: this.state.submitUrl,
             data: JSON.stringify(body),
             success: function (data) {
-                console.log(data);
                 React.render(<CommandResultsComponent data={data}/>, document.getElementById("CommandResults"))
             }
         }).fail(function ($xhr) {
@@ -63,8 +62,6 @@ const ExecuteCmdsFile = React.createClass({
     },
 
     render() {
-
-
         return (
             <form onSubmit={this.handleSubmit}>
                 <Input type="text" ref="input" name="cmdfile" placeholder={this.state.placeholder}
@@ -182,7 +179,9 @@ let CommandResultsComponent = React.createClass({
 
     getInitialState() {
         return {
-            results: this.props.data.data.executed_commands.commands
+            results: this.props.data.data.executed_commands.commands,
+            disabled: false
+
         }
     },
 
@@ -190,7 +189,8 @@ let CommandResultsComponent = React.createClass({
     handleClick() {
         if (this.isMounted()) {
             this.setState({
-                results: []
+                results: [],
+                disabled: true
             });
         }
     },
@@ -213,7 +213,8 @@ let CommandResultsComponent = React.createClass({
                             </Col>
 
                             <Col className="box-footer clearfix">
-                                <Button bsStyle="primary" bsSize="small" onClick={this.handleClick}>
+                                <Button bsStyle="primary" bsSize="small" onClick={this.handleClick}
+                                        disabled={this.state.disabled}>
                                     Clear
                                 </Button>
                             </Col>
