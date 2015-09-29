@@ -60,10 +60,15 @@ def create_tracker_collection():
     log.info('creating tracker collection: size={0}b in db={1}'.format(size,
                                                                        db.name))
     args = {'capped': True, 'size': size}
-    try:
-        db.create_collection("tracker", **args)
-    except CollectionInvalid, e:
-        log.fatal(e)
+    # check whether tracker collection is in database
+    if "tracker" not in db.collection_names():
+        try:
+            db.create_collection("tracker", **args)
+            log.info("Tracker collection created.")
+        except CollectionInvalid, e:
+            log.fatal(e)
+    else:
+        log.info("Tracker collection found.")
 
     try:
         log.info('creating/ensuring tracking indexes')
