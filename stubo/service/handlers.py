@@ -537,10 +537,7 @@ class ManageDelayPoliciesHandler(RequestHandler):
 class ManageCommandsHandler(RequestHandler):
 
     def get(self):
-        response = {}
-        cmd_file = self.get_argument('cmdFile', '')
-        response['cmdFile'] = cmd_file
-        self.render('manageCommands.html', **response)
+        self.render('manageCommands.html')
 
 class ManageModulesHandler(RequestHandler):
 
@@ -593,7 +590,7 @@ from stubo.utils import asbool
 from stubo.model.exporter import Exporter
 from stubo.model.export_commands import export_stubs_to_commands_format, get_export_links
 from stubo.model.exporter import YAML_FORMAT_SUBDIR
-
+from stubo.service.api import run_command_file, run_commands
 
 NOT_ALLOWED_MSG = 'Method not allowed'
 
@@ -1860,6 +1857,80 @@ class ExternalModuleDeleteHandler(BaseHandler):
         self.write(result)
 
 
+class ExecuteCommandsHandler(TrackRequest):
+    """
+    /manage/execute
+
+    example output:
+    {
+        'data': {'executed_commands':
+                      {'commands': [
+                             ('delete/stubs?scenario=response&force=true',
+                              200),
+                             ('put/module?name=/static/cmds/date/response.py',
+                              200),
+                             ('begin/session?scenario=response&session=response_rec&mode=record',
+                              200),
+                             ('put/stub?session=response_rec&ext_module=response&recorded_on=2014-06-01
+                                                                    ,response.request.xml,response.xml',
+                              200),
+                             ('end/session?session=response_rec',
+                              200),
+                             ('begin/session?scenario=response&session=response_play&mode=playback',
+                              200),
+                             ('get/response?session=response_play&ext_module=response&played_on=2014-06-03
+                                                                                    ,response.request.xml',
+                              200),
+                             ('end/session?session=response_play',
+                              200)
+                          ]},
+              'number_of_errors': 0,
+              'number_of_requests': 8},
+        'version': '0.6.6'
+    }
+    """
+
+    @stubo_async
+    def post(self):
+
+        response = None
+        # parsing body
+        try:
+            bd = json.loads(self.request.body)
+        except Exception as ex:
+            log.warning("Failed to parse submited request to execute commands: %s" % ex)
+            # returning bad request
+            raise exception_response(400,
+                                     title="Valid JSON not found in submitted request")
+
+        # getting parameters
+        cmds = bd.get('command', None)
+        cmd_file_url = bd.get('commandFile', None)
+
+        # looking for command file url
+        if cmd_file_url:
+            request = DummyModel(protocol=self.request.protocol,
+                                 host=self.request.host,
+                                 arguments=self.request.arguments)
+            response = run_command_file(cmd_file_url, request,
+                                        self.settings['static_path'])
+        # looking for plain command
+        elif cmds:
+            response = run_commands(self, cmds)
+
+        from pprint import pprint as pp
+        pp(response)
+        # checking whether we have a valid response
+        if response:
+            log.debug(u'command_handler_form_request: cmd_file={0},cmds={1}'.format(
+                cmd_file_url, cmds))
+
+            return response
+        else:
+            raise exception_response(400,
+                                     title="'cmds' or 'cmdFile' parameter not supplied.")
+
+
 def _get_scenario_full_name(handler, name, host=None):
     """
     Gets full name hostname:scenario_name
@@ -1872,3 +1943,4 @@ def _get_scenario_full_name(handler, name, host=None):
             host = get_hostname(handler.request)
         name = '%s:%s' % (host, name)
     return name
+
