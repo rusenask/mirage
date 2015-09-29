@@ -9,7 +9,8 @@ module.exports = {
         manageDelayPolicies: "./scripts/manageDelayPolicies.jsx",
         manageExternalModules: "./scripts/manageExternalModules.jsx",
         manageTracker: "./scripts/manageTracker.jsx",
-        manageTrackerDetails: "./scripts/manageTrackerDetails.jsx"
+        manageTrackerDetails: "./scripts/manageTrackerDetails.jsx",
+        manageExecuteCommands: "./scripts/manageExecuteCommands.jsx"
     },
     output: {
         path: "./src",
