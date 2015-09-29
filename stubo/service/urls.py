@@ -84,7 +84,10 @@ ui_pages = [
 
     ("/manage/delaypolicies", "ManageDelayPoliciesHandler"),
     ("/manage/modules", "ManageModulesHandler"),
+    # commands handlers
     ("/manage/commands", "ManageCommandsHandler"),
+    ("/manage/execute", "ExecuteCommandsHandler"),
+
     ("/manage", "ManageHandler"),
 
     # tracker
