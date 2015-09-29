@@ -37,6 +37,7 @@ const ExecuteCmdsFile = React.createClass({
     },
 
     handleSubmit(e) {
+        let infoModal = $('#myModal');
         let val = this.refs.input.getValue();
         //
         e.preventDefault();
