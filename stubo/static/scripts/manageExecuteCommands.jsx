@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Grid, Row, Col, OverlayTrigger, Tooltip, Input, ButtonInput, Label} from 'react-bootstrap'
+import { Grid, Row, Col, OverlayTrigger, Tooltip, Input, ButtonInput, Label, Button} from 'react-bootstrap'
 
 
 const ExecuteCmdsFile = React.createClass({
@@ -29,11 +29,11 @@ const ExecuteCmdsFile = React.createClass({
 
         let disabled = style !== 'success';
 
-        return { style, disabled };
+        return {style, disabled};
     },
 
     handleChange() {
-        this.setState( this.validationState() );
+        this.setState(this.validationState());
     },
 
     handleSubmit(e) {
@@ -51,7 +51,7 @@ const ExecuteCmdsFile = React.createClass({
             data: JSON.stringify(body),
             success: function (data) {
                 console.log(data);
-                React.render(<CommandResultsComponent data={data} />, document.getElementById("CommandResults"))
+                React.render(<CommandResultsComponent data={data}/>, document.getElementById("CommandResults"))
             }
         }).fail(function ($xhr) {
             var data = $xhr.responseJSON;
@@ -65,12 +65,13 @@ const ExecuteCmdsFile = React.createClass({
 
 
         return (
-            <form onSubmit={this.handleSubmit} >
+            <form onSubmit={this.handleSubmit}>
                 <Input type="text" ref="input" name="cmdfile" placeholder={this.state.placeholder}
 
-                       onChange={this.handleChange} />
-                <ButtonInput type="reset" bsStyle="primary" bsSize="small" onClick={this.resetValidation} />
-                <ButtonInput type="submit" value="Execute" bsStyle={this.state.style} bsSize="small" disabled={this.state.disabled} />
+                       onChange={this.handleChange}/>
+                <ButtonInput type="reset" bsStyle="primary" bsSize="small" onClick={this.resetValidation}/>
+                <ButtonInput type="submit" value="Execute" bsStyle={this.state.style} bsSize="small"
+                             disabled={this.state.disabled}/>
             </form>
         );
     }
@@ -130,9 +131,9 @@ let StatusCodeWrapper = React.createClass({
     render() {
         let sc = this.props.data;
 
-        if(200 <= sc < 300){
+        if (200 <= sc < 300) {
             return <Label bsStyle="success">{sc}</Label>
-        } else if(300 <= sc < 400) {
+        } else if (300 <= sc < 400) {
             return <Label bsStyle="warning">{sc}</Label>
         } else {
             return <Label bsStyle="danger">{sc}</Label>
@@ -144,11 +145,11 @@ let StatusCodeWrapper = React.createClass({
 let ListItemWrapper = React.createClass({
     displayName: "ListItemWrapper",
 
-    render: function() {
-        let statusCode = <StatusCodeWrapper data={this.props.data[1]} />;
-        return( <li>
-                    <span> {this.props.data[0]}  {statusCode}</span>
-                </li>
+    render: function () {
+        let statusCode = <StatusCodeWrapper data={this.props.data[1]}/>;
+        return ( <li>
+                <span> {this.props.data[0]} {statusCode}</span>
+            </li>
         )
     }
 });
@@ -166,7 +167,7 @@ let CommandsComponent = React.createClass({
     render: function () {
         return (
             <ol>
-                {this.props.data.map(function(result) {
+                {this.props.data.map(function (result) {
                     return <ListItemWrapper key={result[0]} data={result}/>;
                 })}
             </ol>
@@ -180,35 +181,49 @@ let CommandResultsComponent = React.createClass({
 
     getInitialState() {
         return {
-            results: this.props.data
+            results: this.props.data.data.executed_commands.commands
+        }
+    },
+
+    // cleaning up results
+    handleClick() {
+        if (this.isMounted()) {
+            this.setState({
+                results: []
+            });
         }
     },
 
     render() {
 
-        let CommandsResultList = <CommandsComponent data={this.props.data.data.executed_commands.commands} />;
+        let CommandsResultList = <CommandsComponent data={this.state.results}/>;
 
         return (
-                <Grid fluid={true}>
-                    <Row>
-                        <Col md={12}>
-                            <Col className="box">
-                                <Col className="box-header">
-                                    <h3 className="box-title"> Command execution results</h3>
-                                </Col>
+            <Grid fluid={true}>
+                <Row>
+                    <Col md={12}>
+                        <Col className="box">
+                            <Col className="box-header">
+                                <h3 className="box-title"> Command execution results</h3>
+                            </Col>
 
-                                <Col className="box-body pad">
-                                    {CommandsResultList}
-                                </Col>
+                            <Col className="box-body pad">
+                                {CommandsResultList}
+                            </Col>
+
+                            <Col className="box-footer clearfix">
+                                <Button bsStyle="primary" bsSize="small" onClick={this.handleClick}>
+                                    Clear
+                                </Button>
                             </Col>
                         </Col>
-                    </Row>
-                 </Grid>
-                )
+                    </Col>
+                </Row>
+            </Grid>
+        )
     }
 
 });
-
 
 
 React.render(<ExecuteCommandsPanel />, document.getElementById("ExecuteCommands"));
