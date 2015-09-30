@@ -1918,8 +1918,6 @@ class ExecuteCommandsHandler(TrackRequest):
         elif cmds:
             response = run_commands(self, cmds)
 
-        from pprint import pprint as pp
-        pp(response)
         # checking whether we have a valid response
         if response:
             log.debug(u'command_handler_form_request: cmd_file={0},cmds={1}'.format(
