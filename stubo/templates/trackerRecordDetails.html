@@ -3,7 +3,8 @@
 {% block title %}Tracker Record Details{% end %}
 
 {% block head %}
-<link rel="stylesheet" href="{{static_url('griddle.css')}}"/>
+<link rel="stylesheet" href="{{static_url('jsondiffpatch.css')}}"/>
+
 {% end head %}
 
 {% block body %}
@@ -44,6 +45,9 @@
 
 {% end body %}
 {% block endjs %}
+
+<script src="{{static_url('src/jsondiffpatch-full.min.js')}}" type="text/javascript"></script>
+<script src="{{static_url('src/jsondiffpatch-formatters.min.js')}}" type="text/javascript"></script>
 
 <script src="{{static_url('src/manageTrackerDetails-bundle.js')}}" type="text/javascript"></script>
 
