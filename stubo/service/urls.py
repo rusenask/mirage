@@ -70,7 +70,7 @@ rest_api = [
 ui_pages = [
     ("/tracker_old", "ViewTrackerHandler"),
     ("/tracker_old/(.*)", "ViewATrackerHandler"),
-    ("/", "HomeHandler"),
+
     ("/manage/exec_cmds", "StuboCommandHandlerHTML"),
     ("/docs", "DocsHandler"),
     ("/stubs", "GetStubListHandlerHTML"),
@@ -78,6 +78,9 @@ ui_pages = [
     ('/_profile', 'ProfileHandler'),
     ('/_profile2', 'PlopProfileHandler'),
     # management
+    # currently routing to tracker page
+    ("/", "TrackerHandler"),
+
     ("/manage/scenarios", "ManageScenariosHandler"),
     ("/manage/scenarios/details", "ManageScenarioDetailsHandler"),
     ("/manage/scenarios/export", "ManageScenarioExportHandler"),
