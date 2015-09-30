@@ -2,8 +2,12 @@ import React from 'react'
 
 import { Grid, Row, Col, OverlayTrigger, Tooltip, Input, ButtonInput, Label, Button} from 'react-bootstrap'
 
+let infoModal = $('#myModal');
 
+// component to create form for execute command files
 const ExecuteCmdsFile = React.createClass({
+    displayName: "ExecuteCmdsFile",
+
     getInitialState() {
         return {
             disabled: true,
@@ -37,7 +41,6 @@ const ExecuteCmdsFile = React.createClass({
     },
 
     handleSubmit(e) {
-        let infoModal = $('#myModal');
         let val = this.refs.input.getValue();
         //
         e.preventDefault();
@@ -51,6 +54,9 @@ const ExecuteCmdsFile = React.createClass({
             url: this.state.submitUrl,
             data: JSON.stringify(body),
             success: function (data) {
+                // unmounting current results
+                React.unmountComponentAtNode(document.getElementById('CommandResults'));
+                // mounting results
                 React.render(<CommandResultsComponent data={data}/>, document.getElementById("CommandResults"))
             }
         }).fail(function ($xhr) {
@@ -75,6 +81,81 @@ const ExecuteCmdsFile = React.createClass({
     }
 });
 
+const ExecuteDirectCommands = React.createClass({
+    displayName: "ExecuteDirectCommands",
+
+    getInitialState() {
+        return {
+            disabled: true,
+            style: null,
+            submitUrl: "/manage/execute"
+        };
+    },
+
+    resetValidation() {
+        this.setState({
+            disabled: true,
+            style: null
+        });
+    },
+
+    validationState() {
+        let length = this.refs.input.getValue().length;
+        let style = 'danger';
+
+        if (length > 0) style = 'success';
+        //else if (length > 5) style = 'warning';
+
+        let disabled = style !== 'success';
+
+        return {style, disabled};
+    },
+
+    handleChange() {
+        this.setState(this.validationState());
+    },
+
+    handleSubmit(e) {
+
+        let val = this.refs.input.getValue();
+        //
+        e.preventDefault();
+        // make a POST call
+        let body = {
+            command: val
+        };
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: this.state.submitUrl,
+            data: JSON.stringify(body),
+            success: function (data) {
+                // unmounting current results
+                React.unmountComponentAtNode(document.getElementById('CommandResults'));
+                // mounting results
+                React.render(<CommandResultsComponent data={data}/>, document.getElementById("CommandResults"))
+            }
+        }).fail(function ($xhr) {
+            var data = $xhr.responseJSON;
+            var htmlData = '<ul><li>Error: ' + data.error.message + '</li></ul>';
+            infoModal.find('.modal-body').html(htmlData);
+            infoModal.modal('show');
+        });
+    },
+
+    render() {
+        return (
+            <form onSubmit={this.handleSubmit}>
+                <Input type="textarea" ref="input" placeholder="delete/stubs?scenario=scenario_name1"
+                       onChange={this.handleChange}/>
+                <ButtonInput type="reset" bsStyle="primary" bsSize="small" onClick={this.resetValidation}/>
+                <ButtonInput type="submit" value="Execute" bsStyle={this.state.style} bsSize="small"
+                             disabled={this.state.disabled}/>
+            </form>
+        );
+    }
+});
+
 
 let ExecuteCommandsPanel = React.createClass({
     displayName: "ExecuteCommandsPanel",
@@ -82,6 +163,7 @@ let ExecuteCommandsPanel = React.createClass({
     render: function () {
 
         let ExecuteCommandsFile = <ExecuteCmdsFile />;
+        let ExDirectCommands = <ExecuteDirectCommands />;
 
         // constructing grid
         const gridInstance = (
@@ -106,7 +188,7 @@ let ExecuteCommandsPanel = React.createClass({
                             </Col>
 
                             <Col className="box-body pad">
-                                execute commands directly
+                                {ExDirectCommands}
                             </Col>
                         </Col>
                     </Col>
