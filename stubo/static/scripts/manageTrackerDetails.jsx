@@ -1,6 +1,6 @@
 var React = require('../node_modules/react');
 var Well = require('../node_modules/react-bootstrap').Well;
-
+var pd = require('pretty-data').pd;
 
 function getUrlVars() {
     var vars = [], hash;
@@ -43,6 +43,24 @@ var DdWrapper = React.createClass({
     }
 });
 
+var FormattedResponseWrapper = React.createClass({
+    displayName: "FormattedResponseWrapper",
+
+    render: function () {
+        var value = this.props.data;
+
+        let preInstance = (
+            <pre bsSize="xsmall">
+                {value}
+            </pre>
+        );
+
+        return <dd> {preInstance} </dd>
+
+    }
+});
+
+
 var DlHorizontalWrapper = React.createClass({
     displayName: "dlHorizontalWrapper",
 
@@ -50,9 +68,26 @@ var DlHorizontalWrapper = React.createClass({
         var rows = [];
         var list = this.props.data;
         $.each(list, function (k, v) {
+
             //display the key and value pair
             rows.push(<DtWrapper data={k} />);
-            rows.push(<DdWrapper data={v} />);
+
+            if(k=='stubo_response'){
+
+                let prettyfied = '';
+
+                // checking whether this object is JSON - if so - using JSON pp, otherwise using XML pp.
+                // to add more formating, for example CSS, SQL - just add more checks for objects.
+                if(typeof v =='object'){
+                    prettyfied = pd.json(v);
+                } else {
+                    prettyfied = pd.xml(v);
+                }
+                rows.push(<FormattedResponseWrapper data={prettyfied} />);
+
+            } else {
+                rows.push(<DdWrapper data={v} />);
+            }
         });
         return (
             <dl className="dl-horizontal">{rows}</dl>
