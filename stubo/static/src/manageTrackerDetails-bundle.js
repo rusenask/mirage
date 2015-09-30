@@ -1,11 +1,18 @@
-webpackJsonp([6],[
+webpackJsonp([7],[
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var React = __webpack_require__(1);
-	var Well = __webpack_require__(157).Well;
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactBootstrap = __webpack_require__(157);
+
+	var pd = __webpack_require__(404).pd;
 
 	function getUrlVars() {
 	    var vars = [],
@@ -19,11 +26,11 @@ webpackJsonp([6],[
 	    return vars;
 	}
 
-	var DtWrapper = React.createClass({
+	var DtWrapper = _react2['default'].createClass({
 	    displayName: "DtWrapper",
 
 	    render: function render() {
-	        return React.createElement(
+	        return _react2['default'].createElement(
 	            'dt',
 	            null,
 	            ' ',
@@ -33,7 +40,7 @@ webpackJsonp([6],[
 	    }
 	});
 
-	var DdWrapper = React.createClass({
+	var DdWrapper = _react2['default'].createClass({
 	    displayName: "DdWrapper",
 
 	    render: function render() {
@@ -42,12 +49,12 @@ webpackJsonp([6],[
 	        // check if this is a JSON object and recursively applying
 	        // horizontal key-value styling
 	        if (value.constructor === objectConstructor) {
-	            var wellInstance = React.createElement(
-	                Well,
+	            var wellInstance = _react2['default'].createElement(
+	                _reactBootstrap.Well,
 	                { bsSize: 'xsmall' },
-	                React.createElement(DlHorizontalWrapper, { data: value })
+	                _react2['default'].createElement(DlHorizontalWrapper, { data: value })
 	            );
-	            return React.createElement(
+	            return _react2['default'].createElement(
 	                'dd',
 	                null,
 	                ' ',
@@ -55,7 +62,7 @@ webpackJsonp([6],[
 	                ' '
 	            );
 	        } else {
-	            return React.createElement(
+	            return _react2['default'].createElement(
 	                'dd',
 	                null,
 	                ' ',
@@ -66,18 +73,208 @@ webpackJsonp([6],[
 	    }
 	});
 
-	var DlHorizontalWrapper = React.createClass({
+	var FormattedResponseWrapper = _react2['default'].createClass({
+	    displayName: "FormattedResponseWrapper",
+
+	    render: function render() {
+	        var value = this.props.data;
+
+	        var preInstance = _react2['default'].createElement(
+	            'pre',
+	            { bsSize: 'xsmall' },
+	            value
+	        );
+
+	        return _react2['default'].createElement(
+	            'dd',
+	            null,
+	            ' ',
+	            preInstance,
+	            ' '
+	        );
+	    }
+	});
+
+	var InfoArrayWrapper = _react2['default'].createClass({
+	    displayName: "InfoArrayWrapper",
+
+	    render: function render() {
+	        var info = this.props.data;
+
+	        if (info.length == 4) {
+	            var left;
+	            var right;
+
+	            var _ret = (function () {
+
+	                // since diffPatch is returning raw html - creating an object so it can pass through React as
+	                // sanitized and "safe" html
+
+	                var createMarkup = function createMarkup() {
+	                    return { __html: diffPatch };
+	                }
+
+	                // returning raw html: https://facebook.github.io/react/tips/dangerously-set-inner-html.html
+	                ;
+
+	                left = jQuery.parseJSON(info[2]);
+	                right = jQuery.parseJSON(info[3]);
+
+	                var delta = jsondiffpatch.diff(left, right);
+
+	                var diffPatch = jsondiffpatch.formatters.html.format(delta, left);return {
+	                    v: _react2['default'].createElement('div', { dangerouslySetInnerHTML: createMarkup() })
+	                };
+	            })();
+
+	            if (typeof _ret === 'object') return _ret.v;
+	        } else {
+	            return _react2['default'].createElement(
+	                'span',
+	                null,
+	                ' ',
+	                info.slice(1),
+	                ' '
+	            );
+	        }
+	    }
+
+	});
+
+	var TraceStatus = _react2['default'].createClass({
+	    displayName: "TraceStatus",
+
+	    render: function render() {
+	        var infoArray = this.props.data;
+	        var status = infoArray[0];
+	        if (status == "ok") {
+	            // infoArray contains information on response
+	            return _react2['default'].createElement(
+	                'span',
+	                null,
+	                ' ',
+	                _react2['default'].createElement(
+	                    _reactBootstrap.Label,
+	                    { bsStyle: 'success' },
+	                    ' ',
+	                    status,
+	                    ' '
+	                ),
+	                '  ',
+	                _react2['default'].createElement(InfoArrayWrapper, { data: infoArray }),
+	                ' '
+	            );
+	        } else {
+	            return _react2['default'].createElement(
+	                'span',
+	                null,
+	                ' ',
+	                _react2['default'].createElement(
+	                    _reactBootstrap.Label,
+	                    { bsStyle: 'danger' },
+	                    status
+	                ),
+	                '  ',
+	                _react2['default'].createElement(InfoArrayWrapper, { data: infoArray }),
+	                ' '
+	            );
+	        }
+	    }
+	});
+
+	// list item wrapper
+	var TraceListItemWrapper = _react2['default'].createClass({
+	    displayName: "TraceListItemWrapper",
+
+	    render: function render() {
+	        var item = this.props.data;
+	        var time = item[0];
+	        var infoArray = item[1];
+
+	        return _react2['default'].createElement(
+	            'li',
+	            null,
+	            ' Time: ',
+	            _react2['default'].createElement(
+	                'strong',
+	                null,
+	                ' ',
+	                time,
+	                ' '
+	            ),
+	            '    ',
+	            _react2['default'].createElement(TraceStatus, { data: infoArray }),
+	            ' '
+	        );
+	    }
+	});
+
+	// Wraps and formats trace response (when full tracking is enabled Mirage gathers more data)
+	var TraceResponseWrapper = _react2['default'].createClass({
+	    displayName: "TraceResponseWrapper",
+
+	    render: function render() {
+	        var responseList = this.props.data;
+	        //console.log(responseList);
+	        var rows = [];
+
+	        $.each(responseList, function (idx, item) {
+	            rows.push(_react2['default'].createElement(TraceListItemWrapper, { key: idx, data: item }));
+	        });
+
+	        return _react2['default'].createElement(
+	            'dd',
+	            null,
+	            ' ',
+	            _react2['default'].createElement(
+	                'ul',
+	                null,
+	                ' ',
+	                rows,
+	                ' '
+	            ),
+	            ' '
+	        );
+	    }
+
+	});
+
+	var DlHorizontalWrapper = _react2['default'].createClass({
 	    displayName: "dlHorizontalWrapper",
 
 	    render: function render() {
 	        var rows = [];
 	        var list = this.props.data;
 	        $.each(list, function (k, v) {
+
 	            //display the key and value pair
-	            rows.push(React.createElement(DtWrapper, { data: k }));
-	            rows.push(React.createElement(DdWrapper, { data: v }));
+	            rows.push(_react2['default'].createElement(DtWrapper, { data: k }));
+
+	            if (k == 'stubo_response') {
+
+	                var prettyfied = '';
+
+	                // checking whether this object is JSON - if so - using JSON pp, otherwise using XML pp.
+	                // to add more formating, for example CSS, SQL - just add more checks for objects.
+	                if (typeof v == 'object') {
+	                    prettyfied = pd.json(v);
+	                } else {
+	                    prettyfied = pd.xml(v);
+	                }
+	                rows.push(_react2['default'].createElement(FormattedResponseWrapper, { data: prettyfied }));
+	            } else if (k == 'trace') {
+	                // tracing data, consists of response and matcher
+	                // console.log(v);
+	                // adding matcher row
+
+	                rows.push(_react2['default'].createElement(TraceResponseWrapper, { data: v.matcher }));
+	                // adding response row
+	                rows.push(_react2['default'].createElement(TraceResponseWrapper, { data: v.response }));
+	            } else {
+	                rows.push(_react2['default'].createElement(DdWrapper, { data: v }));
+	            }
 	        });
-	        return React.createElement(
+	        return _react2['default'].createElement(
 	            'dl',
 	            { className: 'dl-horizontal' },
 	            rows
@@ -85,7 +282,7 @@ webpackJsonp([6],[
 	    }
 	});
 
-	var TrackerDetails = React.createClass({
+	var TrackerDetails = _react2['default'].createClass({
 	    displayName: "TrackerDetails",
 
 	    getInitialState: function getInitialState() {
@@ -107,11 +304,11 @@ webpackJsonp([6],[
 	    },
 
 	    render: function render() {
-	        return React.createElement(DlHorizontalWrapper, { data: this.state.data });
+	        return _react2['default'].createElement(DlHorizontalWrapper, { data: this.state.data });
 	    }
 	});
 
-	React.render(React.createElement(TrackerDetails, null), document.getElementById("app"));
+	_react2['default'].render(_react2['default'].createElement(TrackerDetails, null), document.getElementById("app"));
 
 /***/ },
 /* 1 */,
@@ -15516,6 +15713,286 @@ webpackJsonp([6],[
 	  message: 'The Position component is deprecated in react-bootstrap. It has been moved to a more generic library: react-overlays. ' + 'You can read more at: ' + 'http://react-bootstrap.github.io/react-overlays/examples/#position and ' + 'https://github.com/react-bootstrap/react-bootstrap/issues/1084'
 	});
 	module.exports = exports['default'];
+
+/***/ },
+/* 387 */,
+/* 388 */,
+/* 389 */,
+/* 390 */,
+/* 391 */,
+/* 392 */,
+/* 393 */,
+/* 394 */,
+/* 395 */,
+/* 396 */,
+/* 397 */,
+/* 398 */,
+/* 399 */,
+/* 400 */,
+/* 401 */,
+/* 402 */,
+/* 403 */,
+/* 404 */
+/***/ function(module, exports) {
+
+	/**
+	* pretty-data - nodejs plugin to pretty-print or minify data in XML, JSON and CSS formats.
+	*
+	* Version - 0.40.0
+	* Copyright (c) 2012 Vadim Kiryukhin
+	* vkiryukhin @ gmail.com
+	* http://www.eslinstructor.net/pretty-data/
+	*
+	* Dual licensed under the MIT and GPL licenses:
+	*   http://www.opensource.org/licenses/mit-license.php
+	*   http://www.gnu.org/licenses/gpl.html
+	*
+	*	pd.xml(data ) - pretty print XML;
+	*	pd.json(data) - pretty print JSON;
+	*	pd.css(data ) - pretty print CSS;
+	*	pd.sql(data)  - pretty print SQL;
+	*
+	*	pd.xmlmin(data [, preserveComments] ) - minify XML;
+	*	pd.jsonmin(data)                      - minify JSON;
+	*	pd.cssmin(data [, preserveComments] ) - minify CSS;
+	*	pd.sqlmin(data)                       - minify SQL;
+	*
+	* PARAMETERS:
+	*
+	*	@data  			- String; XML, JSON, CSS or SQL text to beautify;
+	* 	@preserveComments	- Bool (optional, used in minxml and mincss only);
+	*				  Set this flag to true to prevent removing comments from @text;
+	*	@Return 		- String;
+	*
+	* USAGE:
+	*
+	*	var pd  = require('pretty-data').pd;
+	*
+	*	var xml_pp   = pd.xml(xml_text);
+	*	var xml_min  = pd.xmlmin(xml_text [,true]);
+	*	var json_pp  = pd.json(json_text);
+	*	var json_min = pd.jsonmin(json_text);
+	*	var css_pp   = pd.css(css_text);
+	*	var css_min  = pd.cssmin(css_text [, true]);
+	*	var sql_pp   = pd.sql(sql_text);
+	*	var sql_min  = pd.sqlmin(sql_text);
+	*
+	* TEST:
+	*	comp-name:pretty-data$ node ./test/test_xml
+	*	comp-name:pretty-data$ node ./test/test_json
+	*	comp-name:pretty-data$ node ./test/test_css
+	*	comp-name:pretty-data$ node ./test/test_sql
+	*/
+
+	'use strict';
+
+	function pp() {
+		this.shift = ['\n']; // array of shifts
+		this.step = '  '; // 2 spaces
+		var maxdeep = 100,
+		    // nesting level
+		ix = 0;
+
+		// initialize array with shifts //
+		for (ix = 0; ix < maxdeep; ix++) {
+			this.shift.push(this.shift[ix] + this.step);
+		}
+	};
+
+	// ----------------------- XML section ----------------------------------------------------
+
+	pp.prototype.xml = function (text) {
+
+		var ar = text.replace(/>\s{0,}</g, "><").replace(/</g, "~::~<").replace(/xmlns\:/g, "~::~xmlns:").replace(/xmlns\=/g, "~::~xmlns=").split('~::~'),
+		    len = ar.length,
+		    inComment = false,
+		    deep = 0,
+		    str = '',
+		    ix = 0;
+
+		for (ix = 0; ix < len; ix++) {
+			// start comment or <![CDATA[...]]> or <!DOCTYPE //
+			if (ar[ix].search(/<!/) > -1) {
+				str += this.shift[deep] + ar[ix];
+				inComment = true;
+				// end comment  or <![CDATA[...]]> //
+				if (ar[ix].search(/-->/) > -1 || ar[ix].search(/\]>/) > -1 || ar[ix].search(/!DOCTYPE/) > -1) {
+					inComment = false;
+				}
+			} else
+				// end comment  or <![CDATA[...]]> //
+				if (ar[ix].search(/-->/) > -1 || ar[ix].search(/\]>/) > -1) {
+					str += ar[ix];
+					inComment = false;
+				} else
+					// <elm></elm> //
+					if (/^<\w/.exec(ar[ix - 1]) && /^<\/\w/.exec(ar[ix]) && /^<[\w:\-\.\,]+/.exec(ar[ix - 1]) == /^<\/[\w:\-\.\,]+/.exec(ar[ix])[0].replace('/', '')) {
+						str += ar[ix];
+						if (!inComment) deep--;
+					} else
+						// <elm> //
+						if (ar[ix].search(/<\w/) > -1 && ar[ix].search(/<\//) == -1 && ar[ix].search(/\/>/) == -1) {
+							str = !inComment ? str += this.shift[deep++] + ar[ix] : str += ar[ix];
+						} else
+							// <elm>...</elm> //
+							if (ar[ix].search(/<\w/) > -1 && ar[ix].search(/<\//) > -1) {
+								str = !inComment ? str += this.shift[deep] + ar[ix] : str += ar[ix];
+							} else
+								// </elm> //
+								if (ar[ix].search(/<\//) > -1) {
+									str = !inComment ? str += this.shift[--deep] + ar[ix] : str += ar[ix];
+								} else
+									// <elm/> //
+									if (ar[ix].search(/\/>/) > -1) {
+										str = !inComment ? str += this.shift[deep] + ar[ix] : str += ar[ix];
+									} else
+										// <? xml ... ?> //
+										if (ar[ix].search(/<\?/) > -1) {
+											str += this.shift[deep] + ar[ix];
+										} else
+											// xmlns //
+											if (ar[ix].search(/xmlns\:/) > -1 || ar[ix].search(/xmlns\=/) > -1) {
+												str += this.shift[deep] + ar[ix];
+											} else {
+												str += ar[ix];
+											}
+		}
+
+		return str[0] == '\n' ? str.slice(1) : str;
+	};
+
+	// ----------------------- JSON section ----------------------------------------------------
+
+	pp.prototype.json = function (text) {
+
+		if (typeof text === "string") {
+			return JSON.stringify(JSON.parse(text), null, this.step);
+		}
+		if (typeof text === "object") {
+			return JSON.stringify(text, null, this.step);
+		}
+		return null;
+	};
+
+	// ----------------------- CSS section ----------------------------------------------------
+
+	pp.prototype.css = function (text) {
+
+		var ar = text.replace(/\s{1,}/g, ' ').replace(/\{/g, "{~::~").replace(/\}/g, "~::~}~::~").replace(/\;/g, ";~::~").replace(/\/\*/g, "~::~/*").replace(/\*\//g, "*/~::~").replace(/~::~\s{0,}~::~/g, "~::~").split('~::~'),
+		    len = ar.length,
+		    deep = 0,
+		    str = '',
+		    ix = 0;
+
+		for (ix = 0; ix < len; ix++) {
+
+			if (/\{/.exec(ar[ix])) {
+				str += this.shift[deep++] + ar[ix];
+			} else if (/\}/.exec(ar[ix])) {
+				str += this.shift[--deep] + ar[ix];
+			} else if (/\*\\/.exec(ar[ix])) {
+				str += this.shift[deep] + ar[ix];
+			} else {
+				str += this.shift[deep] + ar[ix];
+			}
+		}
+		return str.replace(/^\n{1,}/, '');
+	};
+
+	// ----------------------- SQL section ----------------------------------------------------
+
+	function isSubquery(str, parenthesisLevel) {
+		return parenthesisLevel - (str.replace(/\(/g, '').length - str.replace(/\)/g, '').length);
+	}
+
+	function split_sql(str, tab) {
+
+		return str.replace(/\s{1,}/g, " ").replace(/ AND /ig, "~::~" + tab + tab + "AND ").replace(/ BETWEEN /ig, "~::~" + tab + "BETWEEN ").replace(/ CASE /ig, "~::~" + tab + "CASE ").replace(/ ELSE /ig, "~::~" + tab + "ELSE ").replace(/ END /ig, "~::~" + tab + "END ").replace(/ FROM /ig, "~::~FROM ").replace(/ GROUP\s{1,}BY/ig, "~::~GROUP BY ").replace(/ HAVING /ig, "~::~HAVING ")
+		//.replace(/ IN /ig,"~::~"+tab+"IN ")
+		.replace(/ IN /ig, " IN ").replace(/ JOIN /ig, "~::~JOIN ").replace(/ CROSS~::~{1,}JOIN /ig, "~::~CROSS JOIN ").replace(/ INNER~::~{1,}JOIN /ig, "~::~INNER JOIN ").replace(/ LEFT~::~{1,}JOIN /ig, "~::~LEFT JOIN ").replace(/ RIGHT~::~{1,}JOIN /ig, "~::~RIGHT JOIN ").replace(/ ON /ig, "~::~" + tab + "ON ").replace(/ OR /ig, "~::~" + tab + tab + "OR ").replace(/ ORDER\s{1,}BY/ig, "~::~ORDER BY ").replace(/ OVER /ig, "~::~" + tab + "OVER ").replace(/\(\s{0,}SELECT /ig, "~::~(SELECT ").replace(/\)\s{0,}SELECT /ig, ")~::~SELECT ").replace(/ THEN /ig, " THEN~::~" + tab + "").replace(/ UNION /ig, "~::~UNION~::~").replace(/ USING /ig, "~::~USING ").replace(/ WHEN /ig, "~::~" + tab + "WHEN ").replace(/ WHERE /ig, "~::~WHERE ").replace(/ WITH /ig, "~::~WITH ")
+		//.replace(/\,\s{0,}\(/ig,",~::~( ")
+		//.replace(/\,/ig,",~::~"+tab+tab+"")
+		.replace(/ ALL /ig, " ALL ").replace(/ AS /ig, " AS ").replace(/ ASC /ig, " ASC ").replace(/ DESC /ig, " DESC ").replace(/ DISTINCT /ig, " DISTINCT ").replace(/ EXISTS /ig, " EXISTS ").replace(/ NOT /ig, " NOT ").replace(/ NULL /ig, " NULL ").replace(/ LIKE /ig, " LIKE ").replace(/\s{0,}SELECT /ig, "SELECT ").replace(/~::~{1,}/g, "~::~").split('~::~');
+	}
+
+	pp.prototype.sql = function (text) {
+
+		var ar_by_quote = text.replace(/\s{1,}/g, " ").replace(/\'/ig, "~::~\'").split('~::~'),
+		    len = ar_by_quote.length,
+		    ar = [],
+		    deep = 0,
+		    tab = this.step,
+		    //+this.step,
+		inComment = true,
+		    inQuote = false,
+		    parenthesisLevel = 0,
+		    str = '',
+		    ix = 0;
+
+		for (ix = 0; ix < len; ix++) {
+
+			if (ix % 2) {
+				ar = ar.concat(ar_by_quote[ix]);
+			} else {
+				ar = ar.concat(split_sql(ar_by_quote[ix], tab));
+			}
+		}
+
+		len = ar.length;
+		for (ix = 0; ix < len; ix++) {
+
+			parenthesisLevel = isSubquery(ar[ix], parenthesisLevel);
+
+			if (/\s{0,}\s{0,}SELECT\s{0,}/.exec(ar[ix])) {
+				ar[ix] = ar[ix].replace(/\,/g, ",\n" + tab + tab + "");
+			}
+
+			if (/\s{0,}\(\s{0,}SELECT\s{0,}/.exec(ar[ix])) {
+				deep++;
+				str += this.shift[deep] + ar[ix];
+			} else if (/\'/.exec(ar[ix])) {
+				if (parenthesisLevel < 1 && deep) {
+					deep--;
+				}
+				str += ar[ix];
+			} else {
+				str += this.shift[deep] + ar[ix];
+				if (parenthesisLevel < 1 && deep) {
+					deep--;
+				}
+			}
+		}
+
+		str = str.replace(/^\n{1,}/, '').replace(/\n{1,}/g, "\n");
+		return str;
+	};
+
+	// ----------------------- min section ----------------------------------------------------
+
+	pp.prototype.xmlmin = function (text, preserveComments) {
+
+		var str = preserveComments ? text : text.replace(/\<![ \r\n\t]*(--([^\-]|[\r\n]|-[^\-])*--[ \r\n\t]*)\>/g, "");
+		return str.replace(/>\s{0,}</g, "><");
+	};
+
+	pp.prototype.jsonmin = function (text) {
+
+		return text.replace(/\s{0,}\{\s{0,}/g, "{").replace(/\s{0,}\[$/g, "[").replace(/\[\s{0,}/g, "[").replace(/:\s{0,}\[/g, ':[').replace(/\s{0,}\}\s{0,}/g, "}").replace(/\s{0,}\]\s{0,}/g, "]").replace(/\"\s{0,}\,/g, '",').replace(/\,\s{0,}\"/g, ',"').replace(/\"\s{0,}:/g, '":').replace(/:\s{0,}\"/g, ':"').replace(/:\s{0,}\[/g, ':[').replace(/\,\s{0,}\[/g, ',[').replace(/\,\s{2,}/g, ', ').replace(/\]\s{0,},\s{0,}\[/g, '],[');
+	};
+
+	pp.prototype.cssmin = function (text, preserveComments) {
+
+		var str = preserveComments ? text : text.replace(/\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+\//g, "");
+		return str.replace(/\s{1,}/g, ' ').replace(/\{\s{1,}/g, "{").replace(/\}\s{1,}/g, "}").replace(/\;\s{1,}/g, ";").replace(/\/\*\s{1,}/g, "/*").replace(/\*\/\s{1,}/g, "*/");
+	};
+
+	pp.prototype.sqlmin = function (text) {
+		return text.replace(/\s{1,}/g, " ").replace(/\s{1,}\(/, "(").replace(/\s{1,}\)/, ")");
+	};
+
+	// --------------------------------------------------------------------------------------------
+
+	exports.pd = new pp();
 
 /***/ }
 ]);

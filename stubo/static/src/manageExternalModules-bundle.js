@@ -1,4 +1,4 @@
-webpackJsonp([3],[
+webpackJsonp([4],[
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -112,7 +112,7 @@ webpackJsonp([3],[
 	    //general lifecycle methods
 	    componentWillMount: function componentWillMount() {},
 	    componentDidMount: function componentDidMount() {
-	        href = this.props.source;
+	        var href = this.props.source;
 
 	        updateTable(this, href);
 
