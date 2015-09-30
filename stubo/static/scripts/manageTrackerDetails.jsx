@@ -1,6 +1,8 @@
-var React = require('../node_modules/react');
-var Well = require('../node_modules/react-bootstrap').Well;
+import React from 'react'
+import { Label, Well} from 'react-bootstrap'
+
 var pd = require('pretty-data').pd;
+
 
 function getUrlVars() {
     var vars = [], hash;
@@ -29,7 +31,7 @@ var DdWrapper = React.createClass({
         var objectConstructor = {}.constructor;
         // check if this is a JSON object and recursively applying
         // horizontal key-value styling
-        if(value.constructor === objectConstructor){
+        if (value.constructor === objectConstructor) {
             const wellInstance = (
                 <Well bsSize="xsmall">
                     <DlHorizontalWrapper data={value}/>
@@ -37,7 +39,7 @@ var DdWrapper = React.createClass({
             );
             return <dd> {wellInstance} </dd>
         }
-         else {
+        else {
             return <dd> {value} </dd>
         }
     }
@@ -60,6 +62,52 @@ var FormattedResponseWrapper = React.createClass({
     }
 });
 
+let TraceStatus = React.createClass({
+    displayName: "TraceStatus",
+
+    render() {
+        let infoArray = this.props.data;
+        let status = infoArray[0];
+        if(status=="ok"){
+            // infoArray contains information on response
+            return <span> <Label bsStyle="success"> {status} </Label> {infoArray.slice(1)} </span>
+        } else {
+            return <span> <Label bsStyle="danger">{status}</Label> {infoArray.slice(1)} </span>
+        }
+    }
+});
+
+// list item wrapper
+let TraceListItemWrapper = React.createClass({
+    displayName: "TraceListItemWrapper",
+
+    render() {
+        let item = this.props.data;
+        let time = item[0];
+        let infoArray = item[1];
+
+        return <li> Time: <strong> {time} </strong> |  <TraceStatus data={infoArray} /> </li>;
+    }
+});
+
+// Wraps and formats trace response (when full tracking is enabled Mirage gathers more data)
+let TraceResponseWrapper = React.createClass({
+    displayName: "TraceResponseWrapper",
+
+    render: function() {
+        let responseList = this.props.data;
+        console.log(responseList);
+        let rows = [];
+
+        $.each(responseList, function (idx, item) {
+           rows.push(<TraceListItemWrapper key={idx} data={item} />)
+        });
+
+        return <dd> <ul> {rows} </ul> </dd>
+    }
+
+});
+
 
 var DlHorizontalWrapper = React.createClass({
     displayName: "dlHorizontalWrapper",
@@ -70,24 +118,33 @@ var DlHorizontalWrapper = React.createClass({
         $.each(list, function (k, v) {
 
             //display the key and value pair
-            rows.push(<DtWrapper data={k} />);
+            rows.push(<DtWrapper data={k}/>);
 
-            if(k=='stubo_response'){
+            if (k == 'stubo_response') {
 
                 let prettyfied = '';
 
                 // checking whether this object is JSON - if so - using JSON pp, otherwise using XML pp.
                 // to add more formating, for example CSS, SQL - just add more checks for objects.
-                if(typeof v =='object'){
+                if (typeof v == 'object') {
                     prettyfied = pd.json(v);
                 } else {
                     prettyfied = pd.xml(v);
                 }
-                rows.push(<FormattedResponseWrapper data={prettyfied} />);
+                rows.push(<FormattedResponseWrapper data={prettyfied}/>);
+
+            } else if (k == 'trace') {
+                // tracing data, consists of response and matcher
+                // console.log(v);
+                // adding matcher row
+                rows.push(<TraceResponseWrapper data={v.matcher}/>);
+                // adding response row
+                rows.push(<TraceResponseWrapper data={v.response}/>)
 
             } else {
-                rows.push(<DdWrapper data={v} />);
+                rows.push(<DdWrapper data={v}/>);
             }
+
         });
         return (
             <dl className="dl-horizontal">{rows}</dl>
