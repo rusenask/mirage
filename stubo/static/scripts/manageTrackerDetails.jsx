@@ -1,6 +1,5 @@
 import React from 'react'
 import { Label, Well} from 'react-bootstrap'
-
 var pd = require('pretty-data').pd;
 
 
@@ -15,7 +14,7 @@ function getUrlVars() {
     return vars;
 }
 
-var DtWrapper = React.createClass({
+let DtWrapper = React.createClass({
     displayName: "DtWrapper",
 
     render: function () {
@@ -23,7 +22,7 @@ var DtWrapper = React.createClass({
     }
 });
 
-var DdWrapper = React.createClass({
+let DdWrapper = React.createClass({
     displayName: "DdWrapper",
 
     render: function () {
@@ -45,7 +44,7 @@ var DdWrapper = React.createClass({
     }
 });
 
-var FormattedResponseWrapper = React.createClass({
+let FormattedResponseWrapper = React.createClass({
     displayName: "FormattedResponseWrapper",
 
     render: function () {
@@ -62,6 +61,37 @@ var FormattedResponseWrapper = React.createClass({
     }
 });
 
+let InfoArrayWrapper = React.createClass({
+    displayName: "InfoArrayWrapper",
+
+    render() {
+        let info = this.props.data;
+
+        if (info.length == 4) {
+            var left = jQuery.parseJSON(info[2]);
+            var right = jQuery.parseJSON(info[3]);
+
+
+            let delta = jsondiffpatch.diff(left, right);
+
+            let diffPatch = jsondiffpatch.formatters.html.format(delta, left);
+
+            // since diffPatch is returning raw html - creating an object so it can pass through React as
+            // sanitized and "safe" html
+            function createMarkup() {return {__html: diffPatch}; }
+
+            // returning raw html: https://facebook.github.io/react/tips/dangerously-set-inner-html.html
+            return <div dangerouslySetInnerHTML={createMarkup()} />
+
+        } else {
+            return <span> {info.slice(1)} </span>
+
+        }
+    }
+
+});
+
+
 let TraceStatus = React.createClass({
     displayName: "TraceStatus",
 
@@ -70,9 +100,9 @@ let TraceStatus = React.createClass({
         let status = infoArray[0];
         if(status=="ok"){
             // infoArray contains information on response
-            return <span> <Label bsStyle="success"> {status} </Label> {infoArray.slice(1)} </span>
+            return <span> <Label bsStyle="success"> {status} </Label>&nbsp; <InfoArrayWrapper data={infoArray} /> </span>
         } else {
-            return <span> <Label bsStyle="danger">{status}</Label> {infoArray.slice(1)} </span>
+            return <span> <Label bsStyle="danger">{status}</Label>&nbsp; <InfoArrayWrapper data={infoArray} /> </span>
         }
     }
 });
@@ -86,7 +116,7 @@ let TraceListItemWrapper = React.createClass({
         let time = item[0];
         let infoArray = item[1];
 
-        return <li> Time: <strong> {time} </strong> |  <TraceStatus data={infoArray} /> </li>;
+        return <li> Time: <strong> {time} </strong> &nbsp;  <TraceStatus data={infoArray} /> </li>;
     }
 });
 
@@ -96,7 +126,7 @@ let TraceResponseWrapper = React.createClass({
 
     render: function() {
         let responseList = this.props.data;
-        console.log(responseList);
+        //console.log(responseList);
         let rows = [];
 
         $.each(responseList, function (idx, item) {
@@ -137,6 +167,7 @@ var DlHorizontalWrapper = React.createClass({
                 // tracing data, consists of response and matcher
                 // console.log(v);
                 // adding matcher row
+
                 rows.push(<TraceResponseWrapper data={v.matcher}/>);
                 // adding response row
                 rows.push(<TraceResponseWrapper data={v.response}/>)
