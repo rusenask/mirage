@@ -108,7 +108,7 @@ var ExternalModules = React.createClass({
     componentWillMount: function () {
     },
     componentDidMount: function () {
-        href = this.props.source;
+        let href = this.props.source;
 
         updateTable(this, href);
 
