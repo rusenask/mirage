@@ -6,6 +6,7 @@
 import logging
 import time
 import sys
+import os
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 import socket
 
@@ -19,9 +20,10 @@ from stubo.utils import (
 )
 from stubo.utils.command_queue import InternalCommandQueue
 from stubo.utils.stats import StatsdStats
-from stubo import version, static_path
+from stubo import version, static_path, stubo_path
 from stubo.model.db import default_env, coerce_mongo_param
 from stubo.service.urls import url_patterns
+from stubo.scripts.admin import create_tracker_collection
 
 log = logging.getLogger(__name__)
 
@@ -69,8 +71,10 @@ class TornadoManager(object):
                                  'stubo.ext.transformer.StuboDefaultHooks')
         self.cfg['hooks'] = resolve_class(hooks_cls)
         tornado_app = tornado.web.Application(
+            # adding static path (PROJECT_ROOT/stubo/static
             static_path=static_path(),
-            template_path=static_path('templates'),
+            # adding template path (PROJECT_ROOT/stubo/templates)
+            template_path=os.path.join(stubo_path(), 'templates'),
             xheaders=True,
             **self.cfg)
         tornado_app.add_handlers('.*$', self._make_route_list())
@@ -124,6 +128,9 @@ class TornadoManager(object):
             max_process_workers = int(max_process_workers)
         tornado_app.settings['process_executor'] = ProcessPoolExecutor(max_process_workers)
         log.info('started with {0} worker processes'.format(tornado_app.settings['process_executor']._max_workers))
+
+        # ensure tracker collection indexing
+        create_tracker_collection()
 
         cmd_queue = InternalCommandQueue()
         cmd_queue_poll_interval = self.cfg.get('cmd_queue_poll_interval',

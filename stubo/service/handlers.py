@@ -499,6 +499,67 @@ class PlopProfileHandler(RequestHandler):
 
 
 """
+Manage Handlers
+"""
+
+class ManageScenariosHandler(RequestHandler):
+    """
+    /manage/scenarios
+
+    """
+
+    def get(self):
+        self.render('manageScenarios.html')
+
+class ManageScenarioDetailsHandler(RequestHandler):
+    """
+    /manage/scenarios/details?scenario=<href to scenario>
+
+    """
+
+    def get(self):
+        self.render('manageScenarioDetails.html')
+
+class ManageScenarioExportHandler(RequestHandler):
+    """
+   /manage/scenarios/export?scenario=<href to scenario>
+
+   """
+
+    def get(self):
+        self.render('manageExportScenario.html')
+
+class ManageDelayPoliciesHandler(RequestHandler):
+
+    def get(self):
+        self.render('manageDelayPolicies.html')
+
+class ManageCommandsHandler(RequestHandler):
+
+    def get(self):
+        self.render('manageCommands.html')
+
+class ManageModulesHandler(RequestHandler):
+
+    def get(self):
+        self.render('manageModules.html')
+
+"""
+Tracker Handlers
+"""
+
+class TrackerHandler(RequestHandler):
+
+    def get(self):
+        self.render('trackerRecords.html')
+
+
+class TrackerDetailsHandler(RequestHandler):
+
+    def get(self):
+        self.render('trackerRecordDetails.html')
+
+"""
 -------------------------------------------------------------------
 ------------------ below are handlers for API v2 ------------------
 -------------------------------------------------------------------
@@ -506,6 +567,7 @@ class PlopProfileHandler(RequestHandler):
 """
 import json
 from stubo.utils import get_hostname
+from tornado import websocket
 from pymongo.errors import DuplicateKeyError
 from stubo.model.db import Tracker
 from bson import ObjectId
@@ -517,10 +579,18 @@ from stubo.cache import Cache
 from stubo.service.api_v2 import begin_session as api_v2_begin_session
 from stubo.service.api_v2 import update_delay_policy as api_v2_update_delay_policy
 from stubo.service.api_v2 import get_delay_policy as api_v2_get_delay_policy
+from stubo.service.api_v2 import MagicFiltering
+
+from stubo.utils.command_queue import InternalCommandQueue
+from stubo.service.api import delete_module
 
 from stubo.service.api import end_session, end_sessions, delete_delay_policy, put_stub, get_response
 from stubo.utils.track import BaseHandler
 from stubo.utils import asbool
+from stubo.model.exporter import Exporter
+from stubo.model.export_commands import export_stubs_to_commands_format, get_export_links
+from stubo.model.exporter import YAML_FORMAT_SUBDIR
+from stubo.service.api import run_command_file, run_commands
 
 NOT_ALLOWED_MSG = 'Method not allowed'
 
@@ -704,8 +774,19 @@ class GetAllScenariosHandler(RequestHandler):
         Returns a list with all scenarios (and URL paths to these resources),
         stub count
         """
-        # getting all scenarios
-        cursor = self.db.scenario.find()
+        all_hosts = asbool(self.get_argument("all-hosts", True))
+
+        # getting scenarios for the current host
+        if not all_hosts:
+            current_host = get_hostname(self.request)
+            query = {'name': {'$regex': current_host+'.*'}}
+            cursor = self.db.scenario.find(query)
+        else:
+            # getting all scenarios
+            cursor = self.db.scenario.find()
+
+        # # getting all scenarios
+        # cursor = self.db.scenario.find()
         # sorting based on name
         cursor.sort([('name', pymongo.ASCENDING)])
 
@@ -947,8 +1028,7 @@ class ScenarioActionHandler(TrackRequest):
 
             # export scenario
             elif 'export' in body_dict:
-                # do scenario export
-                pass
+                self._export_scenario(body_dict)
 
             else:
                 self.send_error(status_code=400)
@@ -1039,6 +1119,102 @@ class ScenarioActionHandler(TrackRequest):
             log.warn("Failed to end session %s for scenario: %s. Got error: %s" % (self.session_name,
                                                                                    self.scenario_name,
                                                                                    ex))
+
+    @stubo_async
+    def _export_scenario(self, body_dict):
+        """
+        Standard export functionality example request:
+        {
+          "export": null
+        }
+        Example response:
+        {
+            "version": "0.6.6", "data": {
+                "yaml_links": [
+                    ["scenario_1_1443437153_0.json", "http:/host:port/static/exports/localhost_scenario_1/yaml_format/
+                                                      scenario_1_1443437153_0.json?v=c0edf1d9ded15b97c6d083d2128b9945"],
+                        ...
+                ],
+                "command_links": [
+                    ["scenario_1_1443437153_0.response", "http://host:port/static/exports/localhost_scenario_1/
+                                                  scenario_1_1443437153_0.response?v=55c4a49780ed085e7a5f9176e90aef60"],
+                ...
+                ],
+                "scenario": "scenario_1",
+                "export_dir_path": "/Users/karolisrusenas/IdeaProjects/mirage/stubo/static/exports/localhost_scenario_1/
+                                    yaml_format"
+            }
+        }
+
+        Example export runnable scenario request body:
+        {
+          "export": null,
+          "runnable": true,
+          "playback_session": "response_play"
+        }
+
+        All optional parameters:
+        Optional:
+        {
+             “session”: “session_name(if None - will default to current time”,
+             “export_dir”: “export_dir_name”,
+             “runnable”: true,
+             “playback_session”: “session_to_use(required when runnable)”
+         }
+
+        In addition to usual export links to files there will be created another object (runnable):
+        ...
+        runnable: {
+            last_used: {
+                    start_time: "2015-09-25 17:12:03.133000+00:00"
+                    remote_ip: "::1"
+                }
+            playback_session: "response_play"
+            number_of_playback_requests: 1
+            }
+        ...
+
+        """
+        # checking whether scenario name was supplied
+        if ':' in self.scenario_name:
+            scenario_name_key = self.scenario_name
+            _, self.scenario_name = self.scenario_name.split(':')
+        else:
+            scenario_name_key = _get_scenario_full_name(self, self.scenario_name)
+
+        static_dir = self.settings['static_path']
+
+        exporter = Exporter(static_dir=static_dir)
+        runnable = body_dict.get('runnable', False)
+        playback_session = body_dict.get('playback_session', None)
+        session = body_dict.get('session', None)
+        export_dir = body_dict.get('export_dir', None)
+
+        # exporting to commands format
+        command_links = export_stubs_to_commands_format(handler=self,
+                                                        scenario_name_key=scenario_name_key,
+                                                        scenario_name=self.scenario_name,
+                                                        session_id=session,
+                                                        runnable=runnable,
+                                                        playback_session=playback_session,
+                                                        static_dir=static_dir,
+                                                        export_dir=export_dir)
+
+        # doing the export
+        export_dir_path, files, runnable_info = exporter.export(scenario_name_key,
+                                                                runnable=runnable,
+                                                                playback_session=playback_session,
+                                                                session_id=session,
+                                                                export_dir=export_dir)
+
+        # getting export links
+        yaml_links = get_export_links(self, scenario_name_key + "/" + YAML_FORMAT_SUBDIR, files)
+
+        payload = dict(scenario=self.scenario_name, export_dir_path=export_dir_path,
+                       command_links=command_links, yaml_links=yaml_links)
+        if runnable_info:
+            payload['runnable'] = runnable_info
+        return dict(version=version, data=payload)
 
 
 class CreateDelayPolicyHandler(BaseHandler):
@@ -1424,12 +1600,33 @@ class TrackerRecordsHandler(BaseHandler):
         skip = int(self.get_argument('skip', 0))
         limit = int(self.get_argument('limit', 100))
 
-        tracker = Tracker(self.db)
-        # getting total items
-        total_items = yield tracker.item_count()
+        query = self.get_argument('q', None)
 
-        # TODO: add filtering
-        tracker_filter = {}
+        all_hosts = asbool(self.get_argument("all-hosts", True))
+
+        # getting scenarios for the current host
+        if not all_hosts:
+            current_host = get_hostname(self.request)
+            hostname = current_host
+        else:
+            # getting all scenarios
+            hostname = '.*'
+
+        tracker = Tracker(self.db)
+
+        if query:
+            tracker_filter = {'$and': [{'host': {'$regex': hostname}},
+                {'$or': [
+                {'scenario': {'$regex': query, '$options': 'i'}},
+                {'function': {'$regex': query, '$options': 'i'}}
+                ]
+            }]}
+        else:
+            tracker_filter = {}
+
+        # getting total items
+        total_items = yield tracker.item_count(tracker_filter)
+
         cursor = tracker.find_tracker_data(tracker_filter, skip, limit)
 
         tracker_objects = []
@@ -1484,6 +1681,97 @@ class TrackerRecordsHandler(BaseHandler):
 
         self.write(result)
 
+
+class TrackerWebSocket(websocket.WebSocketHandler):
+
+    def open(self):
+        print("WebSocket opened")
+
+    @gen.coroutine
+    def on_message(self, query_json):
+        query_dict = json.loads(query_json)
+        self.db = motor_driver(self.settings)
+        # getting pagination info
+        skip = query_dict.get('skip', 0)
+        limit = query_dict.get('limit', 25)
+        query = query_dict.get('q', None)
+
+        all_hosts = asbool(self.get_argument("all-hosts", True))
+
+        # getting scenarios for the current host
+        if not all_hosts:
+            current_host = get_hostname(self.request)
+            hostname = current_host
+        else:
+            # getting all scenarios
+            hostname = '.*'
+
+        tracker = Tracker(self.db)
+
+        mf = MagicFiltering(query=query, hostname=hostname)
+        tracker_filter = mf.get_filter()
+
+        # getting total items
+        total_items = yield tracker.item_count(tracker_filter)
+
+        cursor = tracker.find_tracker_data(tracker_filter, skip, limit)
+
+        tracker_objects = []
+        while (yield cursor.fetch_next):
+            try:
+                document = cursor.next_object()
+                # converting datetime object to string
+                document['start_time'] = document['start_time'].strftime('%Y-%m-%d %H:%M:%S')
+                # converting document ID to string
+                obj_id = str(ObjectId(document['_id']))
+                document['id'] = obj_id
+                # adding object ref ID
+                document['href'] = "/stubo/api/v2/tracker/records/objects/%s" % obj_id
+                # removing BSON object
+                document.pop('_id')
+                tracker_objects.append(document)
+            except Exception as ex:
+                log.warn('Failed to fetch document: %s' % ex)
+
+        # --- Pagination ---
+
+        # skip forward
+        skip_forward = skip
+        skip_forward += limit
+
+        # skip backwards
+        skip_backwards = skip - limit
+        if skip_backwards < 0:
+            skip_backwards = 0
+
+        # previous, removing link if there are no pages
+        if skip != 0:
+            previous_page = "/stubo/api/v2/tracker/records?skip=" + str(skip_backwards) + "&limit=" + str(limit)
+        else:
+            previous_page = None
+
+        # next page, removing link if there are no records ahead
+        if skip_forward + limit >= total_items:
+            next_page = None
+        else:
+            next_page = "/stubo/api/v2/tracker/records?skip=" + str(skip_forward) + "&limit=" + str(limit)
+
+        result = {'data': tracker_objects,
+                  'paging': {
+                      'previous': previous_page,
+                      'next': next_page,
+                      'first': "/stubo/api/v2/tracker/records?skip=" + str(0) + "&limit=" + str(limit),
+                      'last': "/stubo/api/v2/tracker/records?skip=" + str(total_items-limit) + "&limit=" + str(limit),
+                      'currentLimit': limit,
+                      'totalItems': total_items
+                  }}
+
+        self.write_message(result)
+
+    def on_close(self):
+        print("WebSocket closed")
+
+
 class TrackerRecordDetailsHandler(BaseHandler):
     """
     /stubo/api/v2/tracker/records/objects/<record_id>
@@ -1526,6 +1814,120 @@ class TrackerRecordDetailsHandler(BaseHandler):
             self.set_status(404)
             self.write("Record with ID: %s not found." % record_id)
 
+from stubo.service.api_v2 import list_available_modules
+
+class ExternalModulesHandler(BaseHandler):
+    """
+    /api/v2/modules/
+
+    example output:
+    {
+    version: "0.6.6"
+    data: {
+        info: {
+            response: {
+                loaded_sys_versions: [0]
+                latest_code_version: 1
+            }-
+        }-
+        message: "list modules"
+        }-
+    }
+    """
+
+    def get(self):
+        self.write(list_available_modules(get_hostname(self.request)))
+
+
+class ExternalModuleDeleteHandler(BaseHandler):
+    """
+    /api/v2/modules/objects/<module_name>
+
+    """
+    def delete(self, module_name):
+        # complying to current api
+        names = [module_name]
+
+        # deleting modules in slave redis
+        cmdq = InternalCommandQueue()
+        # Note: delete and unload from all slaves not just the executing one
+        cmdq.add(get_hostname(self.request),
+                 'delete/module?name={0}'.format(module_name))
+        result = delete_module(self.request, names)
+        self.write(result)
+
+
+class ExecuteCommandsHandler(TrackRequest):
+    """
+    /manage/execute
+
+    example output:
+    {
+        'data': {'executed_commands':
+                      {'commands': [
+                             ('delete/stubs?scenario=response&force=true',
+                              200),
+                             ('put/module?name=/static/cmds/date/response.py',
+                              200),
+                             ('begin/session?scenario=response&session=response_rec&mode=record',
+                              200),
+                             ('put/stub?session=response_rec&ext_module=response&recorded_on=2014-06-01
+                                                                    ,response.request.xml,response.xml',
+                              200),
+                             ('end/session?session=response_rec',
+                              200),
+                             ('begin/session?scenario=response&session=response_play&mode=playback',
+                              200),
+                             ('get/response?session=response_play&ext_module=response&played_on=2014-06-03
+                                                                                    ,response.request.xml',
+                              200),
+                             ('end/session?session=response_play',
+                              200)
+                          ]},
+              'number_of_errors': 0,
+              'number_of_requests': 8},
+        'version': '0.6.6'
+    }
+    """
+
+    @stubo_async
+    def post(self):
+
+        response = None
+        # parsing body
+        try:
+            bd = json.loads(self.request.body)
+        except Exception as ex:
+            log.warning("Failed to parse submited request to execute commands: %s" % ex)
+            # returning bad request
+            raise exception_response(400,
+                                     title="Valid JSON not found in submitted request")
+
+        # getting parameters
+        cmds = bd.get('command', None)
+        cmd_file_url = bd.get('commandFile', None)
+
+        # looking for command file url
+        if cmd_file_url:
+            request = DummyModel(protocol=self.request.protocol,
+                                 host=self.request.host,
+                                 arguments=self.request.arguments)
+            response = run_command_file(cmd_file_url, request,
+                                        self.settings['static_path'])
+        # looking for plain command
+        elif cmds:
+            response = run_commands(self, cmds)
+
+        # checking whether we have a valid response
+        if response:
+            log.debug(u'command_handler_form_request: cmd_file={0},cmds={1}'.format(
+                cmd_file_url, cmds))
+
+            return response
+        else:
+            raise exception_response(400,
+                                     title="'cmds' or 'cmdFile' parameter not supplied.")
+
 
 def _get_scenario_full_name(handler, name, host=None):
     """
@@ -1539,3 +1941,4 @@ def _get_scenario_full_name(handler, name, host=None):
             host = get_hostname(handler.request)
         name = '%s:%s' % (host, name)
     return name
+
