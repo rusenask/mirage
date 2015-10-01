@@ -4,18 +4,20 @@
     :license: GPLv3, see LICENSE for more details.
 """
 
-from stubo.model.db import (
-    Scenario, get_mongo_client, session_last_used, Tracker
-)
+from stubo.model.db import Scenario
+
 from stubo.service.delay import Delay
 from stubo.model.stub import Stub
 from stubo import version
 from stubo.service.api import get_response
-from stubo.utils import get_hostname, pretty_format_python
+from stubo.utils import get_hostname
 from stubo.cache import Cache
 from stubo.exceptions import exception_response
 import logging
 from stubo.ext.module import Module
+from stubo.cache import get_keys
+import sys
+
 log = logging.getLogger(__name__)
 
 
@@ -255,8 +257,6 @@ def get_delay_policy(handler, name, cache_loc):
     response['data'] = delay_list
     return response, status_code
 
-from stubo.cache import get_keys
-import sys
 
 def list_available_modules(hostname):
     """
@@ -275,12 +275,10 @@ def list_available_modules(hostname):
         loaded_sys_versions = [x for x in sys.modules.keys() if '{0}_v'.format(name) in x]
         lastest_code_version = module.latest_version(name)
         source_code = Module(hostname).get_source(name)
-        source_code_html = pretty_format_python(source_code)
         obj = {
             'name': name,
             'latest_code_version': lastest_code_version,
             'loaded_sys_versions': loaded_sys_versions,
-            'source_html': source_code_html,
             'source_raw': source_code,
             'href': '/api/v2/modules/objects/%s' % name
         }
@@ -290,6 +288,7 @@ def list_available_modules(hostname):
         'version': version,
         'data': modules_list
     }
+
 
 class MagicFiltering:
     def __init__(self, query, hostname):
