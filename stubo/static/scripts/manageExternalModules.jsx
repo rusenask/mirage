@@ -1,8 +1,8 @@
 import React from 'react'
 import { Modal, Button} from 'react-bootstrap'
+import Highlight from 'react-highlight'
 
 var Griddle = require('../node_modules/griddle-react');
-var Highlight = require('react-highlight');
 
 // remove delay policy action button
 var RemoveButton = React.createClass({
@@ -81,7 +81,7 @@ let ShowSourceButton = React.createClass({
                         <Modal.Title>Module "{this.state.name}" source code</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <Highlight className='python'>
+                        <Highlight>
                             {this.state.source}
                         </Highlight>
                     </Modal.Body>
