@@ -17,7 +17,7 @@ services:
 # command to run tests
 script: 
   - export STUBO_CONFIG_FILE_PATH=./dev.ini
-  - nosetests --with-coverage --cover-package=stubo
+  - nosetests stubo --with-coverage --cover-package=stubo
   
 after_success:
     coveralls  
