@@ -65,7 +65,6 @@ let ShowSourceButton = React.createClass({
         this.setState({ showModal: true });
     },
 
-
     render() {
         return (
             <span>
@@ -76,7 +75,8 @@ let ShowSourceButton = React.createClass({
                     Show source
                 </Button>
 
-                <Modal show={this.state.showModal} onHide={this.close}>
+                <Modal show={this.state.showModal} onHide={this.close}
+                       bsSize="large">
                     <Modal.Header closeButton>
                         <Modal.Title>Module "{this.state.name}" source code</Modal.Title>
                     </Modal.Header>
