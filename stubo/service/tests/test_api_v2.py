@@ -1288,11 +1288,12 @@ class ModuleApiTest(Base):
         bd = json.loads(response.body)
         self.assertTrue("version" in bd, bd)
         # check whether our module is in the list as well
-        self.assertTrue(
-            {u'loaded_sys_versions': [u'localhost_splitter_v1'],
-             u'latest_code_version': 1,
-             u'href': u'/api/v2/modules/objects/splitter',
-             u'name': u'splitter'} in bd['data'], bd)
+
+        self.assertTrue('loaded_sys_versions' in bd['data'][0].keys(), bd)
+        self.assertTrue('latest_code_version' in bd['data'][0].keys(), bd)
+        self.assertTrue('source_raw' in bd['data'][0].keys(), bd)
+        self.assertTrue('href' in bd['data'][0].keys(), bd)
+        self.assertTrue('name' in bd['data'][0].keys(), bd)
 
     def test_module_deletion(self):
         """
