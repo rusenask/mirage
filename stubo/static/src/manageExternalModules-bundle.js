@@ -12,8 +12,11 @@ webpackJsonp([4],[
 
 	var _reactBootstrap = __webpack_require__(157);
 
+	var _reactHighlight = __webpack_require__(404);
+
+	var _reactHighlight2 = _interopRequireDefault(_reactHighlight);
+
 	var Griddle = __webpack_require__(389);
-	var Highlight = __webpack_require__(404);
 
 	// remove delay policy action button
 	var RemoveButton = _react2['default'].createClass({
@@ -112,8 +115,8 @@ webpackJsonp([4],[
 	                    _reactBootstrap.Modal.Body,
 	                    null,
 	                    _react2['default'].createElement(
-	                        Highlight,
-	                        { className: 'python' },
+	                        _reactHighlight2['default'],
+	                        null,
 	                        this.state.source
 	                    )
 	                ),
