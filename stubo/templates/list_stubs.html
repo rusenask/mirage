@@ -1,0 +1,69 @@
+{% extends "base_old.html" %}
+{% block content %}
+
+<script type="text/javascript">
+  $(document).ready(function () {
+     $('.closeall').click(function(){
+        $(this).parents('.panel-heading')
+        .next('.panel-collapse')
+        .collapse('show')
+        .find('.panel-collapse')
+        .collapse('toggle');
+    });
+    
+    $('.closeall').parents('.panel-heading')
+        .next('.panel-collapse')
+        .collapse('show'); 
+    });   
+     
+</script>
+
+{% import json %}
+
+ 
+  
+<div class="panel panel-default">
+    <div class="panel-heading">
+            <h2 class="panel-title">
+            Scenario: {{ scenario }}
+            <span class="pull-right"><button id="stubs-toggle" type="button" class="closeall btn btn-success btn-xs">open/close all stubs</button></span>   
+            </h2>
+    </div>
+
+<div id="collapse-stubs" class="panel-collapse collapse">
+<div class="panel-body">
+
+{% for i in range(len(stubs)) %}
+    {% set stub_item = stubs[i] %}
+        
+        <div class="panel panel-success">
+                <div class="panel-heading">
+                        <h2 class="panel-title">
+                            <a href="#collapse-{{i}}" data-parent="#collapsible-stubs" class="accordion-toggle" data-toggle="collapse"><h3>stub <span class="badge">{{i}}</span>&nbsp;&raquo;</h3></a>
+                        </h2>
+                </div>
+                <div id="collapse-{{i}}" class="panel-collapse collapse">
+                  <div class="panel-body">
+                    {% if stub_item.module() %}
+                      <h3>module</h3>
+                      <pre>{{ json.dumps(stub_item.module(), sort_keys=True, indent=4)  }}</pre>
+                    {% end %}
+                    
+                     <div>
+                      {% raw pretty_format(json.dumps(stub_item.payload, indent=indent), 'JSON') %}
+                     </div>
+                         
+                  </div>
+                </div>
+        </div>
+  
+{% end %}
+</div>
+</div>
+</div>           
+             
+{% end %}
+
+
+
+

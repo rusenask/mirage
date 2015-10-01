@@ -56,23 +56,47 @@ rest_api = [
     ("/stubo/api/v2/delay-policy", "CreateDelayPolicyHandler"),
     ("/stubo/api/v2/delay-policy/detail", "GetAllDelayPoliciesHandler"),
     ("/stubo/api/v2/delay-policy/objects/(?P<delay_policy_name>[^\/]+)", "GetDelayPolicyDetailsHandler"),
+    # external modules
+    ("/api/v2/modules", "ExternalModulesHandler"),
+    ("/api/v2/modules/objects/(?P<module_name>[^\/]+)", "ExternalModuleDeleteHandler"),
     # tracker records
     ("/stubo/api/v2/tracker/records", "TrackerRecordsHandler"),
     ("/stubo/api/v2/tracker/records/objects/(?P<record_id>[^\/]+)", "TrackerRecordDetailsHandler"),
+    # websocket tracker api
+    ("/stubo/api/ws/tracker", "TrackerWebSocket")
 ]
 
 # UI pages
 ui_pages = [
-    ("/tracker", "ViewTrackerHandler"),
-    ("/tracker/(.*)", "ViewATrackerHandler"),
-    ("/", "HomeHandler"),
-    ("/manage", "ManageHandler"),
+    ("/tracker_old", "ViewTrackerHandler"),
+    ("/tracker_old/(.*)", "ViewATrackerHandler"),
+
     ("/manage/exec_cmds", "StuboCommandHandlerHTML"),
     ("/docs", "DocsHandler"),
     ("/stubs", "GetStubListHandlerHTML"),
     ("/analytics", "AnalyticsHandler"),
     ('/_profile', 'ProfileHandler'),
     ('/_profile2', 'PlopProfileHandler'),
+    # management
+    # currently routing to tracker page
+    ("/", "TrackerHandler"),
+
+    ("/manage/scenarios", "ManageScenariosHandler"),
+    ("/manage/scenarios/details", "ManageScenarioDetailsHandler"),
+    ("/manage/scenarios/export", "ManageScenarioExportHandler"),
+
+    ("/manage/delaypolicies", "ManageDelayPoliciesHandler"),
+    ("/manage/modules", "ManageModulesHandler"),
+    # commands handlers
+    ("/manage/commands", "ManageCommandsHandler"),
+    ("/manage/execute", "ExecuteCommandsHandler"),
+
+    ("/manage", "ManageHandler"),
+
+    # tracker
+    ("/tracker", "TrackerHandler"),
+    ("/tracker/objects", "TrackerDetailsHandler"),
+
 ]
 
 url_patterns = json_api + rest_api + ui_pages

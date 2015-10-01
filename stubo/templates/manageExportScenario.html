@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %} Manage Scenarios{% end %}
+
+{% block head %}
+<link rel="stylesheet" href="{{static_url('griddle.css')}}"/>
+
+{% end head %}
+
+
+{% block body %}
+<section class="content-header">
+    <h1>
+        Management <span id="scenarioName"> <!-- scenario name renders here --> </span>
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-pie-chart"></i> Management</a></li>
+        <li>Scenarios</li>
+        <li class="active">Export</li>
+    </ol>
+</section>
+<!-- Main content -->
+<section class="content">
+    <div class="row">
+        <div id="app">
+            <!--app renders here-->
+        </div>
+    </div>
+
+</section>
+
+{% end body %}
+{% block endjs %}
+
+<script src="{{static_url('src/manageExportScenario-bundle.js')}}" type="text/javascript"></script>
+
+{% end endjs %}
