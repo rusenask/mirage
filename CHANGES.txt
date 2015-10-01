@@ -1,6 +1,57 @@
 Changelog
 =========
 
+Unreleased:
+
+Added:
+
+Changed:
+
+Deprecated:
+
+Removed:
+
+Fixed:
+
+
+0.7 (2015-10-01)
+
+Added:
+- REST API for Mirage management. This API currently covers most of the management commands
+  although it may slightly change (for example current "get response stub" request body is likely to be changed)
+  This new API also has new functionality that was not available in the previous JSON API such as Tracker collection
+  record filtering and pagination through REST. It also provides WebSocket supported filtering to speed up search
+  in Tracker.
+- Moved from Tornado template engine to React.js.
+- New UI based on React.js framework. All web UI has been restructured, old /manage page was removed and its functionality
+  split into "management" side menu where users can directly access scenario, module, delay policies or direct command
+  execution pages. All of the data to this front-end is supplied by the new REST APIv2 and almost nothing is rendered
+  on the server side (except for showing current Mirage version, however that may also change in future releases)
+- Webpack configuration for compiling .jsx files to .js, this creates javascript bundles that can be easily imported
+  in the separate pages and decreases loading time.
+- Dockerfile for building Mirage Docker image and separate docker-compose script to launch dockerized Mirage environment
+  that interconnects through container network.
+- Syntax highlighting for
+
+Changed:
+- Deployment and application startup has been changed. Now, instead of executing setup.py, copying configuration to
+  virtualenv and then from there launching Mirage by calling "stubo" command (that was far from standard approach at
+  launching Python application) - it was changed to installing requirements from requirements.txt file with pip and then
+  executing "python run.py" in the project root.
+- Tracker collection is now being checked during each application startup. Mirage now checks whether it exists and can
+  create a capped collection if it' not there. Then it ensures indexes.
+
+
+Deprecated:
+- Current web UI is currently deprecated, although not removed.
+- Current handlers, handlers_mt, api functionality for serving and legacy UI is deprecated.
+
+Fixed:
+
+- Multiple open connections to MongoDB during tests
+- Performance degradation due to indexing fixed
+
+
 0.6.6 (2015-08-10)
 ------------------
 
