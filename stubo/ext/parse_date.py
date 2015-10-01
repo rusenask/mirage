@@ -38,7 +38,7 @@ except (ImportError, AttributeError):
     pass
 
 
-def _guess_datetime_format(dt_str, parsed_datetime, dayfirst=True,
+def _guess_datetime_format(dt_str, parsed_datetime, dayfirst,
                            dt_str_split=_DATEUTIL_LEXER_SPLIT):
     """
     Guess the datetime format of a given datetime string.
@@ -147,7 +147,7 @@ def _guess_datetime_format(dt_str, parsed_datetime, dayfirst=True,
 has_time = re.compile('(.+)([\s]|T)+(.+)')
 
 
-def parse_date_string(date_str, dayfirst=True, yearfirst=True):
+def parse_date_string(date_str, dayfirst=False, yearfirst=True):
     """
     Try hard to parse datetime string, leveraging dateutil plus some extras
 
