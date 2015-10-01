@@ -1,6 +1,8 @@
-var React = require('../node_modules/react');
+import React from 'react'
+import { Modal, Button} from 'react-bootstrap'
+import Highlight from 'react-highlight'
+
 var Griddle = require('../node_modules/griddle-react');
-var Button = require('../node_modules/react-bootstrap').Button;
 
 // remove delay policy action button
 var RemoveButton = React.createClass({
@@ -43,13 +45,66 @@ var RemoveButton = React.createClass({
     }
 });
 
+let ShowSourceButton = React.createClass({
+    displayName: "showSourceButton",
+
+    getInitialState() {
+        return {
+            data: this.props.data,
+            source: this.props.data.source_raw,
+            name: this.props.data.name,
+            showModal: false
+        }
+    },
+
+    close() {
+        this.setState({ showModal: false });
+    },
+
+    open() {
+        this.setState({ showModal: true });
+    },
+
+    render() {
+        return (
+            <span>
+                <Button
+                    bsStyle="info"
+                    onClick={this.open}
+                    >
+                    Show source
+                </Button>
+
+                <Modal show={this.state.showModal} onHide={this.close}
+                       bsSize="large">
+                    <Modal.Header closeButton>
+                        <Modal.Title>Module "{this.state.name}" source code</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Highlight>
+                            {this.state.source}
+                        </Highlight>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button onClick={this.close}>Close</Button>
+                    </Modal.Footer>
+                </Modal>
+            </span>
+        );
+    }
+
+});
+
 var ActionComponent = React.createClass({
     displayName: "ActionComponent",
 
     render: function () {
         // rendering action buttons
         return (
-            <RemoveButton data={this.props.rowData}/>
+            <div>
+                <RemoveButton data={this.props.rowData}/> &nbsp;
+                <ShowSourceButton data={this.props.rowData}/>
+            </div>
         )
     }
 });

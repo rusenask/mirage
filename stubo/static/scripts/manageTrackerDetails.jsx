@@ -1,5 +1,6 @@
 import React from 'react'
 import { Label, Well} from 'react-bootstrap'
+import Highlight from 'react-highlight'
 var pd = require('pretty-data').pd;
 
 
@@ -51,9 +52,9 @@ let FormattedResponseWrapper = React.createClass({
         var value = this.props.data;
 
         let preInstance = (
-            <pre bsSize="xsmall">
-                {value}
-            </pre>
+                <Highlight>
+                    {value}
+                </Highlight>
         );
 
         return <dd> {preInstance} </dd>
@@ -78,10 +79,12 @@ let InfoArrayWrapper = React.createClass({
 
             // since diffPatch is returning raw html - creating an object so it can pass through React as
             // sanitized and "safe" html
-            function createMarkup() {return {__html: diffPatch}; }
+            function createMarkup() {
+                return {__html: diffPatch};
+            }
 
             // returning raw html: https://facebook.github.io/react/tips/dangerously-set-inner-html.html
-            return <div dangerouslySetInnerHTML={createMarkup()} />
+            return <div dangerouslySetInnerHTML={createMarkup()}/>
 
         } else {
             return <span> {info.slice(1)} </span>
@@ -98,11 +101,11 @@ let TraceStatus = React.createClass({
     render() {
         let infoArray = this.props.data;
         let status = infoArray[0];
-        if(status=="ok"){
+        if (status == "ok") {
             // infoArray contains information on response
-            return <span> <Label bsStyle="success"> {status} </Label>&nbsp; <InfoArrayWrapper data={infoArray} /> </span>
+            return <span> <Label bsStyle="success"> {status} </Label>&nbsp; <InfoArrayWrapper data={infoArray}/> </span>
         } else {
-            return <span> <Label bsStyle="danger">{status}</Label>&nbsp; <InfoArrayWrapper data={infoArray} /> </span>
+            return <span> <Label bsStyle="danger">{status}</Label>&nbsp; <InfoArrayWrapper data={infoArray}/> </span>
         }
     }
 });
@@ -116,7 +119,7 @@ let TraceListItemWrapper = React.createClass({
         let time = item[0];
         let infoArray = item[1];
 
-        return <li> Time: <strong> {time} </strong> &nbsp;  <TraceStatus data={infoArray} /> </li>;
+        return <li> Time: <strong> {time} </strong> &nbsp;  <TraceStatus data={infoArray}/></li>;
     }
 });
 
@@ -124,16 +127,18 @@ let TraceListItemWrapper = React.createClass({
 let TraceResponseWrapper = React.createClass({
     displayName: "TraceResponseWrapper",
 
-    render: function() {
+    render: function () {
         let responseList = this.props.data;
         //console.log(responseList);
         let rows = [];
 
         $.each(responseList, function (idx, item) {
-           rows.push(<TraceListItemWrapper key={idx} data={item} />)
+            rows.push(<TraceListItemWrapper key={idx} data={item}/>)
         });
 
-        return <dd> <ul> {rows} </ul> </dd>
+        return <dd>
+            <ul> {rows} </ul>
+        </dd>
     }
 
 });
@@ -158,10 +163,12 @@ var DlHorizontalWrapper = React.createClass({
                 // to add more formating, for example CSS, SQL - just add more checks for objects.
                 if (typeof v == 'object') {
                     prettyfied = pd.json(v);
+                    rows.push(<FormattedResponseWrapper data={prettyfied} />);
                 } else {
                     prettyfied = pd.xml(v);
                 }
-                rows.push(<FormattedResponseWrapper data={prettyfied}/>);
+                rows.push(<FormattedResponseWrapper data={prettyfied} />);
+
 
             } else if (k == 'trace') {
                 // tracing data, consists of response and matcher
