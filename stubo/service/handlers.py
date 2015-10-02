@@ -21,7 +21,7 @@ from stubo.service.handlers_mt import (
     command_handler_request, delay_policy_request,
     stub_count_request, begin_session_request, end_session_request,
     put_stub_request, get_response_request, delete_stubs_request,
-    status_request, manage_request, get_delay_policy_request,
+    status_request, get_delay_policy_request,
     delete_delay_policy_request, put_module_request,
     delete_module_request, list_module_request, delete_modules_request,
     stats_request, analytics_request, put_setting_request, get_setting_request,
