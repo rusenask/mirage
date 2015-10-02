@@ -1,6 +1,7 @@
 var React = require('../node_modules/react');
 var Griddle = require('../node_modules/griddle-react');
 var Button = require('../node_modules/react-bootstrap').Button;
+var cookie = require('react-cookie');
 
 // wrapper for list items
 var ListItemWrapper = React.createClass({
@@ -186,7 +187,7 @@ var ExternalDelayPolicies = React.createClass({
     componentDidMount: function () {
         // getting delay policies
         var href = '';
-        if ($.cookie("stubo.all-hosts") == 'true') {
+        if (cookie.load('stubo.all-hosts') || false) {
             // amending query argument to get all hosts
             href = this.props.source + '?all-hosts=true'
         } else {
