@@ -1,0 +1,114 @@
+{% autoescape None %}
+{% from stubo import version %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!--link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'-->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- stop IE from emulating earlier versions -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <title>Stub-O-Matic
+        {% if 'page_name' in globals() and page_name %}
+        {{page_name}}
+        {% end %}
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="{{static_url('bootstrap/css/bootstrap.min.css')}}" rel="stylesheet">
+    <link href="{{static_url('stubo.css')}}" rel="stylesheet">
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <script type="text/javascript" src="{{static_url('js/vkbeautify.0.99.00.beta.js')}}"></script>
+    <script type="text/javascript" src="{{static_url('js/bundle-full.min.js')}}"></script>
+    <script type="text/javascript" src="{{static_url('js/formatters.min.js')}}"></script>
+    <link rel="stylesheet" href="{{static_url('html.css')}}" type="text/css" />
+    <link rel="stylesheet" href="{{static_url('annotated.css')}}" type="text/css" />
+
+
+    <link rel="shortcut icon" href="{{static_url('favicon.png')}}">
+</head>
+
+<body>
+
+
+<nav class="navbar navbar-default navbar-fixed-top header-spacing" role="navigation">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-button">
+            <span class="sr-only">Toggle Navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+
+        <a class="navbar-brand" href="/">Stub-O-Matic&nbsp;</a><a href="http://stubo-app.readthedocs.org/en/latest/changes.html">
+        <div class="version">
+            <span class="badge">{{version}}</span></a>
+    </div>
+    </div>
+
+    <!-- nav links -->
+    <div class="collapse navbar-collapse" id="navbar-button">
+        <ul class="nav navbar-nav">
+            <li id="tracker" class="{{'active' if 'tracker' in request.path else 'not-active'}}"><a href="/tracker">Tracker</a></li>
+            <li id="manage" class="{{'active' if 'manage' in request.path else 'not-active'}}"><a href="/manage">Manage</a></li>
+            <li class="{{'active' if 'docs' in request.path else 'not-active'}}"><a href="http://stubo-app.readthedocs.org/en/latest/" target="_blank">Documentation</a></li>
+            <li class="{{'active' if 'analytics' in request.path else 'not-active'}}"><a href="/analytics" target="_blank">Analytics</a></li>
+        </ul>
+        <form id="nav-search" class="navbar-form navbar-left" role="search" action="/tracker" method="get">
+            <div class="form-group">
+                <input type="text" class="form-control tracker-search-width" placeholder="Tracker search" name="session_filter" value="">
+            </div>
+            <button type="submit" class="btn btn-default"><i class="glyphicon glyphicon-search"></i></button>
+        </form>
+        <div class="col-sm-2 allhosts-padding">
+            <input id="all_hosts" type="checkbox" value="true" >
+            <a class="label label-default" data-toggle="tooltip" data-placement="right"
+               title="show all host urls" id="all_hosts_label" href="">all hosts</a>
+        </div>
+
+
+
+
+    </div>
+</nav>
+
+
+<div class="container">
+    <!-- jQuery (needs to be loaded before Bootstrap's JavaScript plugins) -->
+    <script src="{{static_url('js/jquery-1.11.1.min.js')}}"></script>
+    <script src="{{static_url('js/jquery-migrate-1.2.1.min.js')}}"></script>
+    <script src="{{static_url('bootstrap/js/bootstrap.min.js')}}"></script>
+    <script src="{{static_url('js/stubo.js')}}"></script>
+    <script src="{{static_url('js/jquery.cookie.js')}}"></script>
+
+    {% if 'message' in globals() and message %}
+    <div class="alert alert-info alert-block">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <h4>{{message}}</h4>
+    </div>
+    {% elif 'error_message' in globals() and error_message %}
+    <div class="alert alert-danger fade in">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <h4>{{error_message}}</h4>
+    </div>
+    {% end %}
+    <div id="alert_placeholder"></div>
+
+    {% block content %}
+    {% end %}
+</div> <!-- /container -->
+
+
+</body>
+<script type="text/javascript">
+    $(function () { $("[data-toggle='tooltip']").tooltip(); });
+
+</script>
+</html>

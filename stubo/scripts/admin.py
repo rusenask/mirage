@@ -60,24 +60,31 @@ def create_tracker_collection():
     log.info('creating tracker collection: size={0}b in db={1}'.format(size,
                                                                        db.name))
     args = {'capped': True, 'size': size}
+    # check whether tracker collection is in database
+    if "tracker" not in db.collection_names():
+        try:
+            db.create_collection("tracker", **args)
+            log.info("Tracker collection created.")
+        except CollectionInvalid, e:
+            log.fatal(e)
+    else:
+        log.info("Tracker collection found.")
+
     try:
-        db.create_collection("tracker", **args)
-    except CollectionInvalid, e:
-        log.fatal(e)
-        sys.exit(-1)
+        log.info('creating/ensuring tracking indexes')
 
-    log.info('creating tracking indexes')
+        db.tracker.create_index([('start_time', DESCENDING)], background=True)
+        db.tracker.create_index([('host', DESCENDING), ('start_time', DESCENDING)], background=True)
+        db.tracker.create_index([('return_code', ASCENDING)], background=True)
+        db.tracker.create_index([('host', DESCENDING)], background=True)
+        db.tracker.create_index([('duration_ms', ASCENDING)], background=True)
+        db.tracker.create_index([('session', DESCENDING)], background=True)
+        db.tracker.create_index([('scenario', DESCENDING)], background=True)
+        db.tracker.create_index([('function', DESCENDING)], background=True)
 
-    db.tracker.create_index([('start_time', DESCENDING)], background=True)
-    db.tracker.create_index([('host', DESCENDING), ('start_time', DESCENDING)], background=True)
-    db.tracker.create_index([('return_code', ASCENDING)], background=True)
-    db.tracker.create_index([('host', DESCENDING)], background=True)
-    db.tracker.create_index([('duration_ms', ASCENDING)], background=True)
-    db.tracker.create_index([('session', DESCENDING)], background=True)
-    db.tracker.create_index([('scenario', DESCENDING)], background=True)
-    db.tracker.create_index([('function', DESCENDING)], background=True)
-
-    log.info('created indexes: {0}'.format(db.tracker.index_information()))
+        log.info('created indexes: {0}'.format(db.tracker.index_information()))
+    except Exception as ex:
+        log.error("Failed to create indexes for tracker collection: %s" % ex)
 
 
 def purge_stubs():

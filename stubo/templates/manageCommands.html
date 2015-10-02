@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Execute Commands{% end %}
+
+{% block head %}
+{% end head %}
+
+{% block body %}
+
+<section class="content-header">
+    <h1>
+        Management
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-pie-chart"></i> Management</a></li>
+        <li class="active">Execute Commands</li>
+    </ol>
+</section>
+<!-- Main content -->
+<section class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <div id="ExecuteCommands">
+                <!-- app renders here -->
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div id="CommandResults">
+                <!-- results app renders here -->
+            </div>
+        </div>
+    </div>
+
+</section>
+
+{% end body %}
+{% block endjs %}
+<script src="{{ static_url('src/manageExecuteCommands-bundle.js') }}" type="text/javascript"></script>
+
+{% end endjs %}

@@ -47,6 +47,7 @@ from stubo.ext.transformer import transform
 from stubo.ext.module import Module
 from .delay import Delay
 from stubo.model.export_commands import export_stubs_to_commands_format
+from stubo.model.exporter import YAML_FORMAT_SUBDIR
 
 DummyModel = ObjectDict
 
@@ -65,21 +66,33 @@ def get_dbenv(handler):
 
 
 def export_stubs(handler, scenario_name):
-    from stubo.model.exporter import YAML_FORMAT_SUBDIR
-    # export stubs in the old format
-    command_links = export_stubs_to_commands_format(handler, scenario_name)
-    # continue stub export in the new format
     cache = Cache(get_hostname(handler.request))
     scenario_name_key = cache.scenario_key_name(scenario_name)
+    static_dir = handler.settings['static_path']
 
-    exporter = Exporter(static_dir=handler.settings['static_path'])
+    exporter = Exporter(static_dir=static_dir)
+
     runnable = asbool(handler.get_argument('runnable', False))
     playback_session = handler.get_argument('playback_session', None)
+    session_id = handler.get_argument('session_id', None)
+    export_dir = handler.get_argument('export_dir', None)
+
+    # exporting to commands format
+    command_links = export_stubs_to_commands_format(handler=handler,
+                                                    scenario_name_key=scenario_name_key,
+                                                    scenario_name=scenario_name,
+                                                    session_id=session_id,
+                                                    runnable=runnable,
+                                                    playback_session=playback_session,
+                                                    static_dir=static_dir,
+                                                    export_dir=export_dir)
+
+    # exporting yaml
     export_dir_path, files, runnable_info = exporter.export(scenario_name_key,
                                                             runnable=runnable,
                                                             playback_session=playback_session,
-                                                            session_id=handler.get_argument('session_id', None),
-                                                            export_dir=handler.get_argument('export_dir', None))
+                                                            session_id=session_id,
+                                                            export_dir=export_dir)
 
     # getting export links
     yaml_links = get_export_links(handler, scenario_name_key + "/" + YAML_FORMAT_SUBDIR, files)

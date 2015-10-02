@@ -25,18 +25,28 @@ from stubo.utils import asbool, get_export_links, get_hostname
 log = logging.getLogger(__name__)
 
 
-def export_stubs_to_commands_format(handler, scenario_name):
+def export_stubs_to_commands_format(handler, scenario_name_key, scenario_name, session_id,
+                                    runnable, playback_session, static_dir, export_dir):
     """
-    Exports scenario to .commands file format.
+
     :param handler:
-    :param scenario_name: <string> Scenario name
+    :param scenario_name_key:
+    :param scenario_name:
+    :param session_id:
+    :param runnable:
+    :param playback_session:
+    :param static_dir:
+    :param export_dir:
     :return: :raise exception_response:
     """
-    cache = Cache(get_hostname(handler.request))
-    scenario_name_key = cache.scenario_key_name(scenario_name)
+    # cache = Cache(get_hostname(handler.request))
+    # scenario_name_key = cache.scenario_key_name(scenario_name)
 
     # use user arg or epoch time
-    session_id = handler.get_argument('session_id', int(time.time()))
+
+    if not session_id:
+        session_id = int(time.time())
+    # session_id = handler.get_argument('session_id', int(time.time()))
     session = u'{0}_{1}'.format(scenario_name, session_id)
     cmds = [
         'delete/stubs?scenario={0}'.format(scenario_name),
@@ -83,11 +93,11 @@ def export_stubs_to_commands_format(handler, scenario_name):
         cmds.append('put/stub?session={0},text=a_dummy_matcher,text=a_dummy_response'.format(session))
     cmds.append('end/session?session={0}'.format(session))
 
-    runnable = asbool(handler.get_argument('runnable', False))
     runnable_info = dict()
 
+    # if this scenario is runnable
     if runnable:
-        playback_session = handler.get_argument('playback_session', None)
+        # playback_session = handler.get_argument('playback_session', None)
         if not playback_session:
             raise exception_response(400,
                                      title="'playback_session' argument required with 'runnable")
@@ -135,8 +145,9 @@ def export_stubs_to_commands_format(handler, scenario_name):
     files.append(('{0}.commands'.format(scenario_name),
                   b"\r\n".join(cmds)))
 
-    static_dir = handler.settings['static_path']
-    export_dir = handler.get_argument('export_dir', scenario_name_key).replace(':', '_')
+    # checking whether export dir parameter is provided
+    if not export_dir:
+        export_dir = scenario_name_key.replace(':', '_')
     export_dir_path = os.path.join(static_dir, 'exports', export_dir)
 
     if os.path.exists(export_dir_path):
