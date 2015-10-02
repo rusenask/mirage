@@ -1,0 +1,9 @@
+delete/stubs?scenario=response&force=true
+put/module?name=/static/cmds/date/response.py
+begin/session?scenario=response&session=response_rec&mode=record
+put/stub?session=response_rec&ext_module=response&recorded_on=2014-06-01,response.request.xml,response.xml
+end/session?session=response_rec
+
+begin/session?scenario=response&session=response_play&mode=playback
+get/response?session=response_play&ext_module=response&played_on=2014-06-03,response.request.xml
+end/session?session=response_play

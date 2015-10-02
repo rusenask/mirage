@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ds="http://www.ilog.com/rules/DecisionService">
+	<soapenv:Body>
+		<DecisionServiceResponse xmlns="http://www.ilog.com/rules/DecisionService">
+			<ilog.rules.outputString xmlns="http://www.ilog.com/rules/DecisionService">
+			</ilog.rules.outputString>
+			<ilog.rules.firedRulesCount
+				xmlns="http://www.ilog.com/rules/DecisionService">7
+            </ilog.rules.firedRulesCount>
+			<DecisionID xmlns="http://www.ilog.com/rules/DecisionService">?
+            </DecisionID>
+			<request xmlns="http://www.ilog.com/rules/param">
+				<ns0:GetDummy6RequestResponse
+					xmlns:ns0="http://www.ba.com/schema/GetDummy6RefImplV1">
+					<MessageHeader xmlns="">
+						<OriginatingSystem xmlns="">google.com
+						</OriginatingSystem>
+						<OriginatingUser xmlns="">OriginUser
+						</OriginatingUser>
+					</MessageHeader>
+					<Dummy1 xmlns="">
+						<Dummy2 xmlns="">
+							<Dummy3 xmlns="">LON
+                            </Dummy3>
+						</Dummy2>
+						<Dummy4 xmlns="">
+							<Dummy3 xmlns="">IST
+                            </Dummy3>
+						</Dummy4>
+						<DepartureDate xmlns="">2014-06-08
+                        </DepartureDate>
+						<Dummy5 xmlns="">
+							<Dummy2 xmlns="">
+								<Dummy3 xmlns="">LHR
+                                </Dummy3>
+							</Dummy2>
+							<Dummy4 xmlns="">
+								<Dummy3 xmlns="">IST
+                                </Dummy3>
+							</Dummy4>
+							<DepartureDate xmlns="">2014-06-09
+                            </DepartureDate>
+							<DepartureTime xmlns="">0730
+                            </DepartureTime>
+							<ArrivalDate xmlns="">2014-06-09
+                            </ArrivalDate>
+							<ArrivalTime xmlns="">1235
+                            </ArrivalTime>
+							<Duration xmlns="">0345
+                            </Duration>
+							<Dummy6 xmlns="">-7
+                            </Dummy6>
+							<Dummy7 xmlns="">
+								<Dummy8 xmlns="">BA
+								</Dummy8>
+								<Dummy9 xmlns="">0175
+								</Dummy9>
+								<Dummy10 xmlns="">
+									<Dummy3 xmlns="">LHR
+                                    </Dummy3>
+								</Dummy10>
+								<Dummy11 xmlns="">
+									<Dummy3 xmlns="">IST
+                                    </Dummy3>
+								</Dummy11>
+								<DepartureDate xmlns="">2014-06-06
+                                </DepartureDate>
+								<DepartureTime xmlns="">0730
+                                </DepartureTime>
+								<ArrivalDate xmlns="">2014-06-08
+                                </ArrivalDate>
+								<ArrivalTime xmlns="">1235
+                                </ArrivalTime>
+								<EquipmentType xmlns="">JAJAK
+                                </EquipmentType>
+								<NumberOfStops xmlns="">0
+                                </NumberOfStops>
+								<TicketingIndicator xmlns="">ET
+								</TicketingIndicator>
+								<Dummy12
+									xmlns="">ELECTRONIC TICKETING CARRIER
+								</Dummy12>
+								<Dummy13 xmlns="">
+									<Dummy14 xmlns="">J
+                                    </Dummy14>
+									<Dummy17 xmlns="">1
+									</Dummy17>
+									<Dummy15 xmlns="">Available
+									</Dummy15>
+									<Dummy16>
+										xmlns="">Business class
+                                    </Dummy16>
+								</Dummy13>
+								<Dummy13 xmlns="">
+									<Dummy14 xmlns="">M
+                                    </Dummy14>
+									<Dummy17 xmlns="">1
+									</Dummy17>
+									<Dummy15 xmlns="">Available
+									</Dummy15>
+									<Dummy16
+										xmlns="">Economy class
+                                    </Dummy16>
+								</Dummy13>
+								<Dummy18 xmlns="">5
+                                </Dummy18>
+								<ArrivalTerminal xmlns="">1
+                                </ArrivalTerminal>
+							</Dummy7>
+						</Dummy5>
+					</Dummy1>
+				</ns0:GetDummy6RequestResponse>
+			</request>
+		</DecisionServiceResponse>
+	</soapenv:Body>
+</soapenv:Envelope>

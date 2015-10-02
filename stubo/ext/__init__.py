@@ -47,7 +47,10 @@ def roll_date(date_str, recorded, played):
     """
     log.debug("roll '{0}', recorded={1}, played={2}".format(date_str, recorded,
                                                             played))
-    parsed_date, date_format = parse_date_string(date_str)
+    day_first = False
+    year_first = True
+
+    parsed_date, date_format = parse_date_string(date_str, day_first, year_first)
     log.debug('parsed_date={0}, format={1}'.format(parsed_date, date_format))
     if not all((parsed_date, date_format)):
         return date_str
