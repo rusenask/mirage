@@ -131,31 +131,6 @@ def command_handler_request(cmd_file_url, request, static_path):
 
 
 @stubo_async
-def command_handler_form_request(handler):
-    cmds = handler.get_argument('cmds', None)
-    cmd_file_url = handler.get_argument('cmdfile', None)
-    if not (cmds or cmd_file_url):
-        # TODO: use form validation instead
-        raise exception_response(400,
-                                 title="'cmds' or 'cmdFile' parameter not supplied.")
-
-    log.debug(u'command_handler_form_request: cmd_file={0},cmds={1}'.format(
-        cmd_file_url, cmds))
-    if cmd_file_url:
-        request = DummyModel(protocol=handler.request.protocol,
-                             host=handler.request.host,
-                             arguments=handler.request.arguments)
-        response = run_command_file(cmd_file_url, request,
-                                    handler.settings['static_path'])
-    elif cmds:
-        response = run_commands(handler, cmds)
-    links = dict((k, v) for k, v in response['data'].get('export_links', []))
-    return handler.render_string("commands.html", page_title='Commands',
-                                 executed=response['data'].get('executed_commands'),
-                                 export_links=links)
-
-
-@stubo_async
 def export_stubs_request(handler):
     scenario_name = get_scenario_arg(handler)
     handler.track.scenario = scenario_name

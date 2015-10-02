@@ -36,38 +36,6 @@ class TestManage(Base):
                          'text/html; charset=UTF-8')
         self.assertIn(self.app.settings.get('stubo_version'), response.body)
 
-    def test_view_stubs(self):
-        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/demo/first.commands'), self.stop)
-        response = self.wait()
-        self.assertEqual(response.code, 200)
-
-        self.http_client.fetch(self.get_url('/manage'), self.stop)
-        response = self.wait()
-        self.assertEqual(response.code, 200)
-        self.assertIn("first_1", response.body)
-
-    def test_run_cmd(self):
-        self.http_client.fetch(self.get_url('/manage/exec_cmds?cmdfile=/static/cmds/demo/first.commands&html=true'),
-                               self.stop)
-        response = self.wait()
-        self.assertEqual(response.code, 200)
-
-        self.http_client.fetch(self.get_url('/manage'), self.stop)
-        response = self.wait()
-        self.assertEqual(response.code, 200)
-        self.assertEqual(response.headers['Content-Type'], 'text/html; charset=UTF-8')
-        self.assertIn("first_1", response.body)
-
-    def test_run_cmds(self):
-        self.http_client.fetch(self.get_url('/manage/exec_cmds?html=true&cmds=delete/stubs?scenario=foo'), self.stop)
-        response = self.wait()
-        self.assertEqual(response.code, 200)
-
-        self.http_client.fetch(self.get_url('/manage'), self.stop)
-        response = self.wait()
-        self.assertEqual(response.code, 200)
-        self.assertEqual(response.headers['Content-Type'], 'text/html; charset=UTF-8')
-        self.assertIn("delete/stubs?scenario=foo", response.body)
 
     def test_view_delay_policies(self):
         self.http_client.fetch(self.get_url('/stubo/api/put/delay_policy?name=bob&delay_type=fixed&milliseconds=200'),
@@ -90,25 +58,6 @@ class TestManage(Base):
         response = self.wait()
         self.assertEqual(response.code, 200)
         self.assertIn("example", response.body)
-
-    def test_end_sessions_action(self):
-        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdfile=/static/cmds/demo/first.commands'), self.stop)
-        response = self.wait()
-        self.assertEqual(response.code, 200)
-
-        self.http_client.fetch(self.get_url('/manage'), self.stop)
-        response = self.wait()
-        self.assertTrue('End all active sessions' not in response.body)
-        self.assertTrue('End a session' not in response.body)
-
-        self.http_client.fetch(self.get_url('/stubo/api/begin/session?scenario=first&session=playme&mode=playback'),
-                               self.stop)
-        response = self.wait()
-        self.assertEqual(response.code, 200)
-
-        self.http_client.fetch(self.get_url('/manage'), self.stop)
-        response = self.wait()
-        self.assertTrue('End all active sessions' in response.body)
 
     def test_delay_policy_delete_action(self):
         self.http_client.fetch(self.get_url('/stubo/api/put/delay_policy?name=bob&delay_type=fixed&milliseconds=200'),

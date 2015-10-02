@@ -68,9 +68,7 @@ rest_api = [
 
 # UI pages
 ui_pages = [
-    ("/manage/exec_cmds", "StuboCommandHandlerHTML"),
     ("/docs", "DocsHandler"),
-    ("/stubs", "GetStubListHandlerHTML"),
     ("/analytics", "AnalyticsHandler"),
     ('/_profile', 'ProfileHandler'),
     ('/_profile2', 'PlopProfileHandler'),

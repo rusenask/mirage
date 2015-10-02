@@ -18,7 +18,7 @@ from tornado.util import ObjectDict
 
 from stubo.service.handlers_mt import (
     export_stubs_request, list_stubs_request,
-    command_handler_request, command_handler_form_request, delay_policy_request,
+    command_handler_request, delay_policy_request,
     stub_count_request, begin_session_request, end_session_request,
     put_stub_request, get_response_request, delete_stubs_request,
     status_request, manage_request, get_delay_policy_request,
@@ -256,31 +256,12 @@ class StuboCommandHandler(TrackRequest):
         self.finish()
 
 
-class StuboCommandHandlerHTML(TrackRequest):
-    def compute_etag(self):
-        # override tornado default which will return a 304 (not modified)
-        # if the response contents of a GET call with the same signature matches
-        return None
-
-    def get(self):
-        # handle form from the GUI (/manage page) 
-        command_handler_form_request(self)
-
-    def post(self):
-        self.get()
-
-
 class GetStubExportHandler(TrackRequest):
     def get(self):
         export_stubs_request(self)
 
     def post(self):
         self.get()
-
-
-class GetStubListHandlerHTML(RequestHandler):
-    def get(self):
-        list_stubs_request(self, html=True)
 
 
 class GetStubListHandler(TrackRequest):
