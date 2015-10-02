@@ -36,7 +36,6 @@ class TestManage(Base):
                          'text/html; charset=UTF-8')
         self.assertIn(self.app.settings.get('stubo_version'), response.body)
 
-
     def test_view_delay_policies(self):
         self.http_client.fetch(self.get_url('/stubo/api/put/delay_policy?name=bob&delay_type=fixed&milliseconds=200'),
                                self.stop)

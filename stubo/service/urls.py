@@ -68,7 +68,6 @@ rest_api = [
 
 # UI pages
 ui_pages = [
-    ("/docs", "DocsHandler"),
     ("/analytics", "AnalyticsHandler"),
     ('/_profile', 'ProfileHandler'),
     ('/_profile2', 'PlopProfileHandler'),
