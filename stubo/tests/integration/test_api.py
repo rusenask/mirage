@@ -1178,7 +1178,7 @@ class TestMultipleDateRolling(Base):
                 obj = tracker.find_tracker_data_full(record_id)
                 self.assertTrue('2014-06-11' in obj['stubo_response'])
                 self.assertTrue('2014-06-10' in obj['stubo_response'])
-                self.assertTrue('2014-06-8' in obj['stubo_response'])
+                self.assertTrue('2014-06-08' in obj['stubo_response'])
 
 
 class TestCommandsImport(Base):
