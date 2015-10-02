@@ -229,16 +229,13 @@ def human_size(size_bytes):
         formatted_size = round(formatted_size, 3)
     else:
         formatted_size = int(round(formatted_size, 0))
-	formatted_size = "{:,}".format(formatted_size)
-    return "%s" % (formatted_size)  
+    formatted_size = "{:,}".format(formatted_size)
+    return "%s" % formatted_size
 
 def pretty_format(text, name=None):
     name = name or 'XML'
     return highlight(text, get_lexer_by_name(name), 
                      HtmlFormatter(linenos='table')) 
-
-def pretty_format_python(text):
-    return pretty_format(text, 'PYTHON')
 
 def get_unicode_from_request(r):
     """Returns the requested content back in unicode.

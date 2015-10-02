@@ -12,10 +12,10 @@ import tornado.web
 from tornado.util import ObjectDict
 
 from .api import (
-    export_stubs, list_stubs, run_command_file, run_commands,
+    export_stubs, list_stubs, run_command_file,
     update_delay_policy, stub_count, begin_session, put_stub,
     get_response, delete_stubs, get_status, get_delay_policy, put_module,
-    delete_module, list_module, delete_delay_policy, manage_request_api, put_setting, get_setting, end_sessions,
+    delete_module, list_module, delete_delay_policy, put_setting, get_setting, end_sessions,
     list_scenarios
 )
 from .admin import get_stats
@@ -415,12 +415,6 @@ def analytics_request(handler):
     status = get_status(handler)
     return handler.render_string("analytics.html",
                                  client_data=convert_to_script(status))
-
-
-@stubo_async
-def manage_request(handler):
-    response = manage_request_api(handler)
-    return handler.render_string("manage.html", page_title='Manage', **response)
 
 
 @stubo_async
