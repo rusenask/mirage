@@ -37,7 +37,7 @@ class TestRollDate(unittest.TestCase):
     def test_dd_mm_yyyy(self):
         recorded = datetime.date(2014, 12, 10)
         result = self._roll('05-01-2014', recorded, 10)
-        self.assertEqual('15-01-2014', result)
+        self.assertEqual('05-11-2014', result)
 
     def test_yy_mm_dd(self):
         recorded = datetime.date(2014, 12, 10)
