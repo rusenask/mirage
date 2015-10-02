@@ -14,12 +14,10 @@ from urlparse import urlparse
 from StringIO import StringIO
 from contextlib import closing
 
-from tornado.web import MissingArgumentError
-
 from tornado.util import ObjectDict
 
 from stubo.model.db import (
-    Scenario, get_mongo_client, session_last_used, Tracker
+    Scenario, get_mongo_client, Tracker
 )
 import stubo.model.db
 from stubo.model.importer import YAMLImporter, UriLocation, UrlFetch
@@ -29,7 +27,7 @@ from stubo.model.cmds import (
 )
 from stubo.model.stub import Stub, StubCache, parse_stub
 from stubo.exceptions import (
-    exception_response, StuboException
+    exception_response
 )
 from stubo import version
 from stubo.cache import (
@@ -399,7 +397,7 @@ def get_response(handler, session_name):
     cache = Cache(get_hostname(request))
     if cache.blacklisted():
         raise exception_response(400, title="Sorry the host URL '{0}' has been "
-                                            "blacklisted. Please contact Stub-O-Matic support.".format(cache.host))
+                                            "blacklisted. Please contact Mirage support.".format(cache.host))
     scenario_key = cache.find_scenario_key(session_name)
     scenario_name = scenario_key.partition(':')[-1]
     handler.track.scenario = scenario_name

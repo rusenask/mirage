@@ -379,11 +379,6 @@ class AnalyticsHandler(RequestHandler):
         analytics_request(self)
 
 
-class ManageHandler(RequestHandler):
-    def get(self):
-        manage_request(self)
-
-
 class ProfileHandler(RequestHandler):
     PROF_COLUMNS = (
         'name',
@@ -463,6 +458,7 @@ class PlopProfileHandler(RequestHandler):
 Manage Handlers
 """
 
+
 class ManageScenariosHandler(RequestHandler):
     """
     /manage/scenarios
@@ -471,6 +467,7 @@ class ManageScenariosHandler(RequestHandler):
 
     def get(self):
         self.render('manageScenarios.html')
+
 
 class ManageScenarioDetailsHandler(RequestHandler):
     """
@@ -481,6 +478,7 @@ class ManageScenarioDetailsHandler(RequestHandler):
     def get(self):
         self.render('manageScenarioDetails.html')
 
+
 class ManageScenarioExportHandler(RequestHandler):
     """
    /manage/scenarios/export?scenario=<href to scenario>
@@ -490,35 +488,36 @@ class ManageScenarioExportHandler(RequestHandler):
     def get(self):
         self.render('manageExportScenario.html')
 
-class ManageDelayPoliciesHandler(RequestHandler):
 
+class ManageDelayPoliciesHandler(RequestHandler):
     def get(self):
         self.render('manageDelayPolicies.html')
 
-class ManageCommandsHandler(RequestHandler):
 
+class ManageCommandsHandler(RequestHandler):
     def get(self):
         self.render('manageCommands.html')
 
-class ManageModulesHandler(RequestHandler):
 
+class ManageModulesHandler(RequestHandler):
     def get(self):
         self.render('manageModules.html')
+
 
 """
 Tracker Handlers
 """
 
-class TrackerHandler(RequestHandler):
 
+class TrackerHandler(RequestHandler):
     def get(self):
         self.render('trackerRecords.html')
 
 
 class TrackerDetailsHandler(RequestHandler):
-
     def get(self):
         self.render('trackerRecordDetails.html')
+
 
 """
 -------------------------------------------------------------------
@@ -740,7 +739,7 @@ class GetAllScenariosHandler(RequestHandler):
         # getting scenarios for the current host
         if not all_hosts:
             current_host = get_hostname(self.request)
-            query = {'name': {'$regex': current_host+'.*'}}
+            query = {'name': {'$regex': current_host + '.*'}}
             cursor = self.db.scenario.find(query)
         else:
             # getting all scenarios
@@ -1536,6 +1535,7 @@ class StubHandler(TrackRequest):
                                                               request.path))
         return get_response(self, session_name)
 
+
 class TrackerRecordsHandler(BaseHandler):
     """
     /stubo/api/v2/tracker/records
@@ -1577,11 +1577,11 @@ class TrackerRecordsHandler(BaseHandler):
 
         if query:
             tracker_filter = {'$and': [{'host': {'$regex': hostname}},
-                {'$or': [
-                {'scenario': {'$regex': query, '$options': 'i'}},
-                {'function': {'$regex': query, '$options': 'i'}}
-                ]
-            }]}
+                                       {'$or': [
+                                           {'scenario': {'$regex': query, '$options': 'i'}},
+                                           {'function': {'$regex': query, '$options': 'i'}}
+                                       ]
+                                       }]}
         else:
             tracker_filter = {}
 
@@ -1635,7 +1635,7 @@ class TrackerRecordsHandler(BaseHandler):
                       'previous': previous_page,
                       'next': next_page,
                       'first': "/stubo/api/v2/tracker/records?skip=" + str(0) + "&limit=" + str(limit),
-                      'last': "/stubo/api/v2/tracker/records?skip=" + str(total_items-limit) + "&limit=" + str(limit),
+                      'last': "/stubo/api/v2/tracker/records?skip=" + str(total_items - limit) + "&limit=" + str(limit),
                       'currentLimit': limit,
                       'totalItems': total_items
                   }}
@@ -1644,7 +1644,6 @@ class TrackerRecordsHandler(BaseHandler):
 
 
 class TrackerWebSocket(websocket.WebSocketHandler):
-
     def open(self):
         print("WebSocket opened")
 
@@ -1722,7 +1721,7 @@ class TrackerWebSocket(websocket.WebSocketHandler):
                       'previous': previous_page,
                       'next': next_page,
                       'first': "/stubo/api/v2/tracker/records?skip=" + str(0) + "&limit=" + str(limit),
-                      'last': "/stubo/api/v2/tracker/records?skip=" + str(total_items-limit) + "&limit=" + str(limit),
+                      'last': "/stubo/api/v2/tracker/records?skip=" + str(total_items - limit) + "&limit=" + str(limit),
                       'currentLimit': limit,
                       'totalItems': total_items
                   }}
@@ -1775,7 +1774,9 @@ class TrackerRecordDetailsHandler(BaseHandler):
             self.set_status(404)
             self.write("Record with ID: %s not found." % record_id)
 
+
 from stubo.service.api_v2 import list_available_modules
+
 
 class ExternalModulesHandler(BaseHandler):
     """
@@ -1805,6 +1806,7 @@ class ExternalModuleDeleteHandler(BaseHandler):
     /api/v2/modules/objects/<module_name>
 
     """
+
     def delete(self, module_name):
         # complying to current api
         names = [module_name]
@@ -1902,4 +1904,3 @@ def _get_scenario_full_name(handler, name, host=None):
             host = get_hostname(handler.request)
         name = '%s:%s' % (host, name)
     return name
-
