@@ -397,7 +397,7 @@ def get_response(handler, session_name):
     cache = Cache(get_hostname(request))
     if cache.blacklisted():
         raise exception_response(400, title="Sorry the host URL '{0}' has been "
-                                            "blacklisted. Please contact Mirage support.".format(cache.host))
+                                            "blacklisted. Please contact Stub-O-Matic support.".format(cache.host))
     scenario_key = cache.find_scenario_key(session_name)
     scenario_name = scenario_key.partition(':')[-1]
     handler.track.scenario = scenario_name

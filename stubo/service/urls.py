@@ -85,8 +85,6 @@ ui_pages = [
     ("/manage/commands", "ManageCommandsHandler"),
     ("/manage/execute", "ExecuteCommandsHandler"),
 
-    ("/manage", "ManageHandler"),
-
     # tracker
     ("/tracker", "TrackerHandler"),
     ("/tracker/objects", "TrackerDetailsHandler"),
