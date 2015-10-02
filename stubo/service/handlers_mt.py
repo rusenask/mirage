@@ -18,7 +18,7 @@ from .api import (
     delete_module, list_module, delete_delay_policy, manage_request_api, put_setting, get_setting, end_sessions,
     list_scenarios
 )
-from .admin import get_tracks, get_track, get_stats
+from .admin import get_track, get_stats
 from stubo import version
 from stubo.model.cmds import verbs
 from stubo.model.stub import Stub
@@ -446,94 +446,6 @@ def analytics_request(handler):
 def manage_request(handler):
     response = manage_request_api(handler)
     return handler.render_string("manage.html", page_title='Manage', **response)
-
-
-@stubo_async
-def tracker_request(handler):
-    http_req = handler.request
-    host = http_req.host.split(":")[0]
-    scenario_filter = handler.get_argument('scenario_filter', '')
-    session_filter = handler.get_argument('session_filter', '')
-    start_time = handler.get_argument('start_time', '')
-    latency = int(handler.get_argument('latency', 0))
-    show_only_errors = asbool(handler.get_argument("show_only_errors",
-                                                   False))
-    all_hosts = asbool(handler.get_argument("all_hosts", False))
-    function = handler.get_argument('function', 'all')
-    skip = int(handler.get_argument('skip', 0))
-    limit = int(handler.get_argument('limit', 100))
-
-    results = get_tracks(handler, scenario_filter, session_filter, show_only_errors, skip,
-                         limit, start_time, latency, all_hosts, function)
-    total_tracks = results.count()
-    log.debug('track count: {0}'.format(total_tracks))
-
-    def format_response(stubo_response):
-        if isinstance(stubo_response, dict) and 'version' in stubo_response:
-            # assume it's one of ours
-            if 'data' in stubo_response:
-                stubo_response = stubo_response['data'].get('message')
-            elif 'error' in stubo_response:
-                error = stubo_response['error']
-                if isinstance(error, dict):
-                    stubo_response = 'message: <em>{0}</em>'.format(
-                        error.get('message'))
-                else:
-                    stubo_response = error
-
-        if not stubo_response:
-            stubo_response = ""
-        return stubo_response
-
-    uri = handler.request.uri
-    urlargs = parse_qs(urlparse(uri).query)
-    urlargs.pop('limit', None)
-    urlargs.pop('skip', None)
-    query = '&'.join('{0}={1}'.format(k, v[0]) for k, v in urlargs.items())
-
-    def pagination(total_tracks, skip, limit, url_params):
-        page_no = int(skip / float(limit)) + 1
-        total_pages = int(float(total_tracks) / limit) + 1
-        page_class = 'disabled' if page_no >= total_pages else ''
-        previous_page_class = 'disabled' if page_no <= 1 else ''
-        if page_no > 1:
-            prev_pg = '<a href="/tracker?skip=' + str(skip - limit) + \
-                      '&limit=' + str(limit) + '&' + url_params + \
-                      '">&lt;&lt;&lt;</a>'
-        else:
-            prev_pg = ""
-        if page_no < total_pages:
-            next_pg = '<a href="/tracker?skip=' + str(skip + limit) + \
-                      '&limit=' + str(limit) + '&' + url_params + \
-                      '">&gt;&gt;&gt;</a>'
-        else:
-            next_pg = ""
-        return """
-<div class="pagination pagination-right">
-{8} <span>Page {3} of {4}</span> {9}
-</div>""".format(skip + limit, limit, url_params, page_no,
-                 total_pages, page_class, previous_page_class, skip - limit,
-                 prev_pg, next_pg)
-
-    def get_option(option, function):
-        return '<option{0}>{1}</option>'.format(' selected="selected"' \
-                                                    if option == function else "", option)
-
-    response = dict(raw_data=results,
-                    scenario_filter=scenario_filter,
-                    session_filter=session_filter,
-                    errors_value='checked' if show_only_errors else '',
-                    pagination=pagination(total_tracks, skip, limit, query),
-                    start_time=start_time,
-                    latency=latency or 0,
-                    function_options="\n".join(get_option(x, function) \
-                                               for x in ['all'] + sorted(verbs)),
-                    stubo_version=version,
-                    host=host,
-                    format_response=format_response,
-                    max_response=TrackRequest.max_response_size,
-                    total=total_tracks)
-    return handler.render_string("tracker.html", **response)
 
 
 @stubo_async
