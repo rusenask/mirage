@@ -145,14 +145,6 @@ class GetModuleListHandler(TrackRequest):
         list_module_request(self)
 
 
-class ViewTrackerHandler(RequestHandler):
-    def compute_etag(self):
-        return None
-
-    def get(self):
-        tracker_request(self)
-
-
 class ViewATrackerHandler(RequestHandler):
     def get(self, tracker_id, **kwargs):
         tracker_detail_request(self, tracker_id)
