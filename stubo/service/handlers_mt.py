@@ -5,7 +5,12 @@
 import datetime
 import logging
 from functools import partial, wraps
-from urlparse import urlparse, parse_qs, unquote
+from urlparse import unquote
+
+
+from stubo.model.db import Scenario
+from stubo.cache import Cache
+from stubo.service.api import end_session
 
 import tornado.ioloop
 import tornado.web
@@ -20,14 +25,13 @@ from .api import (
 )
 from .admin import get_stats
 from stubo import version
-from stubo.model.cmds import verbs
 from stubo.model.stub import Stub
 from stubo.exceptions import StuboException, exception_response
 from stubo.utils import (
-    asbool, get_hostname, convert_to_script, pretty_format, human_size,
+    asbool, get_hostname, convert_to_script, pretty_format,
     compact_traceback_info
 )
-from stubo.utils.track import TrackRequest
+
 from stubo.utils.command_queue import InternalCommandQueue
 
 DummyModel = ObjectDict
@@ -174,11 +178,6 @@ def list_scenarios_request(handler):
 def stub_count_request(handler):
     host = handler.get_argument('host', get_hostname(handler.request))
     return stub_count(host, handler.get_argument('scenario', None))
-
-
-from stubo.model.db import Scenario
-from stubo.cache import Cache
-from stubo.service.api import end_session
 
 
 @stubo_async
