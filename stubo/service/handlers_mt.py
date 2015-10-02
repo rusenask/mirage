@@ -18,7 +18,7 @@ from .api import (
     delete_module, list_module, delete_delay_policy, manage_request_api, put_setting, get_setting, end_sessions,
     list_scenarios
 )
-from .admin import get_track, get_stats
+from .admin import get_stats
 from stubo import version
 from stubo.model.cmds import verbs
 from stubo.model.stub import Stub
@@ -446,28 +446,6 @@ def analytics_request(handler):
 def manage_request(handler):
     response = manage_request_api(handler)
     return handler.render_string("manage.html", page_title='Manage', **response)
-
-
-@stubo_async
-def tracker_detail_request(handler, tracker_id):
-    track_info = get_track(handler, tracker_id)
-    error_message = ""
-    if not track_info:
-        error_message = "tracker record with id={0}, does not exist".format(
-            tracker_id)
-    scenario = track_info.get('scenario')
-    _stub_count = stub_count(get_hostname(handler.request),
-                             scenario)['data'].get('count')
-    tracking_data = track_info or {}
-    trace = tracking_data.pop('trace', {})
-    return handler.render_string("tracker_record.html",
-                                 page_title='Tracker Record',
-                                 tracking_data=tracking_data,
-                                 stub_count=_stub_count,
-                                 error_message=error_message,
-                                 pretty_format=pretty_format,
-                                 client_data=convert_to_script(trace),
-                                 human_size=human_size)
 
 
 @stubo_async

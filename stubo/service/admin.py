@@ -3,19 +3,11 @@
     :license: GPLv3, see LICENSE for more details.
 """
 import logging
-import datetime
-from stubo.model.db import Tracker
-from stubo.utils import (
-    get_hostname, get_graphite_datapoints, get_graphite_stats
-)
+from stubo.utils import get_graphite_datapoints, get_graphite_stats
 from stubo.exceptions import exception_response
 from stubo import version
 
 log = logging.getLogger(__name__)
-
-def get_track(request, tracker_id):
-    tracker = Tracker()
-    return tracker.find_tracker_data_full(tracker_id)
 
 
 def get_stats(handler):
