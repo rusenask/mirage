@@ -14,7 +14,7 @@ Removed:
 Fixed:
 
 
-0.7 (2015-10-01)
+0.7 (2015-10-02)
 
 Added:
 - REST API for Mirage management. This API currently covers most of the management commands
@@ -50,6 +50,7 @@ Fixed:
 
 - Multiple open connections to MongoDB during tests
 - Performance degradation due to indexing fixed
+- Fault in multi-date rolling (BA issue)
 
 
 0.6.6 (2015-08-10)
