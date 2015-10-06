@@ -42,7 +42,7 @@ def delete_test_dbs():
             print 'no test databases to delete'
 
 
-def create_tracker_collection():
+def create_tracker_collection(db):
     parser = ArgumentParser(
         description="Create tracker collection"
     )
@@ -56,7 +56,6 @@ def create_tracker_collection():
     size = int(args.size)
     config = args.config or get_default_config()
     logging.config.fileConfig(config)
-    db = init_mongo()
     log.info('creating tracker collection: size={0}b in db={1}'.format(size,
                                                                        db.name))
     args = {'capped': True, 'size': size}
