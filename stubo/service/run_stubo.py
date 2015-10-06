@@ -130,7 +130,7 @@ class TornadoManager(object):
         log.info('started with {0} worker processes'.format(tornado_app.settings['process_executor']._max_workers))
 
         # ensure tracker collection indexing
-        create_tracker_collection()
+        create_tracker_collection(mongo_client)
 
         cmd_queue = InternalCommandQueue()
         cmd_queue_poll_interval = self.cfg.get('cmd_queue_poll_interval',
