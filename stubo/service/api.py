@@ -392,6 +392,7 @@ def calculate_delay(policy):
 
 
 def get_response(handler, session_name):
+    # getting request value
     request = handler.request
     stubo_request = StuboRequest(request)
     cache = Cache(get_hostname(request))
@@ -399,6 +400,7 @@ def get_response(handler, session_name):
     scenario_key = cache.find_scenario_key(session_name)
     scenario_name = scenario_key.partition(':')[-1]
     handler.track.scenario = scenario_name
+    # request_id - computed hash
     request_id = stubo_request.id()
     module_system_date = handler.get_argument('system_date', None)
     url_args = handler.track.request_params
