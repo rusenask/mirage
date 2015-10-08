@@ -252,6 +252,20 @@ or inserted (status code 201).
 Here this ID - 55d5e7ebfc4562fb398dc697 is an object _id field from database. Proxy or an integrator could actually
 go directly to database with this key and retrieve response.
 
+## Getting response with stub
+
+* __URL__: /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
+* __Method__: POST
+* __Response codes__:
+   + __*__ - any HTTTP response that user defined during stub insertion
+
+* __Example request header__:
+session: your_session_name
+
+* __Example request body__:
+```javascript
+matcher here
+``` 
 
 ## Get delay policy list
 
