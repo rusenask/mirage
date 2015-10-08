@@ -522,9 +522,6 @@ class Cache(object):
             result = self.hash_cls()(get_redis_slave()).get_all(key)
         return result
 
-    def blacklisted(self):
-        return asbool(self.get_stubo_setting('blacklisted'))
-
 
 def key_exists(key, local=False):
     return get_redis_server(local).exists(key)

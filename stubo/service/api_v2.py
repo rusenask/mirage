@@ -39,9 +39,7 @@ def begin_session(handler, scenario_name, session_name, mode, system_date=None,
     }
     scenario_manager = Scenario()
     cache = Cache(get_hostname(handler.request))
-    if cache.blacklisted():
-        raise exception_response(400, title="Sorry the host URL '{0}' has been "
-                                            "blacklisted. Please contact Stub-O-Matic support.".format(cache.host))
+
     # checking whether full name (with hostname) was passed, if not - getting full name
     # scenario_name_key = "localhost:scenario_1"
     if ":" not in scenario_name:

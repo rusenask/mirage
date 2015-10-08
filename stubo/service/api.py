@@ -14,12 +14,10 @@ from urlparse import urlparse
 from StringIO import StringIO
 from contextlib import closing
 
-from tornado.web import MissingArgumentError
-
 from tornado.util import ObjectDict
 
 from stubo.model.db import (
-    Scenario, get_mongo_client, session_last_used, Tracker
+    Scenario, get_mongo_client, Tracker
 )
 import stubo.model.db
 from stubo.model.importer import YAMLImporter, UriLocation, UrlFetch
@@ -29,15 +27,14 @@ from stubo.model.cmds import (
 )
 from stubo.model.stub import Stub, StubCache, parse_stub
 from stubo.exceptions import (
-    exception_response, StuboException
+    exception_response
 )
 from stubo import version
 from stubo.cache import (
     Cache, add_request, get_redis_server, get_keys
 )
 from stubo.utils import (
-    asbool, make_temp_dir, get_export_links, get_hostname,
-    pretty_format_python, as_date
+    asbool, make_temp_dir, get_export_links, get_hostname, as_date
 )
 from stubo.utils.track import TrackTrace
 from stubo.match import match
@@ -395,15 +392,15 @@ def calculate_delay(policy):
 
 
 def get_response(handler, session_name):
+    # getting request value
     request = handler.request
     stubo_request = StuboRequest(request)
     cache = Cache(get_hostname(request))
-    if cache.blacklisted():
-        raise exception_response(400, title="Sorry the host URL '{0}' has been "
-                                            "blacklisted. Please contact Stub-O-Matic support.".format(cache.host))
+
     scenario_key = cache.find_scenario_key(session_name)
     scenario_name = scenario_key.partition(':')[-1]
     handler.track.scenario = scenario_name
+    # request_id - computed hash
     request_id = stubo_request.id()
     module_system_date = handler.get_argument('system_date', None)
     url_args = handler.track.request_params
@@ -572,9 +569,7 @@ def begin_session(handler, scenario_name, session_name, mode, system_date=None,
     }
     scenario_col = Scenario()
     cache = Cache(get_hostname(handler.request))
-    if cache.blacklisted():
-        raise exception_response(400, title="Sorry the host URL '{0}' has been "
-                                            "blacklisted. Please contact Stub-O-Matic support.".format(cache.host))
+
     scenario_name_key = cache.scenario_key_name(scenario_name)
     scenario = scenario_col.get(scenario_name_key)
     cache.assert_valid_session(scenario_name, session_name)
@@ -890,137 +885,3 @@ def get_status(handler):
         except:
             response['data']['database_server']['error'] = "mongo down"
     return response
-
-
-def manage_request_api(handler):
-    """
-    Generate data for /manage page.
-    :param handler: instance of RequestHandler or TrackRequest
-    :return: dictionary with information about stubo instance - modules, delays, sessions..
-    """
-    cache = Cache(get_hostname(handler.request))
-    action = handler.get_argument('action', None)
-    all_hosts = asbool(handler.get_argument("all_hosts", False))
-    message = error_message = ""
-    module_info = {}
-    if action is not None:
-        # handle btn action 
-        try:
-            name = handler.get_argument('name')
-            # It would be nice to really track these actions
-            handler.track = DummyModel()
-            if action == 'delete':
-                _type = handler.get_argument('type')
-                if _type == 'module':
-                    result = delete_module(handler.request, [name])
-                elif _type == 'delay_policy':
-                    result = delete_delay_policy(handler, [name])
-                else:
-                    result = 'error: unexpected action type={0}'.format(_type)
-            else:
-                result = 'error: unexpected action={0}'.format(action)
-
-            if 'error' not in result:
-                message = result
-            else:
-                error_message = result
-        except MissingArgumentError, e:
-            error_message = "Error: {0}".format(e)
-        except StuboException, e:
-            error_message = "Error: {0}".format(e.title)
-
-    cmd_file = handler.get_argument('cmdFile', '')
-    response = dict(host_scenarios=get_session_status(handler, all_hosts=all_hosts))
-    cache_loc = handler.get_argument('cache', 'master')
-    # get delays and format output (splitting weighted delays into a list)
-    delays = get_delay_policy(handler, None, cache_loc).get('data')
-    delays = _format_delay_types(delays)
-
-    response['delays'] = delays
-    modules = list_module(handler, None)['data'].get('info')
-    for name in modules.keys():
-        source_text = pretty_format_python(Module(cache.host).get_source(name))
-        modules[name]['code'] = source_text
-    response['modules'] = modules
-    response['cmdFile'] = cmd_file
-    response['message'] = message
-    response['error_message'] = error_message
-    response['module_info'] = module_info
-    response['stubo_version'] = version
-    response['host'] = cache.host
-    response['page_name'] = 'Manage'
-    return response
-
-
-def _format_delay_types(delays):
-    """
-    Format delay types, removing colon and moving delay types into separate lines
-    :param delays: delays dictionary
-    :return: delays dictionary
-    """
-    if delays:
-        for name, delay_data in delays.iteritems():
-            if delay_data['delay_type'] == "weighted":
-                delay_data['delays'] = delay_data['delays'].split(":")
-    return delays
-
-
-from collections import defaultdict
-
-
-def get_session_status(handler, all_hosts=True):
-    scenario = Scenario()
-    host_scenarios = defaultdict()
-
-    # getting a dictionary with sizes for all scenarios
-    scenario_sizes = scenario.size()
-    scenarios_recorded = scenario.recorded()
-
-    for s in scenario.get_all():
-        host, scenario_name = s['name'].split(':')
-        if not all_hosts and get_hostname(handler.request) != host:
-            continue
-        if host not in host_scenarios:
-            host_scenarios[host] = {}
-
-        # getting session data
-        sessions = []
-        cache = Cache(host)
-
-        for session_name, session in cache.get_sessions(scenario_name):
-            # try and get the last_used from the last tracker get/response
-            # else when the begin/session playback was called
-            last_used = session_last_used(s['name'], session_name, 'playback')
-            if last_used:
-                last_used = last_used['start_time'].strftime('%Y-%m-%d %H:%M:%S')
-            else:
-                # session has never been used for playback 
-                last_used = session.get('last_used', '-')
-            session['last_used'] = last_used
-            # removing stub information since we aren't using it anyway and it can consume a lot of memory
-            session.pop('stubs', None)
-            # creating sessions list
-            sessions.append(session)
-        # getting stub count
-        stub_counts = stub_count(host, scenario_name)['data']['count']
-        recorded = '-'
-
-        # adding session information
-        if sessions:
-            if stub_counts:
-                # getting scenario size and recorded values
-                scenario_size = 0
-                try:
-                    scenario_size = scenario_sizes[s['name']]
-                    recorded = scenarios_recorded[s['name']]
-                except KeyError:
-                    log.debug("Could not get scenario size for: %s" % s['name'])
-                except Exception as ex:
-                    log.warn("Failed to get scenario size for: %s, got error: %s" % (s['name'], ex))
-                # creating a dict with scenario information
-                host_scenarios[host][scenario_name] = (sessions, stub_counts, recorded, round(scenario_size, 0))
-
-            else:
-                host_scenarios[host][scenario_name] = (sessions, 0, '-', 0)
-
-    return host_scenarios

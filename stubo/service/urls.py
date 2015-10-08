@@ -68,12 +68,6 @@ rest_api = [
 
 # UI pages
 ui_pages = [
-    ("/tracker_old", "ViewTrackerHandler"),
-    ("/tracker_old/(.*)", "ViewATrackerHandler"),
-
-    ("/manage/exec_cmds", "StuboCommandHandlerHTML"),
-    ("/docs", "DocsHandler"),
-    ("/stubs", "GetStubListHandlerHTML"),
     ("/analytics", "AnalyticsHandler"),
     ('/_profile', 'ProfileHandler'),
     ('/_profile2', 'PlopProfileHandler'),
@@ -90,8 +84,6 @@ ui_pages = [
     # commands handlers
     ("/manage/commands", "ManageCommandsHandler"),
     ("/manage/execute", "ExecuteCommandsHandler"),
-
-    ("/manage", "ManageHandler"),
 
     # tracker
     ("/tracker", "TrackerHandler"),
