@@ -897,9 +897,6 @@ class GetScenarioDetailsHandler(RequestHandler):
         else:
             self.send_error(412, reason="Precondition failed - scenario (%s) does not exist." % scenario_name)
 
-    def post(self):
-        self.clear()
-        self.send_error(status_code=405, reason=NOT_ALLOWED_MSG)
 
 
 class ScenarioActionHandler(TrackRequest):
