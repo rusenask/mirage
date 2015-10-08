@@ -395,9 +395,7 @@ def get_response(handler, session_name):
     request = handler.request
     stubo_request = StuboRequest(request)
     cache = Cache(get_hostname(request))
-    if cache.blacklisted():
-        raise exception_response(400, title="Sorry the host URL '{0}' has been "
-                                            "blacklisted. Please contact Stub-O-Matic support.".format(cache.host))
+
     scenario_key = cache.find_scenario_key(session_name)
     scenario_name = scenario_key.partition(':')[-1]
     handler.track.scenario = scenario_name
@@ -569,9 +567,7 @@ def begin_session(handler, scenario_name, session_name, mode, system_date=None,
     }
     scenario_col = Scenario()
     cache = Cache(get_hostname(handler.request))
-    if cache.blacklisted():
-        raise exception_response(400, title="Sorry the host URL '{0}' has been "
-                                            "blacklisted. Please contact Stub-O-Matic support.".format(cache.host))
+
     scenario_name_key = cache.scenario_key_name(scenario_name)
     scenario = scenario_col.get(scenario_name_key)
     cache.assert_valid_session(scenario_name, session_name)
