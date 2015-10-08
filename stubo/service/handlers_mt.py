@@ -5,29 +5,33 @@
 import datetime
 import logging
 from functools import partial, wraps
-from urlparse import urlparse, parse_qs, unquote
+from urlparse import unquote
+
+
+from stubo.model.db import Scenario
+from stubo.cache import Cache
+from stubo.service.api import end_session
 
 import tornado.ioloop
 import tornado.web
 from tornado.util import ObjectDict
 
 from .api import (
-    export_stubs, list_stubs, run_command_file, run_commands,
+    export_stubs, list_stubs, run_command_file,
     update_delay_policy, stub_count, begin_session, put_stub,
     get_response, delete_stubs, get_status, get_delay_policy, put_module,
-    delete_module, list_module, delete_delay_policy, manage_request_api, put_setting, get_setting, end_sessions,
+    delete_module, list_module, delete_delay_policy, put_setting, get_setting, end_sessions,
     list_scenarios
 )
-from .admin import get_tracks, get_track, get_stats
+from .admin import get_stats
 from stubo import version
-from stubo.model.cmds import verbs
 from stubo.model.stub import Stub
 from stubo.exceptions import StuboException, exception_response
 from stubo.utils import (
-    asbool, get_hostname, convert_to_script, pretty_format, human_size,
+    asbool, get_hostname, convert_to_script, pretty_format,
     compact_traceback_info
 )
-from stubo.utils.track import TrackRequest
+
 from stubo.utils.command_queue import InternalCommandQueue
 
 DummyModel = ObjectDict
@@ -131,31 +135,6 @@ def command_handler_request(cmd_file_url, request, static_path):
 
 
 @stubo_async
-def command_handler_form_request(handler):
-    cmds = handler.get_argument('cmds', None)
-    cmd_file_url = handler.get_argument('cmdfile', None)
-    if not (cmds or cmd_file_url):
-        # TODO: use form validation instead
-        raise exception_response(400,
-                                 title="'cmds' or 'cmdFile' parameter not supplied.")
-
-    log.debug(u'command_handler_form_request: cmd_file={0},cmds={1}'.format(
-        cmd_file_url, cmds))
-    if cmd_file_url:
-        request = DummyModel(protocol=handler.request.protocol,
-                             host=handler.request.host,
-                             arguments=handler.request.arguments)
-        response = run_command_file(cmd_file_url, request,
-                                    handler.settings['static_path'])
-    elif cmds:
-        response = run_commands(handler, cmds)
-    links = dict((k, v) for k, v in response['data'].get('export_links', []))
-    return handler.render_string("commands.html", page_title='Commands',
-                                 executed=response['data'].get('executed_commands'),
-                                 export_links=links)
-
-
-@stubo_async
 def export_stubs_request(handler):
     scenario_name = get_scenario_arg(handler)
     handler.track.scenario = scenario_name
@@ -199,11 +178,6 @@ def list_scenarios_request(handler):
 def stub_count_request(handler):
     host = handler.get_argument('host', get_hostname(handler.request))
     return stub_count(host, handler.get_argument('scenario', None))
-
-
-from stubo.model.db import Scenario
-from stubo.cache import Cache
-from stubo.service.api import end_session
 
 
 @stubo_async
@@ -440,122 +414,6 @@ def analytics_request(handler):
     status = get_status(handler)
     return handler.render_string("analytics.html",
                                  client_data=convert_to_script(status))
-
-
-@stubo_async
-def manage_request(handler):
-    response = manage_request_api(handler)
-    return handler.render_string("manage.html", page_title='Manage', **response)
-
-
-@stubo_async
-def tracker_request(handler):
-    http_req = handler.request
-    host = http_req.host.split(":")[0]
-    scenario_filter = handler.get_argument('scenario_filter', '')
-    session_filter = handler.get_argument('session_filter', '')
-    start_time = handler.get_argument('start_time', '')
-    latency = int(handler.get_argument('latency', 0))
-    show_only_errors = asbool(handler.get_argument("show_only_errors",
-                                                   False))
-    all_hosts = asbool(handler.get_argument("all_hosts", False))
-    function = handler.get_argument('function', 'all')
-    skip = int(handler.get_argument('skip', 0))
-    limit = int(handler.get_argument('limit', 100))
-
-    results = get_tracks(handler, scenario_filter, session_filter, show_only_errors, skip,
-                         limit, start_time, latency, all_hosts, function)
-    total_tracks = results.count()
-    log.debug('track count: {0}'.format(total_tracks))
-
-    def format_response(stubo_response):
-        if isinstance(stubo_response, dict) and 'version' in stubo_response:
-            # assume it's one of ours
-            if 'data' in stubo_response:
-                stubo_response = stubo_response['data'].get('message')
-            elif 'error' in stubo_response:
-                error = stubo_response['error']
-                if isinstance(error, dict):
-                    stubo_response = 'message: <em>{0}</em>'.format(
-                        error.get('message'))
-                else:
-                    stubo_response = error
-
-        if not stubo_response:
-            stubo_response = ""
-        return stubo_response
-
-    uri = handler.request.uri
-    urlargs = parse_qs(urlparse(uri).query)
-    urlargs.pop('limit', None)
-    urlargs.pop('skip', None)
-    query = '&'.join('{0}={1}'.format(k, v[0]) for k, v in urlargs.items())
-
-    def pagination(total_tracks, skip, limit, url_params):
-        page_no = int(skip / float(limit)) + 1
-        total_pages = int(float(total_tracks) / limit) + 1
-        page_class = 'disabled' if page_no >= total_pages else ''
-        previous_page_class = 'disabled' if page_no <= 1 else ''
-        if page_no > 1:
-            prev_pg = '<a href="/tracker?skip=' + str(skip - limit) + \
-                      '&limit=' + str(limit) + '&' + url_params + \
-                      '">&lt;&lt;&lt;</a>'
-        else:
-            prev_pg = ""
-        if page_no < total_pages:
-            next_pg = '<a href="/tracker?skip=' + str(skip + limit) + \
-                      '&limit=' + str(limit) + '&' + url_params + \
-                      '">&gt;&gt;&gt;</a>'
-        else:
-            next_pg = ""
-        return """
-<div class="pagination pagination-right">
-{8} <span>Page {3} of {4}</span> {9}
-</div>""".format(skip + limit, limit, url_params, page_no,
-                 total_pages, page_class, previous_page_class, skip - limit,
-                 prev_pg, next_pg)
-
-    def get_option(option, function):
-        return '<option{0}>{1}</option>'.format(' selected="selected"' \
-                                                    if option == function else "", option)
-
-    response = dict(raw_data=results,
-                    scenario_filter=scenario_filter,
-                    session_filter=session_filter,
-                    errors_value='checked' if show_only_errors else '',
-                    pagination=pagination(total_tracks, skip, limit, query),
-                    start_time=start_time,
-                    latency=latency or 0,
-                    function_options="\n".join(get_option(x, function) \
-                                               for x in ['all'] + sorted(verbs)),
-                    stubo_version=version,
-                    host=host,
-                    format_response=format_response,
-                    max_response=TrackRequest.max_response_size,
-                    total=total_tracks)
-    return handler.render_string("tracker.html", **response)
-
-
-@stubo_async
-def tracker_detail_request(handler, tracker_id):
-    track_info = get_track(handler, tracker_id)
-    error_message = ""
-    if not track_info:
-        error_message = "tracker record with id={0}, does not exist".format(
-            tracker_id)
-    scenario = track_info.get('scenario')
-    _stub_count = stub_count(get_hostname(handler.request),
-                             scenario)['data'].get('count')
-    tracking_data = track_info or {}
-    trace = tracking_data.pop('trace', {})
-    return handler.render_string("tracker_record.html",
-                                 page_title='Tracker Record',
-                                 tracking_data=tracking_data,
-                                 stub_count=_stub_count,
-                                 error_message=error_message,
-                                 pretty_format=pretty_format,
-                                 client_data=convert_to_script(trace),
-                                 human_size=human_size)
 
 
 @stubo_async
