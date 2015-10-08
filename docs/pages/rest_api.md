@@ -267,6 +267,44 @@ session: your_session_name
 matcher here
 ``` 
 
+## Get all stubs for specific scenario
+
+* __URL__: /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
+* __Method__: GET
+* __Response codes__:
+   + __200__ - stub list returned
+
+
+```javascript
+{
+    "version": "0.7",
+    "data": [
+        {
+            "stub": {
+                "priority": -1,
+                "request": {
+                    "bodyPatterns": {
+                        "contains": [
+                            "<status>IS_OK2</status>"
+                        ]
+                    },
+                    "method": "POST"
+                },
+                "args": {},
+                "recorded": "2015-10-08",
+                "response": {
+                    "status": 123,
+                    "body": "<response>YES</response>"
+                }
+            },
+            "matchers_hash": "a92fa6cf96f218598d3723f2827a6815",
+            "space_used": 219,
+            "recorded": "2015-10-08",
+            "scenario": "localhost:scenario_name_1"
+        }
+    ]
+}
+```
 ## Get delay policy list
 
 Gets all defined delay policies
