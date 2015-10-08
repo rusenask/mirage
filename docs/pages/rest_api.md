@@ -305,6 +305,15 @@ matcher here
     ]
 }
 ```
+
+## Delete all scenario stubs
+
+* __URL__: /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
+* __Method__: DELETE
+* __Response codes__:
+   + __200__ - stubs deleted
+   + __409__ - precondition failed - there are active sessions either in playback or record mode
+
 ## Get delay policy list
 
 Gets all defined delay policies
