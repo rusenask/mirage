@@ -1535,6 +1535,38 @@ class StubHandler(TrackRequest):
                                                               request.path))
         return get_response(self, session_name)
 
+from stubo.service.api_v2 import get_response_v2
+
+class ScenarioStubMatcher(TrackRequest):
+    """
+    /api/v2/matcher
+    """
+
+    def initialize(self):
+        """
+        Initializing database. Using global tornado settings that are generated
+        during startup to acquire database client
+        """
+        # get motor driver
+        self.db = motor_driver(self.settings)
+
+    def compute_etag(self):
+        return None
+
+    def post(self):
+        scenario_session = self.request.headers.get('session', None)
+        slices = scenario_session.split(":")
+        if len(slices) < 2:
+            self.set_status(400, reason="Session or scenario not provided, use format: 'scenario_name:session_name'")
+        scenario_name = slices[0]
+        session_name = slices[1]
+
+        full_scenario_name = _get_scenario_full_name(self, scenario_name)
+        self.track.function = 'get/response'
+
+        data = get_response_v2(self, full_scenario_name, session_name)
+        self.write(data)
+
 
 class TrackerRecordsHandler(BaseHandler):
     """
