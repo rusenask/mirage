@@ -59,6 +59,8 @@ rest_api = [
     # external modules
     ("/api/v2/modules", "ExternalModulesHandler"),
     ("/api/v2/modules/objects/(?P<module_name>[^\/]+)", "ExternalModuleDeleteHandler"),
+    # asynchronous matcher
+    ("/api/v2/matcher", "ScenarioStubMatcher"),
     # tracker records
     ("/stubo/api/v2/tracker/records", "TrackerRecordsHandler"),
     ("/stubo/api/v2/tracker/records/objects/(?P<record_id>[^\/]+)", "TrackerRecordDetailsHandler"),
