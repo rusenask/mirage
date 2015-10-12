@@ -34,6 +34,7 @@ webpackJsonp([7],[
 	    displayName: "DtWrapper",
 
 	    render: function render() {
+	        console.log("DtWrapper called");
 	        return _react2['default'].createElement(
 	            'dt',
 	            null,
@@ -48,6 +49,7 @@ webpackJsonp([7],[
 	    displayName: "DdWrapper",
 
 	    render: function render() {
+	        console.log("DdWrapper called");
 	        var value = this.props.data;
 	        var objectConstructor = ({}).constructor;
 	        // check if this is a JSON object and recursively applying
@@ -81,6 +83,7 @@ webpackJsonp([7],[
 	    displayName: "FormattedResponseWrapper",
 
 	    render: function render() {
+	        console.log("FormattedResponseWrapper called");
 	        var value = this.props.data;
 
 	        var preInstance = _react2['default'].createElement(
@@ -103,8 +106,9 @@ webpackJsonp([7],[
 	    displayName: "InfoArrayWrapper",
 
 	    render: function render() {
+	        console.log("InfoArrayWrapper called");
 	        var info = this.props.data;
-
+	        console.log(info);
 	        if (info.length == 4) {
 	            var left;
 	            var right;
@@ -149,6 +153,7 @@ webpackJsonp([7],[
 	    displayName: "TraceStatus",
 
 	    render: function render() {
+	        console.log("TraceStatus called");
 	        var infoArray = this.props.data;
 	        var status = infoArray[0];
 	        if (status == "ok") {
@@ -191,6 +196,7 @@ webpackJsonp([7],[
 	    displayName: "TraceListItemWrapper",
 
 	    render: function render() {
+	        console.log("TraceListItemWrapper called");
 	        var item = this.props.data;
 	        var time = item[0];
 	        var infoArray = item[1];
@@ -217,25 +223,31 @@ webpackJsonp([7],[
 	    displayName: "TraceResponseWrapper",
 
 	    render: function render() {
+	        console.log("TraceResponseWrapper called");
 	        var responseList = this.props.data;
 	        //console.log(responseList);
 	        var rows = [];
+	        console.log(responseList);
+	        if (responseList != undefined) {
+	            $.each(responseList, function (idx, item) {
+	                rows.push(_react2['default'].createElement(TraceListItemWrapper, { key: idx, data: item }));
+	            });
 
-	        $.each(responseList, function (idx, item) {
-	            rows.push(_react2['default'].createElement(TraceListItemWrapper, { key: idx, data: item }));
-	        });
-
-	        return _react2['default'].createElement(
-	            'dd',
-	            null,
-	            _react2['default'].createElement(
-	                'ul',
+	            console.log("TraceResponseWrapper finished, returning");
+	            return _react2['default'].createElement(
+	                'dd',
 	                null,
-	                ' ',
-	                rows,
-	                ' '
-	            )
-	        );
+	                _react2['default'].createElement(
+	                    'ul',
+	                    null,
+	                    ' ',
+	                    rows,
+	                    ' '
+	                )
+	            );
+	        } else {
+	            return _react2['default'].createElement('div', null);
+	        }
 	    }
 
 	});
@@ -244,6 +256,7 @@ webpackJsonp([7],[
 	    displayName: "dlHorizontalWrapper",
 
 	    render: function render() {
+	        console.log("DlHorizontalWrapper called");
 	        var rows = [];
 	        var list = this.props.data;
 	        $.each(list, function (k, v) {
@@ -259,7 +272,6 @@ webpackJsonp([7],[
 	                // to add more formating, for example CSS, SQL - just add more checks for objects.
 	                if (typeof v == 'object') {
 	                    prettyfied = pd.json(v);
-	                    rows.push(_react2['default'].createElement(FormattedResponseWrapper, { data: prettyfied }));
 	                } else {
 	                    prettyfied = pd.xml(v);
 	                }
@@ -288,6 +300,7 @@ webpackJsonp([7],[
 	    displayName: "TrackerDetails",
 
 	    getInitialState: function getInitialState() {
+	        console.log("Tracker details called");
 	        return { data: [] };
 	    },
 
