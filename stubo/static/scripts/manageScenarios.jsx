@@ -1,9 +1,8 @@
-var React = require('../node_modules/react');
-var cookie = require('react-cookie');
-var Griddle = require('../node_modules/griddle-react');
-var Tooltip = require('../node_modules/react-bootstrap').Tooltip;
-var OverlayTrigger = require('../node_modules/react-bootstrap').OverlayTrigger;
-var Button = require('../node_modules/react-bootstrap').Button;
+import React from 'react'
+import ReactDOM from 'react-dom'
+import cookie from 'react-cookie'
+import Griddle from 'griddle-react'
+import { Button, Tooltip, OverlayTrigger } from 'react-bootstrap'
 
 
 function ExecuteRequest(href, body) {
@@ -393,7 +392,7 @@ var ExternalScenarios = React.createClass({
     }
 });
 
-React.render(
+ReactDOM.render(
     <ExternalScenarios source="/stubo/api/v2/scenarios/detail"/>,
     document.getElementById("app")
 );
