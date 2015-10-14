@@ -15,6 +15,13 @@ from stubo.cache import Cache
 from stubo.exceptions import exception_response
 import logging
 from stubo.ext.module import Module
+from stubo.model.request import StuboRequest
+from stubo.utils.track import TrackTrace
+from stubo.match import match
+from stubo.utils import as_date
+from stubo.cache import add_request, StubCache
+from stubo.ext.transformer import transform
+
 from stubo.cache import get_keys
 import sys
 
@@ -389,13 +396,6 @@ class MagicFiltering:
 
         return value
 
-from stubo.model.request import StuboRequest
-from stubo.utils.track import TrackTrace
-from stubo.match import match
-from stubo.utils import as_date
-from stubo.cache import add_request, StubCache
-from stubo.ext.transformer import transform
-
 
 def get_response_v2(handler, full_scenario_name, session_name):
 
@@ -509,12 +509,5 @@ def get_response_v2(handler, full_scenario_name, session_name):
     result_dict["body"] = transfomed_response_text
     result_dict["headers"] = stub.response_headers()
     result_dict["statusCode"] = stub.response_status()
-
-
-    # if stub.response_status() != 200:
-    #     handler.set_status(stub.response_status())
-    # if stub.response_headers():
-    #     for k, v in stub.response_headers().iteritems():
-    #         handler.set_header(k, v)
 
     return result_dict
