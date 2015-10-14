@@ -1,9 +1,7 @@
-var React = require('../node_modules/react');
-var Input = require('../node_modules/react-bootstrap').Input;
-var cookie = require('react-cookie');
-var Tooltip = require('../node_modules/react-bootstrap').Tooltip;
-var OverlayTrigger = require('../node_modules/react-bootstrap').OverlayTrigger;
-
+import ReactDOM from 'react-dom'
+import React from 'react'
+import {Input, Tooltip, OverlayTrigger } from 'react-bootstrap'
+import cookie from 'react-cookie'
 // creating "track all hosts" button + cookie control
 
 var TrackingAllHosts = React.createClass({
@@ -57,7 +55,7 @@ var TrackingAllHosts = React.createClass({
 
 });
 
-React.render(
+ReactDOM.render(
     <TrackingAllHosts/>,
     document.getElementById("trackingall")
 );
@@ -143,7 +141,7 @@ var TrackingLevelComponent = React.createClass({
 });
 
 
-React.render(
+ReactDOM.render(
     <TrackingLevelComponent/>,
     document.getElementById("trackinglevel")
 );
