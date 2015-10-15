@@ -391,6 +391,42 @@ var ExternalScenarios = React.createClass({
     }
 });
 
+function BeginSession(that, scenario, session) {
+    let sessionPayload = {
+        "begin": null,
+        "session": session,
+        "mode": "record"
+    };
+
+    // making ajax call
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        data: JSON.stringify(sessionPayload),
+        url: "/stubo/api/v2/scenarios/objects/" + scenario + "/action",
+        success: function () {
+            if (that.isMounted()) {
+                that.setState({
+                    message: "Session for scenario '" + scenario + "' started successfully!",
+                    alertVisible: true,
+                    alertStyle: "success"
+                });
+            }
+        }
+        }).fail(function ($xhr) {
+        let data = jQuery.parseJSON($xhr.responseText);
+        if (that.isMounted()) {
+            that.setState({
+                message: "Could not begin session. Error: " + data.error.message,
+                alertVisible: true,
+                alertStyle: "danger"
+            });
+        }
+    });
+}
+
+
+
 let CreateScenarioBtn = React.createClass({
     getInitialState() {
         return {
@@ -399,7 +435,8 @@ let CreateScenarioBtn = React.createClass({
             showModal: false,
             message: "",
             alertVisible: false,
-            alertStyle: "danger"
+            alertStyle: "danger",
+            sessionInputDisabled: true
         }
     },
 
@@ -430,6 +467,13 @@ let CreateScenarioBtn = React.createClass({
         this.setState(this.validationState());
     },
 
+    handleCheckbox()
+    {
+        this.setState({
+            sessionInputDisabled: !this.state.sessionInputDisabled
+        })
+    },
+
 
     handleSubmit(e)
     {
@@ -450,8 +494,9 @@ let CreateScenarioBtn = React.createClass({
             data: JSON.stringify(payload),
             url: "/stubo/api/v2/scenarios",
             success: function (data) {
-                console.log("success!");
-                console.log(data);
+                console.log(that.state.sessionInputDisabled);
+
+                console.log(that.refs.sessionCheckbox.getValue());
                 if (that.isMounted()) {
                     that.setState({
                         message: "Scenario '" + scenarioName + "' created successfully!",
@@ -459,6 +504,12 @@ let CreateScenarioBtn = React.createClass({
                         alertStyle: "success"
                     });
                 }
+                // session input is expected if that.state.sessionInputDisabled is enabled
+                if (that.state.sessionInputDisabled == false) {
+                    let sessionName = that.refs.sessionName.getValue();
+                    BeginSession(that, scenarioName, sessionName)
+                }
+
             }
         }).fail(function ($xhr) {
             if (that.isMounted()) {
@@ -479,6 +530,13 @@ let CreateScenarioBtn = React.createClass({
                     <Input type="text" ref="scenarioName" label="Scenario name"
                            placeholder="scenario-0"
                            onChange={this.handleChange}/>
+                    <Input type="checkbox" ref="sessionCheckbox" label="Start session in record mode after scenario is created"
+                           onChange={this.handleCheckbox}/>
+
+                    <Input type="text" ref="sessionName" label="Session name"
+                           placeholder="session-0"
+                           disabled={this.state.sessionInputDisabled}
+                           onChange={this.handleChange}/>
 
                     <ButtonInput type="submit" value="Submit"
                                  bsStyle={this.state.style} bsSize="small"
@@ -490,7 +548,7 @@ let CreateScenarioBtn = React.createClass({
         // alert style to display messages
         let alert = (<p></p>);
         if (this.state.alertVisible) {
-             alert = (
+            alert = (
                 <Alert bsStyle={this.state.alertStyle}>
                     <p>{this.state.message}</p>
                 </Alert>
