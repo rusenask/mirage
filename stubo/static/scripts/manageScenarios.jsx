@@ -321,7 +321,16 @@ var columnMeta = [
 
 ];
 
-function updateTable(component, href) {
+function updateTable(component) {
+
+    var href = '';
+    if (cookie.load('stubo.all-hosts') || false) {
+        // amending query argument to get all hosts
+        href = '/stubo/api/v2/scenarios/detail?all-hosts=true'
+    } else {
+        href = '/stubo/api/v2/scenarios/detail?all-hosts=false'
+    }
+
     $.get(href, function (result) {
         var newList = reformatJSON(result.data);
         if (component.isMounted()) {
@@ -347,19 +356,11 @@ var ExternalScenarios = React.createClass({
     },
     componentDidMount: function () {
         // getting scenarios
-        var href = '';
-        if (cookie.load('stubo.all-hosts') || false) {
-            // amending query argument to get all hosts
-            href = this.props.source + '?all-hosts=true'
-        } else {
-            href = this.props.source + '?all-hosts=false'
-        }
-
-        updateTable(this, href);
+        updateTable(this);
 
         // subscribing to modal close event
         $('#myModal').on('hidden.bs.modal', function () {
-            updateTable(this, href);
+            updateTable(this);
         }.bind(this));
     },
 
@@ -604,7 +605,7 @@ let GriddleAndScenarioCreationComponent = React.createClass({
 
 
                 <Row>
-                    <ExternalScenarios source="/stubo/api/v2/scenarios/detail"/>
+                    <ExternalScenarios />
                 </Row>
 
             </Grid>
