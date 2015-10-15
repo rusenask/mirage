@@ -394,16 +394,46 @@ var ExternalScenarios = React.createClass({
 let CreateScenarioBtn = React.createClass({
     getInitialState() {
         return {
+            disabled: true,
+            style: null,
             showModal: false
         }
     },
 
     close() {
-        this.setState({ showModal: false });
+        this.setState({showModal: false});
     },
 
     open() {
-        this.setState({ showModal: true });
+        this.setState({showModal: true});
+    },
+
+    validationState() {
+        let length = this.refs.scenarioName.getValue().length;
+
+        let style = 'danger';
+
+        if (length > 0) {
+            style = 'success'
+        }
+
+        //else if (length > 5) style = 'warning';
+
+        let disabled = style !== 'success';
+
+        return {style, disabled};
+    },
+
+    handleChange()
+    {
+        this.setState(this.validationState());
+    },
+
+
+    handleSubmit(e)
+    {
+        e.preventDefault();
+        console.log("clicked submit")
     },
 
     render() {
