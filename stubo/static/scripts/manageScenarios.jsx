@@ -382,12 +382,34 @@ var ExternalScenarios = React.createClass({
 
 
     render: function () {
-        return <Griddle results={this.state.results}
-                        useGriddleStyles={true}
-                        showFilter={true} showSettings={true}
-                        resultsPerPage={this.state.resultsPerPage}
-                        columnMetadata={columnMeta}
-                        columns={["name", "session", "status", "loaded", "last_used", "space_used_kb", "stub_count", "recorded", "actions"]}/>
+        const gridInstance = (
+            <Grid fluid={true}>
+                <Row>
+                    <div className="pull-right">
+                        <CreateScenarioBtn parent={this}/>
+                    </div>
+                </Row>
+
+                <Row>
+                    <hr/>
+                </Row>
+
+
+                <Row>
+                    <Griddle results={this.state.results}
+                             useGriddleStyles={true}
+                             showFilter={true} showSettings={true}
+                             resultsPerPage={this.state.resultsPerPage}
+                             columnMetadata={columnMeta}
+                             columns={["name", "session", "status", "loaded", "last_used", "space_used_kb", "stub_count", "recorded", "actions"]}
+                        />
+                </Row>
+
+            </Grid>
+        );
+
+
+        return gridInstance
     }
 });
 
@@ -436,7 +458,8 @@ let CreateScenarioBtn = React.createClass({
             showModal: false,
             message: "",
             alertVisible: false,
-            alertStyle: "danger"
+            alertStyle: "danger",
+            parent: this.props.parent
         }
     },
 
@@ -516,6 +539,7 @@ let CreateScenarioBtn = React.createClass({
                     let sessionName = that.refs.sessionName.getValue();
                     BeginSession(that, scenarioName, sessionName)
                 }
+                updateTable(that.state.parent);
 
             }
         }).fail(function ($xhr) {
@@ -588,36 +612,7 @@ let CreateScenarioBtn = React.createClass({
 });
 
 
-let GriddleAndScenarioCreationComponent = React.createClass({
-    displayName: "GriddleAndScenarioCreationComponent",
-    render() {
-        const gridInstance = (
-            <Grid fluid={true}>
-                <Row>
-                    <div className="pull-right">
-                        <CreateScenarioBtn/>
-                    </div>
-                </Row>
-
-                <Row>
-                    <hr/>
-                </Row>
-
-
-                <Row>
-                    <ExternalScenarios />
-                </Row>
-
-            </Grid>
-        );
-
-
-        return <div> {gridInstance} </div>
-    }
-});
-
-
 ReactDOM.render(
-    <GriddleAndScenarioCreationComponent />,
+    <ExternalScenarios />,
     document.getElementById("app")
 );

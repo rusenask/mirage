@@ -375,7 +375,16 @@ webpackJsonp([5],[
 	    "customComponent": StatusLabelComponent
 	}];
 
-	function updateTable(component, href) {
+	function updateTable(component) {
+
+	    var href = '';
+	    if (_reactCookie2['default'].load('stubo.all-hosts') || false) {
+	        // amending query argument to get all hosts
+	        href = '/stubo/api/v2/scenarios/detail?all-hosts=true';
+	    } else {
+	        href = '/stubo/api/v2/scenarios/detail?all-hosts=false';
+	    }
+
 	    $.get(href, function (result) {
 	        var newList = reformatJSON(result.data);
 	        if (component.isMounted()) {
@@ -400,19 +409,11 @@ webpackJsonp([5],[
 	    componentWillMount: function componentWillMount() {},
 	    componentDidMount: function componentDidMount() {
 	        // getting scenarios
-	        var href = '';
-	        if (_reactCookie2['default'].load('stubo.all-hosts') || false) {
-	            // amending query argument to get all hosts
-	            href = this.props.source + '?all-hosts=true';
-	        } else {
-	            href = this.props.source + '?all-hosts=false';
-	        }
-
-	        updateTable(this, href);
+	        updateTable(this);
 
 	        // subscribing to modal close event
 	        $('#myModal').on('hidden.bs.modal', (function () {
-	            updateTable(this, href);
+	            updateTable(this);
 	        }).bind(this));
 	    },
 
@@ -428,12 +429,37 @@ webpackJsonp([5],[
 	    setPageSize: function setPageSize(size) {},
 
 	    render: function render() {
-	        return _react2['default'].createElement(_griddleReact2['default'], { results: this.state.results,
-	            useGriddleStyles: true,
-	            showFilter: true, showSettings: true,
-	            resultsPerPage: this.state.resultsPerPage,
-	            columnMetadata: columnMeta,
-	            columns: ["name", "session", "status", "loaded", "last_used", "space_used_kb", "stub_count", "recorded", "actions"] });
+	        var gridInstance = _react2['default'].createElement(
+	            _reactBootstrap.Grid,
+	            { fluid: true },
+	            _react2['default'].createElement(
+	                _reactBootstrap.Row,
+	                null,
+	                _react2['default'].createElement(
+	                    'div',
+	                    { className: 'pull-right' },
+	                    _react2['default'].createElement(CreateScenarioBtn, { parent: this })
+	                )
+	            ),
+	            _react2['default'].createElement(
+	                _reactBootstrap.Row,
+	                null,
+	                _react2['default'].createElement('hr', null)
+	            ),
+	            _react2['default'].createElement(
+	                _reactBootstrap.Row,
+	                null,
+	                _react2['default'].createElement(_griddleReact2['default'], { results: this.state.results,
+	                    useGriddleStyles: true,
+	                    showFilter: true, showSettings: true,
+	                    resultsPerPage: this.state.resultsPerPage,
+	                    columnMetadata: columnMeta,
+	                    columns: ["name", "session", "status", "loaded", "last_used", "space_used_kb", "stub_count", "recorded", "actions"]
+	                })
+	            )
+	        );
+
+	        return gridInstance;
 	    }
 	});
 
@@ -482,7 +508,8 @@ webpackJsonp([5],[
 	            showModal: false,
 	            message: "",
 	            alertVisible: false,
-	            alertStyle: "danger"
+	            alertStyle: "danger",
+	            parent: this.props.parent
 	        };
 	    },
 
@@ -556,6 +583,7 @@ webpackJsonp([5],[
 	                    var sessionName = that.refs.sessionName.getValue();
 	                    BeginSession(that, scenarioName, sessionName);
 	                }
+	                updateTable(that.state.parent);
 	            }
 	        }).fail(function ($xhr) {
 	            if (that.isMounted()) {
@@ -648,44 +676,7 @@ webpackJsonp([5],[
 	    }
 	});
 
-	var GriddleAndScenarioCreationComponent = _react2['default'].createClass({
-	    displayName: "GriddleAndScenarioCreationComponent",
-	    render: function render() {
-	        var gridInstance = _react2['default'].createElement(
-	            _reactBootstrap.Grid,
-	            { fluid: true },
-	            _react2['default'].createElement(
-	                _reactBootstrap.Row,
-	                null,
-	                _react2['default'].createElement(
-	                    'div',
-	                    { className: 'pull-right' },
-	                    _react2['default'].createElement(CreateScenarioBtn, null)
-	                )
-	            ),
-	            _react2['default'].createElement(
-	                _reactBootstrap.Row,
-	                null,
-	                _react2['default'].createElement('hr', null)
-	            ),
-	            _react2['default'].createElement(
-	                _reactBootstrap.Row,
-	                null,
-	                _react2['default'].createElement(ExternalScenarios, { source: '/stubo/api/v2/scenarios/detail' })
-	            )
-	        );
-
-	        return _react2['default'].createElement(
-	            'div',
-	            null,
-	            ' ',
-	            gridInstance,
-	            ' '
-	        );
-	    }
-	});
-
-	_reactDom2['default'].render(_react2['default'].createElement(GriddleAndScenarioCreationComponent, null), document.getElementById("app"));
+	_reactDom2['default'].render(_react2['default'].createElement(ExternalScenarios, null), document.getElementById("app"));
 
 /***/ },
 /* 1 */,
