@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import cookie from 'react-cookie'
 import Griddle from 'griddle-react'
-import { Button, Tooltip, OverlayTrigger, Grid, Row, Col, Modal, Input, ButtonInput } from 'react-bootstrap'
+import { Button, Tooltip, OverlayTrigger, Grid, Row, Col, Modal, Input, ButtonInput, Alert } from 'react-bootstrap'
 
 
 function ExecuteRequest(href, body) {
@@ -396,7 +396,10 @@ let CreateScenarioBtn = React.createClass({
         return {
             disabled: true,
             style: null,
-            showModal: false
+            showModal: false,
+            message: "",
+            alertVisible: false,
+            alertStyle: "danger"
         }
     },
 
@@ -417,8 +420,6 @@ let CreateScenarioBtn = React.createClass({
             style = 'success'
         }
 
-        //else if (length > 5) style = 'warning';
-
         let disabled = style !== 'success';
 
         return {style, disabled};
@@ -433,10 +434,68 @@ let CreateScenarioBtn = React.createClass({
     handleSubmit(e)
     {
         e.preventDefault();
-        console.log("clicked submit")
+
+        let scenarioName = this.refs.scenarioName.getValue();
+        console.log(scenarioName);
+
+        let payload = {
+            "scenario": scenarioName
+        };
+
+        let that = this;
+
+        $.ajax({
+            type: "PUT",
+            dataType: "json",
+            data: JSON.stringify(payload),
+            url: "/stubo/api/v2/scenarios",
+            success: function (data) {
+                console.log("success!");
+                console.log(data);
+                if (that.isMounted()) {
+                    that.setState({
+                        message: "Scenario created successfully!",
+                        alertVisible: true,
+                        alertStyle: "success"
+                    });
+                }
+            }
+        }).fail(function ($xhr) {
+            if (that.isMounted()) {
+                that.setState({
+                    message: "Could not create scenario. Error: " + $xhr.statusText,
+                    alertVisible: true,
+                    alertStyle: "danger"
+                });
+            }
+        });
     },
 
     render() {
+
+        let createForm = (
+            <div>
+                <form onSubmit={this.handleSubmit}>
+                    <Input type="text" ref="scenarioName" label="Scenario name"
+                           placeholder="scenario-0"
+                           onChange={this.handleChange}/>
+
+                    <ButtonInput type="submit" value="Submit"
+                                 bsStyle={this.state.style} bsSize="small"
+                                 disabled={this.state.disabled}/>
+                </form>
+            </div>
+        );
+
+        // alert style to display messages
+        let alert = (<p></p>);
+        if (this.state.alertVisible) {
+             alert = (
+                <Alert bsStyle={this.state.alertStyle}>
+                    <p>{this.state.message}</p>
+                </Alert>
+            );
+        }
         return (
             <span>
                 <Button pullRigh={true}
@@ -451,19 +510,8 @@ let CreateScenarioBtn = React.createClass({
                         <Modal.Title>Add new scenario</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-
-                        <div>
-                            <form onSubmit={this.handleSubmit}>
-                                <Input type="text" ref="scenarioName" label="Scenario name"
-                                       placeholder="scenario-0"
-                                       onChange={this.handleChange}/>
-
-                                <ButtonInput type="submit" value="Submit"
-                                             bsStyle={this.state.style} bsSize="small"
-                                             disabled={this.state.disabled}/>
-                            </form>
-                        </div>
-
+                        {alert}
+                        {createForm}
                     </Modal.Body>
                     <Modal.Footer>
                         <Button onClick={this.close}>Close</Button>
