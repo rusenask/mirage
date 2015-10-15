@@ -19,6 +19,7 @@ let DtWrapper = React.createClass({
     displayName: "DtWrapper",
 
     render: function () {
+        console.log("DtWrapper called");
         return <dt> {this.props.data} </dt>
     }
 });
@@ -27,6 +28,7 @@ let DdWrapper = React.createClass({
     displayName: "DdWrapper",
 
     render: function () {
+        console.log("DdWrapper called");
         var value = this.props.data;
         var objectConstructor = {}.constructor;
         // check if this is a JSON object and recursively applying
@@ -49,6 +51,7 @@ let FormattedResponseWrapper = React.createClass({
     displayName: "FormattedResponseWrapper",
 
     render: function () {
+        console.log("FormattedResponseWrapper called");
         var value = this.props.data;
 
         let preInstance = (
@@ -66,8 +69,9 @@ let InfoArrayWrapper = React.createClass({
     displayName: "InfoArrayWrapper",
 
     render() {
+        console.log("InfoArrayWrapper called");
         let info = this.props.data;
-
+        console.log(info);
         if (info.length == 4) {
             var left = jQuery.parseJSON(info[2]);
             var right = jQuery.parseJSON(info[3]);
@@ -99,6 +103,7 @@ let TraceStatus = React.createClass({
     displayName: "TraceStatus",
 
     render() {
+        console.log("TraceStatus called");
         let infoArray = this.props.data;
         let status = infoArray[0];
         if (status == "ok") {
@@ -115,6 +120,7 @@ let TraceListItemWrapper = React.createClass({
     displayName: "TraceListItemWrapper",
 
     render() {
+        console.log("TraceListItemWrapper called");
         let item = this.props.data;
         let time = item[0];
         let infoArray = item[1];
@@ -128,17 +134,24 @@ let TraceResponseWrapper = React.createClass({
     displayName: "TraceResponseWrapper",
 
     render: function () {
+        console.log("TraceResponseWrapper called");
         let responseList = this.props.data;
         //console.log(responseList);
         let rows = [];
+        console.log(responseList);
+        if(responseList != undefined){
+            $.each(responseList, function (idx, item) {
+                rows.push(<TraceListItemWrapper key={idx} data={item}/>)
+            });
 
-        $.each(responseList, function (idx, item) {
-            rows.push(<TraceListItemWrapper key={idx} data={item}/>)
-        });
+            console.log("TraceResponseWrapper finished, returning");
+            return <dd>
+                <ul> {rows} </ul>
+            </dd>
+        } else {
+            return <div></div>
+        }
 
-        return <dd>
-            <ul> {rows} </ul>
-        </dd>
     }
 
 });
@@ -148,6 +161,7 @@ var DlHorizontalWrapper = React.createClass({
     displayName: "dlHorizontalWrapper",
 
     render: function () {
+        console.log("DlHorizontalWrapper called");
         var rows = [];
         var list = this.props.data;
         $.each(list, function (k, v) {
@@ -163,11 +177,11 @@ var DlHorizontalWrapper = React.createClass({
                 // to add more formating, for example CSS, SQL - just add more checks for objects.
                 if (typeof v == 'object') {
                     prettyfied = pd.json(v);
-                    rows.push(<FormattedResponseWrapper data={prettyfied} />);
                 } else {
                     prettyfied = pd.xml(v);
                 }
                 rows.push(<FormattedResponseWrapper data={prettyfied} />);
+
 
 
             } else if (k == 'trace') {
@@ -194,6 +208,7 @@ var TrackerDetails = React.createClass({
     displayName: "TrackerDetails",
 
     getInitialState: function () {
+        console.log("Tracker details called");
         return {data: []}
     },
 

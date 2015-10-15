@@ -7,14 +7,11 @@ import sys
 import logging
 import logging.config
 from datetime import datetime, timedelta
-
 from pymongo import ASCENDING, DESCENDING
 from pymongo.errors import CollectionInvalid
-
 from stubo.utils import init_mongo, start_redis, as_date, read_config
 from stubo.service.api import list_scenarios, get_status, delete_stubs
 from stubo.model.db import default_env, coerce_mongo_param
-from stubo.testing import DummyRequestHandler
 from stubo.scripts import get_default_config
 
 log = logging.getLogger(__name__)
@@ -87,6 +84,8 @@ def create_tracker_collection(db):
 
 
 def purge_stubs():
+    # importing helper handler from testing deps
+    from stubo.testing import DummyRequestHandler
     parser = ArgumentParser(
         description="Purge stubs older than given expiry date."
     )
