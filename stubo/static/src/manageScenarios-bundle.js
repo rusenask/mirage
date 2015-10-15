@@ -596,6 +596,10 @@ webpackJsonp([5],[
 	        });
 	    },
 
+	    handleAlertDismiss: function handleAlertDismiss() {
+	        this.setState({ alertVisible: false });
+	    },
+
 	    render: function render() {
 
 	        var createForm = _react2['default'].createElement(
@@ -624,7 +628,7 @@ webpackJsonp([5],[
 	        if (this.state.alertVisible) {
 	            alert = _react2['default'].createElement(
 	                _reactBootstrap.Alert,
-	                { bsStyle: this.state.alertStyle },
+	                { bsStyle: this.state.alertStyle, dismissAfter: 10000, onDismiss: this.handleAlertDismiss },
 	                _react2['default'].createElement(
 	                    'p',
 	                    null,

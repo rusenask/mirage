@@ -553,6 +553,10 @@ let CreateScenarioBtn = React.createClass({
         });
     },
 
+    handleAlertDismiss() {
+        this.setState({alertVisible: false});
+    },
+
     render() {
 
         let createForm = (
@@ -580,7 +584,7 @@ let CreateScenarioBtn = React.createClass({
         let alert = (<p></p>);
         if (this.state.alertVisible) {
             alert = (
-                <Alert bsStyle={this.state.alertStyle}>
+                <Alert bsStyle={this.state.alertStyle} dismissAfter={10000} onDismiss={this.handleAlertDismiss}>
                     <p>{this.state.message}</p>
                 </Alert>
             );
