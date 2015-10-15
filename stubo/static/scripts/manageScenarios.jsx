@@ -27,7 +27,6 @@ function ExecuteRequest(href, body) {
         infoModal.modal('show');
         return false;
     });
-
 }
 
 // we are getting session data nested in the array, so we bring it forward
