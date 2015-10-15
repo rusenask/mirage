@@ -438,7 +438,197 @@ webpackJsonp([5],[
 	    }
 	});
 
-	_reactDom2['default'].render(_react2['default'].createElement(ExternalScenarios, { source: '/stubo/api/v2/scenarios/detail' }), document.getElementById("app"));
+	var CreateScenarioBtn = _react2['default'].createClass({
+	    displayName: 'CreateScenarioBtn',
+
+	    getInitialState: function getInitialState() {
+	        return {
+	            disabled: true,
+	            style: null,
+	            showModal: false,
+	            message: "",
+	            alertVisible: false,
+	            alertStyle: "danger"
+	        };
+	    },
+
+	    close: function close() {
+	        this.setState({ showModal: false });
+	    },
+
+	    open: function open() {
+	        this.setState({ showModal: true });
+	    },
+
+	    validationState: function validationState() {
+	        var length = this.refs.scenarioName.getValue().length;
+
+	        var style = 'danger';
+
+	        if (length > 0) {
+	            style = 'success';
+	        }
+
+	        var disabled = style !== 'success';
+
+	        return { style: style, disabled: disabled };
+	    },
+
+	    handleChange: function handleChange() {
+	        this.setState(this.validationState());
+	    },
+
+	    handleSubmit: function handleSubmit(e) {
+	        e.preventDefault();
+
+	        var scenarioName = this.refs.scenarioName.getValue();
+	        console.log(scenarioName);
+
+	        var payload = {
+	            "scenario": scenarioName
+	        };
+
+	        var that = this;
+
+	        $.ajax({
+	            type: "PUT",
+	            dataType: "json",
+	            data: JSON.stringify(payload),
+	            url: "/stubo/api/v2/scenarios",
+	            success: function success(data) {
+	                console.log("success!");
+	                console.log(data);
+	                if (that.isMounted()) {
+	                    that.setState({
+	                        message: "Scenario '" + scenarioName + "' created successfully!",
+	                        alertVisible: true,
+	                        alertStyle: "success"
+	                    });
+	                }
+	            }
+	        }).fail(function ($xhr) {
+	            if (that.isMounted()) {
+	                that.setState({
+	                    message: "Could not create scenario. Error: " + $xhr.statusText,
+	                    alertVisible: true,
+	                    alertStyle: "danger"
+	                });
+	            }
+	        });
+	    },
+
+	    render: function render() {
+
+	        var createForm = _react2['default'].createElement(
+	            'div',
+	            null,
+	            _react2['default'].createElement(
+	                'form',
+	                { onSubmit: this.handleSubmit },
+	                _react2['default'].createElement(_reactBootstrap.Input, { type: 'text', ref: 'scenarioName', label: 'Scenario name',
+	                    placeholder: 'scenario-0',
+	                    onChange: this.handleChange }),
+	                _react2['default'].createElement(_reactBootstrap.ButtonInput, { type: 'submit', value: 'Submit',
+	                    bsStyle: this.state.style, bsSize: 'small',
+	                    disabled: this.state.disabled })
+	            )
+	        );
+
+	        // alert style to display messages
+	        var alert = _react2['default'].createElement('p', null);
+	        if (this.state.alertVisible) {
+	            alert = _react2['default'].createElement(
+	                _reactBootstrap.Alert,
+	                { bsStyle: this.state.alertStyle },
+	                _react2['default'].createElement(
+	                    'p',
+	                    null,
+	                    this.state.message
+	                )
+	            );
+	        }
+	        return _react2['default'].createElement(
+	            'span',
+	            null,
+	            _react2['default'].createElement(
+	                _reactBootstrap.Button,
+	                { pullRigh: true,
+	                    onClick: this.open,
+	                    bsStyle: 'primary' },
+	                _react2['default'].createElement('span', { className: 'glyphicon glyphicon-plus', 'aria-hidden': 'true' }),
+	                ' Add new scenario'
+	            ),
+	            _react2['default'].createElement(
+	                _reactBootstrap.Modal,
+	                { show: this.state.showModal, onHide: this.close,
+	                    bsSize: 'medium' },
+	                _react2['default'].createElement(
+	                    _reactBootstrap.Modal.Header,
+	                    { closeButton: true },
+	                    _react2['default'].createElement(
+	                        _reactBootstrap.Modal.Title,
+	                        null,
+	                        'Add new scenario'
+	                    )
+	                ),
+	                _react2['default'].createElement(
+	                    _reactBootstrap.Modal.Body,
+	                    null,
+	                    alert,
+	                    createForm
+	                ),
+	                _react2['default'].createElement(
+	                    _reactBootstrap.Modal.Footer,
+	                    null,
+	                    _react2['default'].createElement(
+	                        _reactBootstrap.Button,
+	                        { onClick: this.close },
+	                        'Close'
+	                    )
+	                )
+	            )
+	        );
+	    }
+	});
+
+	var GriddleAndScenarioCreationComponent = _react2['default'].createClass({
+	    displayName: "GriddleAndScenarioCreationComponent",
+	    render: function render() {
+	        var gridInstance = _react2['default'].createElement(
+	            _reactBootstrap.Grid,
+	            { fluid: true },
+	            _react2['default'].createElement(
+	                _reactBootstrap.Row,
+	                null,
+	                _react2['default'].createElement(
+	                    'div',
+	                    { className: 'pull-right' },
+	                    _react2['default'].createElement(CreateScenarioBtn, null)
+	                )
+	            ),
+	            _react2['default'].createElement(
+	                _reactBootstrap.Row,
+	                null,
+	                _react2['default'].createElement('hr', null)
+	            ),
+	            _react2['default'].createElement(
+	                _reactBootstrap.Row,
+	                null,
+	                _react2['default'].createElement(ExternalScenarios, { source: '/stubo/api/v2/scenarios/detail' })
+	            )
+	        );
+
+	        return _react2['default'].createElement(
+	            'div',
+	            null,
+	            ' ',
+	            gridInstance,
+	            ' '
+	        );
+	    }
+	});
+
+	_reactDom2['default'].render(_react2['default'].createElement(GriddleAndScenarioCreationComponent, null), document.getElementById("app"));
 
 /***/ },
 /* 1 */,

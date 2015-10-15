@@ -454,7 +454,7 @@ let CreateScenarioBtn = React.createClass({
                 console.log(data);
                 if (that.isMounted()) {
                     that.setState({
-                        message: "Scenario created successfully!",
+                        message: "Scenario '" + scenarioName + "' created successfully!",
                         alertVisible: true,
                         alertStyle: "success"
                     });
