@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import cookie from 'react-cookie'
 import Griddle from 'griddle-react'
-import { Button, Tooltip, OverlayTrigger } from 'react-bootstrap'
+import { Button, Tooltip, OverlayTrigger, Grid, Row, Col, Modal } from 'react-bootstrap'
 
 
 function ExecuteRequest(href, body) {
@@ -391,7 +391,78 @@ var ExternalScenarios = React.createClass({
     }
 });
 
+let CreateScenarioBtn = React.createClass({
+    getInitialState() {
+        return {
+            showModal: false
+        }
+    },
+
+    close() {
+        this.setState({ showModal: false });
+    },
+
+    open() {
+        this.setState({ showModal: true });
+    },
+
+    render() {
+        return (
+            <span>
+                <Button pullRigh={true}
+                        onClick={this.open}
+                        bsStyle="primary">
+                    <span className="glyphicon glyphicon-plus" aria-hidden="true"></span> Add new scenario
+                </Button>
+
+                <Modal show={this.state.showModal} onHide={this.close}
+                       bsSize="large">
+                    <Modal.Header closeButton>
+                        <Modal.Title>Add new scenario</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        Buttons and options here
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button onClick={this.close}>Close</Button>
+                    </Modal.Footer>
+                </Modal>
+            </span>
+        );
+    }
+});
+
+
+let GriddleAndScenarioCreationComponent = React.createClass({
+    displayName: "GriddleAndScenarioCreationComponent",
+    render() {
+        const gridInstance = (
+            <Grid fluid={true}>
+                <Row>
+                    <div className="pull-right">
+                        <CreateScenarioBtn/>
+                    </div>
+                </Row>
+
+                <Row>
+                    <hr/>
+                </Row>
+
+
+                <Row>
+                    <ExternalScenarios source="/stubo/api/v2/scenarios/detail"/>
+                </Row>
+
+            </Grid>
+        );
+
+
+        return <div> {gridInstance} </div>
+    }
+});
+
+
 ReactDOM.render(
-    <ExternalScenarios source="/stubo/api/v2/scenarios/detail"/>,
+    <GriddleAndScenarioCreationComponent />,
     document.getElementById("app")
 );
