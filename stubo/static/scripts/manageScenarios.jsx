@@ -359,7 +359,6 @@ var ExternalScenarios = React.createClass({
 
         // subscribing to modal close event
         $('#myModal').on('hidden.bs.modal', function () {
-            console.log("downloading new scenario list");
             updateTable(this, href);
         }.bind(this));
     },
@@ -432,11 +431,11 @@ let CreateScenarioBtn = React.createClass({
         return {
             disabled: true,
             style: null,
+            sessionInputDisabled: true,
             showModal: false,
             message: "",
             alertVisible: false,
-            alertStyle: "danger",
-            sessionInputDisabled: true
+            alertStyle: "danger"
         }
     },
 
@@ -450,14 +449,23 @@ let CreateScenarioBtn = React.createClass({
 
     validationState() {
         let length = this.refs.scenarioName.getValue().length;
+        let sessionLength = this.refs.sessionName.getValue().length;
 
         let style = 'danger';
 
-        if (length > 0) {
-            style = 'success'
+        if (this.state.sessionInputDisabled == false) {
+            if (length > 0 && sessionLength > 0) {
+                style = 'success'
+            }
+        } else {
+            if (length > 0) {
+                style = 'success'
+            }
         }
 
         let disabled = style !== 'success';
+
+
 
         return {style, disabled};
     },
@@ -469,9 +477,11 @@ let CreateScenarioBtn = React.createClass({
 
     handleCheckbox()
     {
-        this.setState({
-            sessionInputDisabled: !this.state.sessionInputDisabled
-        })
+        // inverting checkbox state
+        this.state.sessionInputDisabled = !this.state.sessionInputDisabled;
+
+        // doing validation
+        this.setState(this.validationState());
     },
 
 
@@ -480,7 +490,6 @@ let CreateScenarioBtn = React.createClass({
         e.preventDefault();
 
         let scenarioName = this.refs.scenarioName.getValue();
-        console.log(scenarioName);
 
         let payload = {
             "scenario": scenarioName
@@ -494,9 +503,6 @@ let CreateScenarioBtn = React.createClass({
             data: JSON.stringify(payload),
             url: "/stubo/api/v2/scenarios",
             success: function (data) {
-                console.log(that.state.sessionInputDisabled);
-
-                console.log(that.refs.sessionCheckbox.getValue());
                 if (that.isMounted()) {
                     that.setState({
                         message: "Scenario '" + scenarioName + "' created successfully!",

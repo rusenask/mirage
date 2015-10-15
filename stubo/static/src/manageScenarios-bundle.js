@@ -412,7 +412,6 @@ webpackJsonp([5],[
 
 	        // subscribing to modal close event
 	        $('#myModal').on('hidden.bs.modal', (function () {
-	            console.log("downloading new scenario list");
 	            updateTable(this, href);
 	        }).bind(this));
 	    },
@@ -479,11 +478,11 @@ webpackJsonp([5],[
 	        return {
 	            disabled: true,
 	            style: null,
+	            sessionInputDisabled: true,
 	            showModal: false,
 	            message: "",
 	            alertVisible: false,
-	            alertStyle: "danger",
-	            sessionInputDisabled: true
+	            alertStyle: "danger"
 	        };
 	    },
 
@@ -497,11 +496,18 @@ webpackJsonp([5],[
 
 	    validationState: function validationState() {
 	        var length = this.refs.scenarioName.getValue().length;
+	        var sessionLength = this.refs.sessionName.getValue().length;
 
 	        var style = 'danger';
 
-	        if (length > 0) {
-	            style = 'success';
+	        if (this.state.sessionInputDisabled == false) {
+	            if (length > 0 && sessionLength > 0) {
+	                style = 'success';
+	            }
+	        } else {
+	            if (length > 0) {
+	                style = 'success';
+	            }
 	        }
 
 	        var disabled = style !== 'success';
@@ -514,16 +520,17 @@ webpackJsonp([5],[
 	    },
 
 	    handleCheckbox: function handleCheckbox() {
-	        this.setState({
-	            sessionInputDisabled: !this.state.sessionInputDisabled
-	        });
+	        // inverting checkbox state
+	        this.state.sessionInputDisabled = !this.state.sessionInputDisabled;
+
+	        // doing validation
+	        this.setState(this.validationState());
 	    },
 
 	    handleSubmit: function handleSubmit(e) {
 	        e.preventDefault();
 
 	        var scenarioName = this.refs.scenarioName.getValue();
-	        console.log(scenarioName);
 
 	        var payload = {
 	            "scenario": scenarioName
@@ -537,9 +544,6 @@ webpackJsonp([5],[
 	            data: JSON.stringify(payload),
 	            url: "/stubo/api/v2/scenarios",
 	            success: function success(data) {
-	                console.log(that.state.sessionInputDisabled);
-
-	                console.log(that.refs.sessionCheckbox.getValue());
 	                if (that.isMounted()) {
 	                    that.setState({
 	                        message: "Scenario '" + scenarioName + "' created successfully!",
