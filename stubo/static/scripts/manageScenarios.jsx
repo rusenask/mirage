@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import cookie from 'react-cookie'
 import Griddle from 'griddle-react'
-import { Button, Tooltip, OverlayTrigger, Grid, Row, Col, Modal } from 'react-bootstrap'
+import { Button, Tooltip, OverlayTrigger, Grid, Row, Col, Modal, Input, ButtonInput } from 'react-bootstrap'
 
 
 function ExecuteRequest(href, body) {
@@ -446,12 +446,24 @@ let CreateScenarioBtn = React.createClass({
                 </Button>
 
                 <Modal show={this.state.showModal} onHide={this.close}
-                       bsSize="large">
+                       bsSize="medium">
                     <Modal.Header closeButton>
                         <Modal.Title>Add new scenario</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        Buttons and options here
+
+                        <div>
+                            <form onSubmit={this.handleSubmit}>
+                                <Input type="text" ref="scenarioName" label="Scenario name"
+                                       placeholder="scenario-0"
+                                       onChange={this.handleChange}/>
+
+                                <ButtonInput type="submit" value="Submit"
+                                             bsStyle={this.state.style} bsSize="small"
+                                             disabled={this.state.disabled}/>
+                            </form>
+                        </div>
+
                     </Modal.Body>
                     <Modal.Footer>
                         <Button onClick={this.close}>Close</Button>
