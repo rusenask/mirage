@@ -438,6 +438,40 @@ webpackJsonp([5],[
 	    }
 	});
 
+	function BeginSession(that, scenario, session) {
+	    var sessionPayload = {
+	        "begin": null,
+	        "session": session,
+	        "mode": "record"
+	    };
+
+	    // making ajax call
+	    $.ajax({
+	        type: "POST",
+	        dataType: "json",
+	        data: JSON.stringify(sessionPayload),
+	        url: "/stubo/api/v2/scenarios/objects/" + scenario + "/action",
+	        success: function success() {
+	            if (that.isMounted()) {
+	                that.setState({
+	                    message: "Session for scenario '" + scenario + "' started successfully!",
+	                    alertVisible: true,
+	                    alertStyle: "success"
+	                });
+	            }
+	        }
+	    }).fail(function ($xhr) {
+	        var data = jQuery.parseJSON($xhr.responseText);
+	        if (that.isMounted()) {
+	            that.setState({
+	                message: "Could not begin session. Error: " + data.error.message,
+	                alertVisible: true,
+	                alertStyle: "danger"
+	            });
+	        }
+	    });
+	}
+
 	var CreateScenarioBtn = _react2['default'].createClass({
 	    displayName: 'CreateScenarioBtn',
 
@@ -448,7 +482,8 @@ webpackJsonp([5],[
 	            showModal: false,
 	            message: "",
 	            alertVisible: false,
-	            alertStyle: "danger"
+	            alertStyle: "danger",
+	            sessionInputDisabled: true
 	        };
 	    },
 
@@ -478,6 +513,12 @@ webpackJsonp([5],[
 	        this.setState(this.validationState());
 	    },
 
+	    handleCheckbox: function handleCheckbox() {
+	        this.setState({
+	            sessionInputDisabled: !this.state.sessionInputDisabled
+	        });
+	    },
+
 	    handleSubmit: function handleSubmit(e) {
 	        e.preventDefault();
 
@@ -496,14 +537,20 @@ webpackJsonp([5],[
 	            data: JSON.stringify(payload),
 	            url: "/stubo/api/v2/scenarios",
 	            success: function success(data) {
-	                console.log("success!");
-	                console.log(data);
+	                console.log(that.state.sessionInputDisabled);
+
+	                console.log(that.refs.sessionCheckbox.getValue());
 	                if (that.isMounted()) {
 	                    that.setState({
 	                        message: "Scenario '" + scenarioName + "' created successfully!",
 	                        alertVisible: true,
 	                        alertStyle: "success"
 	                    });
+	                }
+	                // session input is expected if that.state.sessionInputDisabled is enabled
+	                if (that.state.sessionInputDisabled == false) {
+	                    var sessionName = that.refs.sessionName.getValue();
+	                    BeginSession(that, scenarioName, sessionName);
 	                }
 	            }
 	        }).fail(function ($xhr) {
@@ -527,6 +574,12 @@ webpackJsonp([5],[
 	                { onSubmit: this.handleSubmit },
 	                _react2['default'].createElement(_reactBootstrap.Input, { type: 'text', ref: 'scenarioName', label: 'Scenario name',
 	                    placeholder: 'scenario-0',
+	                    onChange: this.handleChange }),
+	                _react2['default'].createElement(_reactBootstrap.Input, { type: 'checkbox', ref: 'sessionCheckbox', label: 'Start session in record mode after scenario is created',
+	                    onChange: this.handleCheckbox }),
+	                _react2['default'].createElement(_reactBootstrap.Input, { type: 'text', ref: 'sessionName', label: 'Session name',
+	                    placeholder: 'session-0',
+	                    disabled: this.state.sessionInputDisabled,
 	                    onChange: this.handleChange }),
 	                _react2['default'].createElement(_reactBootstrap.ButtonInput, { type: 'submit', value: 'Submit',
 	                    bsStyle: this.state.style, bsSize: 'small',
