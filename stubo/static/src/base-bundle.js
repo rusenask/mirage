@@ -23,7 +23,7 @@ webpackJsonp([0],[
 	// creating "track all hosts" button + cookie control
 
 	var TrackingAllHosts = _react2['default'].createClass({
-	    displayName: 'TrackingAllHosts',
+	    displayName: "TrackingAllHosts",
 
 	    getInitialState: function getInitialState() {
 	        return { trackingAll: _reactCookie2['default'].load('stubo.all-hosts') || false };
@@ -91,7 +91,7 @@ webpackJsonp([0],[
 
 	// creating "full tracking" button
 	var TrackingLevelComponent = _react2['default'].createClass({
-	    displayName: 'TrackingLevelComponent',
+	    displayName: "TrackingLevelComponent",
 
 	    getInitialState: function getInitialState() {
 	        return {
