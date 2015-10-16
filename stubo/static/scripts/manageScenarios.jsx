@@ -282,12 +282,20 @@ var BeginSessionButton = React.createClass({
 var ActionComponent = React.createClass({
     displayName: "ActionComponent",
 
-    render: function () {
+    render() {
+
+        // default button - end all sessions
+        let sessionControll = <EndSessionsButton data={this.props.rowData}/>;
+        //
+        if (this.props.rowData.status == "dormant") {
+            sessionControll = <BeginSessionButton data={this.props.rowData}/>;
+        }
+
         // rendering action buttons
         return (<div className="btn-group">
                 <ExportButton data={this.props.rowData}/>
                 <RemoveButton data={this.props.rowData}/>
-                <EndSessionsButton data={this.props.rowData}/>
+                {sessionControll}
             </div>
         )
     }
@@ -487,11 +495,11 @@ var ExternalScenarios = React.createClass({
     }
 });
 
-function BeginSession(that, scenario, session) {
+function BeginSession(that, scenario, session, mode) {
     let sessionPayload = {
         "begin": null,
         "session": session,
-        "mode": "record"
+        "mode": mode
     };
 
     // making ajax call
@@ -509,7 +517,7 @@ function BeginSession(that, scenario, session) {
                 });
             }
         }
-        }).fail(function ($xhr) {
+    }).fail(function ($xhr) {
         let data = jQuery.parseJSON($xhr.responseText);
         if (that.isMounted()) {
             that.setState({
@@ -520,7 +528,6 @@ function BeginSession(that, scenario, session) {
         }
     });
 }
-
 
 
 let CreateScenarioBtn = React.createClass({
@@ -562,7 +569,6 @@ let CreateScenarioBtn = React.createClass({
         }
 
         let disabled = style !== 'success';
-
 
 
         return {style, disabled};
@@ -611,7 +617,7 @@ let CreateScenarioBtn = React.createClass({
                 // session input is expected if that.state.sessionInputDisabled is enabled
                 if (that.state.sessionInputDisabled == false) {
                     let sessionName = that.refs.sessionName.getValue();
-                    BeginSession(that, scenarioName, sessionName)
+                    BeginSession(that, scenarioName, sessionName, "record")
                 }
                 updateTable(that.state.parent);
 
@@ -639,7 +645,8 @@ let CreateScenarioBtn = React.createClass({
                     <Input type="text" ref="scenarioName" label="Scenario name"
                            placeholder="scenario-0"
                            onChange={this.handleChange}/>
-                    <Input type="checkbox" ref="sessionCheckbox" label="Start session in record mode after scenario is created"
+                    <Input type="checkbox" ref="sessionCheckbox"
+                           label="Start session in record mode after scenario is created"
                            onChange={this.handleCheckbox}/>
 
                     <Input type="text" ref="sessionName" label="Session name"
