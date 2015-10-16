@@ -1,4 +1,4 @@
-
+import ReactDOM from 'react-dom'
 var React = require('../node_modules/react');
 var Griddle = require('../node_modules/griddle-react');
 
@@ -85,7 +85,7 @@ var DetailsButton = React.createClass({
             <Tooltip>Show details for this tracker record.</Tooltip>
         );
 
-        var url = '/tracker/objects?href='+ this.props.data;
+        var url = '/tracker/objects?href=' + this.props.data;
         return (
             <OverlayTrigger placement='left' overlay={tooltip}>
                 <a href={url} className="btn btn-xs btn-info">
@@ -182,22 +182,25 @@ var RecordsComponent = React.createClass({
 
         return initial;
     },
-    componentWillMount: function () {
-    },
-    componentDidMount: function () {
-        this.getExternalData();
-        // establishing websocket connection
 
+    componentWillMount() {
         if ("WebSocket" in window) {
             this.state.ws = new WebSocket("ws:/" + window.location.host + "/stubo/api/ws/tracker");
 
+            let that = this;
             this.state.ws.onclose = function () {
                 console.log("Connection is closed ...");
+                that.state.ws = null;
             };
 
         } else {
             console.log("WebSocket not supported by your browser.");
         }
+
+    },
+
+    componentDidMount: function () {
+        this.getExternalData();
     },
     getExternalData: function (page) {
         var that = this;
@@ -205,7 +208,7 @@ var RecordsComponent = React.createClass({
 
         var skip = (page - 1) * 25;
 
-        if (this.state.ws != null) {
+        if (this.state.ws != null && this.state.ws.readyState == 1) {
             that.state.wsQuery['skip'] = skip;
             // websockets supported, communicating through them
             that.state.ws.send(JSON.stringify(that.state.wsQuery));
@@ -222,6 +225,7 @@ var RecordsComponent = React.createClass({
 
             };
         } else {
+            // fallback to regular queries
             var query = '?skip=' + skip;
 
             var href = '/stubo/api/v2/tracker/records' + query + '&limit=25' + '&q=' + this.state.currentQuery;
@@ -318,4 +322,4 @@ var RecordsComponent = React.createClass({
 });
 
 
-React.render(<RecordsComponent />, document.getElementById("app"));
+ReactDOM.render(<RecordsComponent />, document.getElementById("app"));

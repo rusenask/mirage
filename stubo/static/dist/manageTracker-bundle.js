@@ -4,6 +4,12 @@ webpackJsonp([6],[
 
 	'use strict';
 
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var _reactDom = __webpack_require__(1);
+
+	var _reactDom2 = _interopRequireDefault(_reactDom);
+
 	var React = __webpack_require__(146);
 	var Griddle = __webpack_require__(400);
 
@@ -199,20 +205,27 @@ webpackJsonp([6],[
 
 	        return initial;
 	    },
-	    componentWillMount: function componentWillMount() {},
-	    componentDidMount: function componentDidMount() {
-	        this.getExternalData();
-	        // establishing websocket connection
+
+	    componentWillMount: function componentWillMount() {
+	        var _this = this;
 
 	        if ("WebSocket" in window) {
-	            this.state.ws = new WebSocket("ws:/" + window.location.host + "/stubo/api/ws/tracker");
+	            (function () {
+	                _this.state.ws = new WebSocket("ws:/" + window.location.host + "/stubo/api/ws/tracker");
 
-	            this.state.ws.onclose = function () {
-	                console.log("Connection is closed ...");
-	            };
+	                var that = _this;
+	                _this.state.ws.onclose = function () {
+	                    console.log("Connection is closed ...");
+	                    that.state.ws = null;
+	                };
+	            })();
 	        } else {
 	            console.log("WebSocket not supported by your browser.");
 	        }
+	    },
+
+	    componentDidMount: function componentDidMount() {
+	        this.getExternalData();
 	    },
 	    getExternalData: function getExternalData(page) {
 	        var that = this;
@@ -220,7 +233,7 @@ webpackJsonp([6],[
 
 	        var skip = (page - 1) * 25;
 
-	        if (this.state.ws != null) {
+	        if (this.state.ws != null && this.state.ws.readyState == 1) {
 	            that.state.wsQuery['skip'] = skip;
 	            // websockets supported, communicating through them
 	            that.state.ws.send(JSON.stringify(that.state.wsQuery));
@@ -236,6 +249,7 @@ webpackJsonp([6],[
 	                });
 	            };
 	        } else {
+	            // fallback to regular queries
 	            var query = '?skip=' + skip;
 
 	            var href = '/stubo/api/v2/tracker/records' + query + '&limit=25' + '&q=' + this.state.currentQuery;
@@ -324,10 +338,17 @@ webpackJsonp([6],[
 	    }
 	});
 
-	React.render(React.createElement(RecordsComponent, null), document.getElementById("app"));
+	_reactDom2['default'].render(React.createElement(RecordsComponent, null), document.getElementById("app"));
 
 /***/ },
-/* 1 */,
+/* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	module.exports = __webpack_require__(2);
+
+/***/ },
 /* 2 */,
 /* 3 */,
 /* 4 */,
