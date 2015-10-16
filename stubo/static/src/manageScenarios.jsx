@@ -1,9 +1,8 @@
-var React = require('../node_modules/react');
-var cookie = require('react-cookie');
-var Griddle = require('../node_modules/griddle-react');
-var Tooltip = require('../node_modules/react-bootstrap').Tooltip;
-var OverlayTrigger = require('../node_modules/react-bootstrap').OverlayTrigger;
-var Button = require('../node_modules/react-bootstrap').Button;
+import React from 'react'
+import ReactDOM from 'react-dom'
+import cookie from 'react-cookie'
+import Griddle from 'griddle-react'
+import { Button, Tooltip, OverlayTrigger, Grid, Row, Col, Modal, Input, ButtonInput, Alert } from 'react-bootstrap'
 
 
 function ExecuteRequest(href, body) {
@@ -28,7 +27,6 @@ function ExecuteRequest(href, body) {
         infoModal.modal('show');
         return false;
     });
-
 }
 
 // we are getting session data nested in the array, so we bring it forward
@@ -207,15 +205,97 @@ var RemoveButton = React.createClass({
     }
 });
 
+
+// BeginSessionButton
+var BeginSessionButton = React.createClass({
+    displayName: "BeginSessionButton",
+
+    getInitialState: function () {
+        //console.log(this.props.data.ref);
+        return {
+            ref: this.props.data.ref,
+            data: this.props.data,
+            mode: null,
+            disabled: false
+        };
+    },
+
+    componentDidMount() {
+
+    },
+
+    handleClick: function (event) {
+        this.setState({disabled: !this.state.disabled});
+
+        let href = this.state.ref + "/action";
+
+        var body = {
+            begin: null,
+            session: this.state.data.session,
+            mode: this.state.mode
+        };
+        ExecuteRequest(href, body);
+
+    },
+    render: function () {
+
+        // getting mode, scenarios that have at least 1 stub - can't enter record mode again, only playback is available
+        if(this.state.data.stub_count > 0){
+            this.state.mode = "playback"
+        } else{
+            this.state.mode = "record"
+        }
+
+        let sessiontooltip = "";
+        let glyphicon = "";
+        let style = "";
+
+        if (this.state.mode == "record") {
+            glyphicon = "glyphicon glyphicon-record";
+            style = "info";
+            sessiontooltip = (
+                <Tooltip>Start recording</Tooltip>
+            );
+        } else {
+            glyphicon = "glyphicon glyphicon-play-circle";
+            style = "success";
+            sessiontooltip = (
+                <Tooltip>Start playback</Tooltip>
+            );
+        }
+
+
+        return (
+            <OverlayTrigger placement='left' overlay={sessiontooltip}>
+
+                <Button onClick={this.handleClick} bsStyle={style} bsSize='small' disabled={this.state.disabled}>
+                    <span className={glyphicon}></span>
+                </Button>
+            </OverlayTrigger>
+        );
+
+
+    }
+});
+
+
 var ActionComponent = React.createClass({
     displayName: "ActionComponent",
 
-    render: function () {
+    render() {
+
+        // default button - end all sessions
+        let sessionControll = <EndSessionsButton data={this.props.rowData}/>;
+        //
+        if (this.props.rowData.status == "dormant") {
+            sessionControll = <BeginSessionButton data={this.props.rowData}/>;
+        }
+
         // rendering action buttons
         return (<div className="btn-group">
                 <ExportButton data={this.props.rowData}/>
                 <RemoveButton data={this.props.rowData}/>
-                <EndSessionsButton data={this.props.rowData}/>
+                {sessionControll}
             </div>
         )
     }
@@ -323,7 +403,16 @@ var columnMeta = [
 
 ];
 
-function updateTable(component, href) {
+function updateTable(component) {
+
+    var href = '';
+    if (cookie.load('stubo.all-hosts') || false) {
+        // amending query argument to get all hosts
+        href = '/stubo/api/v2/scenarios/detail?all-hosts=true'
+    } else {
+        href = '/stubo/api/v2/scenarios/detail?all-hosts=false'
+    }
+
     $.get(href, function (result) {
         var newList = reformatJSON(result.data);
         if (component.isMounted()) {
@@ -349,20 +438,11 @@ var ExternalScenarios = React.createClass({
     },
     componentDidMount: function () {
         // getting scenarios
-        var href = '';
-        if (cookie.load('stubo.all-hosts') || false) {
-            // amending query argument to get all hosts
-            href = this.props.source + '?all-hosts=true'
-        } else {
-            href = this.props.source + '?all-hosts=false'
-        }
-
-        updateTable(this, href);
+        updateTable(this);
 
         // subscribing to modal close event
         $('#myModal').on('hidden.bs.modal', function () {
-            console.log("downloading new scenario list");
-            updateTable(this, href);
+            updateTable(this);
         }.bind(this));
     },
 
@@ -384,16 +464,240 @@ var ExternalScenarios = React.createClass({
 
 
     render: function () {
-        return <Griddle results={this.state.results}
-                        useGriddleStyles={true}
-                        showFilter={true} showSettings={true}
-                        resultsPerPage={this.state.resultsPerPage}
-                        columnMetadata={columnMeta}
-                        columns={["name", "session", "status", "loaded", "last_used", "space_used_kb", "stub_count", "recorded", "actions"]}/>
+        const gridInstance = (
+            <Grid fluid={true}>
+                <Row>
+                    <div className="pull-right">
+                        <CreateScenarioBtn parent={this}/>
+                    </div>
+                </Row>
+
+                <Row>
+                    <hr/>
+                </Row>
+
+
+                <Row>
+                    <Griddle results={this.state.results}
+                             useGriddleStyles={true}
+                             showFilter={true} showSettings={true}
+                             resultsPerPage={this.state.resultsPerPage}
+                             columnMetadata={columnMeta}
+                             columns={["name", "session", "status", "loaded", "last_used", "space_used_kb", "stub_count", "recorded", "actions"]}
+                        />
+                </Row>
+
+            </Grid>
+        );
+
+
+        return gridInstance
     }
 });
 
-React.render(
-    <ExternalScenarios source="/stubo/api/v2/scenarios/detail"/>,
+function BeginSession(that, scenario, session, mode) {
+    let sessionPayload = {
+        "begin": null,
+        "session": session,
+        "mode": mode
+    };
+
+    // making ajax call
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        data: JSON.stringify(sessionPayload),
+        url: "/stubo/api/v2/scenarios/objects/" + scenario + "/action",
+        success: function () {
+            if (that.isMounted()) {
+                that.setState({
+                    message: "Session for scenario '" + scenario + "' started successfully!",
+                    alertVisible: true,
+                    alertStyle: "success"
+                });
+            }
+        }
+    }).fail(function ($xhr) {
+        let data = jQuery.parseJSON($xhr.responseText);
+        if (that.isMounted()) {
+            that.setState({
+                message: "Could not begin session. Error: " + data.error.message,
+                alertVisible: true,
+                alertStyle: "danger"
+            });
+        }
+    });
+}
+
+
+let CreateScenarioBtn = React.createClass({
+    getInitialState() {
+        return {
+            disabled: true,
+            style: null,
+            sessionInputDisabled: true,
+            showModal: false,
+            message: "",
+            alertVisible: false,
+            alertStyle: "danger",
+            parent: this.props.parent
+        }
+    },
+
+    close() {
+        this.setState({showModal: false});
+    },
+
+    open() {
+        this.setState({showModal: true});
+    },
+
+    validationState() {
+        let length = this.refs.scenarioName.getValue().length;
+        let sessionLength = this.refs.sessionName.getValue().length;
+
+        let style = 'danger';
+
+        if (this.state.sessionInputDisabled == false) {
+            if (length > 0 && sessionLength > 0) {
+                style = 'success'
+            }
+        } else {
+            if (length > 0) {
+                style = 'success'
+            }
+        }
+
+        let disabled = style !== 'success';
+
+
+        return {style, disabled};
+    },
+
+    handleChange()
+    {
+        this.setState(this.validationState());
+    },
+
+    handleCheckbox()
+    {
+        // inverting checkbox state
+        this.state.sessionInputDisabled = !this.state.sessionInputDisabled;
+
+        // doing validation
+        this.setState(this.validationState());
+    },
+
+
+    handleSubmit(e)
+    {
+        e.preventDefault();
+
+        let scenarioName = this.refs.scenarioName.getValue();
+
+        let payload = {
+            "scenario": scenarioName
+        };
+
+        let that = this;
+
+        $.ajax({
+            type: "PUT",
+            dataType: "json",
+            data: JSON.stringify(payload),
+            url: "/stubo/api/v2/scenarios",
+            success: function (data) {
+                if (that.isMounted()) {
+                    that.setState({
+                        message: "Scenario '" + scenarioName + "' created successfully!",
+                        alertVisible: true,
+                        alertStyle: "success"
+                    });
+                }
+                // session input is expected if that.state.sessionInputDisabled is enabled
+                if (that.state.sessionInputDisabled == false) {
+                    let sessionName = that.refs.sessionName.getValue();
+                    BeginSession(that, scenarioName, sessionName, "record")
+                }
+                updateTable(that.state.parent);
+
+            }
+        }).fail(function ($xhr) {
+            if (that.isMounted()) {
+                that.setState({
+                    message: "Could not create scenario. Error: " + $xhr.statusText,
+                    alertVisible: true,
+                    alertStyle: "danger"
+                });
+            }
+        });
+    },
+
+    handleAlertDismiss() {
+        this.setState({alertVisible: false});
+    },
+
+    render() {
+
+        let createForm = (
+            <div>
+                <form onSubmit={this.handleSubmit}>
+                    <Input type="text" ref="scenarioName" label="Scenario name"
+                           placeholder="scenario-0"
+                           onChange={this.handleChange}/>
+                    <Input type="checkbox" ref="sessionCheckbox"
+                           label="Start session in record mode after scenario is created"
+                           onChange={this.handleCheckbox}/>
+
+                    <Input type="text" ref="sessionName" label="Session name"
+                           placeholder="session-0"
+                           disabled={this.state.sessionInputDisabled}
+                           onChange={this.handleChange}/>
+
+                    <ButtonInput type="submit" value="Submit"
+                                 bsStyle={this.state.style} bsSize="small"
+                                 disabled={this.state.disabled}/>
+                </form>
+            </div>
+        );
+
+        // alert style to display messages
+        let alert = (<p></p>);
+        if (this.state.alertVisible) {
+            alert = (
+                <Alert bsStyle={this.state.alertStyle} dismissAfter={10000} onDismiss={this.handleAlertDismiss}>
+                    <p>{this.state.message}</p>
+                </Alert>
+            );
+        }
+        return (
+            <span>
+                <Button pullRigh={true}
+                        onClick={this.open}
+                        bsStyle="primary">
+                    <span className="glyphicon glyphicon-plus" aria-hidden="true"></span> Add new scenario
+                </Button>
+
+                <Modal show={this.state.showModal} onHide={this.close}
+                       bsSize="medium">
+                    <Modal.Header closeButton>
+                        <Modal.Title>Add new scenario</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        {alert}
+                        {createForm}
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button onClick={this.close}>Close</Button>
+                    </Modal.Footer>
+                </Modal>
+            </span>
+        );
+    }
+});
+
+
+ReactDOM.render(
+    <ExternalScenarios />,
     document.getElementById("app")
 );

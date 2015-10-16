@@ -1565,6 +1565,7 @@ class ScenarioStubMatcher(TrackRequest):
         self.write(data)
 
 
+
 class TrackerRecordsHandler(BaseHandler):
     """
     /stubo/api/v2/tracker/records
@@ -1604,15 +1605,8 @@ class TrackerRecordsHandler(BaseHandler):
 
         tracker = Tracker(self.db)
 
-        if query:
-            tracker_filter = {'$and': [{'host': {'$regex': hostname}},
-                                       {'$or': [
-                                           {'scenario': {'$regex': query, '$options': 'i'}},
-                                           {'function': {'$regex': query, '$options': 'i'}}
-                                       ]
-                                       }]}
-        else:
-            tracker_filter = {}
+        mf = MagicFiltering(query=query, hostname=hostname)
+        tracker_filter = mf.get_filter()
 
         # getting total items
         total_items = yield tracker.item_count(tracker_filter)

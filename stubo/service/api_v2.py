@@ -396,7 +396,6 @@ class MagicFiltering:
 
 
 def get_response_v2(handler, full_scenario_name, session_name):
-
     # main result dictionary that will be returned
     result_dict = {}
 
@@ -426,14 +425,17 @@ def get_response_v2(handler, full_scenario_name, session_name):
             log.warn("replication was slow for session: {0} {1}, it took {2} secs!".format(
                 full_scenario_name, session_name, retries + 1))
         if session['status'] != 'playback':
-            raise exception_response(500,
-                                     title='cache status != playback. session={0}'.format(session))
+            result_dict["error"] = 'cache status != playback. session={0}'.format(session)
+            result_dict["statusCode"] = 412
+            return result_dict
 
         system_date = session['system_date']
         if not system_date:
-            raise exception_response(500,
-                                     title="slave session {0} not available for scenario {1}".format(
-                                         session_name, full_scenario_name))
+            result_dict["error"] = "slave session {0} not available for scenario {1}".format(
+                session_name, full_scenario_name)
+            result_dict["statusCode"] = 412
+            return result_dict
+
         trace_matcher = TrackTrace(handler.track, 'matcher')
         session['ext_cache'] = user_cache
         result = match(stubo_request, session, trace_matcher,
@@ -441,9 +443,12 @@ def get_response_v2(handler, full_scenario_name, session_name):
                        url_args=url_args,
                        hooks=handler.settings['hooks'],
                        module_system_date=module_system_date)
+        # matching request not found
         if not result[0]:
-            raise exception_response(400,
-                                     title='E017:No matching response found')
+            result_dict["error"] = "Not matching request found"
+            result_dict["statusCode"] = 404
+            return result_dict
+
         _, stub_number, stub = result
         response_ids = stub.response_ids()
         delay_policy_name = stub.delay_policy_name()
@@ -468,10 +473,12 @@ def get_response_v2(handler, full_scenario_name, session_name):
     if module_info:
         trace_response.info('module used', str(module_info))
     response_text = stub.response_body()
+
     if not response_text:
-        raise exception_response(500,
-                                 title='Unable to find response in cache using session: {0}:{1}, '
-                                       'response_ids: {2}'.format(full_scenario_name, session_name, response_ids))
+        result_dict["error"] = 'Unable to find response in cache using session: {0}:{1}, '
+        'response_ids: {2}'.format(full_scenario_name, session_name, response_ids)
+        result_dict["statusCode"] = 400
+        return result_dict
 
     # get latest delay policy
     delay_policy = stub.delay_policy()
