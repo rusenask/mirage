@@ -9,7 +9,7 @@ webpackJsonp([8],{
 
 	'use strict';
 
-	var React = __webpack_require__(1);
+	var React = __webpack_require__(146);
 
 	var Inspector = __webpack_require__(555);
 
@@ -50,7 +50,7 @@ webpackJsonp([8],{
 
 	'use strict';
 
-	var React = __webpack_require__(1);
+	var React = __webpack_require__(146);
 	var D = React.DOM;
 
 	var Leaf = __webpack_require__(556);
@@ -166,7 +166,7 @@ webpackJsonp([8],{
 
 	'use strict';
 
-	var React = __webpack_require__(1);
+	var React = __webpack_require__(146);
 	var D = React.DOM;
 
 	var md5omatic = __webpack_require__(557);
@@ -610,7 +610,7 @@ webpackJsonp([8],{
 
 	'use strict';
 
-	var React = __webpack_require__(1);
+	var React = __webpack_require__(146);
 	var span = React.DOM.span;
 
 	module.exports = React.createClass({
@@ -646,7 +646,7 @@ webpackJsonp([8],{
 	'use strict';
 
 	var debounce = __webpack_require__(562);
-	var React = __webpack_require__(1);
+	var React = __webpack_require__(146);
 	var input = React.DOM.input;
 
 	var noop = __webpack_require__(564);
