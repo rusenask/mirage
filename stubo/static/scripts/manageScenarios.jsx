@@ -205,6 +205,80 @@ var RemoveButton = React.createClass({
     }
 });
 
+
+// BeginSessionButton
+var BeginSessionButton = React.createClass({
+    displayName: "BeginSessionButton",
+
+    getInitialState: function () {
+        //console.log(this.props.data.ref);
+        return {
+            ref: this.props.data.ref,
+            data: this.props.data,
+            mode: null,
+            disabled: false
+        };
+    },
+
+    componentDidMount() {
+
+    },
+
+    handleClick: function (event) {
+        this.setState({disabled: !this.state.disabled});
+
+        let href = this.state.ref + "/action";
+
+        var body = {
+            begin: null,
+            session: this.state.data.session,
+            mode: this.state.mode
+        };
+        ExecuteRequest(href, body);
+
+    },
+    render: function () {
+
+        // getting mode, scenarios that have at least 1 stub - can't enter record mode again, only playback is available
+        if(this.state.data.stub_count > 0){
+            this.state.mode = "playback"
+        } else{
+            this.state.mode = "record"
+        }
+
+        let sessiontooltip = "";
+        let glyphicon = "";
+        let style = "";
+
+        if (this.state.mode == "record") {
+            glyphicon = "glyphicon glyphicon-record";
+            style = "info";
+            sessiontooltip = (
+                <Tooltip>Start recording</Tooltip>
+            );
+        } else {
+            glyphicon = "glyphicon glyphicon-play-circle";
+            style = "success";
+            sessiontooltip = (
+                <Tooltip>Start playback</Tooltip>
+            );
+        }
+
+
+        return (
+            <OverlayTrigger placement='left' overlay={sessiontooltip}>
+
+                <Button onClick={this.handleClick} bsStyle={style} bsSize='small' disabled={this.state.disabled}>
+                    <span className={glyphicon}></span>
+                </Button>
+            </OverlayTrigger>
+        );
+
+
+    }
+});
+
+
 var ActionComponent = React.createClass({
     displayName: "ActionComponent",
 
