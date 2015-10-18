@@ -1,8 +1,8 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
-import cookie from 'react-cookie'
-import Griddle from 'griddle-react'
-import { Button, Tooltip, OverlayTrigger, Grid, Row, Col, Modal, Input, ButtonInput, Alert } from 'react-bootstrap'
+import React from 'react';
+//import ReactDOM from 'react-dom';
+import cookie from 'react-cookie';
+import Griddle from 'griddle-react';
+import { Button, Tooltip, OverlayTrigger, Grid, Row, Col, Modal, Input, ButtonInput, Alert } from 'react-bootstrap';
 
 
 function ExecuteRequest(href, body) {
