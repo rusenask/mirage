@@ -71,19 +71,9 @@
         <!-- sidebar: style can be found in sidebar.less -->
         <section class="sidebar">
 
-            <ul class="sidebar-menu">
+            <div id="SettingsComponent">
 
-                <li id="currentversion">
-                    <a href="#"><i class="fa fa-fw fa-info-circle"></i><span>Version <strong>{{version}}</strong></span></a>
-                </li>
-
-                <li id="trackingall">
-                </li>
-
-                <li id="trackinglevel">
-{#                        normal/full tracking renders here#}
-                </li>
-            </ul>
+            </div>
 
             <!-- Sidebar Menu -->
             <ul class="sidebar-menu">
@@ -183,7 +173,7 @@
     <footer class="main-footer">
         <!-- To the right -->
         <div class="pull-right hidden-xs">
-            Mirage
+            <i class="fa fa-fw fa-info-circle"></i><span>Version <strong>{{version}}</strong></span>
         </div>
         <!-- Default to the left -->
         <strong>Copyright &copy; 2015 <a href="http://specto.io/" target="_blank">SpectoLabs</a>.</strong> All rights
