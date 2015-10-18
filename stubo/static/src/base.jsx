@@ -1,4 +1,4 @@
-import ReactDOM from 'react-dom'
+//import ReactDOM from 'react-dom'
 import React from 'react'
 import {Input, Tooltip, OverlayTrigger } from 'react-bootstrap'
 import cookie from 'react-cookie'
@@ -30,9 +30,9 @@ var TrackingAllHosts = React.createClass({
 
     render() {
         var msg = null;
-        if(this.state.trackingAll){
+        if (this.state.trackingAll) {
             msg = "Disable this option to only see data for current hostname";
-        }else {
+        } else {
             msg = "Enable this option to see data for all virtualized hosts";
         }
 
@@ -55,11 +55,11 @@ var TrackingAllHosts = React.createClass({
     }
 
 });
-
-ReactDOM.render(
-    <TrackingAllHosts/>,
-    document.getElementById("trackingall")
-);
+//
+//React.render(
+//    <TrackingAllHosts/>,
+//    document.getElementById("trackingall")
+//);
 
 function getBooleanState(trackingLevel) {
     return trackingLevel == "full";
@@ -115,9 +115,9 @@ var TrackingLevelComponent = React.createClass({
 
     render() {
         let msg = null;
-        if(this.state.checked){
+        if (this.state.checked) {
             msg = "Disable full tracking (debugging) mode.";
-        }else {
+        } else {
             msg = "Enable this option to capture more data. Beware that this option is global and decreases" +
                 " performance for all virtual Mirage instances.";
         }
@@ -143,8 +143,28 @@ var TrackingLevelComponent = React.createClass({
 
 });
 
+let SettingsComponent = React.createClass({
 
-ReactDOM.render(
-    <TrackingLevelComponent/>,
-    document.getElementById("trackinglevel")
+    render() {
+        const trackingLevel = (
+            <li>
+                <TrackingLevelComponent/>
+            </li>);
+        const allHosts = (
+            <li>
+                <TrackingAllHosts/>
+            </li>);
+        return (
+            <ul className="sidebar-menu">
+                {trackingLevel}
+                {allHosts}
+            </ul>
+        )
+    }
+
+});
+
+React.render(
+    <SettingsComponent/>,
+    document.getElementById("SettingsComponent")
 );
