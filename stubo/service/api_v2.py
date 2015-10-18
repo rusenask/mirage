@@ -45,17 +45,20 @@ def begin_session(handler, scenario_name, session_name, mode, system_date=None,
         'version': version
     }
     scenario_manager = Scenario()
-    cache = Cache(get_hostname(handler.request))
+    # cache = Cache(get_hostname(handler.request))
 
     # checking whether full name (with hostname) was passed, if not - getting full name
     # scenario_name_key = "localhost:scenario_1"
     if ":" not in scenario_name:
+        cache = Cache(get_hostname(handler.request))
         scenario_name_key = cache.scenario_key_name(scenario_name)
     else:
         # setting scenario full name
         scenario_name_key = scenario_name
         # removing hostname from scenario name
-        scenario_name = scenario_name.split(":")[1]
+        slices = scenario_name.split(":")
+        scenario_name = slices[1]
+        cache = Cache(slices[0])
 
     # get scenario document
     scenario_doc = scenario_manager.get(scenario_name_key)
