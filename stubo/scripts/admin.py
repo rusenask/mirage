@@ -7,14 +7,11 @@ import sys
 import logging
 import logging.config
 from datetime import datetime, timedelta
-
 from pymongo import ASCENDING, DESCENDING
 from pymongo.errors import CollectionInvalid
-
 from stubo.utils import init_mongo, start_redis, as_date, read_config
 from stubo.service.api import list_scenarios, get_status, delete_stubs
 from stubo.model.db import default_env, coerce_mongo_param
-from stubo.testing import DummyRequestHandler
 from stubo.scripts import get_default_config
 
 log = logging.getLogger(__name__)
@@ -42,7 +39,7 @@ def delete_test_dbs():
             print 'no test databases to delete'
 
 
-def create_tracker_collection():
+def create_tracker_collection(db):
     parser = ArgumentParser(
         description="Create tracker collection"
     )
@@ -56,7 +53,6 @@ def create_tracker_collection():
     size = int(args.size)
     config = args.config or get_default_config()
     logging.config.fileConfig(config)
-    db = init_mongo()
     log.info('creating tracker collection: size={0}b in db={1}'.format(size,
                                                                        db.name))
     args = {'capped': True, 'size': size}
@@ -88,6 +84,8 @@ def create_tracker_collection():
 
 
 def purge_stubs():
+    # importing helper handler from testing deps
+    from stubo.testing import DummyRequestHandler
     parser = ArgumentParser(
         description="Purge stubs older than given expiry date."
     )

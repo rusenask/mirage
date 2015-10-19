@@ -205,6 +205,115 @@ Ends all sessions for specified scenario
 
 ```
 
+## Add stub
+
+Add stub to scenario
+
+* __URL__: /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
+* __Method__: PUT
+* __Response codes__:
+   + __201__ - inserted
+   + __200__ - updated or ignored
+* __Example request body__:
+```javascript
+ {
+     "request": {
+         "method": "POST",
+         "bodyPatterns": [
+             { "contains": ["<status>IS_OK2</status>"] }
+         ]
+         },
+     "response": {
+         "status": 200,
+         "body": "<response>YES</response>"
+     }
+ }
+```
+* __Example output__:
+If updated (status code 200)
+```javascript
+{
+    version: "0.7"
+    data: {
+    message: "updated with stateful response"
+    }
+ }
+```
+
+or inserted (status code 201).
+```javascript
+{
+    version: "0.6.6"
+    data: {
+    message: "inserted scenario_stub: 55d5e7ebfc4562fb398dc697"
+}
+```
+
+Here this ID - 55d5e7ebfc4562fb398dc697 is an object _id field from database. Proxy or an integrator could actually
+go directly to database with this key and retrieve response.
+
+## Getting response with stub
+
+* __URL__: /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
+* __Method__: POST
+* __Response codes__:
+   + __*__ - any HTTTP response that user defined during stub insertion
+
+* __Example request header__:
+session: your_session_name
+
+* __Example request body__:
+```javascript
+matcher here
+``` 
+
+## Get all stubs for specific scenario
+
+* __URL__: /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
+* __Method__: GET
+* __Response codes__:
+   + __200__ - stub list returned
+
+
+```javascript
+{
+    "version": "0.7",
+    "data": [
+        {
+            "stub": {
+                "priority": -1,
+                "request": {
+                    "bodyPatterns": {
+                        "contains": [
+                            "<status>IS_OK2</status>"
+                        ]
+                    },
+                    "method": "POST"
+                },
+                "args": {},
+                "recorded": "2015-10-08",
+                "response": {
+                    "status": 123,
+                    "body": "<response>YES</response>"
+                }
+            },
+            "matchers_hash": "a92fa6cf96f218598d3723f2827a6815",
+            "space_used": 219,
+            "recorded": "2015-10-08",
+            "scenario": "localhost:scenario_name_1"
+        }
+    ]
+}
+```
+
+## Delete all scenario stubs
+
+* __URL__: /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
+* __Method__: DELETE
+* __Response codes__:
+   + __200__ - stubs deleted
+   + __409__ - precondition failed - there are active sessions either in playback or record mode
+
 ## Get delay policy list
 
 Gets all defined delay policies

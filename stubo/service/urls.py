@@ -59,6 +59,8 @@ rest_api = [
     # external modules
     ("/api/v2/modules", "ExternalModulesHandler"),
     ("/api/v2/modules/objects/(?P<module_name>[^\/]+)", "ExternalModuleDeleteHandler"),
+    # asynchronous matcher
+    ("/api/v2/matcher", "ScenarioStubMatcher"),
     # tracker records
     ("/stubo/api/v2/tracker/records", "TrackerRecordsHandler"),
     ("/stubo/api/v2/tracker/records/objects/(?P<record_id>[^\/]+)", "TrackerRecordDetailsHandler"),
@@ -68,12 +70,6 @@ rest_api = [
 
 # UI pages
 ui_pages = [
-    ("/tracker_old", "ViewTrackerHandler"),
-    ("/tracker_old/(.*)", "ViewATrackerHandler"),
-
-    ("/manage/exec_cmds", "StuboCommandHandlerHTML"),
-    ("/docs", "DocsHandler"),
-    ("/stubs", "GetStubListHandlerHTML"),
     ("/analytics", "AnalyticsHandler"),
     ('/_profile', 'ProfileHandler'),
     ('/_profile2', 'PlopProfileHandler'),
@@ -90,8 +86,6 @@ ui_pages = [
     # commands handlers
     ("/manage/commands", "ManageCommandsHandler"),
     ("/manage/execute", "ExecuteCommandsHandler"),
-
-    ("/manage", "ManageHandler"),
 
     # tracker
     ("/tracker", "TrackerHandler"),

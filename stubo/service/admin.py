@@ -3,47 +3,11 @@
     :license: GPLv3, see LICENSE for more details.
 """
 import logging
-import datetime
-from stubo.model.db import Tracker
-from stubo.utils import (
-    get_hostname, get_graphite_datapoints, get_graphite_stats
-)
+from stubo.utils import get_graphite_datapoints, get_graphite_stats
 from stubo.exceptions import exception_response
 from stubo import version
 
 log = logging.getLogger(__name__)
-
-# TODO: remove this function when handlers_mt.tracker_request is removed
-def get_tracks(handler, scenario_filter, session_filter, show_only_errors, skip,
-               limit, start_time, latency, all_hosts, function):
-    tracker = Tracker()
-    tracker_filter = {}
-    if start_time:
-        try:
-            start = datetime.datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
-            tracker_filter['start_time'] = {"$lt": start}
-        except ValueError, e:
-            raise exception_response(400,
-                                     title='start_time format error: {0}'.format(e))
-    if scenario_filter:
-        tracker_filter['scenario'] = {'$regex': scenario_filter}
-    if session_filter:
-        tracker_filter['request_params.session'] = {'$regex': session_filter}
-    if show_only_errors:
-        tracker_filter['return_code'] = {'$ne': 200}
-    if latency:
-        tracker_filter['duration_ms'] = {'$gt': latency}
-    if not all_hosts:
-        host = get_hostname(handler.request)
-        tracker_filter['host'] = host
-    if function != 'all':
-        tracker_filter['function'] = function
-    return tracker.find_tracker_data(tracker_filter, skip, limit)
-
-
-def get_track(request, tracker_id):
-    tracker = Tracker()
-    return tracker.find_tracker_data_full(tracker_id)
 
 
 def get_stats(handler):

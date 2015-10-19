@@ -15,6 +15,13 @@ from stubo.cache import Cache
 from stubo.exceptions import exception_response
 import logging
 from stubo.ext.module import Module
+from stubo.model.request import StuboRequest
+from stubo.utils.track import TrackTrace
+from stubo.match import match
+from stubo.utils import as_date
+from stubo.cache import add_request, StubCache
+from stubo.ext.transformer import transform
+
 from stubo.cache import get_keys
 import sys
 
@@ -39,9 +46,7 @@ def begin_session(handler, scenario_name, session_name, mode, system_date=None,
     }
     scenario_manager = Scenario()
     cache = Cache(get_hostname(handler.request))
-    if cache.blacklisted():
-        raise exception_response(400, title="Sorry the host URL '{0}' has been "
-                                            "blacklisted. Please contact Stub-O-Matic support.".format(cache.host))
+
     # checking whether full name (with hostname) was passed, if not - getting full name
     # scenario_name_key = "localhost:scenario_1"
     if ":" not in scenario_name:
@@ -388,3 +393,119 @@ class MagicFiltering:
             value = int(tm)
 
         return value
+
+
+def get_response_v2(handler, full_scenario_name, session_name):
+
+    # main result dictionary that will be returned
+    result_dict = {}
+
+    request = handler.request
+    stubo_request = StuboRequest(request)
+    cache = Cache(get_hostname(request))
+
+    scenario_name = full_scenario_name.partition(':')[-1]
+    handler.track.scenario = scenario_name
+    request_id = stubo_request.id()
+    module_system_date = handler.get_argument('system_date', None)
+    url_args = handler.track.request_params
+
+    # trace_matcher = TrackTrace(handler.track, 'matcher')
+    user_cache = handler.settings['ext_cache']
+    # check cached requests
+    cached_request = cache.get_request(scenario_name, session_name, request_id)
+    if cached_request:
+        response_ids, delay_policy_name, recorded, system_date, module_info, request_index_key = cached_request
+    else:
+        retry_count = 5 if handler.settings.get('is_cluster', False) else 1
+        session, retries = cache.get_session_with_delay(scenario_name,
+                                                        session_name,
+                                                        retry_count=retry_count,
+                                                        retry_interval=1)
+        if retries > 0:
+            log.warn("replication was slow for session: {0} {1}, it took {2} secs!".format(
+                full_scenario_name, session_name, retries + 1))
+        if session['status'] != 'playback':
+            raise exception_response(500,
+                                     title='cache status != playback. session={0}'.format(session))
+
+        system_date = session['system_date']
+        if not system_date:
+            raise exception_response(500,
+                                     title="slave session {0} not available for scenario {1}".format(
+                                         session_name, full_scenario_name))
+        trace_matcher = TrackTrace(handler.track, 'matcher')
+        session['ext_cache'] = user_cache
+        result = match(stubo_request, session, trace_matcher,
+                       as_date(system_date),
+                       url_args=url_args,
+                       hooks=handler.settings['hooks'],
+                       module_system_date=module_system_date)
+        if not result[0]:
+            raise exception_response(400,
+                                     title='E017:No matching response found')
+        _, stub_number, stub = result
+        response_ids = stub.response_ids()
+        delay_policy_name = stub.delay_policy_name()
+        recorded = stub.recorded()
+        module_info = stub.module()
+        request_index_key = add_request(session, request_id, stub, system_date,
+                                        stub_number,
+                                        handler.settings['request_cache_limit'])
+
+        if not stub.response_body():
+            _response = stub.get_response_from_cache(request_index_key)
+            stub.set_response_body(_response['body'])
+
+        if delay_policy_name:
+            stub.load_delay_from_cache(delay_policy_name)
+
+    if cached_request:
+        stub = StubCache({}, full_scenario_name, session_name)
+        stub.load_from_cache(response_ids, delay_policy_name, recorded,
+                             system_date, module_info, request_index_key)
+    trace_response = TrackTrace(handler.track, 'response')
+    if module_info:
+        trace_response.info('module used', str(module_info))
+    response_text = stub.response_body()
+    if not response_text:
+        raise exception_response(500,
+                                 title='Unable to find response in cache using session: {0}:{1}, '
+                                       'response_ids: {2}'.format(full_scenario_name, session_name, response_ids))
+
+    # get latest delay policy
+    delay_policy = stub.delay_policy()
+    if delay_policy:
+        delay = Delay.parse_args(delay_policy)
+        if delay:
+            delay = delay.calculate()
+            msg = 'apply delay: {0} => {1}'.format(delay_policy, delay)
+            log.debug(msg)
+            handler.track['delay'] = delay
+            trace_response.info(msg)
+
+    trace_response.info('found response')
+    module_system_date = as_date(module_system_date) if module_system_date \
+        else module_system_date
+    stub, _ = transform(stub,
+                        stubo_request,
+                        module_system_date=module_system_date,
+                        system_date=as_date(system_date),
+                        function='get/response',
+                        cache=user_cache,
+                        hooks=handler.settings['hooks'],
+                        stage='response',
+                        trace=trace_response,
+                        url_args=url_args)
+    transfomed_response_text = stub.response_body()[0]
+    # Note transformed_response_text can be encoded in utf8
+    if response_text[0] != transfomed_response_text:
+        trace_response.diff('response:transformed',
+                            dict(response=response_text[0]),
+                            dict(response=transfomed_response_text))
+
+    result_dict["body"] = transfomed_response_text
+    result_dict["headers"] = stub.response_headers()
+    result_dict["statusCode"] = stub.response_status()
+
+    return result_dict
