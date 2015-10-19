@@ -1073,7 +1073,12 @@ class ScenarioActionHandler(TrackRequest):
         }
         """
         try:
-            response = end_session(self, self.session_name)
+            if ":" not in self.scenario_name:
+                hostname = get_hostname(self.request)
+            else:
+                # removing hostname from scenario name
+                hostname = self.scenario_name.split(":")[0]
+            response = api_v2_end_session(hostname, self.session_name)
             self.write(response)
         except Exception as ex:
             log.warn("Failed to end session %s for scenario: %s. Got error: %s" % (self.session_name,
