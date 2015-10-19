@@ -2,7 +2,6 @@ webpackJsonp([0],[
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	//import ReactDOM from 'react-dom'
 	'use strict';
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -23,7 +22,8 @@ webpackJsonp([0],[
 	    displayName: "TrackingAllHosts",
 
 	    getInitialState: function getInitialState() {
-	        return { trackingAll: _reactCookie2['default'].load('stubo.all-hosts') || false };
+	        // by default - tracking from all hosts.
+	        return { trackingAll: _reactCookie2['default'].load('stubo.all-hosts') || true };
 	    },
 
 	    handleClick: function handleClick() {
@@ -79,11 +79,6 @@ webpackJsonp([0],[
 	    }
 
 	});
-	//
-	//React.render(
-	//    <TrackingAllHosts/>,
-	//    document.getElementById("trackingall")
-	//);
 
 	function getBooleanState(trackingLevel) {
 	    return trackingLevel == "full";
