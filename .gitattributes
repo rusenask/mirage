@@ -1,2 +1,4 @@
 stubo/static/src/* linguist-vendored
 stubo/static/theme/* linguist-vendored
+stubo/static/dist/* linguist-vendored
+stubo/static/node_modules/* linguist-vendored

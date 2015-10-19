@@ -1,8 +1,8 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
-import cookie from 'react-cookie'
-import Griddle from 'griddle-react'
-import { Button, Tooltip, OverlayTrigger, Grid, Row, Col, Modal, Input, ButtonInput, Alert } from 'react-bootstrap'
+import React from 'react';
+//import ReactDOM from 'react-dom';
+import cookie from 'react-cookie';
+import Griddle from 'griddle-react';
+import { Button, Tooltip, OverlayTrigger, Grid, Row, Col, Modal, Input, ButtonInput, Alert } from 'react-bootstrap';
 
 
 function ExecuteRequest(href, body) {
@@ -13,7 +13,7 @@ function ExecuteRequest(href, body) {
         dataType: "json",
         url: href,
         data: JSON.stringify(body),
-        success: function (data) {
+        success (data) {
             var info_msg = JSON.stringify(data.data, null, 2);
             var htmlData = '<ul><li>Message: ' + info_msg + '</li></ul>';
             infoModal.find('.modal-body').html(htmlData);
@@ -80,7 +80,7 @@ function reformatJSON(initialData) {
 var LinkComponent = React.createClass({
     displayName: "LinkComponent",
 
-    render: function () {
+    render () {
         var url = "/manage/scenarios/details?scenario=" + this.props.rowData.ref;
         return <a href={url}><span style={{overflow: 'hidden', textOverflow: 'ellipsis'}}> {this.props.data}</span></a>
 
@@ -89,7 +89,7 @@ var LinkComponent = React.createClass({
 
 var ExportButton = React.createClass({
     displayName: "ExportButton",
-    render: function () {
+    render () {
         const tooltip = (
             <Tooltip>Export scenario.</Tooltip>
         );
@@ -111,13 +111,13 @@ var ExportButton = React.createClass({
 var EndSessionsButton = React.createClass({
     displayName: "EndSessionsButton",
 
-    getInitialState: function () {
+    getInitialState () {
         return {
             ref: this.props.data.ref,
             status: false
         };
     },
-    handleClick: function (event) {
+    handleClick (event) {
         this.setState({status: !this.state.status});
 
         var href = this.state.ref + "/action";
@@ -128,7 +128,7 @@ var EndSessionsButton = React.createClass({
         ExecuteRequest(href, body);
 
     },
-    render: function () {
+    render () {
 
 
         const EndSessionsTooltip = (
@@ -161,14 +161,14 @@ var EndSessionsButton = React.createClass({
 var RemoveButton = React.createClass({
     displayName: "RemoveButton",
 
-    getInitialState: function () {
+    getInitialState () {
         // getting scenario ref
         return {
             ref: this.props.data.ref,
             name: this.props.data.name
         };
     },
-    handleClick: function (event) {
+    handleClick (event) {
 
         var infoModal = $('#myModal');
         var scenarioName = this.state.name;
@@ -176,7 +176,7 @@ var RemoveButton = React.createClass({
         $.ajax({
             type: "DELETE",
             url: this.state.ref,
-            success: function () {
+            success () {
                 var htmlData = '<ul><li> Scenario (' + scenarioName + ') removed successfuly. </li></ul>';
                 infoModal.find('.modal-body').html(htmlData);
                 infoModal.modal('show');
@@ -191,7 +191,7 @@ var RemoveButton = React.createClass({
         });
 
     },
-    render: function () {
+    render () {
         const RemoveTooltip = (
             <Tooltip>Remove scenario.</Tooltip>
         );
@@ -210,7 +210,7 @@ var RemoveButton = React.createClass({
 var BeginSessionButton = React.createClass({
     displayName: "BeginSessionButton",
 
-    getInitialState: function () {
+    getInitialState () {
         //console.log(this.props.data.ref);
         return {
             ref: this.props.data.ref,
@@ -220,11 +220,7 @@ var BeginSessionButton = React.createClass({
         };
     },
 
-    componentDidMount() {
-
-    },
-
-    handleClick: function (event) {
+    handleClick (event) {
         this.setState({disabled: !this.state.disabled});
 
         let href = this.state.ref + "/action";
@@ -237,7 +233,7 @@ var BeginSessionButton = React.createClass({
         ExecuteRequest(href, body);
 
     },
-    render: function () {
+    render () {
 
         // getting mode, scenarios that have at least 1 stub - can't enter record mode again, only playback is available
         if(this.state.data.stub_count > 0){
@@ -304,18 +300,14 @@ var ActionComponent = React.createClass({
 var StatusLabelComponent = React.createClass({
     displayName: "StatusLabelComponent",
 
-    getInitialState: function () {
+    getInitialState () {
         // getting scenario name and hostname
         return {
             labelClass: 'label label-default'
         };
     },
 
-    componentDidMount: function () {
-
-    },
-
-    render: function () {
+    render () {
         switch (this.props.rowData.status) {
             case undefined:
                 this.state.labelClass = '';
@@ -425,7 +417,7 @@ function updateTable(component) {
 
 var ExternalScenarios = React.createClass({
     displayName: "ExternalScenarios",
-    getInitialState: function () {
+    getInitialState () {
         var initial = {
             "results": [],
             "resultsPerPage": 50
@@ -434,9 +426,9 @@ var ExternalScenarios = React.createClass({
         return initial;
     },
     //general lifecycle methods
-    componentWillMount: function () {
+    componentWillMount () {
     },
-    componentDidMount: function () {
+    componentDidMount () {
         // getting scenarios
         updateTable(this);
 
@@ -447,23 +439,23 @@ var ExternalScenarios = React.createClass({
     },
 
     //what page is currently viewed
-    setPage: function (index) {
+    setPage (index) {
     },
     //this will handle how the data is sorted
-    sortData: function (sort, sortAscending, data) {
+    sortData (sort, sortAscending, data) {
     },
     //this changes whether data is sorted in ascending or descending order
-    changeSort: function (sort, sortAscending) {
+    changeSort (sort, sortAscending) {
     },
     //this method handles the filtering of the data
-    setFilter: function (filter) {
+    setFilter (filter) {
     },
     //this method handles determining the page size
-    setPageSize: function (size) {
+    setPageSize (size) {
     },
 
 
-    render: function () {
+    render () {
         const gridInstance = (
             <Grid fluid={true}>
                 <Row>
@@ -508,7 +500,7 @@ function BeginSession(that, scenario, session, mode) {
         dataType: "json",
         data: JSON.stringify(sessionPayload),
         url: "/stubo/api/v2/scenarios/objects/" + scenario + "/action",
-        success: function () {
+        success () {
             if (that.isMounted()) {
                 that.setState({
                     message: "Session for scenario '" + scenario + "' started successfully!",
@@ -606,7 +598,7 @@ let CreateScenarioBtn = React.createClass({
             dataType: "json",
             data: JSON.stringify(payload),
             url: "/stubo/api/v2/scenarios",
-            success: function (data) {
+            success (data) {
                 if (that.isMounted()) {
                     that.setState({
                         message: "Scenario '" + scenarioName + "' created successfully!",
@@ -697,7 +689,7 @@ let CreateScenarioBtn = React.createClass({
 });
 
 
-ReactDOM.render(
+React.render(
     <ExternalScenarios />,
     document.getElementById("app")
 );

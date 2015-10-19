@@ -45,17 +45,20 @@ def begin_session(handler, scenario_name, session_name, mode, system_date=None,
         'version': version
     }
     scenario_manager = Scenario()
-    cache = Cache(get_hostname(handler.request))
+    # cache = Cache(get_hostname(handler.request))
 
     # checking whether full name (with hostname) was passed, if not - getting full name
     # scenario_name_key = "localhost:scenario_1"
     if ":" not in scenario_name:
+        cache = Cache(get_hostname(handler.request))
         scenario_name_key = cache.scenario_key_name(scenario_name)
     else:
         # setting scenario full name
         scenario_name_key = scenario_name
         # removing hostname from scenario name
-        scenario_name = scenario_name.split(":")[1]
+        slices = scenario_name.split(":")
+        scenario_name = slices[1]
+        cache = Cache(slices[0])
 
     # get scenario document
     scenario_doc = scenario_manager.get(scenario_name_key)
@@ -128,6 +131,91 @@ def begin_session(handler, scenario_name, session_name, mode, system_date=None,
         raise exception_response(400,
                                  title='Mode of playback or record required')
     return response
+
+
+def end_sessions(handler, scenario_name):
+    """
+    End all sessions for specified scenario
+    :param handler: request handler
+    :param scenario_name: scenario name - can be supplied with hostname ("mirage-app:scenario_x")
+    :return:
+    """
+    response = {
+        'version': version,
+        'data': {}
+    }
+    # checking whether full name (with hostname) was passed, if not - getting full name
+    # scenario_name_key = "localhost:scenario_1"
+    if ":" not in scenario_name:
+        hostname = get_hostname(handler.request)
+        cache = Cache(hostname)
+    else:
+        # removing hostname from scenario name
+        slices = scenario_name.split(":")
+        scenario_name = slices[1]
+        hostname = slices[0]
+        cache = Cache(hostname)
+
+    # cache = Cache(get_hostname(handler.request))
+    sessions = list(cache.get_sessions_status(scenario_name,
+                                              status=('record', 'playback')))
+    # ending all sessions
+    for session_name, session in sessions:
+        session_response = end_session(hostname, session_name)
+        response['data'][session_name] = session_response.get('data')
+    return response
+
+from stubo.service.api import store_source_recording
+
+def end_session(hostname, session_name):
+    """
+    End specific session.
+    :param hostname: hostname for this session
+    :param session_name: session name
+    :return:
+    """
+    response = {
+        'version': version
+    }
+    cache = Cache(hostname)
+    scenario_key = cache.get_scenario_key(session_name)
+    if not scenario_key:
+        # end/session?session=x called before begin/session
+        response['data'] = {
+            'message': 'Session ended'
+        }
+        return response
+
+    host, scenario_name = scenario_key.split(':')
+
+    session = cache.get_session(scenario_name, session_name, local=False)
+    if not session:
+        # end/session?session=x called before begin/session
+        response['data'] = {
+            'message': 'Session ended'
+        }
+        return response
+
+    # handler.track.scenario = scenario_name
+    session_status = session['status']
+    if session_status not in ('record', 'playback'):
+        log.warn('expecting session={0} to be in record or playback for '
+                 'end/session'.format(session_name))
+
+    session['status'] = 'dormant'
+    # clear stubs cache & scenario session data
+    session.pop('stubs', None)
+    cache.set(scenario_key, session_name, session)
+    cache.delete_session_data(scenario_name, session_name)
+    if session_status == 'record':
+        log.debug('store source recording to pre_scenario_stub')
+        store_source_recording(scenario_key, session_name)
+
+    response['data'] = {
+        'message': 'Session ended'
+    }
+    return response
+
 
 
 def update_delay_policy(handler):

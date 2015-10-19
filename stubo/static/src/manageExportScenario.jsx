@@ -1,6 +1,5 @@
-import React from 'react'
-
-import { Grid, Row, Col, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import React from 'react';
+import { Grid, Row, Col, OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 function getUrlVars() {
     let vars = [], hash;

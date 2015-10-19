@@ -9,9 +9,9 @@ webpackJsonp([8],{
 
 	'use strict';
 
-	var React = __webpack_require__(146);
+	var React = __webpack_require__(1);
 
-	var Inspector = __webpack_require__(555);
+	var Inspector = __webpack_require__(544);
 
 	function getUrlVars() {
 	    var vars = [],
@@ -45,23 +45,23 @@ webpackJsonp([8],{
 
 /***/ },
 
-/***/ 555:
+/***/ 544:
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var React = __webpack_require__(146);
+	var React = __webpack_require__(1);
 	var D = React.DOM;
 
-	var Leaf = __webpack_require__(556);
+	var Leaf = __webpack_require__(545);
 	var leaf = React.createFactory(Leaf);
-	var SearchBar = __webpack_require__(561);
+	var SearchBar = __webpack_require__(550);
 	var searchBar = React.createFactory(SearchBar);
 
-	var filterer = __webpack_require__(565);
-	var isEmpty = __webpack_require__(567);
-	var lens = __webpack_require__(568);
-	var noop = __webpack_require__(564);
+	var filterer = __webpack_require__(554);
+	var isEmpty = __webpack_require__(556);
+	var lens = __webpack_require__(557);
+	var noop = __webpack_require__(553);
 
 	module.exports = React.createClass({
 	    displayName: 'exports',
@@ -161,20 +161,20 @@ webpackJsonp([8],{
 
 /***/ },
 
-/***/ 556:
+/***/ 545:
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var React = __webpack_require__(146);
+	var React = __webpack_require__(1);
 	var D = React.DOM;
 
-	var md5omatic = __webpack_require__(557);
+	var md5omatic = __webpack_require__(546);
 
-	var uid = __webpack_require__(558);
-	var type = __webpack_require__(559);
+	var uid = __webpack_require__(547);
+	var type = __webpack_require__(548);
 
-	var Highlighter = __webpack_require__(560);
+	var Highlighter = __webpack_require__(549);
 	var highlighter = React.createFactory(Highlighter);
 
 	var PATH_PREFIX = '.root.';
@@ -390,7 +390,7 @@ webpackJsonp([8],{
 
 /***/ },
 
-/***/ 557:
+/***/ 546:
 /***/ function(module, exports) {
 
 	"use strict";
@@ -581,7 +581,7 @@ webpackJsonp([8],{
 
 /***/ },
 
-/***/ 558:
+/***/ 547:
 /***/ function(module, exports) {
 
 	"use strict";
@@ -594,7 +594,7 @@ webpackJsonp([8],{
 
 /***/ },
 
-/***/ 559:
+/***/ 548:
 /***/ function(module, exports) {
 
 	"use strict";
@@ -605,12 +605,12 @@ webpackJsonp([8],{
 
 /***/ },
 
-/***/ 560:
+/***/ 549:
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var React = __webpack_require__(146);
+	var React = __webpack_require__(1);
 	var span = React.DOM.span;
 
 	module.exports = React.createClass({
@@ -640,16 +640,16 @@ webpackJsonp([8],{
 
 /***/ },
 
-/***/ 561:
+/***/ 550:
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var debounce = __webpack_require__(562);
-	var React = __webpack_require__(146);
+	var debounce = __webpack_require__(551);
+	var React = __webpack_require__(1);
 	var input = React.DOM.input;
 
-	var noop = __webpack_require__(564);
+	var noop = __webpack_require__(553);
 
 	module.exports = React.createClass({
 	    displayName: 'exports',
@@ -670,13 +670,13 @@ webpackJsonp([8],{
 	        });
 	    },
 	    update: function update() {
-	        this.props.onChange(this.refs.query.value);
+	        this.props.onChange(this.refs.query.getDOMNode().value);
 	    }
 	});
 
 /***/ },
 
-/***/ 562:
+/***/ 551:
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -686,7 +686,7 @@ webpackJsonp([8],{
 
 	'use strict';
 
-	var now = __webpack_require__(563);
+	var now = __webpack_require__(552);
 
 	/**
 	 * Returns a function, that, as long as it continues to be invoked, will not
@@ -737,7 +737,7 @@ webpackJsonp([8],{
 
 /***/ },
 
-/***/ 563:
+/***/ 552:
 /***/ function(module, exports) {
 
 	"use strict";
@@ -750,7 +750,7 @@ webpackJsonp([8],{
 
 /***/ },
 
-/***/ 564:
+/***/ 553:
 /***/ function(module, exports) {
 
 	"use strict";
@@ -759,16 +759,16 @@ webpackJsonp([8],{
 
 /***/ },
 
-/***/ 565:
+/***/ 554:
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var assign = __webpack_require__(566);
+	var assign = __webpack_require__(555);
 	var keys = Object.keys;
 
-	var type = __webpack_require__(559);
-	var isEmpty = __webpack_require__(567);
+	var type = __webpack_require__(548);
+	var isEmpty = __webpack_require__(556);
 
 	module.exports = function (data, options) {
 	    options || (options = {});
@@ -843,7 +843,7 @@ webpackJsonp([8],{
 
 /***/ },
 
-/***/ 566:
+/***/ 555:
 /***/ function(module, exports) {
 
 	'use strict';
@@ -875,7 +875,7 @@ webpackJsonp([8],{
 
 /***/ },
 
-/***/ 567:
+/***/ 556:
 /***/ function(module, exports) {
 
 	"use strict";
@@ -886,12 +886,12 @@ webpackJsonp([8],{
 
 /***/ },
 
-/***/ 568:
+/***/ 557:
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var type = __webpack_require__(559);
+	var type = __webpack_require__(548);
 
 	var PATH_DELIMITER = '.';
 

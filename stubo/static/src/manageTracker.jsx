@@ -1,30 +1,24 @@
-import ReactDOM from 'react-dom'
-var React = require('../node_modules/react');
-var Griddle = require('../node_modules/griddle-react');
-
-var Tooltip = require('../node_modules/react-bootstrap').Tooltip;
-var OverlayTrigger = require('../node_modules/react-bootstrap').OverlayTrigger;
-var Button = require('../node_modules/react-bootstrap').Button;
+//import ReactDOM from 'react-dom';
+import React from 'react';
+import Griddle from 'griddle-react';
+import { Tooltip, OverlayTrigger, Button} from 'react-bootstrap';
 
 // currently not used, need more testing, but it should be fast enough so loading message is not required
 var Loading = React.createClass({
-    getDefaultProps: function () {
+    getDefaultProps() {
         return {
             loadingText: "Loading"
         }
     },
-    render: function () {
+    render(){
         return <div className="loading">{this.props.loadingText}</div>;
     }
 });
 
 var ApiCallWrapper = React.createClass({
     displayName: "ApiCallWrapper",
-    getInitialState: function () {
-        return {};
-    },
 
-    render: function () {
+    render(){
         var apiCall = this.props.rowData.function;
         return (
             <div style={{overflow: 'hidden', textOverflow: 'ellipsis'}}> {apiCall} </div>
@@ -37,17 +31,14 @@ var ApiCallWrapper = React.createClass({
 var StatusLabelComponent = React.createClass({
     displayName: "StatusLabelComponent",
 
-    getInitialState: function () {
+    getInitialState(){
         return {
             labelClass: 'label label-default'
         };
     },
 
-    componentDidMount: function () {
 
-    },
-
-    render: function () {
+    render() {
 
         var code = this.props.rowData.return_code;
 
@@ -80,7 +71,7 @@ var StatusLabelComponent = React.createClass({
 
 var DetailsButton = React.createClass({
     displayName: "DetailsButton",
-    render: function () {
+    render() {
         const tooltip = (
             <Tooltip>Show details for this tracker record.</Tooltip>
         );
@@ -101,7 +92,7 @@ var DetailsButton = React.createClass({
 var ActionComponent = React.createClass({
     displayName: "ActionComponent",
 
-    render: function () {
+    render() {
 
 
         // rendering action buttons
@@ -162,7 +153,7 @@ var columnMeta = [
 ];
 
 var RecordsComponent = React.createClass({
-    getInitialState: function () {
+    getInitialState(){
         var initial = {
             "currentPage": 0,
             "isLoading": false,
@@ -199,10 +190,10 @@ var RecordsComponent = React.createClass({
 
     },
 
-    componentDidMount: function () {
+    componentDidMount() {
         this.getExternalData();
     },
-    getExternalData: function (page) {
+    getExternalData(page) {
         var that = this;
         page = page || 1;
 
@@ -243,15 +234,15 @@ var RecordsComponent = React.createClass({
         }
 
     },
-    setPage: function (index) {
+    setPage(index) {
         //This should interact with the data source to get the page at the given index
         index = index > this.state.maxPages ? this.state.maxPages : index < 1 ? 1 : index + 1;
         this.getExternalData(index);
     },
-    setPageSize: function (size) {
+    setPageSize(size) {
     },
 
-    setFilter: function (filter) {
+    setFilter(filter) {
         var that = this;
 
         if (this.state.ws != null) {
@@ -290,7 +281,7 @@ var RecordsComponent = React.createClass({
 
     },
 
-    render: function () {
+    render() {
         return <Griddle useExternal={true}
                         externalSetPage={this.setPage}
                         enableSort={false}
@@ -322,4 +313,4 @@ var RecordsComponent = React.createClass({
 });
 
 
-ReactDOM.render(<RecordsComponent />, document.getElementById("app"));
+React.render(<RecordsComponent />, document.getElementById("app"));

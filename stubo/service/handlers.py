@@ -539,6 +539,8 @@ from stubo.cache import Cache
 from stubo.service.api_v2 import begin_session as api_v2_begin_session
 from stubo.service.api_v2 import update_delay_policy as api_v2_update_delay_policy
 from stubo.service.api_v2 import get_delay_policy as api_v2_get_delay_policy
+from stubo.service.api_v2 import end_sessions as api_v2_end_all_sessions
+from stubo.service.api_v2 import end_session as api_v2_end_session
 from stubo.service.api_v2 import MagicFiltering
 
 from stubo.utils.command_queue import InternalCommandQueue
@@ -958,6 +960,9 @@ class ScenarioActionHandler(TrackRequest):
         if body_dict:
             self.scenario_name = scenario_name
 
+            # setting scenario name for tracking
+            self.track.scenario = scenario_name
+
             # begin session
             if 'begin' in body_dict:
                 # getting variables
@@ -1047,11 +1052,11 @@ class ScenarioActionHandler(TrackRequest):
         """
         try:
             # need to pass scenario name without hostname
-            if ":" in self.scenario_name:
-                scenario_name = self.scenario_name.split(":")[1]
-            else:
-                scenario_name = self.scenario_name
-            response = end_sessions(self, scenario_name)
+            # if ":" in self.scenario_name:
+            #     scenario_name = self.scenario_name.split(":")[1]
+            # else:
+            #     scenario_name = self.scenario_name
+            response = api_v2_end_all_sessions(self, self.scenario_name)
             self.write(response)
         except Exception as ex:
             log.warn("Failed to end all sessions for scenario: %s. Got error: %s" % (self.scenario_name, ex))
@@ -1070,7 +1075,12 @@ class ScenarioActionHandler(TrackRequest):
         }
         """
         try:
-            response = end_session(self, self.session_name)
+            if ":" not in self.scenario_name:
+                hostname = get_hostname(self.request)
+            else:
+                # removing hostname from scenario name
+                hostname = self.scenario_name.split(":")[0]
+            response = api_v2_end_session(hostname, self.session_name)
             self.write(response)
         except Exception as ex:
             log.warn("Failed to end session %s for scenario: %s. Got error: %s" % (self.session_name,
