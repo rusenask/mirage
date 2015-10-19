@@ -133,6 +133,57 @@ def begin_session(handler, scenario_name, session_name, mode, system_date=None,
     return response
 
 
+def end_session(hostname, session_name):
+    """
+    End specific session.
+    :param hostname: hostname for this session
+    :param session_name: session name
+    :return:
+    """
+    response = {
+        'version': version
+    }
+    cache = Cache(hostname)
+    scenario_key = cache.get_scenario_key(session_name)
+    if not scenario_key:
+        # end/session?session=x called before begin/session
+        response['data'] = {
+            'message': 'Session ended'
+        }
+        return response
+
+    host, scenario_name = scenario_key.split(':')
+
+    session = cache.get_session(scenario_name, session_name, local=False)
+    if not session:
+        # end/session?session=x called before begin/session
+        response['data'] = {
+            'message': 'Session ended'
+        }
+        return response
+
+    # handler.track.scenario = scenario_name
+    session_status = session['status']
+    if session_status not in ('record', 'playback'):
+        log.warn('expecting session={0} to be in record or playback for '
+                 'end/session'.format(session_name))
+
+    session['status'] = 'dormant'
+    # clear stubs cache & scenario session data
+    session.pop('stubs', None)
+    cache.set(scenario_key, session_name, session)
+    cache.delete_session_data(scenario_name, session_name)
+    if session_status == 'record':
+        log.debug('store source recording to pre_scenario_stub')
+        store_source_recording(scenario_key, session_name)
+
+    response['data'] = {
+        'message': 'Session ended'
+    }
+    return response
+
+
+
 def update_delay_policy(handler):
     """Record delay policy in redis to be available globally to any
     users for their sessions.
