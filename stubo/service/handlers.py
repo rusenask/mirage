@@ -958,6 +958,9 @@ class ScenarioActionHandler(TrackRequest):
         if body_dict:
             self.scenario_name = scenario_name
 
+            # setting scenario name for tracking
+            self.track.scenario = scenario_name
+
             # begin session
             if 'begin' in body_dict:
                 # getting variables
