@@ -4,15 +4,38 @@ Changelog
 Unreleased:
 
 Added:
+- Added button to create scenario where users can also specify a session name and Mirage will start recording.
+- "End all sessions" button now instead of being disabled for dormant sessions - switches either to "begin playback"
+  or "start recording" based on current stub count.
+- Added new API for getting information about found response (similar to get stub response) although instead of Mirage
+  just using that information to create the original response - it now provides data about desired headers, body and
+  status code. This enables proxy to store encoded data inside Mirage with required headers for decoding and then
+  recreating original response without tampering with it. Original design was limited to plain text only.
+- Users can now override session and scenario by supplying any hostname. So a user that is accessing Mirage through the
+  hostname A - can also create scenario, start session and end it for host B. This was needed for running Mirage in container
+  environment where communication between proxy and Mirage was established via DNS aliases (or links).
+- Added all javascript libraries to source control to make development and management easier.
 
 Changed:
+- By default user is now tracking all hosts (you can still choose to see only your host and that value will be saved in a cookie).
+  This was needed due to the fact that while running Mirage in a container - it' fairly difficult to know on which hostname
+  Mirage is accessible through the container network or any other SDN.
+- Date rolling by default now expects YYYY/MM/DD instead of YYYY/DD/MM.
 
 Deprecated:
 
 Removed:
+- Old design templates
+- Old web UI handlers, utilities (in service/api.py)
+- Old web UI javascript files and CSS styles
 
 Fixed:
-
+- Fixed bug when due to websocket being blocked - tracker page failed to load new pages and filter. Now if it's available
+  in browser but terminated upon creation (i.e. firewall blocks it) - it will fall back to HTTP calls.
+- When ensuring tracker indexes during startup - Mirage now reuses initial MongoDB connection, this solves some bugs when
+  running in a container environment.
+- Fixed problem when during startup Mirage also tried to import some functions from testing packages that required
+  testing dependencies.
 
 0.7 (2015-10-02)
 

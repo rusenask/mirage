@@ -11,6 +11,8 @@ Mirage enables automated testing by allowing you to virtualize your test depende
 
 For the impatient, [instructions are here.](https://github.com/SpectoLabs/mirage/wiki/quickstart)
 
+Checkout our demo project (Twitter client application + Adaptor Proxy + Mirage) in action: [Mirage Demo](https://github.com/SpectoLabs/mirage_demo)
+
 ## Documentation
 
 [New documentation](https://github.com/SpectoLabs/mirage/wiki)
