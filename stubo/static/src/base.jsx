@@ -1,4 +1,3 @@
-//import ReactDOM from 'react-dom'
 import React from 'react'
 import {Input, Tooltip, OverlayTrigger } from 'react-bootstrap'
 import cookie from 'react-cookie'
@@ -8,7 +7,8 @@ var TrackingAllHosts = React.createClass({
     displayName: "TrackingAllHosts",
 
     getInitialState() {
-        return {trackingAll: cookie.load('stubo.all-hosts') || false};
+        // by default - tracking from all hosts.
+        return {trackingAll: cookie.load('stubo.all-hosts') || true};
     },
 
     handleClick() {
@@ -55,11 +55,6 @@ var TrackingAllHosts = React.createClass({
     }
 
 });
-//
-//React.render(
-//    <TrackingAllHosts/>,
-//    document.getElementById("trackingall")
-//);
 
 function getBooleanState(trackingLevel) {
     return trackingLevel == "full";
