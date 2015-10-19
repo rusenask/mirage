@@ -133,6 +133,40 @@ def begin_session(handler, scenario_name, session_name, mode, system_date=None,
     return response
 
 
+def end_sessions(handler, scenario_name):
+    """
+    End all sessions for specified scenario
+    :param handler: request handler
+    :param scenario_name: scenario name - can be supplied with hostname ("mirage-app:scenario_x")
+    :return:
+    """
+    response = {
+        'version': version,
+        'data': {}
+    }
+    # checking whether full name (with hostname) was passed, if not - getting full name
+    # scenario_name_key = "localhost:scenario_1"
+    if ":" not in scenario_name:
+        hostname = get_hostname(handler.request)
+        cache = Cache(hostname)
+    else:
+        # removing hostname from scenario name
+        slices = scenario_name.split(":")
+        scenario_name = slices[1]
+        hostname = slices[0]
+        cache = Cache(hostname)
+
+    # cache = Cache(get_hostname(handler.request))
+    sessions = list(cache.get_sessions_status(scenario_name,
+                                              status=('record', 'playback')))
+    # ending all sessions
+    for session_name, session in sessions:
+        session_response = end_session(hostname, session_name)
+        response['data'][session_name] = session_response.get('data')
+    return response
+
+from stubo.service.api import store_source_recording
+
 def end_session(hostname, session_name):
     """
     End specific session.
