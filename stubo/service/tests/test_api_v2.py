@@ -319,6 +319,40 @@ class TestSessionOperations(Base):
         response = self.wait()
         self.assertEqual(response.code, 200, response.reason)
 
+    def test_begin_n_end_session_for_another_host(self):
+        """
+
+        Test begin and end session for different host
+        """
+
+        # creating scenario for host with hostname "some_host"
+        response = self._test_insert_scenario("some_host:new_scenario_0x")
+        self.assertEqual(response.code, 201)
+
+        # starting session
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/some_host:new_scenario_0x/action'),
+                               self.stop,
+                               method="POST",
+                               body='{ "begin": null, "session": "session_name", "mode": "record" }')
+        response = self.wait()
+        self.assertEqual(response.code, 200, response.reason)
+        body_dict = json.loads(response.body)['data']
+        self.assertEqual(body_dict['status'], 'record')
+        self.assertEqual(body_dict['session'], 'session_name')
+        # splitting scenario name and comparing only scenario name (removing hostname)
+        self.assertEqual(body_dict['scenario'].split(":")[1], 'new_scenario_0x')
+        self.assertTrue('scenarioRef' in body_dict)
+        self.assertTrue('message' in body_dict)
+
+        # ending session
+        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/some_host:new_scenario_0x/action'),
+                               self.stop,
+                               method="POST",
+                               body='{ "end": null, "session": "session_name" }')
+        response = self.wait()
+        self.assertEqual(response.code, 200, response.reason)
+        self.assertTrue('"data": {"message": "Session ended"}' in response.body)
+
     def test_end_all_sessions(self):
         """
 
