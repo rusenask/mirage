@@ -1575,6 +1575,33 @@ class ScenarioStubMatcher(TrackRequest):
         self.write(data)
 
 
+class ScenarioUploadHandler(BaseHandler):
+
+    def initialize(self):
+        """
+
+        Initializing database and setting header. Using global tornado settings that are generated
+        during startup to acquire database client
+        """
+        # get motor driver
+        self.db = motor_driver(self.settings)
+
+    def get(self):
+        # present a form
+        pass
+
+    def post(self):
+        # process file
+        import pdb
+        pdb.set_trace()
+        fileinfo = self.request.files['filearg'][0]
+        print "fileinfo is", fileinfo
+        fname = fileinfo['filename']
+        file_body = fileinfo['body']
+        print("file name: %s" % fname)
+
+
+
 
 class TrackerRecordsHandler(BaseHandler):
     """
