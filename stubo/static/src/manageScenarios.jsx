@@ -236,9 +236,9 @@ var BeginSessionButton = React.createClass({
     render () {
 
         // getting mode, scenarios that have at least 1 stub - can't enter record mode again, only playback is available
-        if(this.state.data.stub_count > 0){
+        if (this.state.data.stub_count > 0) {
             this.state.mode = "playback"
-        } else{
+        } else {
             this.state.mode = "record"
         }
 
@@ -461,6 +461,8 @@ var ExternalScenarios = React.createClass({
                 <Row>
                     <div className="pull-right">
                         <CreateScenarioBtn parent={this}/>
+                        &nbsp;
+                        <ImportScenarioForm parent={this}/>
                     </div>
                 </Row>
 
@@ -674,6 +676,128 @@ let CreateScenarioBtn = React.createClass({
                        bsSize="medium">
                     <Modal.Header closeButton>
                         <Modal.Title>Add new scenario</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        {alert}
+                        {createForm}
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button onClick={this.close}>Close</Button>
+                    </Modal.Footer>
+                </Modal>
+            </span>
+        );
+    }
+});
+
+let ImportScenarioForm = React.createClass({
+    getInitialState() {
+        return {
+            disabled: true,
+            style: null,
+            sessionInputDisabled: true,
+            showModal: false,
+            message: "",
+            alertVisible: false,
+            alertStyle: "danger",
+            parent: this.props.parent
+        }
+    },
+
+    close() {
+        this.setState({showModal: false});
+    },
+
+    open() {
+        this.setState({showModal: true});
+    },
+
+    validationState() {
+        //let length = this.refs.scenarioName.getValue().length;
+        //let sessionLength = this.refs.sessionName.getValue().length;
+        //
+        //let style = 'danger';
+        //
+        //if (this.state.sessionInputDisabled == false) {
+        //    if (length > 0 && sessionLength > 0) {
+        //        style = 'success'
+        //    }
+        //} else {
+        //    if (length > 0) {
+        //        style = 'success'
+        //    }
+        //}
+        console.log(this.refs.scenarioFile.getValue());
+        let length = this.refs.scenarioFile.getValue().length;
+
+        let style = 'danger';
+
+        if (length > 0) {
+            style = 'success'
+        }
+
+        let disabled = style !== 'success';
+
+
+        return {style, disabled};
+    },
+
+    handleChange()
+    {
+        this.setState(this.validationState());
+    },
+
+    handleCheckbox()
+    {
+        // inverting checkbox state
+        this.state.sessionInputDisabled = !this.state.sessionInputDisabled;
+
+        // doing validation
+        this.setState(this.validationState());
+    },
+
+
+    handleSubmit(e)
+    {
+        e.preventDefault();
+        console.log("submited")
+
+    },
+
+    handleAlertDismiss() {
+        this.setState({alertVisible: false});
+    },
+
+    render() {
+
+        let createForm = (
+            <div>
+                <form action="/api/v2/scenarios/upload"
+                      encType="multipart/form-data"
+                      method="post">
+                    <Input type="file" ref="scenarioFile" label="Scenario"
+                           name="filearg"
+                           onChange={this.handleChange}/>
+
+                    <ButtonInput type="submit" value="Submit"
+                                 bsStyle={this.state.style} bsSize="small"
+                                 disabled={this.state.disabled}/>
+                </form>
+            </div>
+        );
+
+        return (
+            <span>
+                <Button pullRigh={true}
+                        onClick={this.open}
+                        bsStyle="success">
+                    <span className="glyphicon glyphicon-upload" aria-hidden="true"></span> Import Scenario
+                </Button>
+
+                <Modal show={this.state.showModal} onHide={this.close}
+                       bsSize="medium">
+                    <Modal.Header closeButton>
+                        <Modal.Title>Import Scenario</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         {alert}
