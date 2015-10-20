@@ -1600,6 +1600,23 @@ class ScenarioUploadHandler(BaseHandler):
 
         print(self.request.files)
 
+    @gen.coroutine
+    def _process_config(self, tmp_dir, files):
+        # getting config file, usually .yaml is in the end of the list
+        session = "default_session"
+        scenario = "default_scenario"
+        stub_list = []
+
+        for f in reversed(files):
+            if f.endswith(".yaml"):
+                # reading yaml file
+                with open(tmp_dir + "/" + f, 'r') as stream:
+                    config = yaml.load(stream)
+                    session = config['recording']['session']
+                    scenario = config['recording']['scenario']
+                    stub_list = config['recording']['stubs']
+        print("yaml file found, processing stubs")
+        yield self._process_stubs(tmp_dir, scenario, session, stub_list)
 
     @gen.coroutine
     def _process_stubs(self, tmp_dir, scenario, session, stub_list):
