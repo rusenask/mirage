@@ -45,17 +45,20 @@ def begin_session(handler, scenario_name, session_name, mode, system_date=None,
         'version': version
     }
     scenario_manager = Scenario()
-    cache = Cache(get_hostname(handler.request))
+    # cache = Cache(get_hostname(handler.request))
 
     # checking whether full name (with hostname) was passed, if not - getting full name
     # scenario_name_key = "localhost:scenario_1"
     if ":" not in scenario_name:
+        cache = Cache(get_hostname(handler.request))
         scenario_name_key = cache.scenario_key_name(scenario_name)
     else:
         # setting scenario full name
         scenario_name_key = scenario_name
         # removing hostname from scenario name
-        scenario_name = scenario_name.split(":")[1]
+        slices = scenario_name.split(":")
+        scenario_name = slices[1]
+        cache = Cache(slices[0])
 
     # get scenario document
     scenario_doc = scenario_manager.get(scenario_name_key)
@@ -128,6 +131,91 @@ def begin_session(handler, scenario_name, session_name, mode, system_date=None,
         raise exception_response(400,
                                  title='Mode of playback or record required')
     return response
+
+
+def end_sessions(handler, scenario_name):
+    """
+    End all sessions for specified scenario
+    :param handler: request handler
+    :param scenario_name: scenario name - can be supplied with hostname ("mirage-app:scenario_x")
+    :return:
+    """
+    response = {
+        'version': version,
+        'data': {}
+    }
+    # checking whether full name (with hostname) was passed, if not - getting full name
+    # scenario_name_key = "localhost:scenario_1"
+    if ":" not in scenario_name:
+        hostname = get_hostname(handler.request)
+        cache = Cache(hostname)
+    else:
+        # removing hostname from scenario name
+        slices = scenario_name.split(":")
+        scenario_name = slices[1]
+        hostname = slices[0]
+        cache = Cache(hostname)
+
+    # cache = Cache(get_hostname(handler.request))
+    sessions = list(cache.get_sessions_status(scenario_name,
+                                              status=('record', 'playback')))
+    # ending all sessions
+    for session_name, session in sessions:
+        session_response = end_session(hostname, session_name)
+        response['data'][session_name] = session_response.get('data')
+    return response
+
+from stubo.service.api import store_source_recording
+
+def end_session(hostname, session_name):
+    """
+    End specific session.
+    :param hostname: hostname for this session
+    :param session_name: session name
+    :return:
+    """
+    response = {
+        'version': version
+    }
+    cache = Cache(hostname)
+    scenario_key = cache.get_scenario_key(session_name)
+    if not scenario_key:
+        # end/session?session=x called before begin/session
+        response['data'] = {
+            'message': 'Session ended'
+        }
+        return response
+
+    host, scenario_name = scenario_key.split(':')
+
+    session = cache.get_session(scenario_name, session_name, local=False)
+    if not session:
+        # end/session?session=x called before begin/session
+        response['data'] = {
+            'message': 'Session ended'
+        }
+        return response
+
+    # handler.track.scenario = scenario_name
+    session_status = session['status']
+    if session_status not in ('record', 'playback'):
+        log.warn('expecting session={0} to be in record or playback for '
+                 'end/session'.format(session_name))
+
+    session['status'] = 'dormant'
+    # clear stubs cache & scenario session data
+    session.pop('stubs', None)
+    cache.set(scenario_key, session_name, session)
+    cache.delete_session_data(scenario_name, session_name)
+    if session_status == 'record':
+        log.debug('store source recording to pre_scenario_stub')
+        store_source_recording(scenario_key, session_name)
+
+    response['data'] = {
+        'message': 'Session ended'
+    }
+    return response
+
 
 
 def update_delay_policy(handler):
@@ -396,7 +484,6 @@ class MagicFiltering:
 
 
 def get_response_v2(handler, full_scenario_name, session_name):
-
     # main result dictionary that will be returned
     result_dict = {}
 
@@ -426,14 +513,17 @@ def get_response_v2(handler, full_scenario_name, session_name):
             log.warn("replication was slow for session: {0} {1}, it took {2} secs!".format(
                 full_scenario_name, session_name, retries + 1))
         if session['status'] != 'playback':
-            raise exception_response(500,
-                                     title='cache status != playback. session={0}'.format(session))
+            result_dict["error"] = 'cache status != playback. session={0}'.format(session)
+            result_dict["statusCode"] = 412
+            return result_dict
 
         system_date = session['system_date']
         if not system_date:
-            raise exception_response(500,
-                                     title="slave session {0} not available for scenario {1}".format(
-                                         session_name, full_scenario_name))
+            result_dict["error"] = "slave session {0} not available for scenario {1}".format(
+                session_name, full_scenario_name)
+            result_dict["statusCode"] = 412
+            return result_dict
+
         trace_matcher = TrackTrace(handler.track, 'matcher')
         session['ext_cache'] = user_cache
         result = match(stubo_request, session, trace_matcher,
@@ -441,9 +531,12 @@ def get_response_v2(handler, full_scenario_name, session_name):
                        url_args=url_args,
                        hooks=handler.settings['hooks'],
                        module_system_date=module_system_date)
+        # matching request not found
         if not result[0]:
-            raise exception_response(400,
-                                     title='E017:No matching response found')
+            result_dict["error"] = "Not matching request found"
+            result_dict["statusCode"] = 404
+            return result_dict
+
         _, stub_number, stub = result
         response_ids = stub.response_ids()
         delay_policy_name = stub.delay_policy_name()
@@ -468,10 +561,12 @@ def get_response_v2(handler, full_scenario_name, session_name):
     if module_info:
         trace_response.info('module used', str(module_info))
     response_text = stub.response_body()
+
     if not response_text:
-        raise exception_response(500,
-                                 title='Unable to find response in cache using session: {0}:{1}, '
-                                       'response_ids: {2}'.format(full_scenario_name, session_name, response_ids))
+        result_dict["error"] = 'Unable to find response in cache using session: {0}:{1}, '
+        'response_ids: {2}'.format(full_scenario_name, session_name, response_ids)
+        result_dict["statusCode"] = 400
+        return result_dict
 
     # get latest delay policy
     delay_policy = stub.delay_policy()

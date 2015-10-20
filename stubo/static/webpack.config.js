@@ -2,18 +2,18 @@ var CommonsChunkPlugin = require("./node_modules/webpack/lib/optimize/CommonsChu
 
 module.exports = {
     entry: {
-        base: "./scripts/base.jsx",
-        scenarioDetails: "./scripts/scenarioDetails.jsx",
-        manageScenarios: "./scripts/manageScenarios.jsx",
-        manageExportScenario: "./scripts/manageExportScenario.jsx",
-        manageDelayPolicies: "./scripts/manageDelayPolicies.jsx",
-        manageExternalModules: "./scripts/manageExternalModules.jsx",
-        manageTracker: "./scripts/manageTracker.jsx",
-        manageTrackerDetails: "./scripts/manageTrackerDetails.jsx",
-        manageExecuteCommands: "./scripts/manageExecuteCommands.jsx"
+        base: "./src/base.jsx",
+        scenarioDetails: "./src/scenarioDetails.jsx",
+        manageScenarios: "./src/manageScenarios.jsx",
+        manageExportScenario: "./src/manageExportScenario.jsx",
+        manageDelayPolicies: "./src/manageDelayPolicies.jsx",
+        manageExternalModules: "./src/manageExternalModules.jsx",
+        manageTracker: "./src/manageTracker.jsx",
+        manageTrackerDetails: "./src/manageTrackerDetails.jsx",
+        manageExecuteCommands: "./src/manageExecuteCommands.jsx"
     },
     output: {
-        path: "./src",
+        path: "./dist",
         filename: "[name]-bundle.js"
     },
     module: {
