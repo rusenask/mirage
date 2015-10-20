@@ -511,7 +511,9 @@ webpackJsonp([5],[
 	                _react2['default'].createElement(
 	                    'div',
 	                    { className: 'pull-right' },
-	                    _react2['default'].createElement(CreateScenarioBtn, { parent: this })
+	                    _react2['default'].createElement(CreateScenarioBtn, { parent: this }),
+	                    ' ',
+	                    _react2['default'].createElement(ImportScenarioForm, { parent: this })
 	                )
 	            ),
 	            _react2['default'].createElement(
@@ -732,6 +734,143 @@ webpackJsonp([5],[
 	                        _reactBootstrap.Modal.Title,
 	                        null,
 	                        'Add new scenario'
+	                    )
+	                ),
+	                _react2['default'].createElement(
+	                    _reactBootstrap.Modal.Body,
+	                    null,
+	                    alert,
+	                    createForm
+	                ),
+	                _react2['default'].createElement(
+	                    _reactBootstrap.Modal.Footer,
+	                    null,
+	                    _react2['default'].createElement(
+	                        _reactBootstrap.Button,
+	                        { onClick: this.close },
+	                        'Close'
+	                    )
+	                )
+	            )
+	        );
+	    }
+	});
+
+	var ImportScenarioForm = _react2['default'].createClass({
+	    displayName: 'ImportScenarioForm',
+
+	    getInitialState: function getInitialState() {
+	        return {
+	            disabled: true,
+	            style: null,
+	            sessionInputDisabled: true,
+	            showModal: false,
+	            message: "",
+	            alertVisible: false,
+	            alertStyle: "danger",
+	            parent: this.props.parent
+	        };
+	    },
+
+	    close: function close() {
+	        this.setState({ showModal: false });
+	    },
+
+	    open: function open() {
+	        this.setState({ showModal: true });
+	    },
+
+	    validationState: function validationState() {
+	        //let length = this.refs.scenarioName.getValue().length;
+	        //let sessionLength = this.refs.sessionName.getValue().length;
+	        //
+	        //let style = 'danger';
+	        //
+	        //if (this.state.sessionInputDisabled == false) {
+	        //    if (length > 0 && sessionLength > 0) {
+	        //        style = 'success'
+	        //    }
+	        //} else {
+	        //    if (length > 0) {
+	        //        style = 'success'
+	        //    }
+	        //}
+	        console.log(this.refs.scenarioFile.getValue());
+	        var length = this.refs.scenarioFile.getValue().length;
+
+	        var style = 'danger';
+
+	        if (length > 0) {
+	            style = 'success';
+	        }
+
+	        var disabled = style !== 'success';
+
+	        return { style: style, disabled: disabled };
+	    },
+
+	    handleChange: function handleChange() {
+	        this.setState(this.validationState());
+	    },
+
+	    handleCheckbox: function handleCheckbox() {
+	        // inverting checkbox state
+	        this.state.sessionInputDisabled = !this.state.sessionInputDisabled;
+
+	        // doing validation
+	        this.setState(this.validationState());
+	    },
+
+	    handleSubmit: function handleSubmit(e) {
+	        e.preventDefault();
+	        console.log("submited");
+	    },
+
+	    handleAlertDismiss: function handleAlertDismiss() {
+	        this.setState({ alertVisible: false });
+	    },
+
+	    render: function render() {
+
+	        var createForm = _react2['default'].createElement(
+	            'div',
+	            null,
+	            _react2['default'].createElement(
+	                'form',
+	                { action: '/api/v2/scenarios/upload',
+	                    encType: 'multipart/form-data',
+	                    method: 'post' },
+	                _react2['default'].createElement(_reactBootstrap.Input, { type: 'file', ref: 'scenarioFile', label: 'Scenario',
+	                    name: 'filearg',
+	                    onChange: this.handleChange }),
+	                _react2['default'].createElement(_reactBootstrap.ButtonInput, { type: 'submit', value: 'Submit',
+	                    bsStyle: this.state.style, bsSize: 'small',
+	                    disabled: this.state.disabled })
+	            )
+	        );
+
+	        return _react2['default'].createElement(
+	            'span',
+	            null,
+	            _react2['default'].createElement(
+	                _reactBootstrap.Button,
+	                { pullRigh: true,
+	                    onClick: this.open,
+	                    bsStyle: 'success' },
+	                _react2['default'].createElement('span', { className: 'glyphicon glyphicon-upload', 'aria-hidden': 'true' }),
+	                ' Import Scenario'
+	            ),
+	            _react2['default'].createElement(
+	                _reactBootstrap.Modal,
+	                { show: this.state.showModal, onHide: this.close,
+	                    bsSize: 'medium' },
+	                _react2['default'].createElement(
+	                    _reactBootstrap.Modal.Header,
+	                    { closeButton: true },
+	                    _react2['default'].createElement(
+	                        _reactBootstrap.Modal.Title,
+	                        null,
+	                        'Import Scenario'
 	                    )
 	                ),
 	                _react2['default'].createElement(
