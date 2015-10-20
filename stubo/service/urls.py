@@ -48,6 +48,7 @@ rest_api = [
     # scenario controls
     ("/stubo/api/v2/scenarios", "BaseScenarioHandler"),
     ("/stubo/api/v2/scenarios/detail", "GetAllScenariosHandler"),
+    ("/api/v2/scenarios/upload", "ScenarioUploadHandler"),
     ("/stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/action", "ScenarioActionHandler"),
     ("/stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)", "GetScenarioDetailsHandler"),
     # stub controls
