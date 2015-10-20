@@ -267,6 +267,40 @@ session: your_session_name
 matcher here
 ``` 
 
+## Getting request response data (JSON)
+
+This call is similar to "Getting response with stub", however this one is intended to give all the data to the client
+to build original response instead of returning original response. This enables storing encoded/encrypted responses.
+Users have to provide a scenario:session key in headers.
+
+* __URL__: /api/v2/matcher
+* __Method__: POST
+* __Response codes__:
+   + __200__ - Response found
+   + __404__ - Response not found
+
+* __Example request header__:
+session: scenario_name:session_name
+
+* __Example request body__:
+```javascript
+matcher here
+``` 
+
+* __Example response body__:
+```javascript
+{
+    "body": "body bytes or plain text here",
+    "headers": {
+                "key": "value",
+                "key1": "value1"
+                }
+    "statusCode": 200
+}
+
+``` 
+
+
 ## Get all stubs for specific scenario
 
 * __URL__: /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
