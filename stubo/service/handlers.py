@@ -1592,13 +1592,8 @@ class ScenarioUploadHandler(BaseHandler):
 
     def post(self):
         # process file
-        import pdb
-        pdb.set_trace()
-        fileinfo = self.request.files['filearg'][0]
-        print "fileinfo is", fileinfo
-        fname = fileinfo['filename']
-        file_body = fileinfo['body']
-        print("file name: %s" % fname)
+
+        print(self.request.files)
 
 
 
