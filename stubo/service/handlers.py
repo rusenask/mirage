@@ -1601,7 +1601,54 @@ class ScenarioUploadHandler(BaseHandler):
         print(self.request.files)
 
 
+    @gen.coroutine
+    def _process_stubs(self, tmp_dir, scenario, session, stub_list):
+        # creating scenario
+        try:
+            yield self.db.scenario.insert({'name': _get_scenario_full_name(self, scenario)})
+        except DuplicateKeyError as ex:
+            log.debug(ex)
+            self.send_error(status_code=422,
+                            reason="Scenario (%s) already exists." % scenario)
+            return
 
+        # creating session, currently using current hostname
+        cache = Cache(get_hostname(self.request))
+        try:
+            cache.assert_valid_session(scenario, session)
+        except Exception as ex:
+            self.send_error(status_code=400,
+                            reason=ex)
+
+        scenario_name_key = cache.scenario_key_name(scenario)
+        cache.create_session_cache(scenario, session)
+
+        # prepare stub payload
+        failed = 0
+        scenario_collection = Scenario(self.db)
+        for stub in stub_list:
+            full_file_name = tmp_dir + "/" + stub['file']
+            with open(full_file_name) as data_file:
+                data = json.load(data_file)
+                stub = Stub(data, scenario_name_key)
+                doc = {
+                    'stub': stub,
+                    'scenario': scenario_name_key
+                }
+                try:
+                    scenario_collection.insert_stub(doc, True)
+                except Exception as ex:
+                    log.warn(ex)
+                    failed += 1
+
+        result = {
+            "scenario": scenario,
+            "session": session,
+            "total": len(stub_list),
+            "failed": failed
+        }
+        self.set_status(200)
+        self.write(result)
 
 class TrackerRecordsHandler(BaseHandler):
     """
