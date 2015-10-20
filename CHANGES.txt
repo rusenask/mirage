@@ -1,7 +1,15 @@
 Changelog
 =========
 
-Unreleased:
+Added:
+
+Changed:
+
+Deprecated:
+
+Removed:
+
+0.7.1 (2015-10-20):
 
 Added:
 - Added button to create scenario where users can also specify a session name and Mirage will start recording.
