@@ -1591,14 +1591,21 @@ class ScenarioUploadHandler(BaseHandler):
         # get motor driver
         self.db = motor_driver(self.settings)
 
-    def get(self):
-        # present a form
-        pass
-
+    @gen.coroutine
     def post(self):
         # process file
+        for _, content in self.request.files.iteritems():
+            # content contains a list with a single element (file)
+            content = content[0]
+            import_dir = os.path.join(self.application.settings['static_path'], 'imports')
 
-        print(self.request.files)
+            # currently only zip supported
+            if content['content_type'] == 'application/zip':
+                with make_temp_dir(dirname=import_dir) as temp_dir:
+                    # temp_dir_name = os.path.basename(temp_dir)
+                    with zipfile.ZipFile(StringIO(content['body'])) as zipf:
+                        zipf.extractall(path=temp_dir)
+                        yield self._process_config(temp_dir, zipf.namelist())
 
     @gen.coroutine
     def _process_config(self, tmp_dir, files):
