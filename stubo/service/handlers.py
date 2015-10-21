@@ -1658,30 +1658,24 @@ class ScenarioUploadHandler(BaseHandler):
         except Exception as ex:
             self.send_error(status_code=400,
                             reason=ex)
-
         scenario_name_key = cache.scenario_key_name(scenario)
-        cache.create_session_cache(scenario, session)
 
         # prepare stub payload
         scenario_collection = Scenario()
-        # list for bulk insert
-        bulk_insert_list = []
 
         for stub in stub_list:
             full_file_name = tmp_dir + "/" + stub['file']
             with open(full_file_name) as data_file:
                 data = json.load(data_file)
-                stub = Stub(data, scenario_name_key)
+                stub_obj = Stub(data, scenario_name_key)
                 doc = {
-                    'stub': stub,
+                    'stub': stub_obj,
                     'scenario': scenario_name_key
                 }
+                # inserting prepared document into the database
+                yield self.db.scenario_stub.insert(scenario_collection.get_stub_document(doc))
 
-                bulk_insert_list.append(scenario_collection.get_stub_document(doc))
-
-        # bulk inserting into database
-        if bulk_insert_list:
-            yield self.db.scenario_stub.insert(stub_list)
+        cache.create_session_cache(scenario, session)
 
         result = {
             "scenario": scenario,
