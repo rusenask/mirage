@@ -883,15 +883,30 @@ class GetScenarioDetailsHandler(RequestHandler):
         document = yield self.db.scenario.find_one(query)
 
         if document is not None:
-            # delete document
-            yield self.db.scenario.remove(query)
-            try:
-                # scenario name contains host, splitting it and using this value to clear cache
-                host, name = scenario_name.split(":")
 
-                cache = Cache(host)
-                # change cache
+            # scenario name contains host, splitting it and using this value to clear cache
+            host, name = scenario_name.split(":")
+            cache = Cache(host)
+
+            active_sessions = cache.get_active_sessions(name, local=False)
+            if active_sessions:
+                self.send_error(422, reason='Sessons in playback/record, can not delete. '
+                                            'Found the following active sessions: {0} '
+                                            'for scenario: {1}'.format(active_sessions, name))
+                return
+            # no active sessions found, deleting everything
+            try:
+                # delete document
+                yield self.db.scenario.remove(query)
+                # deleting stubs and pre stubs
+                yield self.db.scenario_stub.remove({"scenario": scenario_name})
+                yield self.db.pre_scenario_stub.remove({"scenario": scenario_name})
+            except Exception as ex:
+                log.error("Failed to delete scenario %s/stubs from database. Got error: %s" % (scenario_name, ex))
+            try:
+                # delete cache
                 cache.delete_caches(name)
+                log.debug("scenario and stubs removed")
             except Exception as ex:
                 log.warn("Failed to delete caches for scenario: %s. Got error: %s" % (scenario_name, ex))
 
