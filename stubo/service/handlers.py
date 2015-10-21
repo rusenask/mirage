@@ -1617,31 +1617,56 @@ class ScenarioUploadHandler(BaseHandler):
             # currently only zip supported
             if content['content_type'] == 'application/zip':
                 with make_temp_dir(dirname=import_dir) as temp_dir:
-                    # temp_dir_name = os.path.basename(temp_dir)
                     with zipfile.ZipFile(StringIO(content['body'])) as zipf:
                         zipf.extractall(path=temp_dir)
                         yield self._process_config(temp_dir, zipf.namelist())
+            else:
+                self.send_error(400, reason="Content type not supported")
 
     @gen.coroutine
     def _process_config(self, tmp_dir, files):
+        """
+
+        Processing extracted configuration - searching for yaml file.
+        :param tmp_dir: temporary directory with extracted stubs
+        :param files: list of files to process
+        """
         # getting config file, usually .yaml is in the end of the list
         session = "default_session"
         scenario = "default_scenario"
         stub_list = []
+        found = False
 
         for f in reversed(files):
             if f.endswith(".yaml"):
                 # reading yaml file
                 with open(tmp_dir + "/" + f, 'r') as stream:
-                    config = yaml.load(stream)
-                    session = config['recording']['session']
-                    scenario = config['recording']['scenario']
-                    stub_list = config['recording']['stubs']
-        print("yaml file found, processing stubs")
-        yield self._process_stubs(tmp_dir, scenario, session, stub_list)
+                    found = True
+                    try:
+                        config = yaml.load(stream)
+                        session = config['recording'].get('session', session)
+                        scenario = config['recording'].get('scenario', scenario)
+                        stub_list = config['recording'].get('stubs', stub_list)
+
+                    except Exception as ex:
+                        self.send_error(400, reason="Configuration file found, however, "
+                                                    "failed to read it. Got error: %s" % ex)
+        if found:
+            yield self._process_stubs(tmp_dir, scenario, session, stub_list)
+        else:
+            self.send_error(400, reason="Configuration file not found.")
 
     @gen.coroutine
     def _process_stubs(self, tmp_dir, scenario, session, stub_list):
+        """
+
+        Creates scenario, imports stubs and puts a session into playback mode.
+        :param tmp_dir: directory where all the stub json files are stored
+        :param scenario: scenario name
+        :param session:  session name
+        :param stub_list: a list of file names for this import
+        :return:
+        """
         # creating scenario
         try:
             yield self.db.scenario.insert({'name': _get_scenario_full_name(self, scenario)})
@@ -1675,7 +1700,9 @@ class ScenarioUploadHandler(BaseHandler):
                 # inserting prepared document into the database
                 yield self.db.scenario_stub.insert(scenario_collection.get_stub_document(doc))
 
-        cache.create_session_cache(scenario, session)
+        # if there are any stubs - creating a session
+        if stub_list:
+            cache.create_session_cache(scenario, session)
 
         result = {
             "scenario": scenario,
