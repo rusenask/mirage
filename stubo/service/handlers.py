@@ -1648,8 +1648,10 @@ class ScenarioUploadHandler(BaseHandler):
         cache.create_session_cache(scenario, session)
 
         # prepare stub payload
-        failed = 0
-        scenario_collection = Scenario(self.db)
+        scenario_collection = Scenario()
+        # list for bulk insert
+        bulk_insert_list = []
+
         for stub in stub_list:
             full_file_name = tmp_dir + "/" + stub['file']
             with open(full_file_name) as data_file:
@@ -1659,17 +1661,17 @@ class ScenarioUploadHandler(BaseHandler):
                     'stub': stub,
                     'scenario': scenario_name_key
                 }
-                try:
-                    scenario_collection.insert_stub(doc, True)
-                except Exception as ex:
-                    log.warn(ex)
-                    failed += 1
+
+                bulk_insert_list.append(scenario_collection.get_stub_document(doc))
+
+        # bulk inserting into database
+        if bulk_insert_list:
+            yield self.db.scenario_stub.insert(stub_list)
 
         result = {
             "scenario": scenario,
             "session": session,
             "total": len(stub_list),
-            "failed": failed
         }
         self.set_status(200)
         self.write(result)
