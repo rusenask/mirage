@@ -546,13 +546,18 @@ from stubo.service.api_v2 import MagicFiltering
 from stubo.utils.command_queue import InternalCommandQueue
 from stubo.service.api import delete_module
 
-from stubo.service.api import end_session, end_sessions, delete_delay_policy, put_stub, get_response
+from stubo.service.api import delete_delay_policy, put_stub, get_response
 from stubo.utils.track import BaseHandler
 from stubo.utils import asbool
 from stubo.model.exporter import Exporter
 from stubo.model.export_commands import export_stubs_to_commands_format, get_export_links
 from stubo.model.exporter import YAML_FORMAT_SUBDIR
 from stubo.service.api import run_command_file, run_commands
+import zipfile
+from stubo.utils import make_temp_dir
+import os
+import yaml
+from stubo.model.stub import Stub
 
 NOT_ALLOWED_MSG = 'Method not allowed'
 
@@ -1590,6 +1595,131 @@ class ScenarioStubMatcher(TrackRequest):
         self.write(data)
 
 
+class ScenarioUploadHandler(BaseHandler):
+
+    def initialize(self):
+        """
+
+        Initializing database and setting header. Using global tornado settings that are generated
+        during startup to acquire database client
+        """
+        # get motor driver
+        self.db = motor_driver(self.settings)
+
+    @gen.coroutine
+    def post(self):
+        # process file
+        for _, content in self.request.files.iteritems():
+            # content contains a list with a single element (file)
+            content = content[0]
+            import_dir = os.path.join(self.application.settings['static_path'], 'imports')
+            # currently only zip supported
+            if content['content_type'] == 'application/zip':
+                with make_temp_dir(dirname=import_dir) as temp_dir:
+                    with zipfile.ZipFile(StringIO(content['body'])) as zipf:
+                        zipf.extractall(path=temp_dir)
+                        yield self._process_config(temp_dir, zipf.namelist())
+            else:
+                self.send_error(415, reason="Content type not supported. Accepted format: .zip")
+
+    @gen.coroutine
+    def _process_config(self, tmp_dir, files):
+        """
+
+        Processing extracted configuration - searching for yaml file.
+        :param tmp_dir: temporary directory with extracted stubs
+        :param files: list of files to process
+        """
+        # getting config file, usually .yaml is in the end of the list
+        session = "default_session"
+        scenario = "default_scenario"
+        stub_list = []
+        found = False
+
+        for f in reversed(files):
+            if f.endswith(".yaml"):
+                # reading yaml file
+                with open(tmp_dir + "/" + f, 'r') as stream:
+                    found = True
+                    try:
+                        config = yaml.load(stream)
+                        session = config['recording'].get('session', session)
+                        scenario = config['recording'].get('scenario', scenario)
+                        stub_list = config['recording'].get('stubs', stub_list)
+
+                    except Exception as ex:
+                        self.send_error(400, reason="Configuration file found, however, "
+                                                    "failed to read it. Got error: %s" % ex)
+        if found:
+            yield self._process_stubs(tmp_dir, scenario, session, stub_list)
+        else:
+            self.send_error(400, reason="Configuration file not found.")
+
+    @gen.coroutine
+    def _process_stubs(self, tmp_dir, scenario, session, stub_list):
+        """
+
+        Creates scenario, imports stubs and puts a session into playback mode.
+        :param tmp_dir: directory where all the stub json files are stored
+        :param scenario: scenario name
+        :param session:  session name
+        :param stub_list: a list of file names for this import
+        :return:
+        """
+        # creating scenario
+        try:
+            yield self.db.scenario.insert({'name': _get_scenario_full_name(self, scenario)})
+        except DuplicateKeyError as ex:
+            log.debug(ex)
+            self.send_error(status_code=422,
+                            reason="Scenario (%s) already exists." % scenario)
+            return
+
+        # creating session, currently using current hostname
+        cache = Cache(get_hostname(self.request))
+        try:
+            cache.assert_valid_session(scenario, session)
+        except Exception as ex:
+            self.send_error(status_code=400,
+                            reason=ex)
+        scenario_name_key = cache.scenario_key_name(scenario)
+
+        # prepare stub payload
+        scenario_collection = Scenario()
+
+        # status list
+        status = []
+
+        for stub in stub_list:
+            full_file_name = tmp_dir + "/" + stub['file']
+            try:
+                with open(full_file_name) as data_file:
+                    data = json.load(data_file)
+                    stub_obj = Stub(data, scenario_name_key)
+                    doc = {
+                        'stub': stub_obj,
+                        'scenario': scenario_name_key
+                    }
+                    # inserting prepared document into the database
+                    yield self.db.scenario_stub.insert(scenario_collection.get_stub_document(doc))
+            except Exception as ex:
+                msg = "Failed to process request/response %s. Got error: %s" % (stub['file'], ex)
+                log.warn(msg)
+                status.append(msg)
+
+        # if there are any stubs - creating a session
+        if stub_list:
+            cache.create_session_cache(scenario, session)
+
+        result = {
+            "scenario": scenario,
+            "session": session,
+            "total": len(stub_list),
+        }
+        if status:
+            result["status"] = status
+        self.set_status(200)
+        self.write(result)
 
 class TrackerRecordsHandler(BaseHandler):
     """

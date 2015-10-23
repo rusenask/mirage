@@ -3,7 +3,8 @@ import React from 'react';
 import cookie from 'react-cookie';
 import Griddle from 'griddle-react';
 import { Button, Tooltip, OverlayTrigger, Grid, Row, Col, Modal, Input, ButtonInput, Alert } from 'react-bootstrap';
-
+import Dropzone from 'react-dropzone';
+import request from 'superagent';
 
 function ExecuteRequest(href, body) {
     var infoModal = $('#myModal');
@@ -165,9 +166,20 @@ var RemoveButton = React.createClass({
         // getting scenario ref
         return {
             ref: this.props.data.ref,
-            name: this.props.data.name
+            name: this.props.data.name,
+            session: this.props.data.status,
+            showModal: false
         };
     },
+
+    close() {
+        this.setState({showModal: false});
+    },
+
+    open() {
+        this.setState({showModal: true});
+    },
+
     handleClick (event) {
 
         var infoModal = $('#myModal');
@@ -195,13 +207,23 @@ var RemoveButton = React.createClass({
         const RemoveTooltip = (
             <Tooltip>Remove scenario.</Tooltip>
         );
-        return (
-            <OverlayTrigger placement='left' overlay={RemoveTooltip}>
-                <Button onClick={this.handleClick} bsStyle='danger' bsSize='small'>
+        if (this.state.session != "dormant") {
+            return (
+                <Button bsStyle='danger' bsSize='small' disabled>
                     <span className="glyphicon glyphicon-remove-sign"></span>
                 </Button>
-            </OverlayTrigger>
-        );
+            )
+        } else{
+            return (
+                <OverlayTrigger placement='left' overlay={RemoveTooltip}>
+                    <Button onClick={this.handleClick} bsStyle='danger' bsSize='small'>
+                        <span className="glyphicon glyphicon-remove-sign"></span>
+                    </Button>
+                </OverlayTrigger>
+            );
+        }
+
+
     }
 });
 
@@ -236,9 +258,9 @@ var BeginSessionButton = React.createClass({
     render () {
 
         // getting mode, scenarios that have at least 1 stub - can't enter record mode again, only playback is available
-        if(this.state.data.stub_count > 0){
+        if (this.state.data.stub_count > 0) {
             this.state.mode = "playback"
-        } else{
+        } else {
             this.state.mode = "record"
         }
 
@@ -461,6 +483,8 @@ var ExternalScenarios = React.createClass({
                 <Row>
                     <div className="pull-right">
                         <CreateScenarioBtn parent={this}/>
+                        &nbsp;
+                        <ImportScenarioForm parent={this}/>
                     </div>
                 </Row>
 
@@ -688,6 +712,108 @@ let CreateScenarioBtn = React.createClass({
     }
 });
 
+let ImportScenarioForm = React.createClass({
+    getInitialState() {
+        return {
+            disabled: true,
+            showModal: false,
+            parent: this.props.parent
+        }
+    },
+
+    close() {
+        this.setState({showModal: false});
+    },
+
+    open() {
+        this.setState({showModal: true});
+    },
+
+    handleAlertDismiss() {
+        this.setState({alertVisible: false});
+    },
+
+    render() {
+
+        return (
+            <span>
+                <Button pullRigh={true}
+                        onClick={this.open}
+                        bsStyle="success">
+                    <span className="glyphicon glyphicon-upload" aria-hidden="true"></span> Import Scenario
+                </Button>
+
+                <Modal show={this.state.showModal} onHide={this.close}
+                       bsSize="small">
+                    <Modal.Header closeButton>
+                        <Modal.Title>Import Scenario</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+
+                        <DropzoneComponent grid={this.state.parent} parent={this}/>
+
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button onClick={this.close}>Close</Button>
+                    </Modal.Footer>
+                </Modal>
+            </span>
+        );
+    }
+});
+
+let DropzoneComponent = React.createClass({
+
+    getInitialState: function () {
+        return {
+            files: [],
+            grid: this.props.grid,
+            parent: this.props.parent
+        };
+    },
+
+    callback() {
+        console.log("callback here");
+        updateTable(this.state.grid);
+        // dismiss modal
+        console.log("grid updated, dismissing modal");
+        this.state.parent.close();
+    },
+
+    onDrop: function (files) {
+        this.setState({
+            files: files
+        });
+
+
+        var req = request.post('/api/v2/scenarios/upload');
+        files.forEach((file)=> {
+
+            req.attach(file.name, file, file.name);
+        });
+        req.end(this.callback);
+    },
+
+    onOpenClick: function () {
+        this.refs.dropzone.open();
+    },
+
+
+    render: function () {
+        return (
+            <div>
+                <Dropzone ref="dropzone" onDrop={this.onDrop}>
+                    <div> Drop files here, or click to select files to upload.</div>
+                </Dropzone>
+                {this.state.files.length > 0 ? <div>
+                    <h2>Uploading {this.state.files.length} files...</h2>
+
+                    <div>{this.state.files.map((file) => <img src={file.preview}/>)}</div>
+                </div> : null}
+            </div>
+        );
+    }
+});
 
 React.render(
     <ExternalScenarios />,
