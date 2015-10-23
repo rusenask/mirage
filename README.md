@@ -5,13 +5,13 @@ Mirage
 [![Documentation Status](https://readthedocs.org/projects/mirage/badge/?version=latest)](http://mirage.readthedocs.org/en/latest/?badge=latest)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/SpectoLabs/mirage?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge)
 
-Mirage enables automated testing by allowing you to virtualize your test dependencies.
+Mirage enables development and automated testing by allowing you to virtualize your application dependencies.
 
 ## Quickstart
 
-For the impatient, [instructions are here.](https://github.com/SpectoLabs/mirage/wiki/quickstart)
+For the impatient, [instructions are here.](https://github.com/SpectoLabs/mirage/wiki/Installation)
 
-Checkout our demo project (Twitter client application + Adaptor Proxy + Mirage) in action: [Mirage Demo](https://github.com/SpectoLabs/mirage_demo)
+[Try the demo project](https://github.com/SpectoLabs/mirage_demo) to see how Mirage works with applications and third-party APIs.
 
 ## Documentation
 
@@ -21,7 +21,7 @@ Checkout our demo project (Twitter client application + Adaptor Proxy + Mirage) 
 
 ## Authors
 
-Mirage is actively maintained by [SpectoLabs](https://twitter.com/spectolabs).
+Mirage is actively maintained by [SpectoLabs](http://specto.io).
 
 For support, [contact us.](mailto:contact@specto.io)
 
