@@ -8,6 +8,9 @@ import json
 from stubo.testing import Base
 import logging
 import datetime
+import os
+import requests
+from stubo import stubo_path
 
 log = logging.getLogger(__name__)
 
@@ -866,6 +869,40 @@ class TestStubOperations(Base):
         self.assertEquals(response.code, 200)
         self.assertEqual('{"total": 200, "session": "scenario_100_1445435070", "scenario": "scenario_100"}',
                          response.body)
+
+    def test_upload_wrong_format(self):
+        """
+
+        Testing /api/v2/scenarios/upload handler, supplying wrong format
+        """
+        # getting file
+        stubo_dir = stubo_path()
+
+        test_file = os.path.join(stubo_dir, 'static/cmds/tests/upload/scenario_100.zip')
+        f = open(test_file)
+
+        # using not supported file encoding
+        files = [('files', ('scenario_100', f, 'application/something_else'))]
+
+        data = {}
+        a = requests.Request(url="http://not_important/",
+                             files=files, data=data)
+        prepare = a.prepare()
+        f.close()
+
+        content_type = prepare.headers.get('Content-Type')
+        body = prepare.body
+
+        url = "/api/v2/scenarios/upload"
+        headers = {
+            "Content-Type": content_type,
+        }
+
+        response = self.fetch(url, method='POST', body=body, headers=headers)
+
+        # response code should be 400 (bad request)
+        self.assertEquals(response.code, 400)
+
     def test_delete_scenario_stubs(self):
         """
         Test for delete scenario stubs API call
