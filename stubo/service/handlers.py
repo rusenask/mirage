@@ -1613,7 +1613,6 @@ class ScenarioUploadHandler(BaseHandler):
             # content contains a list with a single element (file)
             content = content[0]
             import_dir = os.path.join(self.application.settings['static_path'], 'imports')
-
             # currently only zip supported
             if content['content_type'] == 'application/zip':
                 with make_temp_dir(dirname=import_dir) as temp_dir:
@@ -1621,7 +1620,7 @@ class ScenarioUploadHandler(BaseHandler):
                         zipf.extractall(path=temp_dir)
                         yield self._process_config(temp_dir, zipf.namelist())
             else:
-                self.send_error(400, reason="Content type not supported")
+                self.send_error(415, reason="Content type not supported. Accepted format: .zip")
 
     @gen.coroutine
     def _process_config(self, tmp_dir, files):
@@ -1688,17 +1687,25 @@ class ScenarioUploadHandler(BaseHandler):
         # prepare stub payload
         scenario_collection = Scenario()
 
+        # status list
+        status = []
+
         for stub in stub_list:
             full_file_name = tmp_dir + "/" + stub['file']
-            with open(full_file_name) as data_file:
-                data = json.load(data_file)
-                stub_obj = Stub(data, scenario_name_key)
-                doc = {
-                    'stub': stub_obj,
-                    'scenario': scenario_name_key
-                }
-                # inserting prepared document into the database
-                yield self.db.scenario_stub.insert(scenario_collection.get_stub_document(doc))
+            try:
+                with open(full_file_name) as data_file:
+                    data = json.load(data_file)
+                    stub_obj = Stub(data, scenario_name_key)
+                    doc = {
+                        'stub': stub_obj,
+                        'scenario': scenario_name_key
+                    }
+                    # inserting prepared document into the database
+                    yield self.db.scenario_stub.insert(scenario_collection.get_stub_document(doc))
+            except Exception as ex:
+                msg = "Failed to process request/response %s. Got error: %s" % (stub['file'], ex)
+                log.warn(msg)
+                status.append(msg)
 
         # if there are any stubs - creating a session
         if stub_list:
@@ -1709,6 +1716,8 @@ class ScenarioUploadHandler(BaseHandler):
             "session": session,
             "total": len(stub_list),
         }
+        if status:
+            result["status"] = status
         self.set_status(200)
         self.write(result)
 
