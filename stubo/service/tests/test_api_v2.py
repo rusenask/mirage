@@ -835,6 +835,37 @@ class TestStubOperations(Base):
         # wiping stubs
         self._delete_stubs(scenario_name)
 
+    def test_upload_scenario(self):
+        """
+
+        Test scenario upload (yaml configuration, zip content type) to /api/v2/scenarios/upload API handler
+        """
+        # getting file
+        stubo_dir = stubo_path()
+
+        test_file = os.path.join(stubo_dir, 'static/cmds/tests/upload/scenario_100.zip')
+        f = open(test_file)
+        files = [('files', ('scenario_100', f, 'application/zip'))]
+
+        data = {}
+        a = requests.Request(url="http://not_important/",
+                             files=files, data=data)
+        prepare = a.prepare()
+        f.close()
+
+        content_type = prepare.headers.get('Content-Type')
+        body = prepare.body
+
+        url = "/api/v2/scenarios/upload"
+        headers = {
+            "Content-Type": content_type,
+        }
+
+        response = self.fetch(url, method='POST', body=body, headers=headers)
+
+        self.assertEquals(response.code, 200)
+        self.assertEqual('{"total": 200, "session": "scenario_100_1445435070", "scenario": "scenario_100"}',
+                         response.body)
     def test_delete_scenario_stubs(self):
         """
         Test for delete scenario stubs API call
