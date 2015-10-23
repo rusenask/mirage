@@ -201,9 +201,20 @@ webpackJsonp([5],[
 	        // getting scenario ref
 	        return {
 	            ref: this.props.data.ref,
-	            name: this.props.data.name
+	            name: this.props.data.name,
+	            session: this.props.data.status,
+	            showModal: false
 	        };
 	    },
+
+	    close: function close() {
+	        this.setState({ showModal: false });
+	    },
+
+	    open: function open() {
+	        this.setState({ showModal: true });
+	    },
+
 	    handleClick: function handleClick(event) {
 
 	        var infoModal = $('#myModal');
@@ -232,15 +243,23 @@ webpackJsonp([5],[
 	            null,
 	            'Remove scenario.'
 	        );
-	        return _react2['default'].createElement(
-	            _reactBootstrap.OverlayTrigger,
-	            { placement: 'left', overlay: RemoveTooltip },
-	            _react2['default'].createElement(
+	        if (this.state.session != "dormant") {
+	            return _react2['default'].createElement(
 	                _reactBootstrap.Button,
-	                { onClick: this.handleClick, bsStyle: 'danger', bsSize: 'small' },
+	                { bsStyle: 'danger', bsSize: 'small', disabled: true },
 	                _react2['default'].createElement('span', { className: 'glyphicon glyphicon-remove-sign' })
-	            )
-	        );
+	            );
+	        } else {
+	            return _react2['default'].createElement(
+	                _reactBootstrap.OverlayTrigger,
+	                { placement: 'left', overlay: RemoveTooltip },
+	                _react2['default'].createElement(
+	                    _reactBootstrap.Button,
+	                    { onClick: this.handleClick, bsStyle: 'danger', bsSize: 'small' },
+	                    _react2['default'].createElement('span', { className: 'glyphicon glyphicon-remove-sign' })
+	                )
+	            );
+	        }
 	    }
 	});
 

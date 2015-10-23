@@ -166,9 +166,20 @@ var RemoveButton = React.createClass({
         // getting scenario ref
         return {
             ref: this.props.data.ref,
-            name: this.props.data.name
+            name: this.props.data.name,
+            session: this.props.data.status,
+            showModal: false
         };
     },
+
+    close() {
+        this.setState({showModal: false});
+    },
+
+    open() {
+        this.setState({showModal: true});
+    },
+
     handleClick (event) {
 
         var infoModal = $('#myModal');
@@ -196,13 +207,23 @@ var RemoveButton = React.createClass({
         const RemoveTooltip = (
             <Tooltip>Remove scenario.</Tooltip>
         );
-        return (
-            <OverlayTrigger placement='left' overlay={RemoveTooltip}>
-                <Button onClick={this.handleClick} bsStyle='danger' bsSize='small'>
+        if (this.state.session != "dormant") {
+            return (
+                <Button bsStyle='danger' bsSize='small' disabled>
                     <span className="glyphicon glyphicon-remove-sign"></span>
                 </Button>
-            </OverlayTrigger>
-        );
+            )
+        } else{
+            return (
+                <OverlayTrigger placement='left' overlay={RemoveTooltip}>
+                    <Button onClick={this.handleClick} bsStyle='danger' bsSize='small'>
+                        <span className="glyphicon glyphicon-remove-sign"></span>
+                    </Button>
+                </OverlayTrigger>
+            );
+        }
+
+
     }
 });
 
