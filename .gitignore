@@ -39,6 +39,7 @@ htmlcov/
 nosetests.xml
 coverage.xml
 
+/stubo/static/imports
 # Translations
 *.mo
 *.pot
