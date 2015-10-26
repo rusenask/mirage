@@ -11,20 +11,12 @@ Mirage Documentation |version|
    :maxdepth: 2
 
    pages/intro.rst
-   pages/basics.rst
-   pages/commands.rst
-   pages/text_commands.rst
-   pages/gui.rst
-   pages/test_tools.rst
-   pages/advanced.rst
-   pages/stub_sharing.rst
-   pages/communicating.rst
    pages/rest_api.md
-   pages/api.rst
-   pages/examples.rst
-   pages/clients.rst
-   pages/reference.rst
-   pages/about.rst
+   pages/legacy_api.rst
+   pages/import_scenarios.rst
+   pages/text_commands.rst
+   pages/advanced.rst
+
    
 Change History
 ==============

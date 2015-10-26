@@ -4,14 +4,19 @@ Mirage Command File (text format)
 *********************************
 
 The line orientated text version of the command file is an old format. It does
-not support the matching required for REST. For example, you can't match on the 
+not support the matching required for REST. For example, you can't match on the
 request headers or method. It only supports one type of matcher which is the
 'body contains' matcher. If the text specified for the 'body contains' matcher stub is
 found in the request a match is found. This is often however the only type of
 matcher required to successfully  stub a system. This format is still supported
-for import via exec/cmds but will *not* be exported anymore. If a text commands
+for import via exec/cmds. If a text commands
 file is imported via a '.commands' text file on export via get/export a '.yaml'
-file will be exported. 
+file will be exported.
+
+This format is also not suitable for calling Mirage REST API since it can only translate calls into GET requests.
+
+What is more, using this format to import scenarios will block Mirage HTTP server so it may affect other users who are
+running tests (server will not be accessible).
 
 Text Command file
 =================
