@@ -1,13 +1,14 @@
 .. commands
 
-Mirage Command File
-******************
+Mirage Scenario Importing
+*************************
 
-Command files are used to load stub files and add behaviour to them (state, dates, etc.).
+Configuration files are used to load stub files and add behaviour to them (state, dates, etc.).
 
 Stubs can also be loaded and tested using individual calls to the Mirage server
-using the Mirage HTTP API. Command files are a shorthand for the API, making it simpler 
-to enable repeatable, automated interactions with Mirage by grouping a set of commands together required for a particular test.
+using the Mirage HTTP API. Configuration files are a shorthand for the API, making it simpler
+to enable repeatable, automated interactions with Mirage by directly uploading scenario and setting it to playback mode
+for a particular test.
 
 
 Command file (YAML)

@@ -1,8 +1,8 @@
 .. api
 
-*************
-Mirage API v1
-*************
+**********************
+Mirage API v1 (Legacy)
+**********************
 
 The Mirage API v1 returns JSON. The response always returns the version, and payload. The payload
 is either contained under 'data' if the response is successful or 'error' for
