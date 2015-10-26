@@ -21,7 +21,6 @@ Mirage Documentation |version|
    pages/communicating.rst
    pages/rest_api.md
    pages/api.rst
-   pages/examples.rst
    pages/clients.rst
    pages/reference.rst
    pages/about.rst
