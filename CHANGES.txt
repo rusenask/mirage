@@ -5,9 +5,36 @@ Added:
 
 Changed:
 
+Fixed:
+
 Deprecated:
 
 Removed:
+
+0.7.2 (2015-10-26)
+
+Added:
+- Direct upload API (addresses https://github.com/SpectoLabs/mirage/issues/10). Now users can upload exported .zip files
+  directly into Mirage. There were also few modifications how Mirage parses .yaml configuration files such as
+  now it only reads scenario and session names. All archived .json files will be treated as stubs and will be
+  imported under the same scenario. This will make it easier to generate initial test data since you don't have
+  to updated .yaml configuration file with each created stub file. Multiple PRs.
+
+Changed:
+- Changed how Mirage exports scenarios to ".yaml" files. Now it doesn't add some non compatible tags like {{values}} to yaml file since
+  readers couldn't parse that information. Those lines were added to export files so it would be possible to change values
+  during import but it is a lot easier to do that with standard "yaml" libraries.
+- Delete scenario button is now disabled by default if scenario has active sessions in "playback" or "record" mode.
+- Updates to documentation https://github.com/SpectoLabs/mirage/pull/62,  https://github.com/SpectoLabs/mirage/pull/61.
+
+Fixed:
+- Fixed bug when you could have deleted scenario which had active sessions. PR: https://github.com/SpectoLabs/mirage/pull/49
+
+Removed:
+- Documentation cleanup in https://github.com/SpectoLabs/mirage/pull/62,  https://github.com/SpectoLabs/mirage/pull/61. A lot
+  of content added to project wiki https://github.com/SpectoLabs/mirage/wiki. Since it is a lot easier to maintain wiki than
+  sphinx docs - only essential, tightly coupled information like API reference and few other things were left in traditional
+  docs.
 
 0.7.1 (2015-10-20):
 
