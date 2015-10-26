@@ -415,6 +415,7 @@ class TestSessionOperations(Base):
         # checking whether 10 sessions were affected
         self.assertEqual(len(json.loads(response.body)['data']), 10)
 
+
 class TestDelayOperations(Base):
     """
     Test case for testing delay operations (add, update, delete)
@@ -902,7 +903,6 @@ class TestStubOperations(Base):
 
         # response code should be 400 (bad request)
         self.assertEquals(response.code, 415)
-
 
     def test_upload_missing_config(self):
         """
