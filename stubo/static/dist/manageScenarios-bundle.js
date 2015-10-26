@@ -243,7 +243,7 @@ webpackJsonp([5],[
 	            null,
 	            'Remove scenario.'
 	        );
-	        if (this.state.session != "dormant") {
+	        if (this.state.session == "playback" || this.state.session == "record") {
 	            return _react2['default'].createElement(
 	                _reactBootstrap.Button,
 	                { bsStyle: 'danger', bsSize: 'small', disabled: true },
