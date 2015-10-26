@@ -24,6 +24,48 @@ Creates scenario object. Client must specify scenario name in the request body.
 }
 ```
 
+## Upload scenario with session & stubs
+
+You can upload existing scenarios directly into Mirage via this API call. Currently it only accepts .zip format and only
+.yaml configuration file.
+
+* __URL__: /api/v2/scenarios/upload
+* __Method__: POST
+* __Response codes__:
+   + __200__ - Scenario uploaded successfully.
+   + __415__ - Content type not supported (format not accepted).
+   + __400__ - Configuration file found, however failed to read it.
+   + __422__ - Scenario already exists.
+
+Example scenario_x.zip content structure:
+
+```
+scenario_x.yaml
+stub_0.json
+stub_1.json
+stub_2.json
+stub_3.json
+stub_4.json
+```
+
+As you can see - everything is expected to be in the same directory, no inner directory structure is expected.
+
+Defining .yaml configuration:
+
+```
+recording:
+  scenario: scenario_x
+  session: session_x
+  stubs:
+  - file: stub_0.json
+  - file: stub_1.json
+  - file: stub_2.json
+  - file: stub_3.json
+  - file: stub_4.json
+```
+
+Mirage checks for .yaml file in the .zip file
+
 ## Get scenario list
 
 Returns a list of scenarios with their name and scenarioRef attributes. This attribute
@@ -265,7 +307,7 @@ session: your_session_name
 * __Example request body__:
 ```javascript
 matcher here
-``` 
+```
 
 ## Getting request response data (JSON)
 
@@ -285,7 +327,7 @@ session: scenario_name:session_name
 * __Example request body__:
 ```javascript
 matcher here
-``` 
+```
 
 * __Example response body__:
 ```javascript
@@ -298,7 +340,7 @@ matcher here
     "statusCode": 200
 }
 
-``` 
+```
 
 
 ## Get all stubs for specific scenario
