@@ -1685,6 +1685,7 @@ class ScenarioUploadHandler(BaseHandler):
         except Exception as ex:
             self.send_error(status_code=400,
                             reason=ex)
+            return
         scenario_name_key = cache.scenario_key_name(scenario)
 
         # prepare stub payload
