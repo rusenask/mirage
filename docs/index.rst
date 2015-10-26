@@ -16,7 +16,6 @@ Mirage Documentation |version|
    pages/import_scenarios.rst
    pages/text_commands.rst
    pages/advanced.rst
-   pages/communicating.rst
 
    
 Change History
