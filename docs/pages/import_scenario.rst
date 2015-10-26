@@ -4,7 +4,7 @@ Mirage Scenario Importing
 *************************
 
 Configuration files are used to load stub files and add behaviour to them (state, dates, etc.). These configuration files
-must obey .yaml syntax so libraries that were designed to load .yaml will always be able to modify them on the fly. 
+must obey .yaml syntax so libraries that were designed to load .yaml will always be able to modify them on the fly.
 
 Stubs can also be loaded and tested using individual calls to the Mirage server
 using the Mirage HTTP API. Configuration files are a shorthand for the API, making it simpler
