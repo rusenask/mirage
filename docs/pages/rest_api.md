@@ -24,6 +24,111 @@ Creates scenario object. Client must specify scenario name in the request body.
 }
 ```
 
+## Upload scenario with session & stubs
+
+You can upload existing scenarios directly into Mirage via this API call. Currently it only accepts .zip format and only
+.yaml configuration file.
+
+* __URL__: /api/v2/scenarios/upload
+* __Method__: POST
+* __Encoding__: "multipart/form-data"
+* __Response codes__:
+   + __200__ - Scenario uploaded successfully.
+   + __415__ - Content type not supported (format not accepted).
+   + __400__ - Configuration file found, however failed to read it.
+   + __422__ - Scenario already exists.
+
+Example scenario_x.zip content structure:
+
+```
+scenario_x.yaml
+stub_0.json
+stub_1.json
+stub_2.json
+stub_3.json
+stub_4.json
+```
+
+As you can see - everything is expected to be in the same directory, no inner directory structure is expected.
+
+Defining .yaml configuration:
+
+```
+recording:
+  scenario: scenario_x
+  session: session_x
+```
+
+Note that by default Mirage exported yaml file looks like this:
+
+```
+recording:
+  scenario: scenario_x
+  session: session_x
+  stubs:
+  - file: stub_0.json
+  - file: stub_1.json
+  - file: stub_2.json
+  - file: stub_3.json
+  - file: stub_4.json
+```
+
+Although, during upload it ignores "stubs" key and treats every .json file in the archived zip as a separate stub.
+
+When Mirage finds yaml configuration - it gets scenario name and creates it.
+After that - reads every file from the archive that ends with ".json".
+After all the stubs were added to the database -
+starts a session in playback mode. Scenario is then ready for testing.
+
+Example stub .json structure:
+```
+{
+   "priority": 9903,
+   "args": {
+      "priority": "9903"
+   },
+   "request": {
+      "bodyPatterns": {
+         "contains": [
+            "<tag> matcher here </tag>"
+         ]
+      },  
+      "method": "POST"
+   },
+   "response": {
+      "body": "<response> Response here </response>\n",
+      "headers":
+      "status": 200
+   }
+}
+```
+
+### Example upload (Python)
+
+Below is an example pseudocode for uploading files to Mirage:
+
+```
+def upload(file_name, mirage_uri):
+    """
+    file_name - path to zip archive.
+    mirage_uri - full Mirage URL (http://miragehostname:8001)
+    """
+    # reading file
+    with open(file_name, 'r') as stream:
+        # preparing data
+        files = [('files', (file_name, stream, 'application/zip'))]
+        data = {}
+
+        resp = requests.post(mirage_uri + "/api/v2/scenarios/upload",
+                             files=files, data=data)
+        if resp.status_code == 200:
+            print("Upload success!")
+    return
+```
+
+You can upload multiple archives at once. Every archive should be self contained - 
+yaml configuration and stubs archived together.
+
 ## Get scenario list
 
 Returns a list of scenarios with their name and scenarioRef attributes. This attribute
@@ -265,7 +370,7 @@ session: your_session_name
 * __Example request body__:
 ```javascript
 matcher here
-``` 
+```
 
 ## Getting request response data (JSON)
 
@@ -285,7 +390,7 @@ session: scenario_name:session_name
 * __Example request body__:
 ```javascript
 matcher here
-``` 
+```
 
 * __Example response body__:
 ```javascript
@@ -298,7 +403,7 @@ matcher here
     "statusCode": 200
 }
 
-``` 
+```
 
 
 ## Get all stubs for specific scenario

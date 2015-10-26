@@ -207,7 +207,7 @@ var RemoveButton = React.createClass({
         const RemoveTooltip = (
             <Tooltip>Remove scenario.</Tooltip>
         );
-        if (this.state.session != "dormant") {
+        if (this.state.session == "playback" || this.state.session == "record") {
             return (
                 <Button bsStyle='danger' bsSize='small' disabled>
                     <span className="glyphicon glyphicon-remove-sign"></span>

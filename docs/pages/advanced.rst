@@ -1,8 +1,8 @@
 .. advanced
 
-********
-Stubbing
-********
+*******************************************************************
+Delay policies, Templated responses, XML mangling, External modules
+*******************************************************************
 
 Add Delay to a Response
 =======================
@@ -11,7 +11,7 @@ To emulate response times of systems being stubbed, one can set a delay on stubs
 
 Mirage provides reusable delay_policy objects which can be used across many stubs and across sessions. The delay_policy can be altered on the fly, during a load/performance test if desired. There are currently two delay_policy types to choose from. (1) fixed, and (2)random with mean and standard deviation.
 
-A fixed delay policy can be created or modified with a commnand such as: ::
+A fixed delay policy can be created or modified with an API call such as: ::
 
     put/delay_policy?name=a_fixed_delay_policy&delay_type=fixed&milliseconds=200
 
@@ -76,7 +76,7 @@ Alternatives to removing parts of the request you don't want to match on are
 Templated Matcher
 =================
 
-This is an example of a template matcher than extracts values from the request into the matcher. 
+This is an example of a template matcher that extracts values from the request into the matcher.
 The xmltree object is an lxml parsed root element passed into the template. ::
 
     <request>
@@ -341,3 +341,4 @@ As with other user extensions the example above can be loaded in a command with:
     put/module?name=/static/cmds/tests/ext/cache/example.py
     ....
     put/stub?session=cache_1&ext_module=example&tracking_level=full,1.request,1.response
+

@@ -1637,6 +1637,11 @@ class ScenarioUploadHandler(BaseHandler):
         found = False
 
         for f in reversed(files):
+            # collecting stub files
+            if f.endswith(".json"):
+                stub_list.append(f)
+
+            # looking for configuration file
             if f.endswith(".yaml"):
                 # reading yaml file
                 with open(tmp_dir + "/" + f, 'r') as stream:
@@ -1645,8 +1650,6 @@ class ScenarioUploadHandler(BaseHandler):
                         config = yaml.load(stream)
                         session = config['recording'].get('session', session)
                         scenario = config['recording'].get('scenario', scenario)
-                        stub_list = config['recording'].get('stubs', stub_list)
-
                     except Exception as ex:
                         self.send_error(400, reason="Configuration file found, however, "
                                                     "failed to read it. Got error: %s" % ex)
@@ -1682,6 +1685,7 @@ class ScenarioUploadHandler(BaseHandler):
         except Exception as ex:
             self.send_error(status_code=400,
                             reason=ex)
+            return
         scenario_name_key = cache.scenario_key_name(scenario)
 
         # prepare stub payload
@@ -1691,7 +1695,7 @@ class ScenarioUploadHandler(BaseHandler):
         status = []
 
         for stub in stub_list:
-            full_file_name = tmp_dir + "/" + stub['file']
+            full_file_name = tmp_dir + "/" + stub
             try:
                 with open(full_file_name) as data_file:
                     data = json.load(data_file)
@@ -1709,7 +1713,12 @@ class ScenarioUploadHandler(BaseHandler):
 
         # if there are any stubs - creating a session
         if stub_list:
-            cache.create_session_cache(scenario, session)
+            try:
+                cache.create_session_cache(scenario, session)
+            except Exception as ex:
+                msg = "Failed to begin session for scenario %s, session %s. Got error: %s" % (scenario, session, ex)
+                log.warn(msg)
+                status.append(msg)
 
         result = {
             "scenario": scenario,
