@@ -1,4 +1,4 @@
-# Mirage REST API v2
+# REST API v2
 
 Mirage REST API v2 returns JSON. The response always returns the version, and payload. Responses are similar to
 v1 API responses. The payload is either contained under 'data' if the response is successful or 'error' for
