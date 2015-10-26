@@ -56,6 +56,14 @@ Defining .yaml configuration:
 recording:
   scenario: scenario_x
   session: session_x
+```
+
+Note that by default Mirage exported yaml file looks like this:
+
+```
+recording:
+  scenario: scenario_x
+  session: session_x
   stubs:
   - file: stub_0.json
   - file: stub_1.json
@@ -64,7 +72,35 @@ recording:
   - file: stub_4.json
 ```
 
-Mirage checks for .yaml file in the .zip file
+Although, during upload it ignores "stubs" key and treats every .json file in the archived zip as a separate stub.
+
+When Mirage finds yaml configuration - it gets scenario name and creates it.
+After that - reads every file from the archive that ends with ".json".
+After all the stubs were added to the database -
+starts a session in playback mode. Scenario is then ready for testing.
+
+Example stub .json structure:
+```
+{
+   "priority": 9903,
+   "args": {
+      "priority": "9903"
+   },
+   "request": {
+      "bodyPatterns": {
+         "contains": [
+            "<tag> matcher here </tag>"
+         ]
+      },  
+      "method": "POST"
+   },
+   "response": {
+      "body": "<response> Response here </response>\n",
+      "headers":
+      "status": 200
+   }
+}
+```
 
 ## Get scenario list
 
