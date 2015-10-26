@@ -1709,7 +1709,12 @@ class ScenarioUploadHandler(BaseHandler):
 
         # if there are any stubs - creating a session
         if stub_list:
-            cache.create_session_cache(scenario, session)
+            try:
+                cache.create_session_cache(scenario, session)
+            except Exception as ex:
+                msg = "Failed to begin session for scenario %s, session %s. Got error: %s" % (scenario, session, ex)
+                log.warn(msg)
+                status.append(msg)
 
         result = {
             "scenario": scenario,
