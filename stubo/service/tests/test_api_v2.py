@@ -415,6 +415,7 @@ class TestSessionOperations(Base):
         # checking whether 10 sessions were affected
         self.assertEqual(len(json.loads(response.body)['data']), 10)
 
+
 class TestDelayOperations(Base):
     """
     Test case for testing delay operations (add, update, delete)
@@ -902,40 +903,6 @@ class TestStubOperations(Base):
 
         # response code should be 400 (bad request)
         self.assertEquals(response.code, 415)
-
-    def test_upload_missing_stub(self):
-        """
-
-        Testing /api/v2/scenarios/upload handler, supplying config with one missing file
-        """
-        # getting file
-        stubo_dir = stubo_path()
-
-        test_file = os.path.join(stubo_dir, 'static/cmds/tests/upload/scenario_missing_stub.zip')
-        f = open(test_file)
-
-        files = [('files', ('scenario_100', f, 'application/zip'))]
-
-        data = {}
-        a = requests.Request(url="http://not_important/",
-                             files=files, data=data)
-        prepare = a.prepare()
-        f.close()
-
-        content_type = prepare.headers.get('Content-Type')
-        body = prepare.body
-
-        url = "/api/v2/scenarios/upload"
-        headers = {
-            "Content-Type": content_type,
-        }
-
-        response = self.fetch(url, method='POST', body=body, headers=headers)
-
-        # response code should be 200 (config read successfully however status about failure should appear)
-        self.assertEquals(response.code, 200)
-        self.assertTrue("Failed to process request/response scenario_100_1445435070_0_missing.json."
-                        " Got error: [Errno 2] No such file or directory" in response.body)
 
     def test_upload_missing_config(self):
         """
