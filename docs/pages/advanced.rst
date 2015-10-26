@@ -1,8 +1,8 @@
 .. advanced
 
-********
-Stubbing
-********
+*******************************************************************
+Delay policies, Templated responses, XML mangling, External modules
+*******************************************************************
 
 Add Delay to a Response
 =======================
