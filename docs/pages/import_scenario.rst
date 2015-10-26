@@ -1,7 +1,7 @@
-.. commands
+.. import_scenario
 
-Mirage Scenario Importing
-*************************
+Scenario Importing
+******************
 
 Configuration files are used to load stub files and add behaviour to them (state, dates, etc.). These configuration files
 must obey .yaml syntax so libraries that were designed to load .yaml will always be able to modify them on the fly.
