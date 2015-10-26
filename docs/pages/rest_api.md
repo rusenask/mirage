@@ -31,6 +31,7 @@ You can upload existing scenarios directly into Mirage via this API call. Curren
 
 * __URL__: /api/v2/scenarios/upload
 * __Method__: POST
+* __Encoding__: "multipart/form-data"
 * __Response codes__:
    + __200__ - Scenario uploaded successfully.
    + __415__ - Content type not supported (format not accepted).
@@ -101,6 +102,32 @@ Example stub .json structure:
    }
 }
 ```
+
+### Example upload (Python)
+
+Below is an example pseudocode for uploading files to Mirage:
+
+```
+def upload(file_name, mirage_uri):
+    """
+    file_name - path to zip archive.
+    mirage_uri - full Mirage URL (http://miragehostname:8001)
+    """
+    # reading file
+    with open(file_name, 'r') as stream:
+        # preparing data
+        files = [('files', (file_name, stream, 'application/zip'))]
+        data = {}
+
+        resp = requests.post(mirage_uri + "/api/v2/scenarios/upload",
+                             files=files, data=data)
+        if resp.status_code == 200:
+            print("Upload success!")
+    return
+```
+
+You can upload multiple archives at once. Every archive should be self contained - 
+yaml configuration and stubs archived together.
 
 ## Get scenario list
 
