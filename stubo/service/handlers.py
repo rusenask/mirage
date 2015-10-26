@@ -1637,6 +1637,11 @@ class ScenarioUploadHandler(BaseHandler):
         found = False
 
         for f in reversed(files):
+            # collecting stub files
+            if f.endswith(".json"):
+                stub_list.append(f)
+
+            # looking for configuration file
             if f.endswith(".yaml"):
                 # reading yaml file
                 with open(tmp_dir + "/" + f, 'r') as stream:
@@ -1645,8 +1650,6 @@ class ScenarioUploadHandler(BaseHandler):
                         config = yaml.load(stream)
                         session = config['recording'].get('session', session)
                         scenario = config['recording'].get('scenario', scenario)
-                        stub_list = config['recording'].get('stubs', stub_list)
-
                     except Exception as ex:
                         self.send_error(400, reason="Configuration file found, however, "
                                                     "failed to read it. Got error: %s" % ex)
@@ -1691,7 +1694,7 @@ class ScenarioUploadHandler(BaseHandler):
         status = []
 
         for stub in stub_list:
-            full_file_name = tmp_dir + "/" + stub['file']
+            full_file_name = tmp_dir + "/" + stub
             try:
                 with open(full_file_name) as data_file:
                     data = json.load(data_file)
