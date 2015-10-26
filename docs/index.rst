@@ -8,7 +8,7 @@ Mirage Documentation |version|
 ==============================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    pages/intro.rst
    pages/rest_api.md
