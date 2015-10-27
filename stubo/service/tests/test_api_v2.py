@@ -83,7 +83,7 @@ class TestScenarioOperations(Base):
                          'application/json; charset=UTF-8')
         payload = json.loads(response.body)
         # check if scenario ref link and name are available in payload
-        self.assertEqual(payload['scenarioRef'], '/stubo/api/v2/scenarios/objects/localhost:scenario_0001')
+        self.assertEqual(payload['scenarioRef'], '/api/v2/scenarios/objects/localhost:scenario_0001')
         self.assertEqual(payload['name'], 'localhost:scenario_0001')
 
     def _test_insert_scenario(self, name="scenario_0001"):
@@ -91,7 +91,7 @@ class TestScenarioOperations(Base):
         Inserts test scenario
         :return: response from future
         """
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios'), self.stop,
+        self.http_client.fetch(self.get_url('/api/v2/scenarios'), self.stop,
                                method="PUT", body='{"scenario": "%s"}' % name)
 
         response = self.wait()
@@ -102,7 +102,7 @@ class TestScenarioOperations(Base):
 
         Test scenario insertion with empty body
         """
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios'), self.stop,
+        self.http_client.fetch(self.get_url('/api/v2/scenarios'), self.stop,
                                method="PUT", body="")
         response = self.wait()
         self.assertEqual(response.code, 415, response.reason)
@@ -113,7 +113,7 @@ class TestScenarioOperations(Base):
 
         Pass a JSON body to put scenario function although do not supply "scenario" key with name
         """
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios'), self.stop,
+        self.http_client.fetch(self.get_url('/api/v2/scenarios'), self.stop,
                                method="PUT", body='{"foo": "bar"}')
         response = self.wait()
         self.assertEqual(response.code, 400, response.reason)
@@ -136,7 +136,7 @@ class TestScenarioOperations(Base):
 
         Test blank scenario name insertion
         """
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios'), self.stop,
+        self.http_client.fetch(self.get_url('/api/v2/scenarios'), self.stop,
                                method="PUT", body='{"scenario": "" }')
         response = self.wait()
         self.assertEqual(response.code, 400, response.reason)
@@ -147,7 +147,7 @@ class TestScenarioOperations(Base):
 
         Test scenario name with illegal characters insertion
         """
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios'), self.stop,
+        self.http_client.fetch(self.get_url('/api/v2/scenarios'), self.stop,
                                method="PUT", body='{"scenario": "@foo" }')
         response = self.wait()
         self.assertEqual(response.code, 400, response.reason)
@@ -163,7 +163,7 @@ class TestScenarioOperations(Base):
         self.assertEqual(response.code, 201)
         payload = json.loads(response.body)
         # check if scenario ref link and name are available in payload
-        self.assertEqual(payload['scenarioRef'], '/stubo/api/v2/scenarios/objects/hostname:scenario_name_x')
+        self.assertEqual(payload['scenarioRef'], '/api/v2/scenarios/objects/hostname:scenario_name_x')
         self.assertEqual(payload['name'], 'hostname:scenario_name_x')
 
     def test_get_all_scenarios(self):
@@ -176,7 +176,7 @@ class TestScenarioOperations(Base):
             response = self._test_insert_scenario(name="scenario_name_with_no_%s" % scenario_number)
             self.assertEqual(response.code, 201)
 
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios'), self.stop, method="GET")
+        self.http_client.fetch(self.get_url('/api/v2/scenarios'), self.stop, method="GET")
         response = self.wait()
         self.assertEqual(response.code, 200)
         payload = json.loads(response.body)
@@ -193,7 +193,7 @@ class TestScenarioOperations(Base):
             response = self._test_insert_scenario(name="scenario_name_with_no_%s" % scenario_number)
             self.assertEqual(response.code, 201)
 
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/detail'), self.stop, method="GET")
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/detail'), self.stop, method="GET")
         response = self.wait()
         self.assertEqual(response.code, 200)
         payload = json.loads(response.body)
@@ -210,19 +210,19 @@ class TestScenarioOperations(Base):
         Test getting multiple scenarios with details using POST, PUT methods
         """
         # using PUT method
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/detail'), self.stop,
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/detail'), self.stop,
                                method="PUT", body='{"foo": "bar"}')
         response = self.wait()
         self.assertEqual(response.code, 405, response.reason)
 
         # using POST method
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/detail'), self.stop,
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/detail'), self.stop,
                                method="POST", body='{"foo": "bar"}')
         response = self.wait()
         self.assertEqual(response.code, 405, response.reason)
 
         # using DELETE method
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/detail'), self.stop,
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/detail'), self.stop,
                                method="DELETE")
         response = self.wait()
         self.assertEqual(response.code, 405, response.reason)
@@ -236,12 +236,12 @@ class TestScenarioOperations(Base):
         self.assertEqual(response.code, 201)
 
         # get inserted scenario
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/new_scenario_details'),
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/new_scenario_details'),
                                self.stop, method="GET")
         response = self.wait()
         self.assertEqual(response.code, 200, response.reason)
         payload = json.loads(response.body)
-        self.assertEqual(payload['scenarioRef'], '/stubo/api/v2/scenarios/objects/localhost:new_scenario_details')
+        self.assertEqual(payload['scenarioRef'], '/api/v2/scenarios/objects/localhost:new_scenario_details')
         self.assertEqual(payload['name'], 'localhost:new_scenario_details')
         self.assertEqual(payload['space_used_kb'], 0)
 
@@ -254,7 +254,7 @@ class TestScenarioOperations(Base):
         self.assertEqual(response.code, 201)
 
         # delete scenario
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/new_scenario_for_deletion'),
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/new_scenario_for_deletion'),
                                self.stop, method="DELETE")
         response = self.wait()
         self.assertEqual(response.code, 200, response.reason)
@@ -267,13 +267,13 @@ class TestScenarioOperations(Base):
         response = self._test_insert_scenario("new_scenario_for_deletion")
         self.assertEqual(response.code, 201)
 
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/new_scenario_for_deletion'),
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/new_scenario_for_deletion'),
                                self.stop, method="DELETE")
         response = self.wait()
         self.assertEqual(response.code, 200, response.reason)
 
         # trying to delete scenario again
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/new_scenario_for_deletion'),
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/new_scenario_for_deletion'),
                                self.stop, method="DELETE")
         response = self.wait()
         # expecting to get "precondition failed"
@@ -286,7 +286,7 @@ class TestSessionOperations(Base):
         Inserts test scenario
         :return: response from future
         """
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios'), self.stop,
+        self.http_client.fetch(self.get_url('/api/v2/scenarios'), self.stop,
                                method="PUT", body='{"scenario": "%s"}' % name)
 
         response = self.wait()
@@ -300,7 +300,7 @@ class TestSessionOperations(Base):
         response = self._test_insert_scenario("new_scenario_0x")
         self.assertEqual(response.code, 201)
 
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/new_scenario_0x/action'),
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/new_scenario_0x/action'),
                                self.stop,
                                method="POST",
                                body='{ "begin": null, "session": "session_name", "mode": "record" }')
@@ -315,7 +315,7 @@ class TestSessionOperations(Base):
         self.assertTrue('message' in body_dict)
 
         # ending session
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/new_scenario_0x/action'),
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/new_scenario_0x/action'),
                                self.stop,
                                method="POST",
                                body='{ "end": null, "session": "session_name" }')
@@ -333,7 +333,7 @@ class TestSessionOperations(Base):
         self.assertEqual(response.code, 201)
 
         # starting session
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/some_host:new_scenario_0x/action'),
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/some_host:new_scenario_0x/action'),
                                self.stop,
                                method="POST",
                                body='{ "begin": null, "session": "session_name", "mode": "record" }')
@@ -348,7 +348,7 @@ class TestSessionOperations(Base):
         self.assertTrue('message' in body_dict)
 
         # ending session
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/some_host:new_scenario_0x/action'),
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/some_host:new_scenario_0x/action'),
                                self.stop,
                                method="POST",
                                body='{ "end": null, "session": "session_name" }')
@@ -367,7 +367,7 @@ class TestSessionOperations(Base):
         session_count = 10
         # inserting some sessions
         for session_number in xrange(session_count):
-            self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/new_scenario_0x/action'),
+            self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/new_scenario_0x/action'),
                                    self.stop,
                                    method="POST",
                                    body='{ "begin": null, "session": "session_name_%s", "mode": "record" }'
@@ -376,7 +376,7 @@ class TestSessionOperations(Base):
             self.assertEqual(response.code, 200, response.reason)
 
         # ordering stubo to finish them all!
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/new_scenario_0x/action'),
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/new_scenario_0x/action'),
                                self.stop,
                                method="POST",
                                body='{ "end": "sessions"}')
@@ -397,7 +397,7 @@ class TestSessionOperations(Base):
         session_count = 10
         # inserting some sessions
         for session_number in xrange(session_count):
-            self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/new_host:new_scenario_0x/action'),
+            self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/new_host:new_scenario_0x/action'),
                                    self.stop,
                                    method="POST",
                                    body='{ "begin": null, "session": "session_name_%s", "mode": "record" }'
@@ -406,7 +406,7 @@ class TestSessionOperations(Base):
             self.assertEqual(response.code, 200, response.reason)
 
         # ordering stubo to finish them all!
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/new_host:new_scenario_0x/action'),
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/new_host:new_scenario_0x/action'),
                                self.stop,
                                method="POST",
                                body='{ "end": "sessions"}')
@@ -701,7 +701,7 @@ class TestStubOperations(Base):
         self.assertEqual(response.code, 201, response.reason)
 
         # getting stubs
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/%s/stubs' % scenario_name),
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/%s/stubs' % scenario_name),
                                self.stop,
                                method="GET")
         response = self.wait()
@@ -739,7 +739,7 @@ class TestStubOperations(Base):
         self.assertEqual(response.code, 200, response.reason)
 
         # getting stubs
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/%s/stubs' % scenario_name),
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/%s/stubs' % scenario_name),
                                self.stop,
                                method="GET")
         response = self.wait()
@@ -773,7 +773,7 @@ class TestStubOperations(Base):
             # after insertion there should be one stub and since it's a creation - response code should be 201
             self.assertEqual(response.code, 201, response.reason)
         # getting stubs
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/%s/stubs' % scenario_name),
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/%s/stubs' % scenario_name),
                                self.stop,
                                method="GET")
         response = self.wait()
@@ -808,7 +808,7 @@ class TestStubOperations(Base):
             # after insertion there should be one stub and since it's a creation - response code should be 201
             self.assertEqual(response.code, 201, response.reason)
         # getting stubs
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/%s/stubs' % scenario_name),
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/%s/stubs' % scenario_name),
                                self.stop,
                                method="GET")
         response = self.wait()
@@ -819,7 +819,7 @@ class TestStubOperations(Base):
         self._end_session(session_name, scenario_name)
 
         # exporting scenario
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/scenario_stub_multi_test_x/action'),
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/scenario_stub_multi_test_x/action'),
                                self.stop,
                                method="POST",
                                body='{ "export": null}')
@@ -945,7 +945,7 @@ class TestStubOperations(Base):
         self.test_insert_multiple_stubs()
 
         # ending session before deletion
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/scenario_stub_multi_test_x/action'),
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/scenario_stub_multi_test_x/action'),
                                self.stop,
                                method="POST",
                                body='{ "end": null, "session": "session_stub_multi_test_x" }')
@@ -958,7 +958,7 @@ class TestStubOperations(Base):
         self.assertTrue('data' in response.body)
 
         # getting stubs
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/scenario_stub_multi_test_x/stubs'),
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/scenario_stub_multi_test_x/stubs'),
                                self.stop,
                                method="GET")
         response = self.wait()
@@ -980,7 +980,7 @@ class TestStubOperations(Base):
         headers = {'session': "session_stub_multi_test_x"}
 
         # ending session before deletion
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/scenario_stub_multi_test_x/action'),
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/scenario_stub_multi_test_x/action'),
                                self.stop,
                                method="POST",
                                body='{ "end": null, "session": "session_stub_multi_test_x" }')
@@ -993,7 +993,7 @@ class TestStubOperations(Base):
         # getting responses
         for stub in xrange(10):
             # ending session before deletion
-            self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/scenario_stub_multi_test_x/stubs'),
+            self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/scenario_stub_multi_test_x/stubs'),
                                    self.stop,
                                    method="POST",
                                    headers=headers,
@@ -1016,7 +1016,7 @@ class TestStubOperations(Base):
         headers = {'session': "session_stub_multi_test_x"}
 
         # ending session before deletion
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/scenario_stub_multi_test_x/action'),
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/scenario_stub_multi_test_x/action'),
                                self.stop,
                                method="POST",
                                body='{ "end": null, "session": "session_stub_multi_test_x" }')
@@ -1027,7 +1027,7 @@ class TestStubOperations(Base):
         self._begin_session_("session_stub_multi_test_x", "scenario_stub_multi_test_x", "playback")
 
         # ending session before deletion
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/scenario_stub_multi_test_x/stubs'),
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/scenario_stub_multi_test_x/stubs'),
                                self.stop,
                                method="POST",
                                headers=headers,
@@ -1045,7 +1045,7 @@ class TestStubOperations(Base):
         :return:
         """
         # deleting stubs
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/%s/stubs' % name),
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/%s/stubs' % name),
                                self.stop,
                                method="DELETE")
         response = self.wait()
@@ -1056,7 +1056,7 @@ class TestStubOperations(Base):
         Inserts test scenario
         :return: response from future
         """
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios'), self.stop,
+        self.http_client.fetch(self.get_url('/api/v2/scenarios'), self.stop,
                                method="PUT", body='{"scenario": "%s"}' % name)
 
         response = self.wait()
@@ -1069,7 +1069,7 @@ class TestStubOperations(Base):
         :param session: session name
         :param scenario: scenario name
         """
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/%s/action' % scenario),
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/%s/action' % scenario),
                                self.stop,
                                method="POST",
                                body='{ "begin": null, "session": "%s", "mode": "%s" }' % (session, mode))
@@ -1082,7 +1082,7 @@ class TestStubOperations(Base):
         :param session:
         :param scenario:
         """
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/%s/action' % scenario),
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/%s/action' % scenario),
                                self.stop,
                                method="POST",
                                body='{ "end": null, "session": "%s" }' % session)
@@ -1097,7 +1097,7 @@ class TestStubOperations(Base):
         :return: returns a response from Stubo
         """
         headers = {'session': session}
-        self.http_client.fetch(self.get_url('/stubo/api/v2/scenarios/objects/%s/stubs' % scenario),
+        self.http_client.fetch(self.get_url('/api/v2/scenarios/objects/%s/stubs' % scenario),
                                self.stop,
                                method="PUT",
                                headers=headers,
