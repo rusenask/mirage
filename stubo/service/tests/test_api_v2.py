@@ -1119,7 +1119,7 @@ class TestRecords(Base):
         response = self.wait()
         self.assertEqual(response.code, 200)
 
-        self.http_client.fetch(self.get_url('/stubo/api/v2/tracker/records'), self.stop)
+        self.http_client.fetch(self.get_url('/api/v2/tracker/records'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
         json_body = json.loads(response.body)
@@ -1144,7 +1144,7 @@ class TestRecords(Base):
         """
         self._insert_items_to_tracker()
 
-        self.http_client.fetch(self.get_url('/stubo/api/v2/tracker/records'), self.stop)
+        self.http_client.fetch(self.get_url('/api/v2/tracker/records'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
         json_body = json.loads(response.body)
@@ -1167,7 +1167,7 @@ class TestRecords(Base):
         """
         self._insert_items_to_tracker()
 
-        self.http_client.fetch(self.get_url('/stubo/api/v2/tracker/records?skip=100&limit=100'), self.stop)
+        self.http_client.fetch(self.get_url('/api/v2/tracker/records?skip=100&limit=100'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
         json_body = json.loads(response.body)
@@ -1190,7 +1190,7 @@ class TestRecords(Base):
         """
         self._insert_items_to_tracker(500)
 
-        self.http_client.fetch(self.get_url('/stubo/api/v2/tracker/records'), self.stop)
+        self.http_client.fetch(self.get_url('/api/v2/tracker/records'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
         json_body = json.loads(response.body)
