@@ -54,9 +54,9 @@ rest_api = [
     # stub controls
     ("/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs", "StubHandler"),
     # delay policy controls
-    ("/stubo/api/v2/delay-policy", "CreateDelayPolicyHandler"),
-    ("/stubo/api/v2/delay-policy/detail", "GetAllDelayPoliciesHandler"),
-    ("/stubo/api/v2/delay-policy/objects/(?P<delay_policy_name>[^\/]+)", "GetDelayPolicyDetailsHandler"),
+    ("/api/v2/delay-policy", "CreateDelayPolicyHandler"),
+    ("/api/v2/delay-policy/detail", "GetAllDelayPoliciesHandler"),
+    ("/api/v2/delay-policy/objects/(?P<delay_policy_name>[^\/]+)", "GetDelayPolicyDetailsHandler"),
     # external modules
     ("/api/v2/modules", "ExternalModulesHandler"),
     ("/api/v2/modules/objects/(?P<module_name>[^\/]+)", "ExternalModuleDeleteHandler"),
