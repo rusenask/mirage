@@ -1062,12 +1062,12 @@ class TestStubExport(unittest.TestCase):
         for f in files:
             self.assertTrue(os.path.exists(f))
 
-        expected = ['recording:\n', '  scenario: 1stub1matcher\n',
-                    "  session: '{{session}}'\n", '  stubs:\n', '  - file: 1stub1matcher_1_0.json\n']
+        expected = ['recording:\n', '  scenario: 1stub1matcher\n', '  session: 1stub1matcher_1\n', '  stubs:\n',
+                    '  - file: 1stub1matcher_1_0.json\n']
 
         with open(os.path.join(scenario_dir, '1stub1matcher.yaml')) as f:
             lines = f.readlines()
-            self.assertEqual([x.strip() for x in lines[2:]],
+            self.assertEqual([x.strip() for x in lines[1:]],
                              [x.strip() for x in expected])
 
         with open(os.path.join(scenario_dir, '1stub1matcher_1_0.json')) as f:
@@ -1191,11 +1191,11 @@ class TestStubExport(unittest.TestCase):
         for f in files:
             self.assertTrue(os.path.exists(f))
 
-        expected = ['recording:\n', '  scenario: 0stub0matcher\n', "  session: '{{session}}'\n", '  stubs: []\n']
+        expected = ['recording:\n', '  scenario: 0stub0matcher\n', '  session: 0stub0matcher_1\n', '  stubs: []\n']
 
         with open(os.path.join(scenario_dir, '0stub0matcher.yaml')) as f:
             lines = f.readlines()
-            self.assertEqual([x.strip() for x in lines[2:]],
+            self.assertEqual([x.strip() for x in lines[1:]],
                              [x.strip() for x in expected])
 
         self._delete_tmp_export_dir(scenario_dir)

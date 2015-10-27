@@ -297,6 +297,7 @@ class Scenario(object):
         if name:
             pattern = {'scenario': name,
                        'matchers_hash': matchers_hash}
+
             return self.db.scenario_stub.find_one(pattern)
 
     def insert_stub(self, doc, stateful):
@@ -322,7 +323,6 @@ class Scenario(object):
             # additional helper value for indexing
             doc['matchers_hash'] = matchers_hash
             matched_stub = self.get_matched_stub(name=scenario, matchers_hash=matchers_hash)
-
             # checking if stub already exists
             if matched_stub:
                 # creating stub object from found document
@@ -350,7 +350,22 @@ class Scenario(object):
                           'key': str(matched_stub['_id'])}
                 return result
 
-        # Stub doesn't exist in DB - preparing new object
+        # inserting stub into DB
+        status = self.db.scenario_stub.insert(self.get_stub_document(doc))
+
+        result = {'status': 'created',
+                  'msg': 'Inserted scenario_stub',
+                  'key': str(status)}
+        return result
+
+    @staticmethod
+    def get_stub_document(doc):
+        """
+
+        prepares stub document for insertion into database
+        :param doc:
+        :return:
+        """
         doc['stub'] = doc['stub'].payload
 
         # additional helper for aggregation framework
@@ -362,35 +377,7 @@ class Scenario(object):
         # calculating stub size
         doc['space_used'] = len(unicode(doc['stub']))
 
-        # inserting stub into DB
-        status = self.db.scenario_stub.insert(doc)
-
-        # create indexes
-        if matchers_hash:
-            self._create_index(key="matchers_hash")
-        # creating index for scenario and priority
-        self._create_index(key="scenario")
-        if 'priority' in doc['stub']:
-            # creating index for priority
-            self._create_index("stub.priority")
-
-        result = {'status': 'created',
-                  'msg': 'Inserted scenario_stub',
-                  'key': str(status)}
-        return result
-
-    def _create_index(self, key=None, direction=ASCENDING):
-        """
-        Creates index for specific key, fails silently if index creation was unsuccessful. Key examples:
-        "matchers_hash" , "stub.priority", "scenario"
-        :param key: <string>
-        :param direction: ASCENDING or DESCENDING (from pymongo)
-        """
-        if key:
-            try:
-                self.db.scenario_stub.create_index(key, direction)
-            except Exception as ex:
-                log.debug("Could not create index for key %s, got error: %s" % (key, ex))
+        return doc
 
     def insert_pre_stub(self, scenario, stub):
         status = self.db.pre_scenario_stub.insert(dict(scenario=scenario,

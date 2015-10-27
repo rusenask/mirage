@@ -47,11 +47,11 @@ class Exporter(object):
 
         # write this at the top of the yaml
         comment = '# use the session_id url arg from exec/cmds if supplied otherwise the one set from the get/export'
-        session_template_var = "{{% set session = globals().get('session_id',[None])[0] or '{0}' %}}".format(session)
+        # session_template_var = "{{% set session = globals().get('session_id',[None])[0] or '{0}' %}}".format(session)
 
         files = []
         header = dict(scenario=scenario_name,
-                      session='{{session}}',
+                      session=session,
                       stubs=[])
         export_payload = dict(recording=header)
         scenario_db = Scenario()
@@ -76,7 +76,7 @@ class Exporter(object):
         runnable_info = {}
         if runnable:
             playback_header = dict(scenario=scenario_name,
-                                   session='{{session}}',
+                                   session=session,
                                    requests=[])
             export_payload['playback'] = playback_header
             runnable_info = self.export_playback(host, export_payload, files,
@@ -86,7 +86,8 @@ class Exporter(object):
         yaml_export = yaml.safe_dump(export_payload, encoding='utf-8',
                                      allow_unicode=True,
                                      default_flow_style=False)
-        yaml_lines = u"\n".join([comment, session_template_var, yaml_export])
+        # yaml_lines = u"\n".join([comment, session_template_var, yaml_export])
+        yaml_lines = u"\n".join([comment, yaml_export])
         files.append(('{0}.yaml'.format(scenario_name), yaml_lines))
         export_dir_path = self.write_files(scenario_name, export_dir, files)
         return export_dir_path, files, runnable_info

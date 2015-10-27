@@ -38,6 +38,29 @@ def delete_test_dbs():
         else:
             print 'no test databases to delete'
 
+def ensure_scenario_stub_indexes(db):
+    """
+
+    Ensuring indexes for scenario stub collection, this is needed for faster inserts
+    :param db:
+    """
+    if "scenario_stub" not in db.collection_names():
+        try:
+            db.create_collection("scenario_stub")
+            log.info("Scenario stub collection created.")
+        except CollectionInvalid, e:
+            log.fatal(e)
+    else:
+        log.info("Scenario stub collection found.")
+
+    try:
+        db.scenario_stub.create_index("matchers_hash", DESCENDING, background=True)
+        db.scenario_stub.create_index("scenario", DESCENDING, background=True)
+        db.scenario_stub.create_index("stub.priority", DESCENDING, background=True)
+
+        log.info('Scenario_stub indexes: {0}'.format(db.tracker.index_information()))
+    except Exception as ex:
+        log.error("Failed to create indexes for scenario stub collection: %s" % ex)
 
 def create_tracker_collection(db):
     parser = ArgumentParser(
@@ -78,7 +101,7 @@ def create_tracker_collection(db):
         db.tracker.create_index([('scenario', DESCENDING)], background=True)
         db.tracker.create_index([('function', DESCENDING)], background=True)
 
-        log.info('created indexes: {0}'.format(db.tracker.index_information()))
+        log.info('Tracker indexes: {0}'.format(db.tracker.index_information()))
     except Exception as ex:
         log.error("Failed to create indexes for tracker collection: %s" % ex)
 

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
+import os
+import yaml
 import logging
 from stubo.cache import Cache
 from stubo.model.db import Tracker
@@ -310,21 +312,17 @@ class TestExport(Base):
         response = self.wait()
         self.assertEqual(response.code, 200)
         payload = json.loads(response.body)
-        import os
-
         export_dir = payload['data']['export_dir_path']
 
-        with open(os.path.join(export_dir, 'order.yaml')) as f:
-            export_lines = [x.strip() for x in f.readlines()]
+        # loading yaml configuration file
+        with open(os.path.join(export_dir, 'order.yaml'), 'r') as stream:
+            config = yaml.load(stream)
+            self.assertTrue("recording" in config)
+            self.assertEqual(config['recording']['scenario'], 'order')
+            self.assertEqual(config['recording']['session'], 'order_x')
+            self.assertEqual(len(config['recording']['stubs']), 3)
+            self.assertTrue({'file': 'order_x_0.json'} in config['recording']['stubs'])
 
-        self.assertEqual(export_lines[2:], [
-            'recording:',
-            'scenario: order',
-            "session: '{{session}}'",
-            'stubs:',
-            '- file: order_x_0.json',
-            '- file: order_x_1.json',
-            '- file: order_x_2.json'])
         for stub_no in [0, 1, 2]:
             file_path = os.path.join(export_dir,
                                      'order_x_{0}.json'.format(stub_no))
