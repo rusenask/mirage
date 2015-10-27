@@ -63,8 +63,8 @@ rest_api = [
     # asynchronous matcher
     ("/api/v2/matcher", "ScenarioStubMatcher"),
     # tracker records
-    ("/stubo/api/v2/tracker/records", "TrackerRecordsHandler"),
-    ("/stubo/api/v2/tracker/records/objects/(?P<record_id>[^\/]+)", "TrackerRecordDetailsHandler"),
+    ("/api/v2/tracker/records", "TrackerRecordsHandler"),
+    ("/api/v2/tracker/records/objects/(?P<record_id>[^\/]+)", "TrackerRecordDetailsHandler"),
     # websocket tracker api
     ("/stubo/api/ws/tracker", "TrackerWebSocket")
 ]
