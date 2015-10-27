@@ -581,3 +581,51 @@ or:
   }
 }
 ```
+
+## Get records from tracker
+
+Gets records from tracker. Since this collection becomes quite big over time - pagination is available. Your client application
+can define how many records it wants to skip and current item limit. Mirage also provides "href" - links to every record
+for additional information
+
+* __URL__: /api/v2/tracker/records
+* __Method__: GET
+* __Response codes__:
+   + __200__ - list with tracker entries returned
+* __Example output__:
+
+```javascript
+{
+    "paging": {
+        "last": "/api/v2/tracker/records?skip=23172&limit=2",
+        "next": "/api/v2/tracker/records?skip=2&limit=2",
+        "currentLimit": 2,
+        "totalItems": 23174,
+        "previous": null,
+        "first": "/api/v2/tracker/records?skip=0&limit=2"
+    },
+    "data": [
+        {
+            "function": "/api/v2/scenarios/objects/localhost:scenario_100/stubs",
+            "request_params": {},
+            "start_time": "2015-10-27 11:18:24",
+            "return_code": 200,
+            "href": "/api/v2/tracker/records/objects/562f5d8137dd1220d73a0cbf",
+            "duration_ms": 902,
+            "stubo_response": "",
+            "id": "562f5d8137dd1220d73a0cbf"
+        },
+        {
+            "function": "/api/v2/scenarios/objects/localhost:scenario_14/action",
+            "request_params": {},
+            "scenario": "localhost:scenario_14",
+            "start_time": "2015-10-27 10:15:01",
+            "return_code": 200,
+            "href": "/api/v2/tracker/records/objects/562f4ea537dd1220d73a0ca1",
+            "duration_ms": 24,
+            "stubo_response": "",
+            "id": "562f4ea537dd1220d73a0ca1"
+        }
+    ]
+}
+```
