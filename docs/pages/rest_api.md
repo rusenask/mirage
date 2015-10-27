@@ -586,7 +586,16 @@ or:
 
 Gets records from tracker. Since this collection becomes quite big over time - pagination is available. Your client application
 can define how many records it wants to skip and current item limit. Mirage also provides "href" - links to every record
-for additional information
+for additional information. 
+
+Available parameters:
++ limit - maximum records to return
++ skip - how many records should be skipped
++ q - query. Query can be simple string to search based on API call path, scenario. You can also supply values to search
+  for specific status codes and response times. For example I would want to find a scenario named "my_test_suite_x" and to see
+  only HTTP calls that produced status codes between 200 and 201, also, I would want to see only those requests that took longer
+  than 200 ms to complete, my query would look like:
+  "my_test_suite_x sc:>=200 sc:<=201 rt:>200" 
 
 * __URL__: /api/v2/tracker/records
 * __Method__: GET
