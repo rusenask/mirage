@@ -1207,13 +1207,6 @@ class CreateDelayPolicyHandler(BaseHandler):
     /stubo/api/v2/delay-policy
     """
 
-    def initialize(self):
-        """
-        Setting version header
-        """
-        # setting header
-        self.set_header('x-stub-o-matic-version', version)
-
     def compute_etag(self):
         return None
 
@@ -1252,13 +1245,6 @@ class GetAllDelayPoliciesHandler(RequestHandler):
     """
     /stubo/api/v2/delay-policy/detail
     """
-
-    def initialize(self):
-        """
-        Setting version header
-        """
-        # setting header
-        self.set_header('x-stub-o-matic-version', version)
 
     def compute_etag(self):
         return None
