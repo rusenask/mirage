@@ -76,7 +76,7 @@ class UrlFetch(object):
 
     def get(self, url, **kwargs):
         log.debug(u'fetch url: {0}, {kwargs}'.format(url, kwargs=kwargs))
-        response = requests.get(url, **kwargs)
+        response = requests.get(url, verify=False, **kwargs)
         self.raise_on_error(response, url)
         if 'application/json' in response.headers["Content-Type"]:
             return response.json(), response.headers, response.status_code
