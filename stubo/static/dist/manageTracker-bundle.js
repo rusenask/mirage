@@ -206,7 +206,7 @@ webpackJsonp([6],[
 
 	        if ("WebSocket" in window) {
 	            (function () {
-	                _this.state.ws = new WebSocket("ws:/" + window.location.host + "/stubo/api/ws/tracker");
+	                _this.state.ws = new WebSocket("ws:/" + window.location.host + "/api/ws/tracker");
 
 	                var that = _this;
 	                _this.state.ws.onclose = function () {
