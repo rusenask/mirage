@@ -1338,24 +1338,17 @@ class GetStuboAPIversion(RequestHandler):
 
     """
 
-    def initialize(self):
-        """
-        Setting version header
-        """
-        # setting header
-        self.set_header('x-stub-o-matic-version', version)
-
     def compute_etag(self):
         return None
 
     def get(self):
-        self.write({'Stubo version': version,
+        self.write({'Mirage version': version,
                     'API version': 'v2'})
 
 
 class StubHandler(TrackRequest):
     """
-    /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
+    /api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
 
     """
 
