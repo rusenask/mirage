@@ -11,7 +11,7 @@
 import os
 import sys
 
-version = "0.7.2"
+version = "0.8"
 version_info = tuple(version.split('.'))
 
 
