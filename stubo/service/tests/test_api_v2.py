@@ -466,7 +466,7 @@ class TestDelayOperations(Base):
         :param name:
         :return:
         """
-        self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy'),
+        self.http_client.fetch(self.get_url('/api/v2/delay-policy'),
                                self.stop,
                                method="PUT",
                                body='{ "name": "%s", "delay_type": "fixed", "milliseconds": 50 }' % name)
@@ -509,7 +509,7 @@ class TestDelayOperations(Base):
         :param name:
         :return:
         """
-        self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy'),
+        self.http_client.fetch(self.get_url('/api/v2/delay-policy'),
                                self.stop,
                                method="PUT",
                                body='{ "name": "%s", "delay_type": "normalvariate", '
@@ -549,7 +549,7 @@ class TestDelayOperations(Base):
         :param name:
         :return:
         """
-        self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy'),
+        self.http_client.fetch(self.get_url('/api/v2/delay-policy'),
                                self.stop,
                                method="PUT",
                                body='{ "name": "%s", "delay_type": "weighted", '
@@ -563,7 +563,7 @@ class TestDelayOperations(Base):
 
         Passing malformed request body with bad keys to update delay policy handler
         """
-        self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy'),
+        self.http_client.fetch(self.get_url('/api/v2/delay-policy'),
                                self.stop,
                                method="PUT",
                                body='{ "name": "malformed_delay", "delayyy_type": "fixed", "milliseconds": 50 }')
@@ -574,7 +574,7 @@ class TestDelayOperations(Base):
         """
         Skipping delay name when creating
         """
-        self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy'),
+        self.http_client.fetch(self.get_url('/api/v2/delay-policy'),
                                self.stop,
                                method="PUT",
                                body='{ "foo": "malformed_delay", "delay_type": "fixed", "milliseconds": 50 }')
@@ -585,7 +585,7 @@ class TestDelayOperations(Base):
         """
         Skipping mean and stddev when creating normalvariate delay
         """
-        self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy'),
+        self.http_client.fetch(self.get_url('/api/v2/delay-policy'),
                                self.stop,
                                method="PUT",
                                body='{ "name": "mixed_params", "delay_type": "normalvariate", "milliseconds": 50 }')
@@ -597,7 +597,7 @@ class TestDelayOperations(Base):
 
         Supplying mean parameter instead of milliseconds when creating fixed delay
         """
-        self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy'),
+        self.http_client.fetch(self.get_url('/api/v2/delay-policy'),
                                self.stop,
                                method="PUT",
                                body='{ "name": "mixed_params", "delay_type": "fixed", "mean": 50 }')
@@ -616,7 +616,7 @@ class TestDelayOperations(Base):
             self._add_fixed_delay_policy(name=name)
 
         # getting delay list
-        self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy/detail'),
+        self.http_client.fetch(self.get_url('/api/v2/delay-policy/detail'),
                                self.stop,
                                method="GET")
         response = self.wait()
@@ -631,7 +631,7 @@ class TestDelayOperations(Base):
         name = "specific_delay"
         self._add_fixed_delay_policy(name=name)
 
-        self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy/objects/%s' % name),
+        self.http_client.fetch(self.get_url('/api/v2/delay-policy/objects/%s' % name),
                                self.stop,
                                method="GET")
         response = self.wait()
@@ -644,7 +644,7 @@ class TestDelayOperations(Base):
         Tests getting specific delay details
         """
         name = "specific_missing_delay"
-        self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy/objects/%s' % name),
+        self.http_client.fetch(self.get_url('/api/v2/delay-policy/objects/%s' % name),
                                self.stop,
                                method="GET")
         response = self.wait()
@@ -659,7 +659,7 @@ class TestDelayOperations(Base):
         name = "specific_delay_for_deletion"
         self._add_fixed_delay_policy(name=name)
 
-        self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy/objects/%s' % name),
+        self.http_client.fetch(self.get_url('/api/v2/delay-policy/objects/%s' % name),
                                self.stop,
                                method="GET")
         response = self.wait()
@@ -668,7 +668,7 @@ class TestDelayOperations(Base):
         self.assertTrue(name in response.body)
 
         # delete delay policy
-        self.http_client.fetch(self.get_url('/stubo/api/v2/delay-policy/objects/%s' % name),
+        self.http_client.fetch(self.get_url('/api/v2/delay-policy/objects/%s' % name),
                                self.stop,
                                method="DELETE")
         response = self.wait()
