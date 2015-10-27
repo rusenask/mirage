@@ -629,3 +629,55 @@ for additional information
     ]
 }
 ```
+
+## Get tracker record details
+
+Gets detail information about specified tracker object ID. 
+
+* __URL__: /api/v2/tracker/records/objects/<object_id>
+* __Method__: GET
+* __Response codes__:
+   + __200__ - tracker record found, returned.
+   + __404__ - tracker record not found
+* __Example output__:
+
+```javascript
+{
+   "data":{
+      "function":"/api/v2/scenarios/objects/localhost:scenario_100/stubs",
+      "request_params":{
+
+      },
+      "tracking_level":"normal",
+      "start_time":"2015-10-27 11:18:24",
+      "return_code":200,
+      "server":"karoliss-macbook-pro.local",
+      "request_size":0,
+      "response_headers":{
+         "Date":"Tue, 27 Oct 2015 11:18:24 GMT",
+         "Content-Length":"5835405",
+         "Content-Type":"application/json; charset=UTF-8",
+         "Server":"TornadoServer/4.1"
+      },
+      "request_headers":{
+         "Accept-Language":"en-US,en;q=0.8,lt;q=0.6",
+         "Accept-Encoding":"gzip, deflate, sdch",
+         "Connection":"keep-alive",
+         "Accept":"*/*",
+         "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.71 Safari/537.36",
+         "Dnt":"1",
+         "Host":"localhost:8001",
+         "X-Requested-With":"XMLHttpRequest",
+         "Referer":"http://localhost:8001/manage/scenarios/details?scenario=/api/v2/scenarios/objects/localhost:scenario_100"
+      },
+      "host":"localhost",
+      "request_method":"GET",
+      "id":"562f5d8137dd1220d73a0cbf",
+      "response_size":5835405,
+      "duration_ms":902,
+      "stubo_response":"",
+      "port":"8001",
+      "remote_ip":"::1"
+   }
+}
+```
