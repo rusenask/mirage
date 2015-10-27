@@ -66,7 +66,7 @@ rest_api = [
     ("/api/v2/tracker/records", "TrackerRecordsHandler"),
     ("/api/v2/tracker/records/objects/(?P<record_id>[^\/]+)", "TrackerRecordDetailsHandler"),
     # websocket tracker api
-    ("/stubo/api/ws/tracker", "TrackerWebSocket")
+    ("/api/ws/tracker", "TrackerWebSocket")
 ]
 
 # UI pages
