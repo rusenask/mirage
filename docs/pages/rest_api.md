@@ -11,7 +11,7 @@ Encoding "application/json"
 
 Creates scenario object. Client must specify scenario name in the request body.
 
-* __URL__: /stubo/api/v2/scenarios
+* __URL__: /api/v2/scenarios
 * __Method__: PUT
 * __Response codes__:
    + __201__ - scenario created
@@ -136,7 +136,7 @@ can the be used to get scenario details (sessions, stubs, size, etc...). Your
 application can look for these keys and use them to directly access resource
 instead of generating URL on client side.
 
-* __URL__: /stubo/api/v2/scenarios
+* __URL__: /api/v2/scenarios
 * __Method__: GET
 * __Response codes__:
    + __200__ - scenario list returned
@@ -144,9 +144,9 @@ instead of generating URL on client side.
 ```javascript
 {
   "data": [
-    {"scenarioRef": "/stubo/api/v2/scenarios/objects/localhost:scenario_1",
+    {"scenarioRef": "/api/v2/scenarios/objects/localhost:scenario_1",
     "name": "localhost:scenario_1"},
-    {"scenarioRef": "/stubo/api/v2/scenarios/objects/localhost:scenario_10",
+    {"scenarioRef": "/api/v2/scenarios/objects/localhost:scenario_10",
      "name": "localhost:scenario_10"},
      ...,
      ...,
@@ -157,7 +157,7 @@ instead of generating URL on client side.
 
 Returns a list of scenarios with details.
 
-* __URL__: /stubo/api/v2/scenarios/detail
+* __URL__: /api/v2/scenarios/detail
 * __Method__: GET
 * __Response codes__:
    + __200__ - scenario list with details returned
@@ -169,7 +169,7 @@ Returns a list of scenarios with details.
     "space_used_kb": 0,
     "name": "localhost:scenario_1",
     "sessions": [],
-    "scenarioRef": "/stubo/api/v2/scenarios/objects/localhost:scenario_1",
+    "scenarioRef": "/api/v2/scenarios/objects/localhost:scenario_1",
     "recorded": "-",
     "stub_count": 0},
   {
@@ -182,7 +182,7 @@ Returns a list of scenarios with details.
           "name": "playback_10",
           "last_used": "2015-07-20 13:09:05"}
         ],
-     "scenarioRef": "/stubo/api/v2/scenarios/objects/localhost:scenario_10",
+     "scenarioRef": "/api/v2/scenarios/objects/localhost:scenario_10",
      "recorded": "2015-07-20",
      "stub_count": 20},
      ...,
@@ -196,7 +196,7 @@ Returns a list of scenarios with details.
 Returns specified scenario details. Scenario name can be provided with a host,
 for example stubo_c1.yourcorporateaddress.com:scenario_name_x
 
-* __URL__: /stubo/api/v2/scenarios/objects/<scenario_name>
+* __URL__: /api/v2/scenarios/objects/<scenario_name>
 * __Method__: GET
 * __Response codes__:
    + __200__ - specified scenario details
@@ -214,7 +214,7 @@ for example stubo_c1.yourcorporateaddress.com:scenario_name_x
    ],
    "stubs": 26,
    "recorded": "2015-07-20",
-   "scenarioRef": "/stubo/api/v2/scenarios/objects/localhost:scenario_13"
+   "scenarioRef": "/api/v2/scenarios/objects/localhost:scenario_13"
  }
 ```
 
@@ -222,7 +222,7 @@ for example stubo_c1.yourcorporateaddress.com:scenario_name_x
 
 Deletes scenario object and removed it's stubs from cache.
 
-* __URL__: /stubo/api/v2/scenarios/objects/<scenario_name>
+* __URL__: /api/v2/scenarios/objects/<scenario_name>
 * __Method__: DELETE
 * __Response codes__:
    + __200__ - scenario deleted
@@ -234,7 +234,7 @@ Deletes scenario object and removed it's stubs from cache.
 Begins session for specified scenario. Client has to specify session name and
 mode in request body. Session mode can be either 'record' and 'playback'.
 
-* __URL__: /stubo/api/v2/scenarios/objects/<scenario_name>/action
+* __URL__: /api/v2/scenarios/objects/<scenario_name>/action
 * __Method__: POST
 * __Response codes__:
   + __200__ - begins session
@@ -261,7 +261,7 @@ mode in request body. Session mode can be either 'record' and 'playback'.
 
 Ends specified session. Client has to specify session name in request body.
 
-* __URL__: /stubo/api/v2/scenarios/objects/<scenario_name>/action
+* __URL__: /api/v2/scenarios/objects/<scenario_name>/action
 * __Method__: POST
 * __Response codes__:
   + __200__ - session ended.
@@ -286,7 +286,7 @@ Ends specified session. Client has to specify session name in request body.
 
 Ends all sessions for specified scenario
 
-* __URL__: /stubo/api/v2/scenarios/objects/<scenario_name>/action
+* __URL__: /api/v2/scenarios/objects/<scenario_name>/action
 * __Method__: POST
 * __Response codes__:
    + __200__ - scenario list with details returned
@@ -314,7 +314,7 @@ Ends all sessions for specified scenario
 
 Add stub to scenario
 
-* __URL__: /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
+* __URL__: /api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
 * __Method__: PUT
 * __Response codes__:
    + __201__ - inserted
@@ -359,7 +359,7 @@ go directly to database with this key and retrieve response.
 
 ## Getting response with stub
 
-* __URL__: /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
+* __URL__: /api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
 * __Method__: POST
 * __Response codes__:
    + __*__ - any HTTTP response that user defined during stub insertion
@@ -408,7 +408,7 @@ matcher here
 
 ## Get all stubs for specific scenario
 
-* __URL__: /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
+* __URL__: /api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
 * __Method__: GET
 * __Response codes__:
    + __200__ - stub list returned
@@ -447,7 +447,7 @@ matcher here
 
 ## Delete all scenario stubs
 
-* __URL__: /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
+* __URL__: /api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
 * __Method__: DELETE
 * __Response codes__:
    + __200__ - stubs deleted
