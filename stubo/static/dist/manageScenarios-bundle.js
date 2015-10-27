@@ -480,9 +480,9 @@ webpackJsonp([5],[
 	    var href = '';
 	    if (_reactCookie2['default'].load('stubo.all-hosts') || false) {
 	        // amending query argument to get all hosts
-	        href = '/stubo/api/v2/scenarios/detail?all-hosts=true';
+	        href = '/api/v2/scenarios/detail?all-hosts=true';
 	    } else {
-	        href = '/stubo/api/v2/scenarios/detail?all-hosts=false';
+	        href = '/api/v2/scenarios/detail?all-hosts=false';
 	    }
 
 	    $.get(href, function (result) {
@@ -577,7 +577,7 @@ webpackJsonp([5],[
 	        type: "POST",
 	        dataType: "json",
 	        data: JSON.stringify(sessionPayload),
-	        url: "/stubo/api/v2/scenarios/objects/" + scenario + "/action",
+	        url: "/api/v2/scenarios/objects/" + scenario + "/action",
 	        success: function success() {
 	            if (that.isMounted()) {
 	                that.setState({
@@ -671,7 +671,7 @@ webpackJsonp([5],[
 	            type: "PUT",
 	            dataType: "json",
 	            data: JSON.stringify(payload),
-	            url: "/stubo/api/v2/scenarios",
+	            url: "/api/v2/scenarios",
 	            success: function success(data) {
 	                if (that.isMounted()) {
 	                    that.setState({

@@ -46,27 +46,27 @@ json_api = [
 # used for API v2
 rest_api = [
     # scenario controls
-    ("/stubo/api/v2/scenarios", "BaseScenarioHandler"),
-    ("/stubo/api/v2/scenarios/detail", "GetAllScenariosHandler"),
+    ("/api/v2/scenarios", "BaseScenarioHandler"),
+    ("/api/v2/scenarios/detail", "GetAllScenariosHandler"),
     ("/api/v2/scenarios/upload", "ScenarioUploadHandler"),
-    ("/stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/action", "ScenarioActionHandler"),
-    ("/stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)", "GetScenarioDetailsHandler"),
+    ("/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/action", "ScenarioActionHandler"),
+    ("/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)", "GetScenarioDetailsHandler"),
     # stub controls
-    ("/stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs", "StubHandler"),
+    ("/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs", "StubHandler"),
     # delay policy controls
-    ("/stubo/api/v2/delay-policy", "CreateDelayPolicyHandler"),
-    ("/stubo/api/v2/delay-policy/detail", "GetAllDelayPoliciesHandler"),
-    ("/stubo/api/v2/delay-policy/objects/(?P<delay_policy_name>[^\/]+)", "GetDelayPolicyDetailsHandler"),
+    ("/api/v2/delay-policy", "CreateDelayPolicyHandler"),
+    ("/api/v2/delay-policy/detail", "GetAllDelayPoliciesHandler"),
+    ("/api/v2/delay-policy/objects/(?P<delay_policy_name>[^\/]+)", "GetDelayPolicyDetailsHandler"),
     # external modules
     ("/api/v2/modules", "ExternalModulesHandler"),
     ("/api/v2/modules/objects/(?P<module_name>[^\/]+)", "ExternalModuleDeleteHandler"),
     # asynchronous matcher
     ("/api/v2/matcher", "ScenarioStubMatcher"),
     # tracker records
-    ("/stubo/api/v2/tracker/records", "TrackerRecordsHandler"),
-    ("/stubo/api/v2/tracker/records/objects/(?P<record_id>[^\/]+)", "TrackerRecordDetailsHandler"),
+    ("/api/v2/tracker/records", "TrackerRecordsHandler"),
+    ("/api/v2/tracker/records/objects/(?P<record_id>[^\/]+)", "TrackerRecordDetailsHandler"),
     # websocket tracker api
-    ("/stubo/api/ws/tracker", "TrackerWebSocket")
+    ("/api/ws/tracker", "TrackerWebSocket")
 ]
 
 # UI pages
