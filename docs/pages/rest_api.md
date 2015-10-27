@@ -457,7 +457,7 @@ matcher here
 
 Gets all defined delay policies
 
-* __URL__: /stubo/api/v2/delay-policy/detail
+* __URL__: /api/v2/delay-policy/detail
 * __Method__: GET
 * __Response codes__:
    + __200__ - list with delay policies returned
@@ -469,13 +469,13 @@ Gets all defined delay policies
   "data": [
     {
       "delay_type": "fixed",
-       "delayPolicyRef": "/stubo/api/v2/delay-policy/objects/slow",
+       "delayPolicyRef": "/api/v2/delay-policy/objects/slow",
       "name": "slow",
       "milliseconds": "1000"
     },
     {
       "delay_type": "fixed_2",
-       "delayPolicyRef": "/stubo/api/v2/delay-policy/objects/slow",
+       "delayPolicyRef": "/api/v2/delay-policy/objects/slow",
       "name": "slower",
       "milliseconds": "5000"
     }
@@ -485,7 +485,7 @@ Gets all defined delay policies
 
 ## Get specific delay policy details
 
-* __URL__: /stubo/api/v2/delay-policy/objects/<name>
+* __URL__: /api/v2/delay-policy/objects/<name>
 * __Method__: GET
 * __Response codes__:
    + __200__ - delay policy returned
@@ -498,7 +498,7 @@ Gets all defined delay policies
   "data": [
     {
       "delay_type": "fixed",
-      "delayPolicyRef": "/stubo/api/v2/delay-policy/objects/slow",
+      "delayPolicyRef": "/api/v2/delay-policy/objects/slow",
       "name": "slow",
       "milliseconds": "1000"
     }
@@ -511,7 +511,7 @@ Gets all defined delay policies
 Creates a delay policy. Returns 201 status code if successful or 409 if request body options
 are wrong (type fixed provided with mean and stddev options)
 
-* __URL__: /stubo/api/v2/delay-policy
+* __URL__: /api/v2/delay-policy
 * __Method__: PUT
 * __Response codes__:
    + __201__ - scenario list with details returned
@@ -557,7 +557,7 @@ or:
     "status": "new",
     "message": "Put Delay Policy Finished",
     "delay_type": "fixed",
-    "delayPolicyRef": "/stubo/api/v2/delay-policy/objects/my_delay",
+    "delayPolicyRef": "/api/v2/delay-policy/objects/my_delay",
     "name": "my_delay"
   }
 }
@@ -566,7 +566,7 @@ or:
 
 ## Delete delay policy
 
-* __URL__: /stubo/api/v2/delay-policy/objects/<name>
+* __URL__: /api/v2/delay-policy/objects/<name>
 * __Method__: DELETE
 * __Response codes__:
    + __200__ - delay policy deleted
