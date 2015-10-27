@@ -564,7 +564,7 @@ NOT_ALLOWED_MSG = 'Method not allowed'
 
 class BaseScenarioHandler(RequestHandler):
     """
-    /stubo/api/v2/scenarios
+    /api/v2/scenarios
     """
 
     def initialize(self):
@@ -588,15 +588,15 @@ class BaseScenarioHandler(RequestHandler):
         {
             scenarios:
               {
-                scenarioRef: "/stubo/api/v2/scenarios/objects/127.0.0.1:scenario_0001"
+                scenarioRef: "/api/v2/scenarios/objects/127.0.0.1:scenario_0001"
                 name: "127.0.0.1:scenario_0001"
                 },
                 {
-                scenarioRef: "/stubo/api/v2/scenarios/objects/localhost:scenario_1"
+                scenarioRef: "/api/v2/scenarios/objects/localhost:scenario_1"
                 name: "localhost:scenario_1"
                 },
                 {
-                scenarioRef: "/stubo/api/v2/scenarios/objects/localhost:scenario_10"
+                scenarioRef: "/api/v2/scenarios/objects/localhost:scenario_10"
                 name: "localhost:scenario_10"
                 },
                 ..
@@ -619,7 +619,7 @@ class BaseScenarioHandler(RequestHandler):
                 document = cursor.next_object()
                 try:
                     scenarios.append({'name': document['name'],
-                                      'scenarioRef': '/stubo/api/v2/scenarios/objects/%s' % document['name']})
+                                      'scenarioRef': '/api/v2/scenarios/objects/%s' % document['name']})
                 except KeyError:
                     log.warn('Scenario name not found for object: %s' % document['_id'])
             result_dict['data'] = scenarios
@@ -629,13 +629,13 @@ class BaseScenarioHandler(RequestHandler):
         """
         Call example:
         curl -i -H "Content-Type: application/json" -X PUT -d '{"scenario":"scenario_0001"}'
-                                                                         http://127.0.0.1:8001/stubo/api/v2/scenarios
+                                                                         http://127.0.0.1:8001/api/v2/scenarios
 
         Creates a scenario and returns a link to it: query example:
         { “scenario”: “scenario_name” }
         :return:  returns a JSON response that contains information about created object,
         example success (201 response code):
-        {"scenarioRef": "/stubo/api/v2/scenarios/objects/127.0.0.1:scenario_0001",
+        {"scenarioRef": "/api/v2/scenarios/objects/127.0.0.1:scenario_0001",
          "name": "127.0.0.1:scenario_0001"}
 
         example duplicate error (422 response code):
@@ -701,7 +701,7 @@ class BaseScenarioHandler(RequestHandler):
             self.db.scenario.create_index('name', unique=True)
             # creating result dict
             result_dict = {'name': name,
-                           'scenarioRef': '/stubo/api/v2/scenarios/objects/{0}'.format(name)}
+                           'scenarioRef': '/api/v2/scenarios/objects/{0}'.format(name)}
             self.set_status(201)
             self.write(result_dict)
         except DuplicateKeyError as ex:
@@ -716,7 +716,7 @@ class BaseScenarioHandler(RequestHandler):
 
 class GetAllScenariosHandler(RequestHandler):
     """
-    /stubo/api/v2/scenarios/detail
+    /api/v2/scenarios/detail
 
     """
 
@@ -786,7 +786,7 @@ class GetAllScenariosHandler(RequestHandler):
                                   'space_used_kb': scenario_size,
                                   'stub_count': scenario_stub_count,
                                   'sessions': sessions,
-                                  'scenarioRef': '/stubo/api/v2/scenarios/objects/%s' % document['name']})
+                                  'scenarioRef': '/api/v2/scenarios/objects/%s' % document['name']})
             except KeyError:
                 log.warn('Scenario name not found for object: %s' % document['_id'])
         result_dict['data'] = scenarios
@@ -800,7 +800,7 @@ class GetAllScenariosHandler(RequestHandler):
 
 class GetScenarioDetailsHandler(RequestHandler):
     """
-    /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)
+    /api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)
 
     """
 
@@ -832,7 +832,7 @@ class GetScenarioDetailsHandler(RequestHandler):
              "space_used_kb": 840,
              "recorded": "2015-07-15",
              "name": "localhost:scenario_16",
-             "scenarioRef": "/stubo/api/v2/scenarios/objects/localhost:scenario_16"
+             "scenarioRef": "/api/v2/scenarios/objects/localhost:scenario_16"
          }
         """
 
@@ -866,7 +866,7 @@ class GetScenarioDetailsHandler(RequestHandler):
                            'stub_count': stub_count,
                            'recorded': recorded,
                            'space_used_kb': int(size),
-                           'scenarioRef': '/stubo/api/v2/scenarios/objects/{0}'.format(scenario_name),
+                           'scenarioRef': '/api/v2/scenarios/objects/{0}'.format(scenario_name),
                            'sessions': sessions}
             self.set_status(200)
             self.write(result_dict)
@@ -923,15 +923,13 @@ class GetScenarioDetailsHandler(RequestHandler):
 
 class ScenarioActionHandler(TrackRequest):
     """
-    /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/action
+    /api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/action
     """
 
     def initialize(self):
         """
         Setting version header
         """
-        # setting header
-        self.set_header('x-stub-o-matic-version', version)
 
     def compute_etag(self):
         return None
@@ -1031,7 +1029,7 @@ class ScenarioActionHandler(TrackRequest):
          "data":
             {"status": "record",
             "scenario": "localhost:scenario_rest_api",
-            "scenarioRef": "/stubo/api/v2/scenarios/objects/localhost:scenario_rest_api",
+            "scenarioRef": "/api/v2/scenarios/objects/localhost:scenario_rest_api",
             "scenario_id": "55acba53fc456205eaf7e258",
             "session": "new_session_rest2",
             "message": "Record mode initiated...."}
@@ -1049,7 +1047,7 @@ class ScenarioActionHandler(TrackRequest):
                                         self.get_argument('system_date', None),
                                         warm_cache)
         # adding scenarioRef key for easier resource access.
-        response['data']['scenarioRef'] = '/stubo/api/v2/scenarios/objects/%s' % response['data']['scenario']
+        response['data']['scenarioRef'] = '/api/v2/scenarios/objects/%s' % response['data']['scenario']
         self.write(response)
 
     def _end_all_sessions(self):
@@ -1206,15 +1204,8 @@ class ScenarioActionHandler(TrackRequest):
 
 class CreateDelayPolicyHandler(BaseHandler):
     """
-    /stubo/api/v2/delay-policy
+    /api/v2/delay-policy
     """
-
-    def initialize(self):
-        """
-        Setting version header
-        """
-        # setting header
-        self.set_header('x-stub-o-matic-version', version)
 
     def compute_etag(self):
         return None
@@ -1252,15 +1243,8 @@ class CreateDelayPolicyHandler(BaseHandler):
 
 class GetAllDelayPoliciesHandler(RequestHandler):
     """
-    /stubo/api/v2/delay-policy/detail
+    /api/v2/delay-policy/detail
     """
-
-    def initialize(self):
-        """
-        Setting version header
-        """
-        # setting header
-        self.set_header('x-stub-o-matic-version', version)
 
     def compute_etag(self):
         return None
@@ -1277,17 +1261,17 @@ class GetAllDelayPoliciesHandler(RequestHandler):
             {"my_delay":
                 {"delay_type": "fixed",
                 "name": "my_delay",
-                "delayPolicyRef": "/stubo/api/v2/delay-policy/objects/my_delay",
+                "delayPolicyRef": "/api/v2/delay-policy/objects/my_delay",
                 "milliseconds": 50},
             "pcent_random_samples":
                 {"delay_type": "weighted",
                 "delays": "fixed,30000,5:normalvariate,5000,1000,15:normalvariate,1000,500,70",
                 "name": "pcent_random_samples",
-                "delayPolicyRef": "/stubo/api/v2/delay-policy/objects/pcent_random_samples"},
+                "delayPolicyRef": "/api/v2/delay-policy/objects/pcent_random_samples"},
             "delay_1":
                  {"delay_type": "fixed",
                   "name": "delay_1",
-                  "delayPolicyRef": "/stubo/api/v2/delay-policy/objects/delay_1",
+                  "delayPolicyRef": "/api/v2/delay-policy/objects/delay_1",
                   "milliseconds": "0"}
             }
         }
@@ -1299,16 +1283,9 @@ class GetAllDelayPoliciesHandler(RequestHandler):
 
 class GetDelayPolicyDetailsHandler(RequestHandler):
     """
-    /stubo/api/v2/delay-policy/objects/(?P<delay_policy_name>[^\/]+)
+    /api/v2/delay-policy/objects/(?P<delay_policy_name>[^\/]+)
 
     """
-
-    def initialize(self):
-        """
-        Setting version header
-        """
-        # setting header
-        self.set_header('x-stub-o-matic-version', version)
 
     def compute_etag(self):
         return None
@@ -1338,24 +1315,17 @@ class GetStuboAPIversion(RequestHandler):
 
     """
 
-    def initialize(self):
-        """
-        Setting version header
-        """
-        # setting header
-        self.set_header('x-stub-o-matic-version', version)
-
     def compute_etag(self):
         return None
 
     def get(self):
-        self.write({'Stubo version': version,
+        self.write({'Mirage version': version,
                     'API version': 'v2'})
 
 
 class StubHandler(TrackRequest):
     """
-    /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
+    /api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
 
     """
 
@@ -1365,8 +1335,6 @@ class StubHandler(TrackRequest):
         Initializing database and setting header. Using global tornado settings that are generated
         during startup to acquire database client
         """
-        # setting header
-        self.set_header('x-stub-o-matic-version', version)
         # get motor driver
         self.db = motor_driver(self.settings)
 
@@ -1487,9 +1455,6 @@ class StubHandler(TrackRequest):
         stateful = asbool(self.request.headers.get('stateful', True))
         recorded = self.request.headers.get('stub_created_date', None)
         module_name = self.request.headers.get('ext_module', None)
-        # if not module_name:
-        #     # legacy
-        #     module_name = handler.get_argument('stubbedSystem', None)
 
         recorded_module_system_date = self.request.headers.get('stubbedSystemDate', None)
         priority = int(self.request.headers.get('priority', -1))
@@ -1732,7 +1697,7 @@ class ScenarioUploadHandler(BaseHandler):
 
 class TrackerRecordsHandler(BaseHandler):
     """
-    /stubo/api/v2/tracker/records
+    /api/v2/tracker/records
     """
 
     def initialize(self):
@@ -1787,7 +1752,7 @@ class TrackerRecordsHandler(BaseHandler):
                 obj_id = str(ObjectId(document['_id']))
                 document['id'] = obj_id
                 # adding object ref ID
-                document['href'] = "/stubo/api/v2/tracker/records/objects/%s" % obj_id
+                document['href'] = "/api/v2/tracker/records/objects/%s" % obj_id
                 # removing BSON object
                 document.pop('_id')
                 tracker_objects.append(document)
@@ -1807,7 +1772,7 @@ class TrackerRecordsHandler(BaseHandler):
 
         # previous, removing link if there are no pages
         if skip != 0:
-            previous_page = "/stubo/api/v2/tracker/records?skip=" + str(skip_backwards) + "&limit=" + str(limit)
+            previous_page = "/api/v2/tracker/records?skip=" + str(skip_backwards) + "&limit=" + str(limit)
         else:
             previous_page = None
 
@@ -1815,14 +1780,14 @@ class TrackerRecordsHandler(BaseHandler):
         if skip_forward + limit >= total_items:
             next_page = None
         else:
-            next_page = "/stubo/api/v2/tracker/records?skip=" + str(skip_forward) + "&limit=" + str(limit)
+            next_page = "/api/v2/tracker/records?skip=" + str(skip_forward) + "&limit=" + str(limit)
 
         result = {'data': tracker_objects,
                   'paging': {
                       'previous': previous_page,
                       'next': next_page,
-                      'first': "/stubo/api/v2/tracker/records?skip=" + str(0) + "&limit=" + str(limit),
-                      'last': "/stubo/api/v2/tracker/records?skip=" + str(total_items - limit) + "&limit=" + str(limit),
+                      'first': "/api/v2/tracker/records?skip=" + str(0) + "&limit=" + str(limit),
+                      'last': "/api/v2/tracker/records?skip=" + str(total_items - limit) + "&limit=" + str(limit),
                       'currentLimit': limit,
                       'totalItems': total_items
                   }}
@@ -1873,7 +1838,7 @@ class TrackerWebSocket(websocket.WebSocketHandler):
                 obj_id = str(ObjectId(document['_id']))
                 document['id'] = obj_id
                 # adding object ref ID
-                document['href'] = "/stubo/api/v2/tracker/records/objects/%s" % obj_id
+                document['href'] = "/api/v2/tracker/records/objects/%s" % obj_id
                 # removing BSON object
                 document.pop('_id')
                 tracker_objects.append(document)
@@ -1893,7 +1858,7 @@ class TrackerWebSocket(websocket.WebSocketHandler):
 
         # previous, removing link if there are no pages
         if skip != 0:
-            previous_page = "/stubo/api/v2/tracker/records?skip=" + str(skip_backwards) + "&limit=" + str(limit)
+            previous_page = "/api/v2/tracker/records?skip=" + str(skip_backwards) + "&limit=" + str(limit)
         else:
             previous_page = None
 
@@ -1901,14 +1866,14 @@ class TrackerWebSocket(websocket.WebSocketHandler):
         if skip_forward + limit >= total_items:
             next_page = None
         else:
-            next_page = "/stubo/api/v2/tracker/records?skip=" + str(skip_forward) + "&limit=" + str(limit)
+            next_page = "/api/v2/tracker/records?skip=" + str(skip_forward) + "&limit=" + str(limit)
 
         result = {'data': tracker_objects,
                   'paging': {
                       'previous': previous_page,
                       'next': next_page,
-                      'first': "/stubo/api/v2/tracker/records?skip=" + str(0) + "&limit=" + str(limit),
-                      'last': "/stubo/api/v2/tracker/records?skip=" + str(total_items - limit) + "&limit=" + str(limit),
+                      'first': "/api/v2/tracker/records?skip=" + str(0) + "&limit=" + str(limit),
+                      'last': "/api/v2/tracker/records?skip=" + str(total_items - limit) + "&limit=" + str(limit),
                       'currentLimit': limit,
                       'totalItems': total_items
                   }}
@@ -1921,7 +1886,7 @@ class TrackerWebSocket(websocket.WebSocketHandler):
 
 class TrackerRecordDetailsHandler(BaseHandler):
     """
-    /stubo/api/v2/tracker/records/objects/<record_id>
+    /api/v2/tracker/records/objects/<record_id>
     Gets tracker record details
     """
 

@@ -422,9 +422,9 @@ function updateTable(component) {
     var href = '';
     if (cookie.load('stubo.all-hosts') || false) {
         // amending query argument to get all hosts
-        href = '/stubo/api/v2/scenarios/detail?all-hosts=true'
+        href = '/api/v2/scenarios/detail?all-hosts=true'
     } else {
-        href = '/stubo/api/v2/scenarios/detail?all-hosts=false'
+        href = '/api/v2/scenarios/detail?all-hosts=false'
     }
 
     $.get(href, function (result) {
@@ -523,7 +523,7 @@ function BeginSession(that, scenario, session, mode) {
         type: "POST",
         dataType: "json",
         data: JSON.stringify(sessionPayload),
-        url: "/stubo/api/v2/scenarios/objects/" + scenario + "/action",
+        url: "/api/v2/scenarios/objects/" + scenario + "/action",
         success () {
             if (that.isMounted()) {
                 that.setState({
@@ -621,7 +621,7 @@ let CreateScenarioBtn = React.createClass({
             type: "PUT",
             dataType: "json",
             data: JSON.stringify(payload),
-            url: "/stubo/api/v2/scenarios",
+            url: "/api/v2/scenarios",
             success (data) {
                 if (that.isMounted()) {
                     that.setState({

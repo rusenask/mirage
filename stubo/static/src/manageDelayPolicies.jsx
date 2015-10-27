@@ -230,6 +230,6 @@ var ExternalDelayPolicies = React.createClass({
 });
 
 React.render(
-    <ExternalDelayPolicies source="/stubo/api/v2/delay-policy/detail"/>,
+    <ExternalDelayPolicies source="/api/v2/delay-policy/detail"/>,
     document.getElementById('app')
 );

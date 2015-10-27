@@ -206,7 +206,7 @@ webpackJsonp([6],[
 
 	        if ("WebSocket" in window) {
 	            (function () {
-	                _this.state.ws = new WebSocket("ws:/" + window.location.host + "/stubo/api/ws/tracker");
+	                _this.state.ws = new WebSocket("ws:/" + window.location.host + "/api/ws/tracker");
 
 	                var that = _this;
 	                _this.state.ws.onclose = function () {
@@ -247,7 +247,7 @@ webpackJsonp([6],[
 	            // fallback to regular queries
 	            var query = '?skip=' + skip;
 
-	            var href = '/stubo/api/v2/tracker/records' + query + '&limit=25' + '&q=' + this.state.currentQuery;
+	            var href = '/api/v2/tracker/records' + query + '&limit=25' + '&q=' + this.state.currentQuery;
 
 	            $.get(href, function (data) {
 
@@ -289,7 +289,7 @@ webpackJsonp([6],[
 	        } else {
 	            // do this if browser does not support websockets
 
-	            var href = '/stubo/api/v2/tracker/records?skip=0&limit=25' + '&q=' + filter;
+	            var href = '/api/v2/tracker/records?skip=0&limit=25' + '&q=' + filter;
 
 	            $.get(href, function (data) {
 	                that.setState({
