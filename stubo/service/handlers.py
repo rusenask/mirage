@@ -1204,7 +1204,7 @@ class ScenarioActionHandler(TrackRequest):
 
 class CreateDelayPolicyHandler(BaseHandler):
     """
-    /stubo/api/v2/delay-policy
+    /api/v2/delay-policy
     """
 
     def compute_etag(self):
@@ -1243,7 +1243,7 @@ class CreateDelayPolicyHandler(BaseHandler):
 
 class GetAllDelayPoliciesHandler(RequestHandler):
     """
-    /stubo/api/v2/delay-policy/detail
+    /api/v2/delay-policy/detail
     """
 
     def compute_etag(self):
@@ -1261,17 +1261,17 @@ class GetAllDelayPoliciesHandler(RequestHandler):
             {"my_delay":
                 {"delay_type": "fixed",
                 "name": "my_delay",
-                "delayPolicyRef": "/stubo/api/v2/delay-policy/objects/my_delay",
+                "delayPolicyRef": "/api/v2/delay-policy/objects/my_delay",
                 "milliseconds": 50},
             "pcent_random_samples":
                 {"delay_type": "weighted",
                 "delays": "fixed,30000,5:normalvariate,5000,1000,15:normalvariate,1000,500,70",
                 "name": "pcent_random_samples",
-                "delayPolicyRef": "/stubo/api/v2/delay-policy/objects/pcent_random_samples"},
+                "delayPolicyRef": "/api/v2/delay-policy/objects/pcent_random_samples"},
             "delay_1":
                  {"delay_type": "fixed",
                   "name": "delay_1",
-                  "delayPolicyRef": "/stubo/api/v2/delay-policy/objects/delay_1",
+                  "delayPolicyRef": "/api/v2/delay-policy/objects/delay_1",
                   "milliseconds": "0"}
             }
         }
@@ -1283,16 +1283,9 @@ class GetAllDelayPoliciesHandler(RequestHandler):
 
 class GetDelayPolicyDetailsHandler(RequestHandler):
     """
-    /stubo/api/v2/delay-policy/objects/(?P<delay_policy_name>[^\/]+)
+    /api/v2/delay-policy/objects/(?P<delay_policy_name>[^\/]+)
 
     """
-
-    def initialize(self):
-        """
-        Setting version header
-        """
-        # setting header
-        self.set_header('x-stub-o-matic-version', version)
 
     def compute_etag(self):
         return None
