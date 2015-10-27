@@ -1718,7 +1718,7 @@ class ScenarioUploadHandler(BaseHandler):
 
 class TrackerRecordsHandler(BaseHandler):
     """
-    /stubo/api/v2/tracker/records
+    /api/v2/tracker/records
     """
 
     def initialize(self):
@@ -1773,7 +1773,7 @@ class TrackerRecordsHandler(BaseHandler):
                 obj_id = str(ObjectId(document['_id']))
                 document['id'] = obj_id
                 # adding object ref ID
-                document['href'] = "/stubo/api/v2/tracker/records/objects/%s" % obj_id
+                document['href'] = "/api/v2/tracker/records/objects/%s" % obj_id
                 # removing BSON object
                 document.pop('_id')
                 tracker_objects.append(document)
@@ -1793,7 +1793,7 @@ class TrackerRecordsHandler(BaseHandler):
 
         # previous, removing link if there are no pages
         if skip != 0:
-            previous_page = "/stubo/api/v2/tracker/records?skip=" + str(skip_backwards) + "&limit=" + str(limit)
+            previous_page = "/api/v2/tracker/records?skip=" + str(skip_backwards) + "&limit=" + str(limit)
         else:
             previous_page = None
 
@@ -1801,14 +1801,14 @@ class TrackerRecordsHandler(BaseHandler):
         if skip_forward + limit >= total_items:
             next_page = None
         else:
-            next_page = "/stubo/api/v2/tracker/records?skip=" + str(skip_forward) + "&limit=" + str(limit)
+            next_page = "/api/v2/tracker/records?skip=" + str(skip_forward) + "&limit=" + str(limit)
 
         result = {'data': tracker_objects,
                   'paging': {
                       'previous': previous_page,
                       'next': next_page,
-                      'first': "/stubo/api/v2/tracker/records?skip=" + str(0) + "&limit=" + str(limit),
-                      'last': "/stubo/api/v2/tracker/records?skip=" + str(total_items - limit) + "&limit=" + str(limit),
+                      'first': "/api/v2/tracker/records?skip=" + str(0) + "&limit=" + str(limit),
+                      'last': "/api/v2/tracker/records?skip=" + str(total_items - limit) + "&limit=" + str(limit),
                       'currentLimit': limit,
                       'totalItems': total_items
                   }}
@@ -1859,7 +1859,7 @@ class TrackerWebSocket(websocket.WebSocketHandler):
                 obj_id = str(ObjectId(document['_id']))
                 document['id'] = obj_id
                 # adding object ref ID
-                document['href'] = "/stubo/api/v2/tracker/records/objects/%s" % obj_id
+                document['href'] = "/api/v2/tracker/records/objects/%s" % obj_id
                 # removing BSON object
                 document.pop('_id')
                 tracker_objects.append(document)
@@ -1879,7 +1879,7 @@ class TrackerWebSocket(websocket.WebSocketHandler):
 
         # previous, removing link if there are no pages
         if skip != 0:
-            previous_page = "/stubo/api/v2/tracker/records?skip=" + str(skip_backwards) + "&limit=" + str(limit)
+            previous_page = "/api/v2/tracker/records?skip=" + str(skip_backwards) + "&limit=" + str(limit)
         else:
             previous_page = None
 
@@ -1887,14 +1887,14 @@ class TrackerWebSocket(websocket.WebSocketHandler):
         if skip_forward + limit >= total_items:
             next_page = None
         else:
-            next_page = "/stubo/api/v2/tracker/records?skip=" + str(skip_forward) + "&limit=" + str(limit)
+            next_page = "/api/v2/tracker/records?skip=" + str(skip_forward) + "&limit=" + str(limit)
 
         result = {'data': tracker_objects,
                   'paging': {
                       'previous': previous_page,
                       'next': next_page,
-                      'first': "/stubo/api/v2/tracker/records?skip=" + str(0) + "&limit=" + str(limit),
-                      'last': "/stubo/api/v2/tracker/records?skip=" + str(total_items - limit) + "&limit=" + str(limit),
+                      'first': "/api/v2/tracker/records?skip=" + str(0) + "&limit=" + str(limit),
+                      'last': "/api/v2/tracker/records?skip=" + str(total_items - limit) + "&limit=" + str(limit),
                       'currentLimit': limit,
                       'totalItems': total_items
                   }}
@@ -1907,7 +1907,7 @@ class TrackerWebSocket(websocket.WebSocketHandler):
 
 class TrackerRecordDetailsHandler(BaseHandler):
     """
-    /stubo/api/v2/tracker/records/objects/<record_id>
+    /api/v2/tracker/records/objects/<record_id>
     Gets tracker record details
     """
 
