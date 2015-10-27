@@ -1365,8 +1365,6 @@ class StubHandler(TrackRequest):
         Initializing database and setting header. Using global tornado settings that are generated
         during startup to acquire database client
         """
-        # setting header
-        self.set_header('x-stub-o-matic-version', version)
         # get motor driver
         self.db = motor_driver(self.settings)
 
@@ -1487,9 +1485,6 @@ class StubHandler(TrackRequest):
         stateful = asbool(self.request.headers.get('stateful', True))
         recorded = self.request.headers.get('stub_created_date', None)
         module_name = self.request.headers.get('ext_module', None)
-        # if not module_name:
-        #     # legacy
-        #     module_name = handler.get_argument('stubbedSystem', None)
 
         recorded_module_system_date = self.request.headers.get('stubbedSystemDate', None)
         priority = int(self.request.headers.get('priority', -1))
