@@ -564,7 +564,7 @@ NOT_ALLOWED_MSG = 'Method not allowed'
 
 class BaseScenarioHandler(RequestHandler):
     """
-    /stubo/api/v2/scenarios
+    /api/v2/scenarios
     """
 
     def initialize(self):
@@ -588,15 +588,15 @@ class BaseScenarioHandler(RequestHandler):
         {
             scenarios:
               {
-                scenarioRef: "/stubo/api/v2/scenarios/objects/127.0.0.1:scenario_0001"
+                scenarioRef: "/api/v2/scenarios/objects/127.0.0.1:scenario_0001"
                 name: "127.0.0.1:scenario_0001"
                 },
                 {
-                scenarioRef: "/stubo/api/v2/scenarios/objects/localhost:scenario_1"
+                scenarioRef: "/api/v2/scenarios/objects/localhost:scenario_1"
                 name: "localhost:scenario_1"
                 },
                 {
-                scenarioRef: "/stubo/api/v2/scenarios/objects/localhost:scenario_10"
+                scenarioRef: "/api/v2/scenarios/objects/localhost:scenario_10"
                 name: "localhost:scenario_10"
                 },
                 ..
@@ -619,7 +619,7 @@ class BaseScenarioHandler(RequestHandler):
                 document = cursor.next_object()
                 try:
                     scenarios.append({'name': document['name'],
-                                      'scenarioRef': '/stubo/api/v2/scenarios/objects/%s' % document['name']})
+                                      'scenarioRef': '/api/v2/scenarios/objects/%s' % document['name']})
                 except KeyError:
                     log.warn('Scenario name not found for object: %s' % document['_id'])
             result_dict['data'] = scenarios
@@ -629,13 +629,13 @@ class BaseScenarioHandler(RequestHandler):
         """
         Call example:
         curl -i -H "Content-Type: application/json" -X PUT -d '{"scenario":"scenario_0001"}'
-                                                                         http://127.0.0.1:8001/stubo/api/v2/scenarios
+                                                                         http://127.0.0.1:8001/api/v2/scenarios
 
         Creates a scenario and returns a link to it: query example:
         { “scenario”: “scenario_name” }
         :return:  returns a JSON response that contains information about created object,
         example success (201 response code):
-        {"scenarioRef": "/stubo/api/v2/scenarios/objects/127.0.0.1:scenario_0001",
+        {"scenarioRef": "/api/v2/scenarios/objects/127.0.0.1:scenario_0001",
          "name": "127.0.0.1:scenario_0001"}
 
         example duplicate error (422 response code):
@@ -701,7 +701,7 @@ class BaseScenarioHandler(RequestHandler):
             self.db.scenario.create_index('name', unique=True)
             # creating result dict
             result_dict = {'name': name,
-                           'scenarioRef': '/stubo/api/v2/scenarios/objects/{0}'.format(name)}
+                           'scenarioRef': '/api/v2/scenarios/objects/{0}'.format(name)}
             self.set_status(201)
             self.write(result_dict)
         except DuplicateKeyError as ex:
@@ -716,7 +716,7 @@ class BaseScenarioHandler(RequestHandler):
 
 class GetAllScenariosHandler(RequestHandler):
     """
-    /stubo/api/v2/scenarios/detail
+    /api/v2/scenarios/detail
 
     """
 
@@ -786,7 +786,7 @@ class GetAllScenariosHandler(RequestHandler):
                                   'space_used_kb': scenario_size,
                                   'stub_count': scenario_stub_count,
                                   'sessions': sessions,
-                                  'scenarioRef': '/stubo/api/v2/scenarios/objects/%s' % document['name']})
+                                  'scenarioRef': '/api/v2/scenarios/objects/%s' % document['name']})
             except KeyError:
                 log.warn('Scenario name not found for object: %s' % document['_id'])
         result_dict['data'] = scenarios
@@ -800,7 +800,7 @@ class GetAllScenariosHandler(RequestHandler):
 
 class GetScenarioDetailsHandler(RequestHandler):
     """
-    /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)
+    /api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)
 
     """
 
@@ -832,7 +832,7 @@ class GetScenarioDetailsHandler(RequestHandler):
              "space_used_kb": 840,
              "recorded": "2015-07-15",
              "name": "localhost:scenario_16",
-             "scenarioRef": "/stubo/api/v2/scenarios/objects/localhost:scenario_16"
+             "scenarioRef": "/api/v2/scenarios/objects/localhost:scenario_16"
          }
         """
 
@@ -866,7 +866,7 @@ class GetScenarioDetailsHandler(RequestHandler):
                            'stub_count': stub_count,
                            'recorded': recorded,
                            'space_used_kb': int(size),
-                           'scenarioRef': '/stubo/api/v2/scenarios/objects/{0}'.format(scenario_name),
+                           'scenarioRef': '/api/v2/scenarios/objects/{0}'.format(scenario_name),
                            'sessions': sessions}
             self.set_status(200)
             self.write(result_dict)
@@ -923,15 +923,13 @@ class GetScenarioDetailsHandler(RequestHandler):
 
 class ScenarioActionHandler(TrackRequest):
     """
-    /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/action
+    /api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/action
     """
 
     def initialize(self):
         """
         Setting version header
         """
-        # setting header
-        self.set_header('x-stub-o-matic-version', version)
 
     def compute_etag(self):
         return None
@@ -1031,7 +1029,7 @@ class ScenarioActionHandler(TrackRequest):
          "data":
             {"status": "record",
             "scenario": "localhost:scenario_rest_api",
-            "scenarioRef": "/stubo/api/v2/scenarios/objects/localhost:scenario_rest_api",
+            "scenarioRef": "/api/v2/scenarios/objects/localhost:scenario_rest_api",
             "scenario_id": "55acba53fc456205eaf7e258",
             "session": "new_session_rest2",
             "message": "Record mode initiated...."}
@@ -1049,7 +1047,7 @@ class ScenarioActionHandler(TrackRequest):
                                         self.get_argument('system_date', None),
                                         warm_cache)
         # adding scenarioRef key for easier resource access.
-        response['data']['scenarioRef'] = '/stubo/api/v2/scenarios/objects/%s' % response['data']['scenario']
+        response['data']['scenarioRef'] = '/api/v2/scenarios/objects/%s' % response['data']['scenario']
         self.write(response)
 
     def _end_all_sessions(self):
