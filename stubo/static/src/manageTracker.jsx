@@ -219,7 +219,7 @@ var RecordsComponent = React.createClass({
             // fallback to regular queries
             var query = '?skip=' + skip;
 
-            var href = '/stubo/api/v2/tracker/records' + query + '&limit=25' + '&q=' + this.state.currentQuery;
+            var href = '/api/v2/tracker/records' + query + '&limit=25' + '&q=' + this.state.currentQuery;
 
             $.get(href, function (data) {
 
@@ -265,7 +265,7 @@ var RecordsComponent = React.createClass({
         } else {
             // do this if browser does not support websockets
 
-            var href = '/stubo/api/v2/tracker/records?skip=0&limit=25' + '&q=' + filter;
+            var href = '/api/v2/tracker/records?skip=0&limit=25' + '&q=' + filter;
 
             $.get(href, function (data) {
                 that.setState({
