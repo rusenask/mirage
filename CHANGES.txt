@@ -2,6 +2,10 @@ Changelog
 =========
 
 Added:
+- Database authentication. Now you can specify MongoDB user (mongo.user) and password (mongo.password) in the .ini file.
+- Now looking for environment variables for database connection setup:
+  + export MONGO_URI=mongodb://<dbuser>:<dbpassword>@mongo_host:mongo_port/database
+  + export MONGO_DB=stubodb
 
 Changed:
 
