@@ -33,8 +33,26 @@ mongo_client = None
 
 
 def motor_driver(settings):
-    # getting motor client
-    client = motor.MotorClient(settings['mongo.host'], int(settings['mongo.port']))
+    """
+
+    Returns asynchronous Motor client. If user and password provided in config file - returns authenticated connection
+    :param settings:
+    :return:
+    """
+    user = settings.get('mongo.user', None)
+    password = settings.get('mongo.password', None)
+    if user and password:
+        uri = "mongodb://{user}:{password}@{host}:{port}/{database_name}".format(
+            user=user,
+            password=password,
+            host=settings['mongo.host'],
+            port=settings['mongo.port'],
+            database_name=settings['mongo.db']
+        )
+        client = motor.MotorClient(uri)
+    else:
+        client = motor.MotorClient(settings['mongo.host'], int(settings['mongo.port']))
+
     return client[settings['mongo.db']]
 
 
