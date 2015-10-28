@@ -43,13 +43,37 @@ def get_mongo_client():
 
 
 def get_connection(env=None):
+    """
+
+    Gets MongoDB connection. If user and password provided - authenticates (logs in)
+    :param env: dictionary, example:
+            {'host': 'ds045454.mongolab.com',
+             'tz_aware': True,
+             'max_pool_size': 10,
+             'port': 45454}
+    :return: MongoClient
+    """
     env = env or default_env
     _env = env.copy()
     dbname = _env.pop('db', None)
+
+    # if auth details supplied - getting details
+    user = password = None
+    if 'user' in _env:
+        user = _env.pop('user')
+    if 'password' in _env:
+        password = _env.pop('password')
+
     client = MongoClient(**_env)
     if dbname:
         log.debug('using db={0}'.format(dbname))
         client = getattr(client, dbname)
+
+    # authenticating
+    if user and password:
+        # if fails - throws exception which will be handled in run_stubo.py
+        client.authenticate(user, password)
+
     return client
 
 
