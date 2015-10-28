@@ -73,6 +73,7 @@ def get_connection(env=None):
     if user and password:
         # if fails - throws exception which will be handled in run_stubo.py
         client.authenticate(user, password)
+        log.info("Login to MongoDB successful!")
 
     return client
 
