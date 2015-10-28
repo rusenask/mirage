@@ -10,6 +10,7 @@ from stubo.model.stub import Stub
 import hashlib
 import time
 import motor
+import os
 
 default_env = {
     'port': 27017,
@@ -39,6 +40,15 @@ def motor_driver(settings):
     :param settings:
     :return:
     """
+    # checking for environment variables
+    mongo_uri = os.getenv("MONGO_URI")
+    mongo_db = os.getenv("MONGO_DB")
+    if mongo_uri and mongo_db:
+        client = motor.MotorClient(mongo_uri)
+        log.info("MongoDB environment variables found: %s!" % mongo_uri)
+        return client[mongo_db]
+
+    # environment variables not found, looking for details from configuration file
     user = settings.get('mongo.user', None)
     password = settings.get('mongo.password', None)
     if user and password:
@@ -50,9 +60,9 @@ def motor_driver(settings):
             database_name=settings['mongo.db']
         )
         client = motor.MotorClient(uri)
+
     else:
         client = motor.MotorClient(settings['mongo.host'], int(settings['mongo.port']))
-
     return client[settings['mongo.db']]
 
 
@@ -71,6 +81,15 @@ def get_connection(env=None):
              'port': 45454}
     :return: MongoClient
     """
+    # checking for environment variables
+    mongo_uri = os.getenv("MONGO_URI")
+    mongo_db = os.getenv("MONGO_DB")
+    if mongo_uri and mongo_db:
+        client = MongoClient(mongo_uri)
+        log.info("MongoDB environment variables found: %s!" % mongo_uri)
+        return client[mongo_db]
+
+    # environment variables not found, looking for details from configuration file
     env = env or default_env
     _env = env.copy()
     dbname = _env.pop('db', None)
