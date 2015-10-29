@@ -299,7 +299,7 @@ class DummyCache(Cache):
         self.host = host
         return self
 
-    def hash_cls(self):
+    def get_cache_backend(self):
         return self._hash
 
     def get_all_saved_request_index_data(self):
