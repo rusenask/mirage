@@ -145,7 +145,7 @@ class CacheBackend(object):
         raise NotImplementedError
 
 
-class Hash(CacheBackend):
+class RedisCacheBackend(CacheBackend):
 
     def __init__(self, server=None):
         self.server = server or redis_server

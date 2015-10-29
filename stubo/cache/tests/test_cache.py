@@ -1,15 +1,12 @@
 import unittest
 import mock
-import fakeredis
-from stubo.testing import (
-    make_stub, make_cache_stub, DummyModel, DummyQueue, DummyHash
-)
+from stubo.testing import DummyHash
 
 
 class Base(unittest.TestCase):
     def setUp(self):
         self.hash = DummyHash({})
-        self.hash_patch = mock.patch('stubo.cache.Hash', self.hash)
+        self.hash_patch = mock.patch('stubo.cache.RedisCacheBackend', self.hash)
         self.hash_patch.start()
 
         from stubo.testing import DummyScenario
@@ -188,7 +185,7 @@ class Test_create_session_cache(Base):
 class TestCache(unittest.TestCase):
     def setUp(self):
         self.hash = DummyHash()
-        self.patch = mock.patch('stubo.cache.Hash', self.hash)
+        self.patch = mock.patch('stubo.cache.RedisCacheBackend', self.hash)
         self.patch.start()
         self.patch2 = mock.patch('stubo.cache.get_redis_server', lambda x: x)
         self.patch2.start()
@@ -199,9 +196,8 @@ class TestCache(unittest.TestCase):
 
     def _get_cache(self):
         from stubo.cache import Cache
-        pool = fakeredis.FakeStrictRedis()
 
-        return Cache('localhost', pool=pool)
+        return Cache('localhost')
 
     def test_get(self):
         cache = self._get_cache()
@@ -371,7 +367,7 @@ class Test_get_response_text(unittest.TestCase):
 
     def setUp(self):
         self.hash = DummyHash()
-        self.patch = mock.patch('stubo.cache.Hash', self.hash)
+        self.patch = mock.patch('stubo.cache.RedisCacheBackend', self.hash)
         self.patch.start()
         self.patch2 = mock.patch('stubo.cache.get_redis_server', lambda x: x)
         self.patch2.start()
@@ -507,7 +503,7 @@ class Test_add_request(Base):
 class TestRequestIndex(unittest.TestCase):
     def setUp(self):
         self.hash = DummyHash({})
-        self.hash_patch = mock.patch('stubo.cache.Hash', self.hash)
+        self.hash_patch = mock.patch('stubo.cache.RedisCacheBackend', self.hash)
         self.hash_patch.start()
         self.master = DummyMaster()
         self.patch_master = mock.patch('stubo.cache.get_redis_master',

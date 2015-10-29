@@ -11,7 +11,7 @@ import logging
 import datetime
 import time
 
-from .queue import String, Hash, Queue, get_redis_master, get_redis_slave
+from .queue import String, RedisCacheBackend, Queue, get_redis_master, get_redis_slave
 from stubo.exceptions import exception_response
 from stubo.utils import asbool
 from stubo.model.db import Scenario
@@ -125,7 +125,7 @@ class Cache(object):
 
     def hash_cls(self):
         # testing
-        return Hash
+        return RedisCacheBackend
 
     def get(self, name, key, local=False):
         return self.hash_cls()(get_redis_server(local)).get(name, key)

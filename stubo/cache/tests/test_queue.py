@@ -3,9 +3,9 @@ import unittest
 class HashTests(unittest.TestCase):
 
     def _makeOne(self):
-        from stubo.cache.queue import Hash
+        from stubo.cache.queue import RedisCacheBackend
         import redis
-        h = Hash(redis.Redis('localhost'))
+        h = RedisCacheBackend(redis.Redis('localhost'))
         self.name = '_testh'
         return h
     
