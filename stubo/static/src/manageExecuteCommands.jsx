@@ -210,10 +210,9 @@ let StatusCodeWrapper = React.createClass({
 
     render() {
         let sc = this.props.data;
-
-        if (200 <= sc < 300) {
+        if (200 <= sc && sc < 300) {
             return <Label bsStyle="success">{sc}</Label>
-        } else if (300 <= sc < 400) {
+        } else if (300 <= sc && sc < 400) {
             return <Label bsStyle="warning">{sc}</Label>
         } else {
             return <Label bsStyle="danger">{sc}</Label>
