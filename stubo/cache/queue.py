@@ -108,6 +108,7 @@ class CacheBackend(object):
     """
     The base Cache Backend class
     """
+
     def get(self, name, key):
         raise NotImplementedError
 
@@ -146,7 +147,6 @@ class CacheBackend(object):
 
 
 class RedisCacheBackend(CacheBackend):
-
     def __init__(self, server=None):
         self.server = server or redis_server
 
@@ -183,13 +183,18 @@ class RedisCacheBackend(CacheBackend):
 
     def delete(self, name, *keys):
         """
-        delete the hash key
+        Removes the specified fields from the hash stored at key.
+        Specified fields that do not exist within this hash are ignored.
+        If key does not exist, it is treated as an empty hash and this command returns 0.
         """
         return self.server.hdel(name, *keys)
 
     def remove(self, name):
         """
-        delete the hash
+        Time complexity: O(N) where N is the number of keys that will be removed.
+        When a key to remove holds a value other than a string, the individual complexity for this key is O(M)
+        where M is the number of elements in the list, set, sorted set or hash.
+        Removing a single key that holds a string value is O(1).
         """
         return self.server.delete(name)
 
