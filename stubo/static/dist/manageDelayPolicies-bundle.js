@@ -245,7 +245,7 @@ webpackJsonp([1],[
 	    }
 	});
 
-	React.render(React.createElement(ExternalDelayPolicies, { source: '/stubo/api/v2/delay-policy/detail' }), document.getElementById('app'));
+	React.render(React.createElement(ExternalDelayPolicies, { source: '/api/v2/delay-policy/detail' }), document.getElementById('app'));
 
 /***/ },
 /* 1 */,

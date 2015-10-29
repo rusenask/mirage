@@ -9,7 +9,7 @@ class DummyRequests(object):
     def __init__(self):
         self.posts = []
 
-    def get(self, url):
+    def get(self, url, verify=False):
         if 'stubo/api/put/delay_policy' in url:
             # special case as this is not implemented as a HTTP GET
             return self.post(url, "")

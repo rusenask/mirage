@@ -11,6 +11,17 @@ Deprecated:
 
 Removed:
 
+0.8.0 (2015-10-27)
+
+Added:
+- Documentation for Tracker API and how to create useful queries. Also, created documentation for Tracker record details.
+
+Changed:
+- Disabled certificate verification when importing scenarios (executing commands)
+- Changed all REST API (v2) URL paths: removed "/stubo/" from URL since it doesn't hold any information and there is no
+  point in providing application former name inside url.
+- Updated documentation, tests to accommodate URL changes.
+
 0.7.2 (2015-10-26)
 
 Added:

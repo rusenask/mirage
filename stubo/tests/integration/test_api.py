@@ -1161,7 +1161,7 @@ class TestMultipleDateRolling(Base):
         # import from commands file
         self._import_module()
 
-        self.http_client.fetch(self.get_url('/stubo/api/v2/tracker/records'), self.stop)
+        self.http_client.fetch(self.get_url('/api/v2/tracker/records'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
         json_body = json.loads(response.body)

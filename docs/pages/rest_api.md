@@ -11,7 +11,7 @@ Encoding "application/json"
 
 Creates scenario object. Client must specify scenario name in the request body.
 
-* __URL__: /stubo/api/v2/scenarios
+* __URL__: /api/v2/scenarios
 * __Method__: PUT
 * __Response codes__:
    + __201__ - scenario created
@@ -136,7 +136,7 @@ can the be used to get scenario details (sessions, stubs, size, etc...). Your
 application can look for these keys and use them to directly access resource
 instead of generating URL on client side.
 
-* __URL__: /stubo/api/v2/scenarios
+* __URL__: /api/v2/scenarios
 * __Method__: GET
 * __Response codes__:
    + __200__ - scenario list returned
@@ -144,9 +144,9 @@ instead of generating URL on client side.
 ```javascript
 {
   "data": [
-    {"scenarioRef": "/stubo/api/v2/scenarios/objects/localhost:scenario_1",
+    {"scenarioRef": "/api/v2/scenarios/objects/localhost:scenario_1",
     "name": "localhost:scenario_1"},
-    {"scenarioRef": "/stubo/api/v2/scenarios/objects/localhost:scenario_10",
+    {"scenarioRef": "/api/v2/scenarios/objects/localhost:scenario_10",
      "name": "localhost:scenario_10"},
      ...,
      ...,
@@ -157,7 +157,7 @@ instead of generating URL on client side.
 
 Returns a list of scenarios with details.
 
-* __URL__: /stubo/api/v2/scenarios/detail
+* __URL__: /api/v2/scenarios/detail
 * __Method__: GET
 * __Response codes__:
    + __200__ - scenario list with details returned
@@ -169,7 +169,7 @@ Returns a list of scenarios with details.
     "space_used_kb": 0,
     "name": "localhost:scenario_1",
     "sessions": [],
-    "scenarioRef": "/stubo/api/v2/scenarios/objects/localhost:scenario_1",
+    "scenarioRef": "/api/v2/scenarios/objects/localhost:scenario_1",
     "recorded": "-",
     "stub_count": 0},
   {
@@ -182,7 +182,7 @@ Returns a list of scenarios with details.
           "name": "playback_10",
           "last_used": "2015-07-20 13:09:05"}
         ],
-     "scenarioRef": "/stubo/api/v2/scenarios/objects/localhost:scenario_10",
+     "scenarioRef": "/api/v2/scenarios/objects/localhost:scenario_10",
      "recorded": "2015-07-20",
      "stub_count": 20},
      ...,
@@ -196,7 +196,7 @@ Returns a list of scenarios with details.
 Returns specified scenario details. Scenario name can be provided with a host,
 for example stubo_c1.yourcorporateaddress.com:scenario_name_x
 
-* __URL__: /stubo/api/v2/scenarios/objects/<scenario_name>
+* __URL__: /api/v2/scenarios/objects/<scenario_name>
 * __Method__: GET
 * __Response codes__:
    + __200__ - specified scenario details
@@ -214,7 +214,7 @@ for example stubo_c1.yourcorporateaddress.com:scenario_name_x
    ],
    "stubs": 26,
    "recorded": "2015-07-20",
-   "scenarioRef": "/stubo/api/v2/scenarios/objects/localhost:scenario_13"
+   "scenarioRef": "/api/v2/scenarios/objects/localhost:scenario_13"
  }
 ```
 
@@ -222,7 +222,7 @@ for example stubo_c1.yourcorporateaddress.com:scenario_name_x
 
 Deletes scenario object and removed it's stubs from cache.
 
-* __URL__: /stubo/api/v2/scenarios/objects/<scenario_name>
+* __URL__: /api/v2/scenarios/objects/<scenario_name>
 * __Method__: DELETE
 * __Response codes__:
    + __200__ - scenario deleted
@@ -234,7 +234,7 @@ Deletes scenario object and removed it's stubs from cache.
 Begins session for specified scenario. Client has to specify session name and
 mode in request body. Session mode can be either 'record' and 'playback'.
 
-* __URL__: /stubo/api/v2/scenarios/objects/<scenario_name>/action
+* __URL__: /api/v2/scenarios/objects/<scenario_name>/action
 * __Method__: POST
 * __Response codes__:
   + __200__ - begins session
@@ -261,7 +261,7 @@ mode in request body. Session mode can be either 'record' and 'playback'.
 
 Ends specified session. Client has to specify session name in request body.
 
-* __URL__: /stubo/api/v2/scenarios/objects/<scenario_name>/action
+* __URL__: /api/v2/scenarios/objects/<scenario_name>/action
 * __Method__: POST
 * __Response codes__:
   + __200__ - session ended.
@@ -286,7 +286,7 @@ Ends specified session. Client has to specify session name in request body.
 
 Ends all sessions for specified scenario
 
-* __URL__: /stubo/api/v2/scenarios/objects/<scenario_name>/action
+* __URL__: /api/v2/scenarios/objects/<scenario_name>/action
 * __Method__: POST
 * __Response codes__:
    + __200__ - scenario list with details returned
@@ -314,7 +314,7 @@ Ends all sessions for specified scenario
 
 Add stub to scenario
 
-* __URL__: /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
+* __URL__: /api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
 * __Method__: PUT
 * __Response codes__:
    + __201__ - inserted
@@ -359,7 +359,7 @@ go directly to database with this key and retrieve response.
 
 ## Getting response with stub
 
-* __URL__: /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
+* __URL__: /api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
 * __Method__: POST
 * __Response codes__:
    + __*__ - any HTTTP response that user defined during stub insertion
@@ -408,7 +408,7 @@ matcher here
 
 ## Get all stubs for specific scenario
 
-* __URL__: /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
+* __URL__: /api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
 * __Method__: GET
 * __Response codes__:
    + __200__ - stub list returned
@@ -447,7 +447,7 @@ matcher here
 
 ## Delete all scenario stubs
 
-* __URL__: /stubo/api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
+* __URL__: /api/v2/scenarios/objects/(?P<scenario_name>[^\/]+)/stubs
 * __Method__: DELETE
 * __Response codes__:
    + __200__ - stubs deleted
@@ -457,7 +457,7 @@ matcher here
 
 Gets all defined delay policies
 
-* __URL__: /stubo/api/v2/delay-policy/detail
+* __URL__: /api/v2/delay-policy/detail
 * __Method__: GET
 * __Response codes__:
    + __200__ - list with delay policies returned
@@ -469,13 +469,13 @@ Gets all defined delay policies
   "data": [
     {
       "delay_type": "fixed",
-       "delayPolicyRef": "/stubo/api/v2/delay-policy/objects/slow",
+       "delayPolicyRef": "/api/v2/delay-policy/objects/slow",
       "name": "slow",
       "milliseconds": "1000"
     },
     {
       "delay_type": "fixed_2",
-       "delayPolicyRef": "/stubo/api/v2/delay-policy/objects/slow",
+       "delayPolicyRef": "/api/v2/delay-policy/objects/slow",
       "name": "slower",
       "milliseconds": "5000"
     }
@@ -485,7 +485,7 @@ Gets all defined delay policies
 
 ## Get specific delay policy details
 
-* __URL__: /stubo/api/v2/delay-policy/objects/<name>
+* __URL__: /api/v2/delay-policy/objects/<name>
 * __Method__: GET
 * __Response codes__:
    + __200__ - delay policy returned
@@ -498,7 +498,7 @@ Gets all defined delay policies
   "data": [
     {
       "delay_type": "fixed",
-      "delayPolicyRef": "/stubo/api/v2/delay-policy/objects/slow",
+      "delayPolicyRef": "/api/v2/delay-policy/objects/slow",
       "name": "slow",
       "milliseconds": "1000"
     }
@@ -511,7 +511,7 @@ Gets all defined delay policies
 Creates a delay policy. Returns 201 status code if successful or 409 if request body options
 are wrong (type fixed provided with mean and stddev options)
 
-* __URL__: /stubo/api/v2/delay-policy
+* __URL__: /api/v2/delay-policy
 * __Method__: PUT
 * __Response codes__:
    + __201__ - scenario list with details returned
@@ -557,7 +557,7 @@ or:
     "status": "new",
     "message": "Put Delay Policy Finished",
     "delay_type": "fixed",
-    "delayPolicyRef": "/stubo/api/v2/delay-policy/objects/my_delay",
+    "delayPolicyRef": "/api/v2/delay-policy/objects/my_delay",
     "name": "my_delay"
   }
 }
@@ -566,7 +566,7 @@ or:
 
 ## Delete delay policy
 
-* __URL__: /stubo/api/v2/delay-policy/objects/<name>
+* __URL__: /api/v2/delay-policy/objects/<name>
 * __Method__: DELETE
 * __Response codes__:
    + __200__ - delay policy deleted
@@ -579,5 +579,114 @@ or:
   {
     "message": "Deleted 1 delay policies from [u'my_delay']"
   }
+}
+```
+
+## Get records from tracker
+
+Gets records from tracker. Since this collection becomes quite big over time - pagination is available. Your client application
+can define how many records it wants to skip and current item limit. Mirage also provides "href" - links to every record
+for additional information. 
+
+Available parameters:
++ limit - maximum records to return
++ skip - how many records should be skipped
++ q - query. Query can be simple string to search based on API call path, scenario. You can also supply values to search
+  for specific status codes and response times. For example I would want to find a scenario named "my_test_suite_x" and to see
+  only HTTP calls that produced status codes between 200 and 201, also, I would want to see only those requests that took longer
+  than 200 ms to complete, my query would look like:
+  "my_test_suite_x sc:>=200 sc:<=201 rt:>200" 
+
+* __URL__: /api/v2/tracker/records
+* __Method__: GET
+* __Response codes__:
+   + __200__ - list with tracker entries returned
+* __Example output__:
+
+```javascript
+{
+    "paging": {
+        "last": "/api/v2/tracker/records?skip=23172&limit=2",
+        "next": "/api/v2/tracker/records?skip=2&limit=2",
+        "currentLimit": 2,
+        "totalItems": 23174,
+        "previous": null,
+        "first": "/api/v2/tracker/records?skip=0&limit=2"
+    },
+    "data": [
+        {
+            "function": "/api/v2/scenarios/objects/localhost:scenario_100/stubs",
+            "request_params": {},
+            "start_time": "2015-10-27 11:18:24",
+            "return_code": 200,
+            "href": "/api/v2/tracker/records/objects/562f5d8137dd1220d73a0cbf",
+            "duration_ms": 902,
+            "stubo_response": "",
+            "id": "562f5d8137dd1220d73a0cbf"
+        },
+        {
+            "function": "/api/v2/scenarios/objects/localhost:scenario_14/action",
+            "request_params": {},
+            "scenario": "localhost:scenario_14",
+            "start_time": "2015-10-27 10:15:01",
+            "return_code": 200,
+            "href": "/api/v2/tracker/records/objects/562f4ea537dd1220d73a0ca1",
+            "duration_ms": 24,
+            "stubo_response": "",
+            "id": "562f4ea537dd1220d73a0ca1"
+        }
+    ]
+}
+```
+
+## Get tracker record details
+
+Gets detail information about specified tracker object ID. 
+
+* __URL__: /api/v2/tracker/records/objects/<object_id>
+* __Method__: GET
+* __Response codes__:
+   + __200__ - tracker record found, returned.
+   + __404__ - tracker record not found
+* __Example output__:
+
+```javascript
+{
+   "data":{
+      "function":"/api/v2/scenarios/objects/localhost:scenario_100/stubs",
+      "request_params":{
+
+      },
+      "tracking_level":"normal",
+      "start_time":"2015-10-27 11:18:24",
+      "return_code":200,
+      "server":"karoliss-macbook-pro.local",
+      "request_size":0,
+      "response_headers":{
+         "Date":"Tue, 27 Oct 2015 11:18:24 GMT",
+         "Content-Length":"5835405",
+         "Content-Type":"application/json; charset=UTF-8",
+         "Server":"TornadoServer/4.1"
+      },
+      "request_headers":{
+         "Accept-Language":"en-US,en;q=0.8,lt;q=0.6",
+         "Accept-Encoding":"gzip, deflate, sdch",
+         "Connection":"keep-alive",
+         "Accept":"*/*",
+         "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.71 Safari/537.36",
+         "Dnt":"1",
+         "Host":"localhost:8001",
+         "X-Requested-With":"XMLHttpRequest",
+         "Referer":"http://localhost:8001/manage/scenarios/details?scenario=/api/v2/scenarios/objects/localhost:scenario_100"
+      },
+      "host":"localhost",
+      "request_method":"GET",
+      "id":"562f5d8137dd1220d73a0cbf",
+      "response_size":5835405,
+      "duration_ms":902,
+      "stubo_response":"",
+      "port":"8001",
+      "remote_ip":"::1"
+   }
 }
 ```
