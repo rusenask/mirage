@@ -11,9 +11,9 @@ import logging
 import datetime
 import time
 
-from .queue import String, RedisCacheBackend, Queue, get_redis_master, get_redis_slave
+from .queue import String, Queue, get_redis_master, get_redis_slave
+from stubo.cache.backends import RedisCacheBackend
 from stubo.exceptions import exception_response
-from stubo.utils import asbool
 from stubo.model.db import Scenario
 from stubo.model.stub import Stub, StubCache, response_hash
 

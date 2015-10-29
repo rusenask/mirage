@@ -3,7 +3,7 @@ import json
 import os
 import yaml
 import logging
-from stubo.cache import Cache
+from stubo.cache import Cache, RedisCacheBackend
 from stubo.model.db import Tracker
 from stubo.testing import Base
 
@@ -133,7 +133,7 @@ class TestRequestCacheLimit(Base):
                                             '/static/cmds/tests/request_cache_limit/1.commands'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
-        from stubo.cache.queue import RedisCacheBackend
+        from stubo.cache.backends import RedisCacheBackend
 
         keys = RedisCacheBackend(self.redis_server).keys(
             'localhost:request_cache_limit:request')
