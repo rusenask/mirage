@@ -104,7 +104,49 @@ class String(object):
         return self.server.delete(key)
 
 
-class Hash(object):
+class CacheBackend(object):
+    """
+    The base Cache Backend class
+    """
+    def get(self, name, key):
+        raise NotImplementedError
+
+    def set(self, name, key, msg):
+        raise NotImplementedError
+
+    def set_raw(self, name, key, msg):
+        raise NotImplementedError
+
+    def incr(self, name, key, amount=1):
+        raise NotImplementedError
+
+    def get_raw(self, name, key):
+        raise NotImplementedError
+
+    def get_all_raw(self, name):
+        raise NotImplementedError
+
+    def get_all(self, name):
+        raise NotImplementedError
+
+    def keys(self, name):
+        raise NotImplementedError
+
+    def values(self, name):
+        raise NotImplementedError
+
+    def delete(self, name, *keys):
+        raise NotImplementedError
+
+    def remove(self, name):
+        raise NotImplementedError
+
+    def exists(self, name, key):
+        raise NotImplementedError
+
+
+class Hash(CacheBackend):
+
     def __init__(self, server=None):
         self.server = server or redis_server
 
