@@ -33,6 +33,7 @@ from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
 
 from dogpile.cache import make_region
+# from stubo.cache.backends
 
 from stubo.scripts import get_default_config
 
@@ -105,10 +106,10 @@ def init_redis_master(settings):
     port = int(settings.get('redis_master.port', 6379))
     db = int(settings.get('redis_master.db', 0))
     passwd = settings.get('redis_master.password')
-    import stubo.cache.queue
+    import stubo.cache.backends
 
-    stubo.cache.queue.redis_master_server = setup_redis(host, port, db, passwd)
-    return stubo.cache.queue.redis_master_server
+    stubo.cache.backends.redis_master_server = setup_redis(host, port, db, passwd)
+    return stubo.cache.backends.redis_master_server
 
 
 def start_redis(cfg):
@@ -136,7 +137,7 @@ def start_redis(cfg):
         import stubo.cache.queue
 
         redis_master_server = redis_local_server
-        stubo.cache.queue.redis_master_server = redis_master_server
+        stubo.cache.backends.redis_master_server = redis_master_server
     return redis_local_server, redis_master_server
 
 

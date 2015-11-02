@@ -3,7 +3,8 @@ import json
 import os
 import yaml
 import logging
-from stubo.cache import Cache, RedisCacheBackend
+from stubo.cache import Cache
+from stubo.cache.backends import get_redis_master, RedisCacheBackend
 from stubo.model.db import Tracker
 from stubo.testing import Base
 
@@ -45,7 +46,7 @@ class TestPutDelay(Base):
 
     def test_update_delay(self):
         from stubo.cache import RedisCacheBackend
-        from stubo.cache.queue import get_redis_master
+        from stubo.cache.backends import get_redis_master
 
         self.http_client.fetch(self.get_url('/stubo/api/put/delay_policy?'
                                             'name=x&delay_type=fixed&milliseconds=7'), self.stop)

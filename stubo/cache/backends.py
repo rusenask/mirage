@@ -100,3 +100,10 @@ class RedisCacheBackend(CacheBackend):
 
     def exists(self, name, key):
         return self.server.hexists(name, key)
+
+
+redis_master_server = None
+
+
+def get_redis_master():
+    return redis_master_server
