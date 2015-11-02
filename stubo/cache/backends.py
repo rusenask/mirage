@@ -50,9 +50,9 @@ class CacheBackend(object):
 class RedisCacheBackend(CacheBackend):
     def __init__(self, server=None):
         # trying to get server from environment variables
-        redis_hostname = os.getenv("RedisAddress", None)
-        redis_port = os.getenv("RedisPort", None)
-        redis_password = os.getenv("RedisPassword", None)
+        redis_hostname = os.getenv("REDIS_ADDRESS", None)
+        redis_port = os.getenv("REDIS_PORT", None)
+        redis_password = os.getenv("REDIS_PASSWORD", None)
 
         if redis_hostname and redis_port:
             from stubo.utils import setup_redis
