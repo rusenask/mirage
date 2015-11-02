@@ -6,6 +6,11 @@ Added:
 - Now looking for environment variables for database connection setup:
   + export MONGO_URI=mongodb://<dbuser>:<dbpassword>@mongo_host:mongo_port/database
   + export MONGO_DB=stubodb
+- Cache (Redis) connection info can now be supplied through environment variables:
+  + export REDIS_ADDRESS=new_hostname_or_ip
+  + export REDIS_PORT=6379
+  + export REDIS_PASSWORD=very_secret
+  More information can be found here: https://github.com/SpectoLabs/mirage/wiki/Configuration
 
 Changed:
 
