@@ -87,10 +87,23 @@ def read_config(config_file_path=None, section=None):
 
 
 def setup_redis(host='localhost', port=6379, db=0, password=None):
+    """
+    Returns Redis connection pool
+    :param host: Redis hostname
+    :param port: Redis port
+    :param db: Database ID (optional)
+    :param password: Redis password
+    :return: Redis connection pool
+    """
     return redis.Redis(host, port, db, password)
 
 
 def init_redis(settings):
+    """
+    Initialises Redis connection
+    :param settings: Tornado app settings
+    :return: Redis connection pool (usually slave)
+    """
     host = settings.get('redis.host', '127.0.0.1')
     port = int(settings.get('redis.port', 6379))
     db = int(settings.get('redis.db', 0))
@@ -102,6 +115,11 @@ def init_redis(settings):
 
 
 def init_redis_master(settings):
+    """
+    Initialises Redis master node connection
+    :param settings: Tornado app settings
+    :return: Redis connection pool (master)
+    """
     host = settings.get('redis_master.host', '127.0.0.1')
     port = int(settings.get('redis_master.port', 6379))
     db = int(settings.get('redis_master.db', 0))
@@ -113,9 +131,15 @@ def init_redis_master(settings):
 
 
 def start_redis(cfg):
+    """
+    Getting Redis configuration
+    :param cfg: Tornado app settings
+    :return:
+    """
     redis_local = (cfg.get('redis.host', '127.0.0.1'),
                    int(cfg.get('redis.port', 6379)),
                    int(cfg.get('redis.db', 0)))
+
     redis_master = (cfg.get('redis_master.host', '127.0.0.1'),
                     int(cfg.get('redis_master.port', 6379)),
                     int(cfg.get('redis_master.db', 0)))
