@@ -1,3 +1,4 @@
+import os
 import json
 from stubo.cache.queue import redis_server
 
@@ -48,7 +49,16 @@ class CacheBackend(object):
 
 class RedisCacheBackend(CacheBackend):
     def __init__(self, server=None):
-        self.server = server or redis_server
+        # trying to get server from environment variables
+        redis_hostname = os.getenv("RedisAddress", None)
+        redis_port = os.getenv("RedisPort", None)
+        redis_password = os.getenv("RedisPassword", None)
+
+        if redis_hostname and redis_port:
+            from stubo.utils import setup_redis
+            self.server = setup_redis(host=redis_hostname, port=int(redis_port), password=redis_password)
+        else:
+            self.server = server or redis_server
 
     def get(self, name, key):
         try:
