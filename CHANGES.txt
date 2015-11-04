@@ -2,6 +2,18 @@ Changelog
 =========
 
 Added:
+
+Changed:
+
+Fixed:
+
+Deprecated:
+
+Removed:
+
+0.8.1 (2015-11-04)
+
+Added:
 - Database authentication. Now you can specify MongoDB user (mongo.user) and password (mongo.password) in the .ini file.
 - Now looking for environment variables for database connection setup:
   + export MONGO_URI=mongodb://<dbuser>:<dbpassword>@mongo_host:mongo_port/database
@@ -15,10 +27,8 @@ Added:
 Changed:
 
 Fixed:
+- Track all hosts not showing information for all hostnames due to bug when loading initial cookie.
 
-Deprecated:
-
-Removed:
 
 0.8.0 (2015-10-27)
 
