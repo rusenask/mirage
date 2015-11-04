@@ -23,7 +23,7 @@ webpackJsonp([0],[
 
 	    getInitialState: function getInitialState() {
 	        // by default - tracking from all hosts.
-	        return { trackingAll: _reactCookie2['default'].load('stubo.all-hosts') || true };
+	        return { trackingAll: _reactCookie2['default'].load('stubo.all-hosts') || false };
 	    },
 
 	    handleClick: function handleClick() {

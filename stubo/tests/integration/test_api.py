@@ -4,6 +4,7 @@ import os
 import yaml
 import logging
 from stubo.cache import Cache
+from stubo.cache.backends import get_redis_master, RedisCacheBackend
 from stubo.model.db import Tracker
 from stubo.testing import Base
 
@@ -44,8 +45,8 @@ class TestPutDelay(Base):
         self.assertTrue(int(response.request_time) < 5)
 
     def test_update_delay(self):
-        from stubo.cache import Hash
-        from stubo.cache.queue import get_redis_master
+        from stubo.cache import RedisCacheBackend
+        from stubo.cache.backends import get_redis_master
 
         self.http_client.fetch(self.get_url('/stubo/api/put/delay_policy?'
                                             'name=x&delay_type=fixed&milliseconds=7'), self.stop)
@@ -54,7 +55,7 @@ class TestPutDelay(Base):
                                             'name=x&delay_type=fixed&milliseconds=8'),
                                self.stop)
         response = self.wait()
-        delay_policy = Hash(get_redis_master()).get('localhost:delay_policy', 'x')
+        delay_policy = RedisCacheBackend(get_redis_master()).get('localhost:delay_policy', 'x')
         self.assertTrue(delay_policy['milliseconds'], 8)
         expect = {"version": self.app.settings.get('stubo_version'),
                   "data": {"message": "Put Delay Policy Finished",
@@ -133,9 +134,9 @@ class TestRequestCacheLimit(Base):
                                             '/static/cmds/tests/request_cache_limit/1.commands'), self.stop)
         response = self.wait()
         self.assertEqual(response.code, 200)
-        from stubo.cache.queue import Hash
+        from stubo.cache.backends import RedisCacheBackend
 
-        keys = Hash(self.redis_server).keys(
+        keys = RedisCacheBackend(self.redis_server).keys(
             'localhost:request_cache_limit:request')
         self.assertEqual(len(keys), self.cfg['request_cache_limit'])
 
