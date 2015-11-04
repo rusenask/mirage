@@ -8,7 +8,7 @@ var TrackingAllHosts = React.createClass({
 
     getInitialState() {
         // by default - tracking from all hosts.
-        return {trackingAll: cookie.load('stubo.all-hosts') || true};
+        return {trackingAll: cookie.load('stubo.all-hosts') || false};
     },
 
     handleClick() {
