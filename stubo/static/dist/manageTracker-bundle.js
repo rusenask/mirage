@@ -320,7 +320,7 @@ webpackJsonp([6],[
 	            externalMaxPage: this.state.maxPages,
 	            externalChangeSort: function () {},
 
-	            filterPlaceholderText: 'Filter results, use "rt" for response time,' + '"sc" for status code. Example: "scenario_1 sc:200 rt:<=500"',
+	            filterPlaceholderText: 'Filter results, use "rt" for response time,' + '"sc" for status code, "d" for delay. Example: "scenario_1 sc:200 rt:<=500 d:200"',
 	            externalSetFilter: this.setFilter,
 	            showFilter: true,
 
