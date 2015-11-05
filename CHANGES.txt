@@ -11,6 +11,12 @@ Deprecated:
 
 Removed:
 
+0.8.2 (2015-11-05)
+
+Added:
+- Displaying applied delays in event log (tracker) page if there was one. Users can now filter based on added delays
+  by adding "d:200" to display all 200 ms delays, operators like >, <, >=, <= are also available.
+
 0.8.1 (2015-11-04)
 
 Added:

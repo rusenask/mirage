@@ -429,9 +429,25 @@ class MagicFiltering:
         elif 'rt:' in item and len(item) > 3:
             # looking for response time conditions
             self._find_response_time_conditions(item)
+        elif 'd:' in item and len(item) > 2:
+            # looking for delays conditions
+            self._find_delays_conditions(item)
         else:
             # looking for any keywords in scenarios or API calls
             self._find_api_scenario_conditions(item)
+
+    def _find_delays_conditions(self, delay):
+        """
+
+        Filters based on delays
+        :param delay:
+        """
+        try:
+            _, d = delay.split(":")
+            value = self._get_item_query_value(d)
+            self.conditions.append({'delay': value})
+        except Exception as ex:
+            log.debug("Got error during delay code search: %s" % ex)
 
     def _find_status_code_conditions(self, status_code):
         """
