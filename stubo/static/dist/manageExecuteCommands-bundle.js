@@ -245,14 +245,13 @@ webpackJsonp([2],[
 
 	    render: function render() {
 	        var sc = this.props.data;
-
-	        if (200 <= sc < 300) {
+	        if (200 <= sc && sc < 300) {
 	            return _react2['default'].createElement(
 	                _reactBootstrap.Label,
 	                { bsStyle: 'success' },
 	                sc
 	            );
-	        } else if (300 <= sc < 400) {
+	        } else if (300 <= sc && sc < 400) {
 	            return _react2['default'].createElement(
 	                _reactBootstrap.Label,
 	                { bsStyle: 'warning' },

@@ -11,9 +11,9 @@ import logging
 import datetime
 import time
 
-from .queue import String, Hash, Queue, get_redis_master, get_redis_slave
+from stubo.cache.queue import String, Queue, get_redis_slave
+from stubo.cache.backends import RedisCacheBackend, get_redis_master
 from stubo.exceptions import exception_response
-from stubo.utils import asbool
 from stubo.model.db import Scenario
 from stubo.model.stub import Stub, StubCache, response_hash
 
@@ -123,21 +123,21 @@ class Cache(object):
     def __init__(self, host):
         self.host = host
 
-    def hash_cls(self):
-        # testing
-        return Hash
+    def get_cache_backend(self):
+        # Since wer only have one cache backend - returning it
+        return RedisCacheBackend
 
     def get(self, name, key, local=False):
-        return self.hash_cls()(get_redis_server(local)).get(name, key)
+        return self.get_cache_backend()(get_redis_server(local)).get(name, key)
 
     def set(self, name, key, value, local=False):
-        return self.hash_cls()(get_redis_server(local)).set(name, key, value)
+        return self.get_cache_backend()(get_redis_server(local)).set(name, key, value)
 
     def set_raw(self, name, key, value, local=False):
-        return self.hash_cls()(get_redis_server(local)).set_raw(name, key, value)
+        return self.get_cache_backend()(get_redis_server(local)).set_raw(name, key, value)
 
     def exists(self, name, key, local=False):
-        return self.hash_cls()(get_redis_server(local)).exists(name, key)
+        return self.get_cache_backend()(get_redis_server(local)).exists(name, key)
 
     def get_scenario_key(self, session_name):
         """Lookup the scenario from => host:sessions
@@ -146,7 +146,7 @@ class Cache(object):
         log.debug("get_scenario_key: host={0}, session_name={1}".format(
             self.host, session_name))
         key = '{0}:sessions'.format(self.host)
-        scenario = self.hash_cls()(get_redis_slave()).get_raw(key, session_name)
+        scenario = self.get_cache_backend()(get_redis_slave()).get_raw(key, session_name)
         if not scenario:
             return None
         return '{0}:{1}'.format(self.host, scenario)
@@ -177,7 +177,7 @@ class Cache(object):
 
     def get_sessions(self, scenario_name, local=True):
         key = self.scenario_key_name(scenario_name)
-        sessions = self.hash_cls()(get_redis_server(local)).get_all(key)
+        sessions = self.get_cache_backend()(get_redis_server(local)).get_all(key)
         for session_name, session_data in sessions.iteritems():
             yield session_name, session_data
 
@@ -195,7 +195,7 @@ class Cache(object):
         :param local: <boolean>
         """
         key = self.scenario_key_name(scenario_name)
-        sessions = self.hash_cls()(get_redis_server(local)).get_all(key)
+        sessions = self.get_cache_backend()(get_redis_server(local)).get_all(key)
         for session_name, session_data in sessions.iteritems():
             session_info = {
                 'name': session_name,
@@ -211,7 +211,7 @@ class Cache(object):
         info = {}
         for key in keys:
             scenario_name = key.split(':')[1]
-            info[scenario_name] = self.hash_cls()(master).get_all(key)
+            info[scenario_name] = self.get_cache_backend()(master).get_all(key)
         return info
 
     def get_sessions_status(self, scenario_name, status=None, local=True):
@@ -224,25 +224,25 @@ class Cache(object):
     def delete_caches(self, scenario_name):
         key = self.scenario_key_name(scenario_name)
         master = get_redis_master()
-        deleted_responses = self.hash_cls()(master).remove(self.get_response_key(
+        deleted_responses = self.get_cache_backend()(master).remove(self.get_response_key(
             scenario_name))
-        deleted_requests = self.hash_cls()(master).remove(self.get_request_key(
+        deleted_requests = self.get_cache_backend()(master).remove(self.get_request_key(
             scenario_name))
 
         # delete request indexes
         deleted_request_indexes = []
         for k in (self.get_request_index_key(scenario_name),
                   self.get_saved_request_index_key(scenario_name)):
-            deleted_request_indexes.append(self.hash_cls()(master).remove(k))
+            deleted_request_indexes.append(self.get_cache_backend()(master).remove(k))
 
-        session_names = self.hash_cls()(master).keys(key)
+        session_names = self.get_cache_backend()(master).keys(key)
         # log.debug('session_names: {0}'.format(session_names))
         deleted_sessions_map = 0
         if session_names:
             sessions_key = '{0}:sessions'.format(self.host)
             for k in session_names:
-                deleted_sessions_map += self.hash_cls()(master).delete(sessions_key, k)
-        deleted_sessions = self.hash_cls()(master).remove(key)
+                deleted_sessions_map += self.get_cache_backend()(master).delete(sessions_key, k)
+        deleted_sessions = self.get_cache_backend()(master).remove(key)
         log.debug('deleted_response: {0}, deleted_requests: {1}, '
                   ', deleted_sessions_map: {2}, deleted_sessions: {3}, '
                   'deleted_request_indexes: {4}'.format(deleted_responses,
@@ -258,22 +258,22 @@ class Cache(object):
     def get_delay_policy(self, name, local=True):
         key = self.get_delay_policy_key()
         if name:
-            return self.hash_cls()(get_redis_server(local)).get(key, name)
+            return self.get_cache_backend()(get_redis_server(local)).get(key, name)
         else:
-            return self.hash_cls()(get_redis_server(local)).get_all(key)
+            return self.get_cache_backend()(get_redis_server(local)).get_all(key)
 
     def set_delay_policy(self, name, data):
         key = self.get_delay_policy_key()
-        return self.hash_cls()(get_redis_master()).set(key, name, data)
+        return self.get_cache_backend()(get_redis_master()).set(key, name, data)
 
     def delete_delay_policy(self, names):
         num_deleted = 0
         key = self.get_delay_policy_key()
         if names:
             for name in names:
-                num_deleted += self.hash_cls()(get_redis_server(local=False)).delete(key, name)
+                num_deleted += self.get_cache_backend()(get_redis_server(local=False)).delete(key, name)
         else:
-            num_deleted = self.hash_cls()(get_redis_server(local=False)).remove(key)
+            num_deleted = self.get_cache_backend()(get_redis_server(local=False)).remove(key)
         return num_deleted
 
     def key_name(self, scenario_name, key):
@@ -293,7 +293,7 @@ class Cache(object):
 
     def get_request_index_data(self, scenario_name):
         master = get_redis_master()
-        return self.hash_cls()(master).get_all_raw(self.get_request_index_key(
+        return self.get_cache_backend()(master).get_all_raw(self.get_request_index_key(
             scenario_name))
 
     def reset_request_index(self, scenario_name):
@@ -306,7 +306,7 @@ class Cache(object):
 
     def delete_saved_request_index(self, scenario_name, name):
         master = get_redis_master()
-        return self.hash_cls()(master).delete(self.get_saved_request_index_key(
+        return self.get_cache_backend()(master).delete(self.get_saved_request_index_key(
             scenario_name), name)
 
     def get_saved_request_index_data(self, scenario_name, name):
@@ -329,14 +329,14 @@ class Cache(object):
                 self.get_request_index_key(scenario_name))
         hashes = [x.format(self.scenario_key_name(scenario_name)) for x in keys]
         for _hash in hashes:
-            keys = self.hash_cls()(master).keys(_hash)
+            keys = self.get_cache_backend()(master).keys(_hash)
             session_keys = [x for x in keys if x.startswith('{0}:'.format(
                 session))]
             if session_keys:
                 log.debug('deleting {0} from {1}'.format(session_keys, _hash))
                 num_deleted = 0
                 for k in session_keys:
-                    num_deleted += self.hash_cls()(master).delete(_hash, k)
+                    num_deleted += self.get_cache_backend()(master).delete(_hash, k)
                 log.debug('deleted {0}'.format(num_deleted))
 
     def assert_valid_session(self, scenario_name, session_name):
@@ -355,7 +355,7 @@ class Cache(object):
         # host:sessions -> session_name->scenario_name
         # we can therefore only have one session name per host/scenario
         sessions_key = '{0}:sessions'.format(self.host)
-        scenario_found = self.hash_cls()(get_redis_master()).get_raw(sessions_key,
+        scenario_found = self.get_cache_backend()(get_redis_master()).get_raw(sessions_key,
                                                                      session_name)
         if scenario_found and scenario_found != scenario_name:
             raise exception_response(400, title='Session {0} can not be '
@@ -397,7 +397,7 @@ class Cache(object):
             request_index_key = '{0}:{1}'.format(session_name, request_index_key)
             index = self.get(request_index_name, request_index_key)
             if not index or index < num_responses:
-                index = self.hash_cls()(master).incr(request_index_name, request_index_key)
+                index = self.get_cache_backend()(master).incr(request_index_name, request_index_key)
             index -= 1
         response_key = '{0}:{1}'.format(session_name, response_ids[index])
         return self.get(self.get_response_key(scenario_name), response_key,
@@ -510,16 +510,16 @@ class Cache(object):
         key = 'stubo_setting'
         if not all_hosts:
             key = '{0}:{1}'.format(self.host, key)
-        return self.hash_cls()(get_redis_master()).set(key, setting, value)
+        return self.get_cache_backend()(get_redis_master()).set(key, setting, value)
 
     def get_stubo_setting(self, setting=None, all_hosts=False):
         key = 'stubo_setting'
         if not all_hosts:
             key = '{0}:{1}'.format(self.host, key)
         if setting:
-            result = self.hash_cls()(get_redis_slave()).get(key, setting)
+            result = self.get_cache_backend()(get_redis_slave()).get(key, setting)
         else:
-            result = self.hash_cls()(get_redis_slave()).get_all(key)
+            result = self.get_cache_backend()(get_redis_slave()).get_all(key)
         return result
 
 
@@ -547,7 +547,7 @@ def add_request(session, request_id, stub, system_date, stub_number,
     request_key = '{0}:{1}'.format(session_name, request_id)
     request_index_key = get_request_index_hash_key(session, stub_number)
 
-    request_values = cache.hash_cls()(get_redis_slave()).values(cache.get_request_key(
+    request_values = cache.get_cache_backend()(get_redis_slave()).values(cache.get_request_key(
         scenario_name))
     cached_requests = [x for x in request_values if stub.response_ids() == x[0]]
     if len(cached_requests) < request_cache_limit:

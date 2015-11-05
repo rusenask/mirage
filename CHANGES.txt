@@ -11,6 +11,25 @@ Deprecated:
 
 Removed:
 
+0.8.1 (2015-11-04)
+
+Added:
+- Database authentication. Now you can specify MongoDB user (mongo.user) and password (mongo.password) in the .ini file.
+- Now looking for environment variables for database connection setup:
+  + export MONGO_URI=mongodb://<dbuser>:<dbpassword>@mongo_host:mongo_port/database
+  + export MONGO_DB=stubodb
+- Cache (Redis) connection info can now be supplied through environment variables:
+  + export REDIS_ADDRESS=new_hostname_or_ip
+  + export REDIS_PORT=6379
+  + export REDIS_PASSWORD=very_secret
+  More information can be found here: https://github.com/SpectoLabs/mirage/wiki/Configuration
+
+Changed:
+
+Fixed:
+- Track all hosts not showing information for all hostnames due to bug when loading initial cookie.
+
+
 0.8.0 (2015-10-27)
 
 Added:

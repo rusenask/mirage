@@ -10,6 +10,7 @@ from stubo.model.stub import Stub
 import hashlib
 import time
 import motor
+import os
 
 default_env = {
     'port': 27017,
@@ -33,8 +34,35 @@ mongo_client = None
 
 
 def motor_driver(settings):
-    # getting motor client
-    client = motor.MotorClient(settings['mongo.host'], int(settings['mongo.port']))
+    """
+
+    Returns asynchronous Motor client. If user and password provided in config file - returns authenticated connection
+    :param settings:
+    :return:
+    """
+    # checking for environment variables
+    mongo_uri = os.getenv("MONGO_URI")
+    mongo_db = os.getenv("MONGO_DB")
+    if mongo_uri and mongo_db:
+        client = motor.MotorClient(mongo_uri)
+        log.info("MongoDB environment variables found: %s!" % mongo_uri)
+        return client[mongo_db]
+
+    # environment variables not found, looking for details from configuration file
+    user = settings.get('mongo.user', None)
+    password = settings.get('mongo.password', None)
+    if user and password:
+        uri = "mongodb://{user}:{password}@{host}:{port}/{database_name}".format(
+            user=user,
+            password=password,
+            host=settings['mongo.host'],
+            port=settings['mongo.port'],
+            database_name=settings['mongo.db']
+        )
+        client = motor.MotorClient(uri)
+
+    else:
+        client = motor.MotorClient(settings['mongo.host'], int(settings['mongo.port']))
     return client[settings['mongo.db']]
 
 
@@ -43,13 +71,47 @@ def get_mongo_client():
 
 
 def get_connection(env=None):
+    """
+
+    Gets MongoDB connection. If user and password provided - authenticates (logs in)
+    :param env: dictionary, example:
+            {'host': 'ds045454.mongolab.com',
+             'tz_aware': True,
+             'max_pool_size': 10,
+             'port': 45454}
+    :return: MongoClient
+    """
+    # checking for environment variables
+    mongo_uri = os.getenv("MONGO_URI")
+    mongo_db = os.getenv("MONGO_DB")
+    if mongo_uri and mongo_db:
+        client = MongoClient(mongo_uri)
+        log.info("MongoDB environment variables found: %s!" % mongo_uri)
+        return client[mongo_db]
+
+    # environment variables not found, looking for details from configuration file
     env = env or default_env
     _env = env.copy()
     dbname = _env.pop('db', None)
+
+    # if auth details supplied - getting details
+    user = password = None
+    if 'user' in _env:
+        user = _env.pop('user')
+    if 'password' in _env:
+        password = _env.pop('password')
+
     client = MongoClient(**_env)
     if dbname:
         log.debug('using db={0}'.format(dbname))
         client = getattr(client, dbname)
+
+    # authenticating
+    if user and password:
+        # if fails - throws exception which will be handled in run_stubo.py
+        client.authenticate(user, password)
+        log.info("Login to MongoDB successful!")
+
     return client
 
 

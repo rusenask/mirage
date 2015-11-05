@@ -5,7 +5,8 @@
 import logging
 from urlparse import urlparse, parse_qs
 from tornado.util import ObjectDict
-from stubo.cache.queue import Queue, get_redis_master, get_redis_slave
+from stubo.cache.queue import Queue, get_redis_slave
+from stubo.cache import get_redis_master
 from stubo.exceptions import HTTPServerError
 from stubo.service.api import delete_module
 

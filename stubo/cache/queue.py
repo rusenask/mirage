@@ -8,15 +8,10 @@ import json
 log = logging.getLogger(__name__)
 
 redis_server = None
-redis_master_server = None
 
 
 def get_redis_slave():
     return redis_server
-
-
-def get_redis_master():
-    return redis_master_server
 
 
 class QueueIterator(object):
@@ -102,57 +97,6 @@ class String(object):
 
     def delete(self, key):
         return self.server.delete(key)
-
-
-class Hash(object):
-    def __init__(self, server=None):
-        self.server = server or redis_server
-
-    def get(self, name, key):
-        try:
-            return json.loads(self.get_raw(name, key))
-        except TypeError:
-            return None
-
-    def set(self, name, key, msg):
-        return self.set_raw(name, key, json.dumps(msg))
-
-    def set_raw(self, name, key, msg):
-        return self.server.hset(name, key, msg)
-
-    def incr(self, name, key, amount=1):
-        return self.server.hincrby(name, key, amount=amount)
-
-    def get_raw(self, name, key):
-        return self.server.hget(name, key)
-
-    def get_all_raw(self, name):
-        return self.server.hgetall(name)
-
-    def get_all(self, name):
-        return dict((k, json.loads(v)) for k, v in self.server.hgetall(
-            name).iteritems())
-
-    def keys(self, name):
-        return self.server.hkeys(name)
-
-    def values(self, name):
-        return [json.loads(x) for x in self.server.hvals(name)]
-
-    def delete(self, name, *keys):
-        """
-        delete the hash key
-        """
-        return self.server.hdel(name, *keys)
-
-    def remove(self, name):
-        """
-        delete the hash
-        """
-        return self.server.delete(name)
-
-    def exists(self, name, key):
-        return self.server.hexists(name, key)
 
 
 def get_queue(q=None):
