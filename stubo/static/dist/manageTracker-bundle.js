@@ -169,9 +169,15 @@ webpackJsonp([6],[
 	    "locked": false,
 	    "visible": true
 	}, {
+	    "columnName": "delay",
+	    "displayName": "Delay (ms)",
+	    "order": 6,
+	    "locked": false,
+	    "visible": true
+	}, {
 	    "columnName": "actions",
 	    "displayName": "Actions",
-	    "order": 6,
+	    "order": 7,
 	    "locked": false,
 	    "visible": true,
 	    "customComponent": ActionComponent
@@ -307,7 +313,7 @@ webpackJsonp([6],[
 	        return _react2['default'].createElement(_griddleReact2['default'], { useExternal: true,
 	            externalSetPage: this.setPage,
 	            enableSort: false,
-	            columns: ["start_time", "function", "scenario", "return_code", "duration_ms", "actions"],
+	            columns: ["start_time", "function", "scenario", "return_code", "duration_ms", "delay", "actions"],
 	            columnMetadata: columnMeta,
 
 	            externalSetPageSize: this.setPageSize,

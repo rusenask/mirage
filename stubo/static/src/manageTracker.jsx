@@ -142,9 +142,16 @@ var columnMeta = [
         "visible": true
     },
     {
+        "columnName": "delay",
+        "displayName": "Delay (ms)",
+        "order": 6,
+        "locked": false,
+        "visible": true
+    },
+    {
         "columnName": "actions",
         "displayName": "Actions",
-        "order": 6,
+        "order": 7,
         "locked": false,
         "visible": true,
         "customComponent": ActionComponent
@@ -285,7 +292,7 @@ var RecordsComponent = React.createClass({
         return <Griddle useExternal={true}
                         externalSetPage={this.setPage}
                         enableSort={false}
-                        columns={["start_time", "function", "scenario", "return_code", "duration_ms", "actions"]}
+                        columns={["start_time", "function", "scenario", "return_code", "duration_ms", "delay", "actions"]}
                         columnMetadata={columnMeta}
 
                         externalSetPageSize={this.setPageSize}
