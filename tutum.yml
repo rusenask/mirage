@@ -23,7 +23,6 @@ mirage:
     - REDIS_PORT=6379
     - REDIS_PASSWORD=very_secret
   restart: always
-  autoredeploy: true
 
 mongo:
   image: tutum/mongodb
