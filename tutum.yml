@@ -17,7 +17,6 @@ mirage:
     - "8001:8001"
   target_num_containers: 2
   environment:
-    - RedisPassword=verysecret
     - MONGO_URI=mongodb://mongo:27017/stubodb
     - MONGO_DB=stubodb
     - REDIS_ADDRESS=redis
