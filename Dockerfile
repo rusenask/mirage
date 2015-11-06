@@ -1,6 +1,7 @@
+# Using official python runtime base image
 FROM python:2.7
 
-# File Author / Maintainer
+# File Author / Maintainer - image can be pulled from karolisr/mirage-main
 MAINTAINER SpectoLabs
 
 # Copy the application folder inside the container
@@ -13,7 +14,7 @@ WORKDIR /app
 
 # Set the default command to execute
 # when creating a new container
-CMD ["python", "run.py", "-c", "dev_container.ini"]
+CMD ["python", "run.py"]
 
 # Expose ports
 EXPOSE 8001
