@@ -300,17 +300,21 @@ def put_module(handler, names):
             msg = 'Module source has not changed for {0}'.format(
                 module_version_name)
             result['data'] = dict(message=msg)
-        try:
-            code, mod = module.add_sys_module(module_version_name, response)
-            log.debug('{0}, {1}'.format(mod, code))
-        except Exception, e:
-            msg = 'error={0}'.format(e)
-            raise exception_response(400,
-                                     title='Unable to compile {0}:{1}, {2}'.format(module.host(),
-                                                                                   module_version_name, msg))
-        module.add(module_name, response)
-        added.append(module_version_name)
-    result['data'] = dict(message='added modules: {0}'.format(added))
+
+        else:
+            # code changed, adding new module
+            try:
+                code, mod = module.add_sys_module(module_version_name, response)
+                log.debug('{0}, {1}'.format(mod, code))
+            except Exception, e:
+                msg = 'error={0}'.format(e)
+                raise exception_response(400,
+                                         title='Unable to compile {0}:{1}, {2}'.format(module.host(),
+                                                                                       module_version_name, msg))
+            module.add(module_name, response)
+            added.append(module_version_name)
+            result['data'] = dict(message='added modules: {0}'.format(added))
+
     return result
 
 

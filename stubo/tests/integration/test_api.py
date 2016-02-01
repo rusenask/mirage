@@ -1040,7 +1040,7 @@ class TestSmartCommands(Base):
             stub = Stub(tracker_stub['stub'], 'xxx')
             matcher_text = stub.contains_matchers()[0]
             response_text = stub.response_body()[0]
-            if '<!DOCTYPE html PUBLIC "-//W3C' in matcher_text:
+            if 'oracle' in matcher_text:
                 found_oracle = True
             if 'random_rubble' in matcher_text:
                 found_matcher_text = True
