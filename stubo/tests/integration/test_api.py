@@ -1029,7 +1029,6 @@ class TestSmartCommands(Base):
         self.assertEqual(response.code, 200)
 
         found_bbc = False
-        found_oracle = False
         found_matcher_text = False
         text_response = False
         found_google = False
@@ -1040,8 +1039,6 @@ class TestSmartCommands(Base):
             stub = Stub(tracker_stub['stub'], 'xxx')
             matcher_text = stub.contains_matchers()[0]
             response_text = stub.response_body()[0]
-            if 'oracle' in matcher_text:
-                found_oracle = True
             if 'random_rubble' in matcher_text:
                 found_matcher_text = True
             if "www.bbc.co.uk" in response_text:
@@ -1050,7 +1047,7 @@ class TestSmartCommands(Base):
                 found_google = True
             if 'response_text' in response_text:
                 text_response = True
-        self.assertTrue(found_oracle)
+
         self.assertTrue(found_matcher_text)
         self.assertTrue(text_response)
         self.assertTrue(found_bbc)
