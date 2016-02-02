@@ -1021,49 +1021,6 @@ class TestSmartCommands(Base):
         self.assertTrue('Hello' in sr[1])
         self.assertTrue('Hello' in sr[2])
 
-    def test_commands_with_foreign_urls(self):
-        # Note that this only tests textMatcher and response files, not request files.
-        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdFile='
-                                            '/static/cmds/tests/accept/foreign_url.commands'), self.stop)
-        response = self.wait()
-        self.assertEqual(response.code, 200)
-
-        found_bbc = False
-        found_oracle = False
-        found_matcher_text = False
-        text_response = False
-        found_google = False
-        from stubo.model.stub import Stub
-
-        tracker_stubs = self.db.scenario_stub.find()
-        for tracker_stub in tracker_stubs:
-            stub = Stub(tracker_stub['stub'], 'xxx')
-            matcher_text = stub.contains_matchers()[0]
-            response_text = stub.response_body()[0]
-            if '<!DOCTYPE html PUBLIC "-//W3C' in matcher_text:
-                found_oracle = True
-            if 'random_rubble' in matcher_text:
-                found_matcher_text = True
-            if "www.bbc.co.uk" in response_text:
-                found_bbc = True
-            if 'google' in response_text:
-                found_google = True
-            if 'response_text' in response_text:
-                text_response = True
-        self.assertTrue(found_oracle)
-        self.assertTrue(found_matcher_text)
-        self.assertTrue(text_response)
-        self.assertTrue(found_bbc)
-        self.assertTrue(found_google)
-
-        found_text = False
-        tracker_responses = self.db.tracker.find({'function': 'get/response'})
-        for response in tracker_responses:
-            response_text = response['stubo_response']
-            if 'response_text' in response_text:
-                found_text = True
-        self.assertTrue(found_text)
-
     def test_smart_commands_with_params(self):
         """
         send arguments into a command file for its use.
