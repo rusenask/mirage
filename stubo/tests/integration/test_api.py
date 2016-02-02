@@ -1056,8 +1056,7 @@ class TestSmartCommands(Base):
         found_text = False
         tracker_responses = self.db.tracker.find({'function': 'get/response'})
         for response in tracker_responses:
-            response_text = response['stubo_response']
-            if 'response_text' in response_text:
+            if 'response_text' in response['stubo_response']:
                 found_text = True
         self.assertTrue(found_text)
 
