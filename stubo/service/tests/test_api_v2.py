@@ -119,18 +119,6 @@ class TestScenarioOperations(Base):
         self.assertEqual(response.code, 400, response.reason)
         self.assertEqual(response.reason, 'Scenario name not supplied')
 
-    def test_put_duplicate_scenario(self):
-        """
-
-        Test duplicate insertion and error handling
-        """
-        response = self._test_insert_scenario()
-        self.assertEqual(response.code, 201)
-        # insert it second time
-        response = self._test_insert_scenario()
-        self.assertEqual(response.code, 422, response.reason)
-        self.assertTrue('already exists' in response.reason)
-
     def test_put_scenario_name_none(self):
         """
 

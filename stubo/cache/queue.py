@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 redis_server = None
 
 
-def get_redis_slave():
+def get_redis_subordinate():
     return redis_server
 
 

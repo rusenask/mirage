@@ -1276,7 +1276,7 @@ class GetAllDelayPoliciesHandler(RequestHandler):
             }
         }
         """
-        response, status_code = api_v2_get_delay_policy(self, None, "master")
+        response, status_code = api_v2_get_delay_policy(self, None, "main")
         self.set_status(status_code)
         self.write(response)
 
@@ -1296,7 +1296,7 @@ class GetDelayPolicyDetailsHandler(RequestHandler):
         Returns delay policy name and all details about his resource
         :param delay_policy_name: <string> delay policy name
         """
-        response, status_code = api_v2_get_delay_policy(self, delay_policy_name, "master")
+        response, status_code = api_v2_get_delay_policy(self, delay_policy_name, "main")
         self.set_status(status_code)
         self.write(response)
 
@@ -1963,9 +1963,9 @@ class ExternalModuleDeleteHandler(BaseHandler):
         # complying to current api
         names = [module_name]
 
-        # deleting modules in slave redis
+        # deleting modules in subordinate redis
         cmdq = InternalCommandQueue()
-        # Note: delete and unload from all slaves not just the executing one
+        # Note: delete and unload from all subordinates not just the executing one
         cmdq.add(get_hostname(self.request),
                  'delete/module?name={0}'.format(module_name))
         result = delete_module(self.request, names)

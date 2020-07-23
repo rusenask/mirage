@@ -4,7 +4,7 @@ import os
 import yaml
 import logging
 from stubo.cache import Cache
-from stubo.cache.backends import get_redis_master, RedisCacheBackend
+from stubo.cache.backends import get_redis_main, RedisCacheBackend
 from stubo.model.db import Tracker
 from stubo.testing import Base
 
@@ -46,7 +46,7 @@ class TestPutDelay(Base):
 
     def test_update_delay(self):
         from stubo.cache import RedisCacheBackend
-        from stubo.cache.backends import get_redis_master
+        from stubo.cache.backends import get_redis_main
 
         self.http_client.fetch(self.get_url('/stubo/api/put/delay_policy?'
                                             'name=x&delay_type=fixed&milliseconds=7'), self.stop)
@@ -55,7 +55,7 @@ class TestPutDelay(Base):
                                             'name=x&delay_type=fixed&milliseconds=8'),
                                self.stop)
         response = self.wait()
-        delay_policy = RedisCacheBackend(get_redis_master()).get('localhost:delay_policy', 'x')
+        delay_policy = RedisCacheBackend(get_redis_main()).get('localhost:delay_policy', 'x')
         self.assertTrue(delay_policy['milliseconds'], 8)
         expect = {"version": self.app.settings.get('stubo_version'),
                   "data": {"message": "Put Delay Policy Finished",
@@ -1020,49 +1020,6 @@ class TestSmartCommands(Base):
         self.assertTrue('Hello' in sr[0])
         self.assertTrue('Hello' in sr[1])
         self.assertTrue('Hello' in sr[2])
-
-    def test_commands_with_foreign_urls(self):
-        # Note that this only tests textMatcher and response files, not request files.
-        self.http_client.fetch(self.get_url('/stubo/api/exec/cmds?cmdFile='
-                                            '/static/cmds/tests/accept/foreign_url.commands'), self.stop)
-        response = self.wait()
-        self.assertEqual(response.code, 200)
-
-        found_bbc = False
-        found_oracle = False
-        found_matcher_text = False
-        text_response = False
-        found_google = False
-        from stubo.model.stub import Stub
-
-        tracker_stubs = self.db.scenario_stub.find()
-        for tracker_stub in tracker_stubs:
-            stub = Stub(tracker_stub['stub'], 'xxx')
-            matcher_text = stub.contains_matchers()[0]
-            response_text = stub.response_body()[0]
-            if '<!DOCTYPE html PUBLIC "-//W3C' in matcher_text:
-                found_oracle = True
-            if 'random_rubble' in matcher_text:
-                found_matcher_text = True
-            if "www.bbc.co.uk" in response_text:
-                found_bbc = True
-            if 'google' in response_text:
-                found_google = True
-            if 'response_text' in response_text:
-                text_response = True
-        self.assertTrue(found_oracle)
-        self.assertTrue(found_matcher_text)
-        self.assertTrue(text_response)
-        self.assertTrue(found_bbc)
-        self.assertTrue(found_google)
-
-        found_text = False
-        tracker_responses = self.db.tracker.find({'function': 'get/response'})
-        for response in tracker_responses:
-            response_text = response['stubo_response']
-            if 'response_text' in response_text:
-                found_text = True
-        self.assertTrue(found_text)
 
     def test_smart_commands_with_params(self):
         """

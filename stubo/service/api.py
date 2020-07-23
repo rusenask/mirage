@@ -300,17 +300,21 @@ def put_module(handler, names):
             msg = 'Module source has not changed for {0}'.format(
                 module_version_name)
             result['data'] = dict(message=msg)
-        try:
-            code, mod = module.add_sys_module(module_version_name, response)
-            log.debug('{0}, {1}'.format(mod, code))
-        except Exception, e:
-            msg = 'error={0}'.format(e)
-            raise exception_response(400,
-                                     title='Unable to compile {0}:{1}, {2}'.format(module.host(),
-                                                                                   module_version_name, msg))
-        module.add(module_name, response)
-        added.append(module_version_name)
-    result['data'] = dict(message='added modules: {0}'.format(added))
+
+        else:
+            # code changed, adding new module
+            try:
+                code, mod = module.add_sys_module(module_version_name, response)
+                log.debug('{0}, {1}'.format(mod, code))
+            except Exception, e:
+                msg = 'error={0}'.format(e)
+                raise exception_response(400,
+                                         title='Unable to compile {0}:{1}, {2}'.format(module.host(),
+                                                                                       module_version_name, msg))
+            module.add(module_name, response)
+            added.append(module_version_name)
+            result['data'] = dict(message='added modules: {0}'.format(added))
+
     return result
 
 
@@ -429,7 +433,7 @@ def get_response(handler, session_name):
         system_date = session['system_date']
         if not system_date:
             raise exception_response(500,
-                                     title="slave session {0} not available for scenario {1}".format(
+                                     title="subordinate session {0} not available for scenario {1}".format(
                                          session_name, scenario_key))
 
         session['ext_cache'] = user_cache

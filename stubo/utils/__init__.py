@@ -102,7 +102,7 @@ def init_redis(settings):
     """
     Initialises Redis connection
     :param settings: Tornado app settings
-    :return: Redis connection pool (usually slave)
+    :return: Redis connection pool (usually subordinate)
     """
     host = settings.get('redis.host', '127.0.0.1')
     port = int(settings.get('redis.port', 6379))
@@ -114,20 +114,20 @@ def init_redis(settings):
     return stubo.cache.queue.redis_server
 
 
-def init_redis_master(settings):
+def init_redis_main(settings):
     """
-    Initialises Redis master node connection
+    Initialises Redis main node connection
     :param settings: Tornado app settings
-    :return: Redis connection pool (master)
+    :return: Redis connection pool (main)
     """
-    host = settings.get('redis_master.host', '127.0.0.1')
-    port = int(settings.get('redis_master.port', 6379))
-    db = int(settings.get('redis_master.db', 0))
-    passwd = settings.get('redis_master.password')
+    host = settings.get('redis_main.host', '127.0.0.1')
+    port = int(settings.get('redis_main.port', 6379))
+    db = int(settings.get('redis_main.db', 0))
+    passwd = settings.get('redis_main.password')
     import stubo.cache.backends
 
-    stubo.cache.backends.redis_master_server = setup_redis(host, port, db, passwd)
-    return stubo.cache.backends.redis_master_server
+    stubo.cache.backends.redis_main_server = setup_redis(host, port, db, passwd)
+    return stubo.cache.backends.redis_main_server
 
 
 def start_redis(cfg):
@@ -140,40 +140,40 @@ def start_redis(cfg):
                    int(cfg.get('redis.port', 6379)),
                    int(cfg.get('redis.db', 0)))
 
-    redis_master = (cfg.get('redis_master.host', '127.0.0.1'),
-                    int(cfg.get('redis_master.port', 6379)),
-                    int(cfg.get('redis_master.db', 0)))
+    redis_main = (cfg.get('redis_main.host', '127.0.0.1'),
+                    int(cfg.get('redis_main.port', 6379)),
+                    int(cfg.get('redis_main.db', 0)))
     retry_count = int(cfg.get('retry_count', 10))
     retry_interval = int(cfg.get('retry_interval', 10))
     redis_local_server = init_redis(cfg)
-    if redis_local != redis_master:
-        log.info('connecting to redis master')
+    if redis_local != redis_main:
+        log.info('connecting to redis main')
         for i in range(retry_count):
-            # retry as the master may have started after the slave  
+            # retry as the main may have started after the subordinate  
             try:
-                redis_master_server = init_redis_master(cfg)
+                redis_main_server = init_redis_main(cfg)
                 break
             except:
-                log.warn('redis_master not available, try again in {0} '
+                log.warn('redis_main not available, try again in {0} '
                          'secs'.format(retry_interval))
                 time.sleep(retry_interval)
     else:
         import stubo.cache.queue
 
-        redis_master_server = redis_local_server
-        stubo.cache.backends.redis_master_server = redis_master_server
-    return redis_local_server, redis_master_server
+        redis_main_server = redis_local_server
+        stubo.cache.backends.redis_main_server = redis_main_server
+    return redis_local_server, redis_main_server
 
 
 def init_ext_cache(settings):
-    # set ext_db 1 higher than master 
-    ext_db = int(settings.get('redis_master.db', 0)) + 1
-    passwd = settings.get('redis_master.password')
+    # set ext_db 1 higher than main 
+    ext_db = int(settings.get('redis_main.db', 0)) + 1
+    passwd = settings.get('redis_main.password')
     region = make_region('ext_cache').configure(
         'dogpile.cache.redis',
         arguments={
-            'host': settings.get('redis_master.host', '127.0.0.1'),
-            'port': int(settings.get('redis_master.port', 6379)),
+            'host': settings.get('redis_main.host', '127.0.0.1'),
+            'port': int(settings.get('redis_main.port', 6379)),
             'db': ext_db,
             'redis_expiration_time': 60 * 60 * 48,  # 48 hours
             'distributed_lock': True

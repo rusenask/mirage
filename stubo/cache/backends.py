@@ -112,8 +112,8 @@ class RedisCacheBackend(CacheBackend):
         return self.server.hexists(name, key)
 
 
-redis_master_server = None
+redis_main_server = None
 
 
-def get_redis_master():
-    return redis_master_server
+def get_redis_main():
+    return redis_main_server

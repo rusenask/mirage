@@ -108,10 +108,10 @@ class TornadoManager(object):
         create_tracker_collection(mongo_client)
         ensure_scenario_stub_indexes(mongo_client)
 
-        slave, master = start_redis(self.cfg)
+        subordinate, main = start_redis(self.cfg)
         self.cfg['is_cluster'] = False
-        if slave != master:
-            log.info('redis master is not the same as the slave')
+        if subordinate != main:
+            log.info('redis main is not the same as the subordinate')
             self.cfg['is_cluster'] = True
         self.cfg['ext_cache'] = init_ext_cache(self.cfg)
         tornado_app = self.get_app()

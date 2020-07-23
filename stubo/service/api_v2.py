@@ -314,7 +314,7 @@ def get_delay_policy(handler, name, cache_loc):
 
     :param handler: RequestHandler (or TrackRequest, BaseHandler, etc..)
     :param name: Delay name, if None is passed - gets all delays
-    :param cache_loc: Cache location, usually just 'master'
+    :param cache_loc: Cache location, usually just 'main'
     :return: dictionary of dictionaries with scenario information and reference URI and status_code for response
     """
     cache = Cache(get_hostname(handler.request))
@@ -535,7 +535,7 @@ def get_response_v2(handler, full_scenario_name, session_name):
 
         system_date = session['system_date']
         if not system_date:
-            result_dict["error"] = "slave session {0} not available for scenario {1}".format(
+            result_dict["error"] = "subordinate session {0} not available for scenario {1}".format(
                 session_name, full_scenario_name)
             result_dict["statusCode"] = 412
             return result_dict
